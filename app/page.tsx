@@ -1,7 +1,13 @@
+'use client'
+
+import useStore from './store/intex'
+
 export default function Home() {
+    const store = useStore()
+
     return (
-        <div>
-            <h1>hello finance</h1>
+        <div className="flex flex-col items-center">
+            <p>total</p>
         </div>
     )
 }
