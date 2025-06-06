@@ -1,5 +1,6 @@
 {
     "name": "finance-front",
+    "homepage": "bohdanhora.github.io/finance-front",
     "version": "0.1.0",
     "private": true,
     "scripts": {
