@@ -1,9 +1,9 @@
 'use client'
 
-import useStore from './store/intex'
+// import useStore from './store/intex'
 
 export default function Home() {
-    const store = useStore()
+    // const store = useStore()
 
     return (
         <div className="flex flex-col items-center">
