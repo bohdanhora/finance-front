@@ -1,13 +1,15 @@
-'use client'
-
-// import useStore from './store/intex'
+import { AddMoney } from './components/add-money-dialog.component'
+import FormComponent from './components/form.component'
+import LastSpends from './components/last-spends.component'
+import Total from './components/total'
 
 export default function Home() {
-    // const store = useStore()
-
     return (
-        <div className="flex flex-col items-center">
-            <p>test vercel deploy</p>
+        <div className="relative w-full flex flex-col items-center gap-4 overflow-hidden">
+            <Total />
+            <FormComponent />
+            <LastSpends />
+            <AddMoney />
         </div>
     )
 }
