@@ -1,3 +1,5 @@
+import { MonobankCurrency } from '../types'
+
 export type SpendType = {
     description: string
     value: string
@@ -18,4 +20,14 @@ export type StoreType = {
     setNewSpend: (spend: SpendType) => void
     setTotalSpend: (spend: number) => void
     calculateTotal: () => void
+}
+
+export type BankStoreType = {
+    usd: MonobankCurrency | null
+    eur: MonobankCurrency | null
+    currency: string
+
+    setUsd: (obj: MonobankCurrency | null) => void
+    setEur: (obj: MonobankCurrency | null) => void
+    setCurrency: (newCurrency: string) => void
 }

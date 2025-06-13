@@ -1,0 +1,12 @@
+{
+    "navbar": {
+        "currency": "Currency",
+        "lang": "Language",
+        "theme": "Theme",
+        "ru": "Russian",
+        "en": "English",
+        "eur": "Euro",
+        "us": "Dollar",
+        "uah": "Hryvnia"
+    }
+}

@@ -1,9 +1,6 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
-@import 'lenis/dist/lenis.css';
 
-@layer base {
-    body {
-        @apply bg-black text-white text-base font-normal;
-    }
+@theme {
 }
+
+@custom-variant dark (&:where(.dark, .dark *));

@@ -70,7 +70,7 @@ export function AddMoney() {
                 <DialogTrigger asChild>
                     <Button variant="outline">Add founds</Button>
                 </DialogTrigger>
-                <DialogContent className="bg-black sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px]">
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="space-y-8"

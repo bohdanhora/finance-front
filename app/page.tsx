@@ -5,7 +5,7 @@ import Total from './components/total'
 
 export default function Home() {
     return (
-        <div className="relative w-full flex flex-col items-center gap-4 overflow-hidden">
+        <div className="relative w-full flex justify-center flex-wrap items-center gap-4 overflow-hidden">
             <Total />
             <FormComponent />
             <LastSpends />

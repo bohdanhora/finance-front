@@ -2,6 +2,7 @@
 
 import useStore from '../store/intex'
 import { SpendType } from '../store/type'
+import { ContentWrapper } from './wrappers/container.wrapper'
 
 export default function LastSpends() {
     const store = useStore()
@@ -26,8 +27,6 @@ export default function LastSpends() {
     )
 
     return (
-        <section className="w-fit border border-white/50 p-5 rounded bg-black/80">
-            {store.lastTransactions.map(renderLi)}
-        </section>
+        <ContentWrapper>{store.lastTransactions.map(renderLi)}</ContentWrapper>
     )
 }

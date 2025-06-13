@@ -30,6 +30,7 @@ import { cn, createDateString } from '../lib/utils'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Textarea } from './ui/textarea'
+import { ContentWrapper } from './wrappers/container.wrapper'
 
 const formSchema = z.object({
     value: z.string(),
@@ -67,7 +68,7 @@ export default function FormComponent() {
     }
 
     return (
-        <section className="w-fit border border-white/50 p-5 rounded bg-black/80">
+        <ContentWrapper>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -105,7 +106,7 @@ export default function FormComponent() {
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-black">
+                                    <SelectContent>
                                         {store.categories.map((item) => (
                                             <SelectItem value={item} key={item}>
                                                 {item}
@@ -144,7 +145,7 @@ export default function FormComponent() {
                                         </FormControl>
                                     </PopoverTrigger>
                                     <PopoverContent
-                                        className="w-auto p-0 bg-black"
+                                        className="w-auto p-0"
                                         align="start"
                                     >
                                         <Calendar
@@ -183,6 +184,6 @@ export default function FormComponent() {
                     <Button type="submit">Submit</Button>
                 </form>
             </Form>
-        </section>
+        </ContentWrapper>
     )
 }

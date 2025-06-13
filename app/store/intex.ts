@@ -25,7 +25,6 @@ const useStore = create<StoreType>((set) => ({
         set((state) => ({
             total: state.total - state.totalSpend,
         })),
-
     setTotalSpend: (spend) =>
         set((state) => ({
             totalSpend: state.totalSpend + spend,
