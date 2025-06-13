@@ -5,9 +5,8 @@ export enum ISO4217Codes {
 }
 
 export enum CURRENCY {
-    EN = 'en',
+    USD = 'usd',
     EUR = 'eur',
-    UAH = 'uah',
 }
 
 export const LANG_COOKIES_NAME = 'LANG_FINANCE'

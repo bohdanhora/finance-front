@@ -16,25 +16,26 @@ export default function Navbar() {
     const store = useStore()
 
     useEffect(() => {
-        const usdObj = findCurrency(currency || [], ISO4217Codes.USD) || null
-        const eurObj = findCurrency(currency || [], ISO4217Codes.EUR) || null
+        if (!currency) return
+
+        const usdObj = findCurrency(currency, ISO4217Codes.USD) || null
+        const eurObj = findCurrency(currency, ISO4217Codes.EUR) || null
 
         store.setUsd(usdObj)
         store.setEur(eurObj)
     }, [currency])
 
     useEffect(() => {
-        if (store.currency === CURRENCY.UAH) setBuy(1)
-        if (store.currency === CURRENCY.EUR) setBuy(store.eur?.rateBuy)
-        if (store.currency === CURRENCY.EN) setBuy(store.usd?.rateBuy)
-    }, [store.currency])
-
-    useEffect(() => {
-        console.log(store.currency)
-        console.log(store.eur)
-        console.log(store.usd)
-        console.log(buy)
-    }, [])
+        if (store.currency === CURRENCY.EUR) {
+            setBuy(store.eur?.rateBuy || 0)
+            return
+        }
+        if (store.currency === CURRENCY.USD) {
+            setBuy(store.usd?.rateBuy || 0)
+            return
+        }
+        setBuy(0)
+    }, [store.currency, store.usd, store.eur])
 
     return (
         <>

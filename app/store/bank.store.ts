@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 import { BankStoreType } from './type'
+import { CURRENCY } from '../constants'
 
 const useStore = create<BankStoreType>((set) => ({
     usd: null,
     eur: null,
-    currency: 'uah',
+    currency: CURRENCY.USD,
 
     setUsd: (obj) =>
         set(() => ({

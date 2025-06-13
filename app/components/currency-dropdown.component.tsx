@@ -28,19 +28,19 @@ export function CurrencyDropdown() {
             ?.split('=')[1]
 
         if (cookieCurrency) {
-            setCurrency(cookieCurrency)
             store.setCurrency(cookieCurrency)
+            setCurrency(cookieCurrency)
         } else {
-            setCurrency(CURRENCY.UAH)
-            store.setCurrency(CURRENCY.UAH)
-            document.cookie = `${CURRENCY_COOKIES_NAME}=${CURRENCY.UAH};`
+            store.setCurrency(CURRENCY.USD)
+            setCurrency(CURRENCY.USD)
+            document.cookie = `${CURRENCY_COOKIES_NAME}=${CURRENCY.USD};`
             router.refresh()
         }
     }, [router])
 
     const changeCurrency = (newCurrency: string) => {
-        setCurrency(newCurrency)
         store.setCurrency(newCurrency)
+        setCurrency(newCurrency)
 
         document.cookie = `${CURRENCY_COOKIES_NAME}=${newCurrency};`
         router.refresh()
@@ -55,14 +55,11 @@ export function CurrencyDropdown() {
                     value={currency}
                     onValueChange={changeCurrency}
                 >
-                    <DropdownMenuRadioItem value={CURRENCY.EN}>
+                    <DropdownMenuRadioItem value={CURRENCY.USD}>
                         {t('us')}
                     </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value={CURRENCY.EUR}>
                         {t('eur')}
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value={CURRENCY.UAH}>
-                        {t('uah')}
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
             </DropdownMenuContent>
