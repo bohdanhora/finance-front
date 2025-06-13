@@ -6,7 +6,24 @@
         "ru": "Русский",
         "en": "Английский",
         "eur": "Евро",
-        "us": "Доллар",
+        "usd": "Доллар",
         "uah": "Гривна"
+    },
+    "expenses": {
+        "income": "Доход",
+        "expence": "Расход"
+    },
+    "categories": {
+        "groceries": "Продукты",
+        "cosmetics": "Косметика",
+        "home": "Дом",
+        "restaurant": "Ресторан",
+        "entertainment": "Развлечения",
+        "delivery": "Доставки",
+        "transport": "Транспорт",
+        "credit": "Кредит",
+        "gifts": "Подарки",
+        "clothing": "Одежда",
+        "essentials": "Нужности"
     }
 }

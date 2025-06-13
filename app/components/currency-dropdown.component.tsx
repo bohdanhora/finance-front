@@ -13,10 +13,10 @@ import {
 import { useRouter } from 'next/navigation'
 import { CURRENCY, CURRENCY_COOKIES_NAME } from '../constants'
 import { useTranslations } from 'next-intl'
-import useStore from '../store/bank.store'
+import useBankStore from '../store/bank.store'
 
 export function CurrencyDropdown() {
-    const store = useStore()
+    const store = useBankStore()
     const [currency, setCurrency] = React.useState('')
     const router = useRouter()
     const t = useTranslations('navbar')
@@ -56,7 +56,7 @@ export function CurrencyDropdown() {
                     onValueChange={changeCurrency}
                 >
                     <DropdownMenuRadioItem value={CURRENCY.USD}>
-                        {t('us')}
+                        {t('usd')}
                     </DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value={CURRENCY.EUR}>
                         {t('eur')}

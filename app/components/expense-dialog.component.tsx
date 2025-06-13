@@ -1,8 +1,28 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
 import useStore from '../store/intex'
+
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+
 import { Button } from './ui/button'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from './ui/form'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from './ui/select'
+import { Input } from './ui/input'
 import {
     Dialog,
     DialogClose,
@@ -13,50 +33,44 @@ import {
     DialogTitle,
     DialogTrigger,
 } from './ui/dialog'
-import { Input } from './ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from './ui/form'
-import { Textarea } from './ui/textarea'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { CalendarIcon } from 'lucide-react'
-import { Calendar } from './ui/calendar'
+
 import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import { cn, createDateString } from '../lib/utils'
+import { Calendar } from './ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Textarea } from './ui/textarea'
+import { useTranslations } from 'next-intl'
 
 const formSchema = z.object({
     value: z.string(),
     description: z.string().optional(),
+    categories: z.string(),
     date: z.date(),
 })
 
-export function AddMoney() {
+export default function ExpenseDialogComponent() {
     const store = useStore()
+    const t = useTranslations('expenses')
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             value: '0',
             description: '',
+            categories: '',
             date: new Date(),
         },
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setTotal(Number(values.value))
-        store.setTotalIncome(Number(values.value))
+        store.setTotalSpend(Number(values.value))
+        store.calculateTotal()
         store.setNewSpend({
             id: Math.random().toString(),
             value: values.value,
             date: createDateString(values.date),
-            categorie: 'income',
+            categorie: values.categories,
             description: values.description || '',
         })
 
@@ -68,7 +82,7 @@ export function AddMoney() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">Add founds</Button>
+                    <Button variant="outline">{t('expence')}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form
@@ -76,8 +90,8 @@ export function AddMoney() {
                         className="space-y-8"
                     >
                         <DialogHeader>
-                            <DialogTitle>Add</DialogTitle>
-                            <DialogDescription></DialogDescription>
+                            <DialogTitle>title</DialogTitle>
+                            <DialogDescription>desc</DialogDescription>
                         </DialogHeader>
                         <FormField
                             control={form.control}
@@ -88,7 +102,7 @@ export function AddMoney() {
                                     <FormControl>
                                         <Input
                                             placeholder="value"
-                                            type="number"
+                                            type="text"
                                             {...field}
                                         />
                                     </FormControl>
@@ -98,17 +112,30 @@ export function AddMoney() {
                         />
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="categories"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Desc</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="desc"
-                                            className="resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
+                                    <FormLabel>category</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {store.categories.map((item) => (
+                                                <SelectItem
+                                                    value={item}
+                                                    key={item}
+                                                >
+                                                    {item}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -159,6 +186,23 @@ export function AddMoney() {
                                             />
                                         </PopoverContent>
                                     </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Desc</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="desc"
+                                            className="resize-none"
+                                            {...field}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

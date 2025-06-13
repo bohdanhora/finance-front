@@ -6,7 +6,24 @@
         "ru": "Russian",
         "en": "English",
         "eur": "Euro",
-        "us": "Dollar",
+        "usd": "Dollar",
         "uah": "Hryvnia"
+    },
+    "expenses": {
+        "income": "Income",
+        "expence": "Expence"
+    },
+    "categories": {
+        "groceries": "Groceries",
+        "cosmetics": "Cosmetics",
+        "home": "Home",
+        "restaurant": "Restaurant",
+        "entertainment": "Entertainment",
+        "delivery": "Delivery",
+        "transport": "Transport",
+        "credit": "Credit",
+        "gifts": "Gifts",
+        "clothing": "Clothing",
+        "essentials": "Essentials"
     }
 }

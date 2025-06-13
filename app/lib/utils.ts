@@ -29,3 +29,15 @@ export const findCurrency = (
 
     return USDtoUAH
 }
+
+export const formatCurrency = (num: number) => {
+    const absNum = Math.abs(num)
+
+    const [intPart, decPart = ''] = absNum.toString().split('.')
+
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    const formattedDec = (decPart + '00').slice(0, 2)
+
+    return `${formattedInt}.${formattedDec}`
+}
