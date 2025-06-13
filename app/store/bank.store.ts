@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { BankStoreType } from './type'
 import { CURRENCY } from '../constants'
 
-const useStore = create<BankStoreType>((set) => ({
+const useBankStore = create<BankStoreType>((set) => ({
     usd: null,
     eur: null,
     currency: CURRENCY.USD,
@@ -20,4 +20,4 @@ const useStore = create<BankStoreType>((set) => ({
             currency: newCurrency,
         })),
 }))
-export default useStore
+export default useBankStore

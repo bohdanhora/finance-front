@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useGetCurrencyQuery } from '../api/bank.api'
-import useStore from '../store/bank.store'
+import useBankStore from '../store/bank.store'
 import { LangugaeDropdown } from './language-dropdown.component'
 import { CurrencyDropdown } from './currency-dropdown.component'
 import ThemeSwitch from './theme-switch.component'
@@ -13,7 +13,7 @@ import { Loader } from './loader.component'
 export default function Navbar() {
     const { data: currency, isPending: currencyPending } = useGetCurrencyQuery()
     const [buy, setBuy] = useState(0)
-    const store = useStore()
+    const store = useBankStore()
 
     useEffect(() => {
         if (!currency) return
@@ -40,9 +40,8 @@ export default function Navbar() {
     return (
         <>
             {currencyPending && <Loader />}
-
             <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
-                <p>My Finance</p>
+                <p>logo</p>
                 <div className="flex items-center gap-x-3">
                     {buy}
                     <ThemeSwitch />
