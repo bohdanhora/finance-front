@@ -5,13 +5,13 @@ import Total from './components/total'
 
 export default function Home() {
     return (
-        <div className="relative w-full flex flex-col gap-4 overflow-hidden">
+        <div className="relative w-full flex flex-col items-center gap-10 overflow-hidden">
             <Total />
             <div className="flex justify-center gap-5 flex-wrap">
                 <PossibleRemaining />
                 <NextMonthIncome />
-                <LastSpends />
             </div>
+            <LastSpends />
         </div>
     )
 }

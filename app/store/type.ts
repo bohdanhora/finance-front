@@ -20,7 +20,7 @@ export type StoreType = {
     setTotal: (spend: number) => void
     setNewSpend: (spend: SpendType) => void
     setTotalSpend: (spend: number) => void
-    calculateTotal: () => void
+    calculateTotalAfterExpence: (expence: number) => void
     setNextMonthIncome: (income: number) => void
 }
 

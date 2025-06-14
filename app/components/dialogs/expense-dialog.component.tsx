@@ -65,7 +65,6 @@ export default function ExpenseDialogComponent() {
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         store.setTotalSpend(Number(values.value))
-        store.calculateTotal()
         store.setNewSpend({
             id: Math.random().toString(),
             value: values.value,
@@ -74,6 +73,7 @@ export default function ExpenseDialogComponent() {
             description: values.description || '',
         })
 
+        store.calculateTotalAfterExpence(Number(values.value))
         form.reset()
     }
 
