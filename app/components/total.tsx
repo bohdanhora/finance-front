@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { formatCurrency } from '../lib/utils'
-import useStore from '../store/intex'
-import ExpenseDialogComponent from './expense-dialog.component'
-import IncomeDialogComponent from './income-dialog.component'
+import useStore from '../store/general.store'
+import ExpenseDialogComponent from './dialogs/expense-dialog.component'
+import IncomeDialogComponent from './dialogs/income-dialog.component'
 import useBankStore from '../store/bank.store'
 import { CURRENCY } from '../constants'
 

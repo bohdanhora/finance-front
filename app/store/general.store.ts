@@ -2,10 +2,11 @@ import { create } from 'zustand'
 import { StoreType } from './type'
 
 const useStore = create<StoreType>((set) => ({
-    total: 20234,
+    total: 0,
     totalIncome: 0,
     totalSpend: 0,
     lastTransactions: [],
+    nextMonthIncome: 0,
     categories: ['beauty', 'home', 'health', 'rest'],
 
     setTotal: (addMoney) =>
@@ -15,6 +16,10 @@ const useStore = create<StoreType>((set) => ({
     setTotalIncome: (addMoney) =>
         set((state) => ({
             totalIncome: state.totalIncome + addMoney,
+        })),
+    setNextMonthIncome: (income) =>
+        set(() => ({
+            nextMonthIncome: income,
         })),
 
     setNewSpend: (spend) =>

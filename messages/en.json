@@ -13,6 +13,12 @@
         "income": "Income",
         "expence": "Expence"
     },
+    "dialogs": {
+        "change": "Change",
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "inputIncome": "Input how much income"
+    },
     "categories": {
         "groceries": "Groceries",
         "cosmetics": "Cosmetics",
@@ -25,5 +31,14 @@
         "gifts": "Gifts",
         "clothing": "Clothing",
         "essentials": "Essentials"
+    },
+    "possible": {
+        "remainingAfterEssentials": "Remaining balance after essential expenses: ₴ { possible }",
+        "dailyBudgetAfterEssentials": "Daily budget considering essential expenses: ₴ { dailyBudgetWithPossible }",
+        "dailyBudget": "Daily budget available: ₴ { dailyBudget }",
+        "daysLeft": "Days remaining: { days }",
+        "totalMoneyIncome": "Total expected income: ₴ { totalMoneyIncome }",
+        "saveMoney": "You can save: ₴ { saveMoney }",
+        "saveMoneyAfterPercent": "Then stay: ₴ { saveMoneyAfterPercent }"
     }
 }

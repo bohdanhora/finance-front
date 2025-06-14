@@ -13,6 +13,12 @@
         "income": "Доход",
         "expence": "Расход"
     },
+    "dialogs": {
+        "change": "Изменить",
+        "submit": "Подтвердить",
+        "cancel": "Закрыть",
+        "inputIncome": "Введите сколько должно прийти"
+    },
     "categories": {
         "groceries": "Продукты",
         "cosmetics": "Косметика",
@@ -25,5 +31,14 @@
         "gifts": "Подарки",
         "clothing": "Одежда",
         "essentials": "Нужности"
+    },
+    "possible": {
+        "dailyBudget": "Можно потратить денег в день: ₴ { dailyBudget }",
+        "daysLeft": "Осталось дней: { days }",
+        "remainingAfterEssentials": "Остаток с учётом обязательных расходов: ₴ { possible }",
+        "dailyBudgetAfterEssentials": "Можно потратить денег в день с учетом обязательных расходов: ₴ { dailyBudgetWithPossible }",
+        "totalMoneyIncome": "Всего должно прийти: ₴ { totalMoneyIncome }",
+        "saveMoney": "Можно отложить: ₴ { saveMoney }",
+        "saveMoneyAfterPercent": "Тогда останеться: ₴ { saveMoneyAfterPercent }"
     }
 }
