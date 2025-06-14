@@ -17,7 +17,15 @@
         "change": "Change",
         "submit": "Submit",
         "cancel": "Cancel",
-        "inputIncome": "Input how much income"
+        "inputIncome": "Input how much income",
+        "enterIncome": "Enter Income",
+        "incomeReceived": "Yay, money has arrived!",
+        "enterExpense": "Enter Expense",
+        "expenseHint": "Hopefully not too much...",
+        "amount": "Amount",
+        "category": "Category",
+        "date": "Date",
+        "description": "Description"
     },
     "categories": {
         "groceries": "Groceries",

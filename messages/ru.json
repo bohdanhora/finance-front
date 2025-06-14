@@ -17,7 +17,15 @@
         "change": "Изменить",
         "submit": "Подтвердить",
         "cancel": "Закрыть",
-        "inputIncome": "Введите сколько должно прийти"
+        "inputIncome": "Введите сколько должно прийти",
+        "enterIncome": "Введите Доход",
+        "incomeReceived": "Ура, деньги пришли!",
+        "enterExpense": "Введите Расход",
+        "expenseHint": "Надеюсь не много...",
+        "amount": "Сколько",
+        "category": "Категория",
+        "date": "Дата",
+        "description": "Описание"
     },
     "categories": {
         "groceries": "Продукты",

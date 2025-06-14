@@ -7,7 +7,6 @@ const useStore = create<StoreType>((set) => ({
     totalSpend: 0,
     lastTransactions: [],
     nextMonthIncome: 0,
-    categories: ['beauty', 'home', 'health', 'rest'],
 
     setTotal: (addMoney) =>
         set((state) => ({

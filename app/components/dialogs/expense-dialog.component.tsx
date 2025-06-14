@@ -49,9 +49,23 @@ const formSchema = z.object({
     date: z.date(),
 })
 
+const categoryKeys = [
+    'groceries',
+    'cosmetics',
+    'home',
+    'restaurant',
+    'entertainment',
+    'delivery',
+    'transport',
+    'credit',
+    'gifts',
+    'clothing',
+    'essentials',
+]
+
 export default function ExpenseDialogComponent() {
     const store = useStore()
-    const t = useTranslations('expenses')
+    const t = useTranslations()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -81,7 +95,7 @@ export default function ExpenseDialogComponent() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">{t('expence')}</Button>
+                    <Button variant="outline">{t('expenses.expence')}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form
@@ -89,15 +103,19 @@ export default function ExpenseDialogComponent() {
                         className="space-y-8"
                     >
                         <DialogHeader>
-                            <DialogTitle>title</DialogTitle>
-                            <DialogDescription>desc</DialogDescription>
+                            <DialogTitle>
+                                {t('dialogs.enterExpense')}
+                            </DialogTitle>
+                            <DialogDescription>
+                                {t('dialogs.expenseHint')}
+                            </DialogDescription>
                         </DialogHeader>
                         <FormField
                             control={form.control}
                             name="value"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>value</FormLabel>
+                                    <FormLabel>{t('dialogs.amount')}</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="value"
@@ -114,7 +132,9 @@ export default function ExpenseDialogComponent() {
                             name="categories"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>category</FormLabel>
+                                    <FormLabel>
+                                        {t('dialogs.category')}
+                                    </FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
@@ -125,12 +145,12 @@ export default function ExpenseDialogComponent() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {store.categories.map((item) => (
+                                            {categoryKeys.map((item) => (
                                                 <SelectItem
                                                     value={item}
                                                     key={item}
                                                 >
-                                                    {item}
+                                                    {t(`categories.${item}`)}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -144,12 +164,12 @@ export default function ExpenseDialogComponent() {
                             name="date"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>Date of birth</FormLabel>
+                                    <FormLabel>{t('dialogs.date')}</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <FormControl>
                                                 <Button
-                                                    variant={'outline'}
+                                                    variant="popover"
                                                     className={cn(
                                                         'w-[240px] pl-3 text-left font-normal',
                                                         !field.value &&
@@ -159,7 +179,7 @@ export default function ExpenseDialogComponent() {
                                                     {field.value ? (
                                                         format(
                                                             field.value,
-                                                            'PPP'
+                                                            'dd/MM/yyyy'
                                                         )
                                                     ) : (
                                                         <span>Pick a date</span>
@@ -194,10 +214,14 @@ export default function ExpenseDialogComponent() {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Desc</FormLabel>
+                                    <FormLabel>
+                                        {t('dialogs.description')}
+                                    </FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder="desc"
+                                            placeholder={t(
+                                                'dialogs.description'
+                                            )}
                                             className="resize-none"
                                             {...field}
                                         />
@@ -208,9 +232,11 @@ export default function ExpenseDialogComponent() {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
+                                <Button variant="destructive">
+                                    {t('dialogs.cancel')}
+                                </Button>
                             </DialogClose>
-                            <Button type="submit">Submit</Button>
+                            <Button type="submit">{t('dialogs.submit')}</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
