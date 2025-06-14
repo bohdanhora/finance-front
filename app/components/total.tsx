@@ -29,8 +29,6 @@ export default function Total() {
         if (bankStore.eur?.rateBuy) {
             setToEuro(store.total / bankStore.eur.rateBuy)
         }
-
-        console.log(store)
     }, [store.total, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
