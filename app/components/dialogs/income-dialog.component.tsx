@@ -1,28 +1,8 @@
 'use client'
 
-import useStore from '../store/intex'
-
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-
-import { Button } from './ui/button'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from './ui/form'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from './ui/select'
-import { Input } from './ui/input'
+import useStore from 'store/general.store'
+import { Button } from 'ui/button'
 import {
     Dialog,
     DialogClose,
@@ -32,24 +12,33 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from './ui/dialog'
-
-import { format } from 'date-fns'
+} from 'ui/dialog'
+import { Input } from 'ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from 'ui/form'
+import { Textarea } from 'ui/textarea'
+import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
 import { CalendarIcon } from 'lucide-react'
-import { cn, createDateString } from '../lib/utils'
-import { Calendar } from './ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Textarea } from './ui/textarea'
+import { Calendar } from 'ui/calendar'
+import { format } from 'date-fns'
+import { cn, createDateString } from 'lib/utils'
 import { useTranslations } from 'next-intl'
 
 const formSchema = z.object({
     value: z.string(),
     description: z.string().optional(),
-    categories: z.string(),
     date: z.date(),
 })
 
-export default function ExpenseDialogComponent() {
+export default function IncomeDialogComponent() {
     const store = useStore()
     const t = useTranslations('expenses')
 
@@ -58,31 +47,29 @@ export default function ExpenseDialogComponent() {
         defaultValues: {
             value: '0',
             description: '',
-            categories: '',
             date: new Date(),
         },
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setTotalSpend(Number(values.value))
-        store.calculateTotal()
+        store.setTotal(Number(values.value))
+        store.setTotalIncome(Number(values.value))
         store.setNewSpend({
             id: Math.random().toString(),
             value: values.value,
             date: createDateString(values.date),
-            categorie: values.categories,
+            categorie: 'income',
             description: values.description || '',
         })
 
         form.reset()
-        console.log(values)
     }
 
     return (
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">{t('expence')}</Button>
+                    <Button variant="outline">{t('income')}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form
@@ -102,7 +89,7 @@ export default function ExpenseDialogComponent() {
                                     <FormControl>
                                         <Input
                                             placeholder="value"
-                                            type="text"
+                                            type="number"
                                             {...field}
                                         />
                                     </FormControl>
@@ -112,30 +99,17 @@ export default function ExpenseDialogComponent() {
                         />
                         <FormField
                             control={form.control}
-                            name="categories"
+                            name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>category</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select category" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {store.categories.map((item) => (
-                                                <SelectItem
-                                                    value={item}
-                                                    key={item}
-                                                >
-                                                    {item}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormLabel>Desc</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="desc"
+                                            className="resize-none"
+                                            {...field}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -186,23 +160,6 @@ export default function ExpenseDialogComponent() {
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Desc</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="desc"
-                                            className="resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

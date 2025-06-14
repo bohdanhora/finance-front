@@ -12,6 +12,7 @@ export type StoreType = {
     total: number
     totalIncome: number
     totalSpend: number
+    nextMonthIncome: number
     lastTransactions: SpendType[] | []
     categories: string[] | []
 
@@ -20,6 +21,7 @@ export type StoreType = {
     setNewSpend: (spend: SpendType) => void
     setTotalSpend: (spend: number) => void
     calculateTotal: () => void
+    setNextMonthIncome: (income: number) => void
 }
 
 export type BankStoreType = {
