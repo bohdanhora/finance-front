@@ -9,6 +9,7 @@ import ThemeSwitch from './theme-switch.component'
 import { findCurrency } from '../lib/utils'
 import { CURRENCY, ISO4217Codes } from '../constants'
 import { Loader } from './loader.component'
+import Image from 'next/image'
 
 export default function Navbar() {
     const { data: currency, isPending: currencyPending } = useGetCurrencyQuery()
@@ -41,7 +42,7 @@ export default function Navbar() {
         <>
             {currencyPending && <Loader />}
             <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
-                <p>logo</p>
+                <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">
                     {buy}
                     <ThemeSwitch />

@@ -13,6 +13,16 @@
         "income": "Income",
         "expence": "Expence"
     },
+    "errors": {
+        "amountError": "Please enter a valid amount",
+        "categoryError": "Please choose category",
+        "dateError": "Invalid date"
+    },
+    "toasts": {
+        "noMoney": "You can't spend more than you have :(",
+        "addedIncome": "Successfully added {amount}",
+        "addedExpense": "Spent {amount}"
+    },
     "dialogs": {
         "change": "Change",
         "submit": "Submit",
@@ -25,7 +35,8 @@
         "amount": "Amount",
         "category": "Category",
         "date": "Date",
-        "description": "Description"
+        "description": "Description",
+        "chooseCategory": "Choose category"
     },
     "categories": {
         "groceries": "Groceries",

@@ -13,6 +13,16 @@
         "income": "Доход",
         "expence": "Расход"
     },
+    "errors": {
+        "amountError": "Введите праильную сумму",
+        "categoryError": "Выберите категорию",
+        "dateError": "Не праильная дата"
+    },
+    "toasts": {
+        "noMoney": "Вы не можете потратить больше чем у вас есть :(",
+        "addedIncome": "Успешно добавлено { amount }",
+        "addedExpense": "Потрачено { amount }"
+    },
     "dialogs": {
         "change": "Изменить",
         "submit": "Подтвердить",
@@ -25,7 +35,8 @@
         "amount": "Сколько",
         "category": "Категория",
         "date": "Дата",
-        "description": "Описание"
+        "description": "Описание",
+        "chooseCategory": "Выберите категорию"
     },
     "categories": {
         "groceries": "Продукты",

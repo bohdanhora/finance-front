@@ -41,11 +41,16 @@ import { Calendar } from 'ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
 import { Textarea } from 'ui/textarea'
 import { useTranslations } from 'next-intl'
+import { twMerge } from 'tailwind-merge'
+import { toast } from 'react-toastify'
 
 const formSchema = z.object({
-    value: z.string(),
+    value: z
+        .string()
+        .min(1)
+        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
     description: z.string().optional(),
-    categories: z.string(),
+    categories: z.string().min(1),
     date: z.date(),
 })
 
@@ -70,7 +75,7 @@ export default function ExpenseDialogComponent() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            value: '0',
+            value: '',
             description: '',
             categories: '',
             date: new Date(),
@@ -78,6 +83,11 @@ export default function ExpenseDialogComponent() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        if (store.total - Number(values.value) < 0) {
+            toast.error(t('toasts.noMoney'))
+            return
+        }
+
         store.setTotalSpend(Number(values.value))
         store.setNewSpend({
             id: Math.random().toString(),
@@ -88,6 +98,12 @@ export default function ExpenseDialogComponent() {
         })
 
         store.calculateTotalAfterExpence(Number(values.value))
+
+        toast.success(
+            t('toasts.addedExpense', {
+                amount: values.value,
+            })
+        )
         form.reset()
     }
 
@@ -118,9 +134,25 @@ export default function ExpenseDialogComponent() {
                                     <FormLabel>{t('dialogs.amount')}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="value"
-                                            type="text"
+                                            placeholder={t('dialogs.amount')}
                                             {...field}
+                                            onChange={(e) => {
+                                                const val = e.target.value
+
+                                                if (val === '') {
+                                                    field.onChange(val)
+                                                    return
+                                                }
+
+                                                if (
+                                                    !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(
+                                                        val
+                                                    )
+                                                )
+                                                    return
+
+                                                field.onChange(val)
+                                            }}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -137,11 +169,15 @@ export default function ExpenseDialogComponent() {
                                     </FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        value={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select category" />
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        'dialogs.chooseCategory'
+                                                    )}
+                                                />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -236,7 +272,15 @@ export default function ExpenseDialogComponent() {
                                     {t('dialogs.cancel')}
                                 </Button>
                             </DialogClose>
-                            <Button type="submit">{t('dialogs.submit')}</Button>
+                            <Button
+                                type="submit"
+                                className={twMerge(
+                                    !form.formState.isValid &&
+                                        'opacity-10 pointer-events-none'
+                                )}
+                            >
+                                {t('dialogs.submit')}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
