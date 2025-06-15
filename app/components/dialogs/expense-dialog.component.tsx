@@ -35,7 +35,20 @@ import {
 } from 'ui/dialog'
 
 import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
+import {
+    ShoppingBasketIcon,
+    CalendarIcon,
+    SparklesIcon,
+    HouseIcon,
+    SmilePlusIcon,
+    UtensilsIcon,
+    HamburgerIcon,
+    CarTaxiFrontIcon,
+    BanknoteIcon,
+    GiftIcon,
+    ShirtIcon,
+    HandshakeIcon,
+} from 'lucide-react'
 import { cn, createDateString } from 'lib/utils'
 import { Calendar } from 'ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
@@ -81,6 +94,20 @@ export default function ExpenseDialogComponent() {
             date: new Date(),
         },
     })
+
+    const categoriesIcons = (category: string) => {
+        if (category === 'groceries') return <ShoppingBasketIcon />
+        if (category === 'cosmetics') return <SparklesIcon />
+        if (category === 'home') return <HouseIcon />
+        if (category === 'restaurant') return <UtensilsIcon />
+        if (category === 'entertainment') return <SmilePlusIcon />
+        if (category === 'delivery') return <HamburgerIcon />
+        if (category === 'transport') return <CarTaxiFrontIcon />
+        if (category === 'credit') return <BanknoteIcon />
+        if (category === 'gifts') return <GiftIcon />
+        if (category === 'clothing') return <ShirtIcon />
+        if (category === 'essentials') return <HandshakeIcon />
+    }
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if (store.total - Number(values.value) < 0) {
@@ -190,7 +217,9 @@ export default function ExpenseDialogComponent() {
                                                 <SelectItem
                                                     value={item}
                                                     key={item}
+                                                    className="flex items-center justify-between gap-x-7"
                                                 >
+                                                    {categoriesIcons(item)}
                                                     {t(`categories.${item}`)}
                                                 </SelectItem>
                                             ))}

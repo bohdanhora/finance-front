@@ -44,10 +44,10 @@ export default function Navbar() {
             <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">
-                    {buy}
-                    <ThemeSwitch />
+                    <p>{buy}</p>
                     <CurrencyDropdown />
                     <LangugaeDropdown />
+                    <ThemeSwitch />
                 </div>
             </nav>
         </>

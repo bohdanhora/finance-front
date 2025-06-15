@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { LANG_COOKIES_NAME } from '../constants'
 import { useTranslations } from 'next-intl'
+import { LanguagesIcon } from 'lucide-react'
 
 export function LangugaeDropdown() {
     const [language, setLanguage] = React.useState('')
@@ -43,7 +44,9 @@ export function LangugaeDropdown() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">{t('lang')}</Button>
+                <Button variant="ghost">
+                    <LanguagesIcon />
+                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-fit">
                 <DropdownMenuRadioGroup
