@@ -4,6 +4,7 @@ import { FiSun, FiMoon } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import { Button } from './ui/button'
 
 export default function ThemeSwitch() {
     const [mounted, setMounted] = useState(false)
@@ -25,10 +26,18 @@ export default function ThemeSwitch() {
         )
 
     if (resolvedTheme === 'dark') {
-        return <FiSun onClick={() => setTheme('light')} />
+        return (
+            <Button variant="ghost" onClick={() => setTheme('light')}>
+                <FiSun />
+            </Button>
+        )
     }
 
     if (resolvedTheme === 'light') {
-        return <FiMoon onClick={() => setTheme('dark')} />
+        return (
+            <Button variant="ghost" onClick={() => setTheme('dark')}>
+                <FiMoon />
+            </Button>
+        )
     }
 }

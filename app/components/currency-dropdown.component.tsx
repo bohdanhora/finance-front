@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { CURRENCY, CURRENCY_COOKIES_NAME } from '../constants'
 import { useTranslations } from 'next-intl'
 import useBankStore from '../store/bank.store'
+import { DollarSign, EuroIcon } from 'lucide-react'
 
 export function CurrencyDropdown() {
     const store = useBankStore()
@@ -48,7 +49,13 @@ export function CurrencyDropdown() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">{t('currency')}</Button>
+                <Button variant="ghost">
+                    {store.currency === CURRENCY.USD ? (
+                        <DollarSign />
+                    ) : (
+                        <EuroIcon />
+                    )}
+                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-fit">
                 <DropdownMenuRadioGroup
