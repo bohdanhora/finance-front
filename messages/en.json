@@ -36,7 +36,9 @@
         "category": "Category",
         "date": "Date",
         "description": "Description",
-        "chooseCategory": "Choose category"
+        "chooseCategory": "Choose category",
+        "expectedIncome": "Expected income",
+        "planNextMonth": "Let's plan your next month"
     },
     "categories": {
         "groceries": "Groceries",

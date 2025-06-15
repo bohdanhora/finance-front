@@ -1,4 +1,4 @@
-import { Geist } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 import './globals.css'
 import Navbar from './components/navbar.component'
 import ReactQueryProvider from './providers/react-query-provider'
@@ -10,7 +10,7 @@ import { ProviderTheme } from './providers/theme.provider'
 import { twMerge } from 'tailwind-merge'
 import { ToastProvider } from './providers/toast.provider'
 
-const geist = Geist({ subsets: ['latin'] })
+const manrope = Manrope({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
     title: 'My app finance',
@@ -30,7 +30,7 @@ export default async function RootLayout({
             <body
                 className={twMerge(
                     'bg-white dark:bg-black text-black dark:text-white text-base font-normal',
-                    geist.className
+                    manrope.className
                 )}
             >
                 <NextIntlClientProvider messages={messages}>

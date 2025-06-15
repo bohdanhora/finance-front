@@ -36,7 +36,9 @@
         "category": "Категория",
         "date": "Дата",
         "description": "Описание",
-        "chooseCategory": "Выберите категорию"
+        "chooseCategory": "Выберите категорию",
+        "expectedIncome": "Ожидаемое поступление",
+        "planNextMonth": "Давай спланируем твой следующий месяц"
     },
     "categories": {
         "groceries": "Продукты",

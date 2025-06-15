@@ -36,7 +36,7 @@ export default function Total() {
             <IncomeDialogComponent />
 
             <div className="text-center">
-                <h1 className="md:text-9xl text-xl">
+                <h1 className="md:text-9xl text-xl font-medium">
                     {formatCurrency(store.total)} ₴
                 </h1>
                 <p>≈</p>

@@ -65,8 +65,10 @@ export default function ChangeNextMonthIncome() {
                         className="space-y-8"
                     >
                         <DialogHeader>
-                            <DialogTitle>title</DialogTitle>
-                            <DialogDescription>desc</DialogDescription>
+                            <DialogTitle>{t('expectedIncome')}</DialogTitle>
+                            <DialogDescription>
+                                {t('planNextMonth')}
+                            </DialogDescription>
                         </DialogHeader>
                         <FormField
                             control={form.control}
@@ -103,7 +105,9 @@ export default function ChangeNextMonthIncome() {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="outline">{t('cancel')}</Button>
+                                <Button variant="destructive">
+                                    {t('cancel')}
+                                </Button>
                             </DialogClose>
                             <Button
                                 type="submit"

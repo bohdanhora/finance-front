@@ -111,7 +111,12 @@ export default function ExpenseDialogComponent() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">{t('expenses.expence')}</Button>
+                    <Button
+                        variant="outline"
+                        className="hover:shadow-2xl hover:shadow-red-500/50"
+                    >
+                        {t('expenses.expence')}
+                    </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form

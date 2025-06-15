@@ -79,7 +79,12 @@ export default function IncomeDialogComponent() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">{t('expenses.income')}</Button>
+                    <Button
+                        variant="outline"
+                        className="hover:shadow-2xl hover:shadow-green-500/50"
+                    >
+                        {t('expenses.income')}
+                    </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form
