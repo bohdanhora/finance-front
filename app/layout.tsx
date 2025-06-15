@@ -8,6 +8,7 @@ import { getLocale, getMessages } from 'next-intl/server'
 import { Metadata } from 'next'
 import { ProviderTheme } from './providers/theme.provider'
 import { twMerge } from 'tailwind-merge'
+import { ToastProvider } from './providers/toast.provider'
 
 const geist = Geist({ subsets: ['latin'] })
 
@@ -39,6 +40,7 @@ export default async function RootLayout({
                             <main className="flex flex-col items-start py-14 px-6">
                                 {children}
                             </main>
+                            <ToastProvider />
                         </ProviderTheme>
                     </ReactQueryProvider>
                 </NextIntlClientProvider>

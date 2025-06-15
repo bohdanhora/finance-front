@@ -25,9 +25,13 @@ import {
     FormMessage,
 } from 'ui/form'
 import { useTranslations } from 'next-intl'
+import { twMerge } from 'tailwind-merge'
 
 const formSchema = z.object({
-    value: z.string(),
+    value: z
+        .string()
+        .min(1)
+        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
 })
 
 export default function ChangeNextMonthIncome() {
@@ -37,7 +41,7 @@ export default function ChangeNextMonthIncome() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            value: '0',
+            value: '',
         },
     })
 
@@ -72,9 +76,25 @@ export default function ChangeNextMonthIncome() {
                                     <FormLabel>{t('inputIncome')}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="value"
-                                            type="number"
+                                            placeholder={t('inputIncome')}
                                             {...field}
+                                            onChange={(e) => {
+                                                const val = e.target.value
+
+                                                if (val === '') {
+                                                    field.onChange(val)
+                                                    return
+                                                }
+
+                                                if (
+                                                    !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(
+                                                        val
+                                                    )
+                                                )
+                                                    return
+
+                                                field.onChange(val)
+                                            }}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -85,7 +105,15 @@ export default function ChangeNextMonthIncome() {
                             <DialogClose asChild>
                                 <Button variant="outline">{t('cancel')}</Button>
                             </DialogClose>
-                            <Button type="submit">{t('submit')}</Button>
+                            <Button
+                                type="submit"
+                                className={twMerge(
+                                    !form.formState.isValid &&
+                                        'opacity-10 pointer-events-none'
+                                )}
+                            >
+                                {t('submit')}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

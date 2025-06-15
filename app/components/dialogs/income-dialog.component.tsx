@@ -31,9 +31,14 @@ import { Calendar } from 'ui/calendar'
 import { format } from 'date-fns'
 import { cn, createDateString } from 'lib/utils'
 import { useTranslations } from 'next-intl'
+import { toast } from 'react-toastify'
+import { twMerge } from 'tailwind-merge'
 
 const formSchema = z.object({
-    value: z.string(),
+    value: z
+        .string()
+        .min(1)
+        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
     description: z.string().optional(),
     date: z.date(),
 })
@@ -45,7 +50,7 @@ export default function IncomeDialogComponent() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            value: '0',
+            value: '',
             description: '',
             date: new Date(),
         },
@@ -62,6 +67,11 @@ export default function IncomeDialogComponent() {
             description: values.description || '',
         })
 
+        toast.success(
+            t('toasts.addedIncome', {
+                amount: values.value,
+            })
+        )
         form.reset()
     }
 
@@ -92,9 +102,25 @@ export default function IncomeDialogComponent() {
                                     <FormLabel>{t('dialogs.amount')}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="value"
-                                            type="number"
+                                            placeholder={t('dialogs.amount')}
                                             {...field}
+                                            onChange={(e) => {
+                                                const val = e.target.value
+
+                                                if (val === '') {
+                                                    field.onChange(val)
+                                                    return
+                                                }
+
+                                                if (
+                                                    !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(
+                                                        val
+                                                    )
+                                                )
+                                                    return
+
+                                                field.onChange(val)
+                                            }}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -178,7 +204,15 @@ export default function IncomeDialogComponent() {
                                     {t('dialogs.cancel')}
                                 </Button>
                             </DialogClose>
-                            <Button type="submit">{t('dialogs.submit')}</Button>
+                            <Button
+                                type="submit"
+                                className={twMerge(
+                                    !form.formState.isValid &&
+                                        'opacity-10 pointer-events-none'
+                                )}
+                            >
+                                {t('dialogs.submit')}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
