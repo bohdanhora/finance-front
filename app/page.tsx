@@ -7,10 +7,8 @@ export default function Home() {
     return (
         <div className="relative w-full flex flex-col items-center gap-10 overflow-hidden">
             <Total />
-            <div className="flex justify-center gap-5 flex-wrap">
-                <PossibleRemaining />
-                <NextMonthIncome />
-            </div>
+            <PossibleRemaining />
+            <NextMonthIncome />
             <LastSpends />
         </div>
     )

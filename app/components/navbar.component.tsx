@@ -44,7 +44,9 @@ export default function Navbar() {
             <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">
-                    <p>{buy}</p>
+                    <p>
+                        {`1 ${store.currency === CURRENCY.USD ? '$' : '€'} = ${buy} ₴`}
+                    </p>
                     <CurrencyDropdown />
                     <LangugaeDropdown />
                     <ThemeSwitch />

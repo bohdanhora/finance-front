@@ -8,6 +8,7 @@ import { ContentWrapper } from './wrappers/container.wrapper'
 import { useEffect, useState } from 'react'
 import { CURRENCY } from '../constants'
 import ChangeNextMonthIncome from './dialogs/change-next-month-income-dialog'
+import NextMonthIncomeCalculate from './dialogs/next-month-income-calculate.component'
 
 const ESSENTIALS = 14000 + 3900 + 1300 + 600 + 300
 
@@ -85,6 +86,7 @@ export const NextMonthIncome = () => {
                         : `${formatCurrency(state.totalIncome[CURRENCY.EUR])} €`}
                 </span>
                 <ChangeNextMonthIncome />
+                <NextMonthIncomeCalculate />
             </p>
             <p>
                 {t('remainingAfterEssentials', {
