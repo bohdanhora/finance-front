@@ -41,7 +41,7 @@ export default function PossibleRemaining() {
     }, [store.total, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
-        <ContentWrapper className="">
+        <ContentWrapper className="flex items-center gap-x-10">
             <p>
                 {t('daysLeft', {
                     days: state.daysLeft,

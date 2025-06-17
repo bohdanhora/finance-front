@@ -38,7 +38,17 @@
         "description": "Description",
         "chooseCategory": "Choose category",
         "expectedIncome": "Expected income",
-        "planNextMonth": "Let's plan your next month"
+        "planNextMonth": "Let's plan your next month",
+        "calculate": "Calculate",
+        "calculateByRate": "Here you can calculate next month income by rate",
+        "rate": "Rate",
+        "hours": "Hours",
+        "ratePlaceholder": "Enter rate",
+        "hoursPlaceholder": "Enter number of hours",
+        "additionalAmount": "Additional amount",
+        "additionalAmountPlaceholder": "Enter additional amount",
+        "currency": "Currency",
+        "currencyPlaceholder": "Choose currency"
     },
     "categories": {
         "groceries": "Groceries",

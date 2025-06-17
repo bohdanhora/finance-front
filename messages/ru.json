@@ -38,7 +38,17 @@
         "description": "Описание",
         "chooseCategory": "Выберите категорию",
         "expectedIncome": "Ожидаемое поступление",
-        "planNextMonth": "Давай спланируем твой следующий месяц"
+        "planNextMonth": "Давай спланируем твой следующий месяц",
+        "calculate": "Рассчитать",
+        "calculateByRate": "Здесь можно рассчитать доход следующего месяца по рейту",
+        "rate": "Рейт",
+        "hours": "Часы",
+        "ratePlaceholder": "Введите рейт",
+        "hoursPlaceholder": "Введите к-лво часов",
+        "additionalAmount": "Дополнительная сумма",
+        "additionalAmountPlaceholder": "Введите дополнительную сумму",
+        "currency": "Валюта",
+        "currencyPlaceholder": "Выберите валюту"
     },
     "categories": {
         "groceries": "Продукты",
