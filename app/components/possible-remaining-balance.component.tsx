@@ -7,6 +7,7 @@ import { calculateDailyBudget, formatCurrency } from '../lib/utils'
 import { useTranslations } from 'next-intl'
 import useBankStore from '../store/bank.store'
 import { CURRENCY } from '../constants'
+import EssentialSpends from './dialogs/essential-spends.component'
 
 export default function PossibleRemaining() {
     const store = useStore()
@@ -58,6 +59,7 @@ export default function PossibleRemaining() {
                 </span>
                 <p className="text-xs">{t('dailyBudget')}</p>
             </div>
+            <EssentialSpends />
         </ContentWrapper>
     )
 }
