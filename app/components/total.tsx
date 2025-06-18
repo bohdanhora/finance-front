@@ -32,9 +32,7 @@ export default function Total() {
     }, [store.total, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
-        <header className="flex items-center justify-center gap-10">
-            <IncomeDialogComponent />
-
+        <header className="flex flex-col items-center justify-center gap-10">
             <div className="text-center">
                 <h1 className="md:text-9xl text-xl font-medium">
                     {formatCurrency(store.total)} ₴
@@ -42,8 +40,10 @@ export default function Total() {
                 <p>≈</p>
                 <p>{converted}</p>
             </div>
-
-            <ExpenseDialogComponent />
+            <div className="flex items-center justify-center gap-x-20">
+                <IncomeDialogComponent />
+                <ExpenseDialogComponent />
+            </div>
         </header>
     )
 }

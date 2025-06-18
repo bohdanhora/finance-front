@@ -48,6 +48,7 @@ import {
     GiftIcon,
     ShirtIcon,
     HandshakeIcon,
+    MinusIcon,
 } from 'lucide-react'
 import { cn, createDateString } from 'lib/utils'
 import { Calendar } from 'ui/calendar'
@@ -142,6 +143,7 @@ export default function ExpenseDialogComponent() {
                         variant="outline"
                         className="hover:shadow-2xl hover:shadow-red-500/50"
                     >
+                        <MinusIcon />
                         {t('expenses.expence')}
                     </Button>
                 </DialogTrigger>

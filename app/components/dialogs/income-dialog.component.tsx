@@ -26,7 +26,7 @@ import {
 } from 'ui/form'
 import { Textarea } from 'ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, PlusIcon } from 'lucide-react'
 import { Calendar } from 'ui/calendar'
 import { format } from 'date-fns'
 import { cn, createDateString } from 'lib/utils'
@@ -83,6 +83,7 @@ export default function IncomeDialogComponent() {
                         variant="outline"
                         className="hover:shadow-2xl hover:shadow-green-500/50"
                     >
+                        <PlusIcon />
                         {t('expenses.income')}
                     </Button>
                 </DialogTrigger>
