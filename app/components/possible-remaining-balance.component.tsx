@@ -41,25 +41,23 @@ export default function PossibleRemaining() {
     }, [store.total, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
-        <ContentWrapper className="flex items-center gap-x-10">
-            <p>
-                {t('daysLeft', {
-                    days: state.daysLeft,
-                })}
-            </p>
+        <ContentWrapper className="flex gap-10 justify-center flex-wrap">
+            <div className="flex flex-col items-center justify-between">
+                <span className="text-xl">{state.daysLeft}</span>
+                <p className="text-xs">{t('daysLeft')}</p>
+            </div>
 
-            <p>
-                {t('dailyBudget', {
-                    dailyBudget: formatCurrency(state.dailyBudget),
-                })}
+            <div className="flex flex-col items-center justify-between">
+                <span className="text-xl">
+                    {`${formatCurrency(state.dailyBudget)} ₴`}
+                </span>
                 <span className="text-xs">
-                    {' '}
-                    ≈{' '}
                     {bankStore.currency === CURRENCY.USD
                         ? `${formatCurrency(state.dailyBudgetToCurrency[CURRENCY.USD])} $`
                         : `${formatCurrency(state.dailyBudgetToCurrency[CURRENCY.EUR])} €`}
                 </span>
-            </p>
+                <p className="text-xs">{t('dailyBudget')}</p>
+            </div>
         </ContentWrapper>
     )
 }

@@ -64,12 +64,12 @@
         "essentials": "Essentials"
     },
     "possible": {
-        "remainingAfterEssentials": "Remaining balance after essential expenses: ₴ { possible }",
-        "dailyBudgetAfterEssentials": "Daily budget considering essential expenses: ₴ { dailyBudgetWithPossible }",
-        "dailyBudget": "Daily budget available: ₴ { dailyBudget }",
-        "daysLeft": "Days remaining: { days }",
-        "totalMoneyIncome": "Total expected income: ₴ { totalMoneyIncome }",
-        "saveMoney": "You can save: ₴ { saveMoney }",
-        "saveMoneyAfterPercent": "Then stay: ₴ { saveMoneyAfterPercent }"
+        "remainingAfterEssentials": "Remaining balance after essential expenses",
+        "dailyBudgetAfterEssentials": "Daily budget considering essential expenses",
+        "dailyBudget": "Daily budget available",
+        "daysLeft": "Days remaining",
+        "totalMoneyIncome": "Total expected income",
+        "saveMoney": "You can save",
+        "saveMoneyAfterPercent": "Then stay"
     }
 }

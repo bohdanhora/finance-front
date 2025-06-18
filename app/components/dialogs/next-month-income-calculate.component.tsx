@@ -104,7 +104,7 @@ export default function NextMonthIncomeCalculate() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button className="p-0 px-3 ml-10" variant="ghost">
+                    <Button className="p-0 px-3 text-xs" variant="secondary">
                         {t('calculate')}
                     </Button>
                 </DialogTrigger>

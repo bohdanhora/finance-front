@@ -64,12 +64,12 @@
         "essentials": "Нужности"
     },
     "possible": {
-        "dailyBudget": "Можно потратить денег в день: ₴ { dailyBudget }",
-        "daysLeft": "Осталось дней: { days }",
-        "remainingAfterEssentials": "Остаток с учётом обязательных расходов: ₴ { possible }",
-        "dailyBudgetAfterEssentials": "Можно потратить денег в день с учетом обязательных расходов: ₴ { dailyBudgetWithPossible }",
-        "totalMoneyIncome": "Всего должно прийти: ₴ { totalMoneyIncome }",
-        "saveMoney": "Можно отложить: ₴ { saveMoney }",
-        "saveMoneyAfterPercent": "Тогда останеться: ₴ { saveMoneyAfterPercent }"
+        "dailyBudget": "Можно потратить денег в день",
+        "daysLeft": "Осталось дней",
+        "remainingAfterEssentials": "Остаток с учётом обязательных расходов",
+        "dailyBudgetAfterEssentials": "Можно потратить денег в день с учетом обязательных расходов",
+        "totalMoneyIncome": "Всего должно прийти",
+        "saveMoney": "Можно отложить",
+        "saveMoneyAfterPercent": "Тогда останеться"
     }
 }

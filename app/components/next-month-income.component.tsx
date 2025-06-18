@@ -73,59 +73,59 @@ export const NextMonthIncome = () => {
     }, [store.nextMonthIncome, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
-        <ContentWrapper>
-            <p>
-                {t('totalMoneyIncome', {
-                    totalMoneyIncome: formatCurrency(state.totalIncome.default),
-                })}
+        <ContentWrapper className="flex gap-10 justify-center flex-wrap">
+            <div className="flex mt-2 gap-x-5">
+                <ChangeNextMonthIncome />
+                <NextMonthIncomeCalculate />
+            </div>
+            <div className="flex flex-col items-center justify-between max-w-96">
+                <span className="text-xl">
+                    {`${formatCurrency(state.totalIncome.default)} ₴`}
+                </span>
                 <span className="text-xs">
-                    {' '}
-                    ≈{' '}
                     {bankStore.currency === CURRENCY.USD
                         ? `${formatCurrency(state.totalIncome[CURRENCY.USD])} $`
                         : `${formatCurrency(state.totalIncome[CURRENCY.EUR])} €`}
                 </span>
-                <ChangeNextMonthIncome />
-                <NextMonthIncomeCalculate />
-            </p>
-            <p>
-                {t('remainingAfterEssentials', {
-                    possible: formatCurrency(state.remainingIncome.default),
-                })}
+
+                <p className="text-xs">{t('totalMoneyIncome')}</p>
+            </div>
+            <div className="flex flex-col items-center justify-between">
+                <span className="text-xl">
+                    {`${formatCurrency(state.remainingIncome.default)} ₴`}
+                </span>
                 <span className="text-xs">
-                    {' '}
-                    ≈{' '}
                     {bankStore.currency === CURRENCY.USD
                         ? `${formatCurrency(state.remainingIncome[CURRENCY.USD])} $`
                         : `${formatCurrency(state.remainingIncome[CURRENCY.EUR])} €`}
                 </span>
-            </p>
-            <p>
-                {t('saveMoney', {
-                    saveMoney: formatCurrency(state.savedMoney.default),
-                })}
+
+                <p className="text-xs">{t('remainingAfterEssentials')}</p>
+            </div>
+            <div className="flex flex-col items-center justify-between">
+                <span className="text-xl">
+                    {`${formatCurrency(state.savedMoney.default)} ₴`}
+                </span>
                 <span className="text-xs">
-                    {' '}
-                    ≈{' '}
                     {bankStore.currency === CURRENCY.USD
                         ? `${formatCurrency(state.savedMoney[CURRENCY.USD])} $`
                         : `${formatCurrency(state.savedMoney[CURRENCY.EUR])} €`}
                 </span>
-            </p>
-            <p>
-                {t('saveMoneyAfterPercent', {
-                    saveMoneyAfterPercent: formatCurrency(
-                        state.savedMoney.remaining.default
-                    ),
-                })}
+
+                <p className="text-xs">{t('saveMoney')}</p>
+            </div>
+            <div className="flex flex-col items-center justify-between">
+                <span className="text-xl">
+                    {`${formatCurrency(state.savedMoney.remaining.default)} ₴`}
+                </span>
                 <span className="text-xs">
-                    {' '}
-                    ≈{' '}
                     {bankStore.currency === CURRENCY.USD
                         ? `${formatCurrency(state.savedMoney.remaining[CURRENCY.USD])} $`
                         : `${formatCurrency(state.savedMoney.remaining[CURRENCY.EUR])} €`}
                 </span>
-            </p>
+
+                <p className="text-xs">{t('saveMoneyAfterPercent')}</p>
+            </div>
         </ContentWrapper>
     )
 }
