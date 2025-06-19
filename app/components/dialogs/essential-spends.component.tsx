@@ -25,24 +25,17 @@ import {
     FormMessage,
 } from 'ui/form'
 import { Textarea } from 'ui/textarea'
-import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
-import { CalendarIcon } from 'lucide-react'
 import { Checkbox } from '@/app/components/ui/checkbox'
 import { Label } from '@/app/components/ui/label'
-import { Calendar } from 'ui/calendar'
-import { format } from 'date-fns'
-import { cn, createDateString } from 'lib/utils'
 import { useTranslations } from 'next-intl'
-import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
 
 const formSchema = z.object({
-    value: z
+    amount: z
         .string()
         .min(1)
         .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
-    description: z.string().optional(),
-    date: z.date(),
+    title: z.string().min(1),
 })
 
 export default function EssentialSpends() {
@@ -52,29 +45,24 @@ export default function EssentialSpends() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            value: '',
-            description: '',
-            date: new Date(),
+            amount: '',
+            title: '',
         },
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setTotal(Number(values.value))
-        store.setTotalIncome(Number(values.value))
-        store.setNewSpend({
-            id: Math.random().toString(),
-            value: values.value,
-            date: createDateString(values.date),
-            categorie: 'income',
-            description: values.description || '',
+        store.setNewEssential({
+            id: values.title + Math.random().toFixed(3) || '',
+            title: values.title || '',
+            amount: Number(values.amount) || 0,
+            checked: false,
         })
 
-        toast.success(
-            t('toasts.addedIncome', {
-                amount: values.value,
-            })
-        )
         form.reset()
+    }
+
+    const checkedFunc = (id: string, checked: boolean) => {
+        store.setEssentialChecked({ id, checked })
     }
 
     return (
@@ -89,19 +77,32 @@ export default function EssentialSpends() {
                         <DialogDescription>esential desc</DialogDescription>
                     </DialogHeader>
                     <ul className="flex flex-col gap-3">
-                        <li className="flex items-center gap-3">
-                            <Checkbox id="test" />
-                            <Label htmlFor="test">test</Label>
-                        </li>
-                        <li className="flex items-center gap-3">
-                            <Checkbox id="test2" />
-                            <Label htmlFor="test2">Accept test2</Label>
-                        </li>
-
-                        <li className="flex items-center gap-3">
-                            <Checkbox id="test3" />
-                            <Label htmlFor="test3">Accept test3</Label>
-                        </li>
+                        {store.essentials?.map(
+                            ({ id, title, amount, checked }) => {
+                                return (
+                                    <li
+                                        className="flex items-center gap-3"
+                                        key={id}
+                                    >
+                                        <Checkbox
+                                            id={id}
+                                            checked={checked}
+                                            onCheckedChange={(val) =>
+                                                checkedFunc(id, Boolean(val))
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor={id}
+                                            className={
+                                                checked ? 'line-through' : ''
+                                            }
+                                        >
+                                            {title} = {amount}
+                                        </Label>
+                                    </li>
+                                )
+                            }
+                        )}
                     </ul>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
@@ -109,7 +110,7 @@ export default function EssentialSpends() {
                     >
                         <FormField
                             control={form.control}
-                            name="value"
+                            name="amount"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t('dialogs.amount')}</FormLabel>
@@ -142,71 +143,17 @@ export default function EssentialSpends() {
                         />
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {t('dialogs.description')}
-                                    </FormLabel>
+                                    <FormLabel>title</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder={t(
-                                                'dialogs.description'
-                                            )}
+                                            placeholder="title"
                                             className="resize-none"
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="date"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>{t('dialogs.date')}</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="popover"
-                                                    className={cn(
-                                                        'w-[240px] pl-3 text-left font-normal',
-                                                        !field.value &&
-                                                            'text-muted-foreground'
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(
-                                                            field.value,
-                                                            'PPP'
-                                                        )
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                            className="w-auto p-0"
-                                            align="start"
-                                        >
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                    date > new Date() ||
-                                                    date <
-                                                        new Date('1900-01-01')
-                                                }
-                                                captionLayout="dropdown"
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}

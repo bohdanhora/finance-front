@@ -6,6 +6,7 @@ const useStore = create<StoreType>((set) => ({
     totalIncome: 0,
     totalSpend: 0,
     lastTransactions: [],
+    essentials: [],
     nextMonthIncome: 0,
 
     setTotal: (addMoney) =>
@@ -21,6 +22,18 @@ const useStore = create<StoreType>((set) => ({
             nextMonthIncome: income,
         })),
 
+    setNewEssential: (essential) =>
+        set((state) => ({
+            essentials: [essential, ...state.essentials],
+        })),
+    setEssentialChecked: (essential) =>
+        set((state) => ({
+            essentials: state.essentials.map((item) =>
+                item.id === essential.id
+                    ? { ...item, checked: essential.checked }
+                    : { ...item }
+            ),
+        })),
     setNewSpend: (spend) =>
         set((state) => ({
             lastTransactions: [spend, ...state.lastTransactions],
