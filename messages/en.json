@@ -48,7 +48,17 @@
         "additionalAmount": "Additional amount",
         "additionalAmountPlaceholder": "Enter additional amount",
         "currency": "Currency",
-        "currencyPlaceholder": "Choose currency"
+        "currencyPlaceholder": "Choose currency",
+        "essentials": {
+            "title": "Essential payments",
+            "nextMonth": "Essential payments for next month",
+            "hint": "Specify an essential payment by filling in the fields below",
+            "label": "For what",
+            "placeholder": "Specify the purpose",
+            "fillStandard": "Fill with standard items",
+            "standardFillWarning": "To use standard values, you must not have any others!",
+            "standardValuesAdded": "Standard essentials have been added"
+        }
     },
     "categories": {
         "groceries": "Groceries",
@@ -64,12 +74,12 @@
         "essentials": "Essentials"
     },
     "possible": {
-        "remainingAfterEssentials": "Remaining balance after essential expenses",
-        "dailyBudgetAfterEssentials": "Daily budget considering essential expenses",
         "dailyBudget": "Daily budget available",
         "daysLeft": "Days remaining",
         "totalMoneyIncome": "Total expected income",
         "saveMoney": "You can save",
-        "saveMoneyAfterPercent": "Then stay"
+        "saveMoneyAfterPercent": "Then stay",
+        "remainingAfterEssentials": "Remaining after essential expenses",
+        "dailySpendingAvailable": "Daily available spending after essential expenses"
     }
 }
