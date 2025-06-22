@@ -21,12 +21,19 @@ export type StoreType = {
     totalSpend: number
     nextMonthIncome: number
     essentials: EssentialType[] | []
+    nextMonthEssentials: EssentialType[] | []
     lastTransactions: SpendType[] | []
 
     setTotalIncome: (spend: number) => void
     setTotal: (spend: number) => void
+    setFullEssentials: (essentialAray: EssentialType[]) => void
     setNewEssential: (essential: EssentialType) => void
     setEssentialChecked: (
+        essential: Pick<EssentialType, 'id' | 'checked'>
+    ) => void
+    setNextMonthFullEssentials: (essentialAray: EssentialType[]) => void
+    setNextMonthNewEssential: (essential: EssentialType) => void
+    setNextMonthEssentialChecked: (
         essential: Pick<EssentialType, 'id' | 'checked'>
     ) => void
     setNewSpend: (spend: SpendType) => void

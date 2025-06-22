@@ -29,6 +29,8 @@ import { Checkbox } from '@/app/components/ui/checkbox'
 import { Label } from '@/app/components/ui/label'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
+import { DefaultEssentialsArray } from '@/app/constants'
+import { toast } from 'react-toastify'
 
 const formSchema = z.object({
     amount: z
@@ -38,9 +40,18 @@ const formSchema = z.object({
     title: z.string().min(1),
 })
 
-export default function EssentialSpends() {
+type Props = {
+    nextMonth?: boolean
+}
+
+export default function EssentialSpends({ nextMonth }: Props) {
     const store = useStore()
+
     const t = useTranslations()
+
+    const arrayEssentials = nextMonth
+        ? store.nextMonthEssentials
+        : store.essentials
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -51,33 +62,73 @@ export default function EssentialSpends() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setNewEssential({
-            id: values.title + Math.random().toFixed(3) || '',
-            title: values.title || '',
-            amount: Number(values.amount) || 0,
-            checked: false,
-        })
+        if (nextMonth) {
+            store.setNextMonthNewEssential({
+                id: values.title + Math.random().toFixed(3) || '',
+                title: values.title || '',
+                amount: Number(values.amount) || 0,
+                checked: false,
+            })
+        } else {
+            store.setNewEssential({
+                id: values.title + Math.random().toFixed(3) || '',
+                title: values.title || '',
+                amount: Number(values.amount) || 0,
+                checked: false,
+            })
+        }
 
         form.reset()
     }
 
     const checkedFunc = (id: string, checked: boolean) => {
-        store.setEssentialChecked({ id, checked })
+        if (nextMonth) {
+            store.setNextMonthEssentialChecked({ id, checked })
+        } else {
+            store.setEssentialChecked({ id, checked })
+        }
+    }
+
+    const setDefaultsEssentials = () => {
+        if (nextMonth && store.nextMonthEssentials.length > 0) {
+            toast.error(t('dialogs.essentials.standardFillWarning'))
+            return
+        }
+        if (!nextMonth && store.essentials.length > 0) {
+            toast.error(t('dialogs.essentials.standardFillWarning'))
+            return
+        }
+
+        toast.success(t('dialogs.essentials.standardValuesAdded'))
+
+        if (nextMonth) {
+            store.setNextMonthFullEssentials(DefaultEssentialsArray)
+        } else {
+            store.setFullEssentials(DefaultEssentialsArray)
+        }
     }
 
     return (
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="secondary">set or change essential</Button>
+                    <Button variant="secondary">
+                        {nextMonth
+                            ? t('dialogs.essentials.nextMonth')
+                            : t('dialogs.essentials.title')}
+                    </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>esential title</DialogTitle>
-                        <DialogDescription>esential desc</DialogDescription>
+                        <DialogTitle>
+                            {t('dialogs.essentials.title')}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {t('dialogs.essentials.hint')}
+                        </DialogDescription>
                     </DialogHeader>
                     <ul className="flex flex-col gap-3">
-                        {store.essentials?.map(
+                        {arrayEssentials?.map(
                             ({ id, title, amount, checked }) => {
                                 return (
                                     <li
@@ -97,13 +148,16 @@ export default function EssentialSpends() {
                                                 checked ? 'line-through' : ''
                                             }
                                         >
-                                            {title} = {amount}
+                                            {title} = {`${amount} ₴`}
                                         </Label>
                                     </li>
                                 )
                             }
                         )}
                     </ul>
+                    <Button onClick={setDefaultsEssentials}>
+                        {t('dialogs.essentials.fillStandard')}
+                    </Button>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="space-y-8"
@@ -146,10 +200,14 @@ export default function EssentialSpends() {
                             name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>title</FormLabel>
+                                    <FormLabel>
+                                        {t('dialogs.essentials.label')}
+                                    </FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder="title"
+                                            placeholder={t(
+                                                'dialogs.essentials.placeholder'
+                                            )}
                                             className="resize-none"
                                             {...field}
                                         />

@@ -48,7 +48,17 @@
         "additionalAmount": "Дополнительная сумма",
         "additionalAmountPlaceholder": "Введите дополнительную сумму",
         "currency": "Валюта",
-        "currencyPlaceholder": "Выберите валюту"
+        "currencyPlaceholder": "Выберите валюту",
+        "essentials": {
+            "title": "Обязательные платежи",
+            "nextMonth": "Обязательные платежи следующий месяц",
+            "hint": "Укажи обязательный платеж заполнив поля ниже",
+            "label": "На что",
+            "placeholder": "Укажи на что",
+            "fillStandard": "Заполнить стандарными",
+            "standardFillWarning": "Чтобы заполнить стандарными значениеми у вас не должно быть других !",
+            "standardValuesAdded": "Добавлены стандарные рассходы"
+        }
     },
     "categories": {
         "groceries": "Продукты",
@@ -66,10 +76,10 @@
     "possible": {
         "dailyBudget": "Можно потратить денег в день",
         "daysLeft": "Осталось дней",
-        "remainingAfterEssentials": "Остаток с учётом обязательных расходов",
-        "dailyBudgetAfterEssentials": "Можно потратить денег в день с учетом обязательных расходов",
         "totalMoneyIncome": "Всего должно прийти",
         "saveMoney": "Можно отложить",
-        "saveMoneyAfterPercent": "Тогда останеться"
+        "saveMoneyAfterPercent": "Тогда останеться",
+        "remainingAfterEssentials": "Остаток после обязательных рассходов",
+        "dailySpendingAvailable": "Можно потратить в день после обязательных рассходов"
     }
 }

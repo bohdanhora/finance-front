@@ -9,8 +9,7 @@ import { useEffect, useState } from 'react'
 import { CURRENCY } from '../constants'
 import ChangeNextMonthIncome from './dialogs/change-next-month-income-dialog'
 import NextMonthIncomeCalculate from './dialogs/next-month-income-calculate.component'
-
-const ESSENTIALS = 14000 + 3900 + 1300 + 600 + 300
+import EssentialSpends from './dialogs/essential-spends.component'
 
 export const NextMonthIncome = () => {
     const store = useStore()
@@ -41,10 +40,18 @@ export const NextMonthIncome = () => {
     })
 
     useEffect(() => {
-        const totalIncomeWithEssentials = store.nextMonthIncome - ESSENTIALS
-
         const eurRate = bankStore.eur?.rateBuy || 0
         const usdRate = bankStore.usd?.rateBuy || 0
+
+        const totalEssentials = store.nextMonthEssentials.reduce(
+            (sum, item) => {
+                return !item.checked ? sum + item.amount : sum
+            },
+            0
+        )
+
+        const totalIncomeWithEssentials =
+            store.nextMonthIncome - totalEssentials
 
         const savedAfterEssentials = calculateSavings(totalIncomeWithEssentials)
 
@@ -70,7 +77,12 @@ export const NextMonthIncome = () => {
                 [CURRENCY.EUR]: savedAfterEssentials.saved / eurRate,
             },
         })
-    }, [store.nextMonthIncome, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
+    }, [
+        store.nextMonthIncome,
+        bankStore.usd?.rateBuy,
+        bankStore.eur?.rateBuy,
+        store.nextMonthEssentials,
+    ])
 
     return (
         <ContentWrapper className="flex gap-10 justify-center flex-wrap">
@@ -126,6 +138,7 @@ export const NextMonthIncome = () => {
 
                 <p className="text-xs">{t('saveMoneyAfterPercent')}</p>
             </div>
+            <EssentialSpends nextMonth={true} />
         </ContentWrapper>
     )
 }

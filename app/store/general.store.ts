@@ -7,6 +7,7 @@ const useStore = create<StoreType>((set) => ({
     totalSpend: 0,
     lastTransactions: [],
     essentials: [],
+    nextMonthEssentials: [],
     nextMonthIncome: 0,
 
     setTotal: (addMoney) =>
@@ -22,6 +23,10 @@ const useStore = create<StoreType>((set) => ({
             nextMonthIncome: income,
         })),
 
+    setFullEssentials: (essentialArray) =>
+        set(() => ({
+            essentials: essentialArray,
+        })),
     setNewEssential: (essential) =>
         set((state) => ({
             essentials: [essential, ...state.essentials],
@@ -29,6 +34,22 @@ const useStore = create<StoreType>((set) => ({
     setEssentialChecked: (essential) =>
         set((state) => ({
             essentials: state.essentials.map((item) =>
+                item.id === essential.id
+                    ? { ...item, checked: essential.checked }
+                    : { ...item }
+            ),
+        })),
+    setNextMonthFullEssentials: (essentialArray) =>
+        set(() => ({
+            nextMonthEssentials: essentialArray,
+        })),
+    setNextMonthNewEssential: (essential) =>
+        set((state) => ({
+            nextMonthEssentials: [essential, ...state.nextMonthEssentials],
+        })),
+    setNextMonthEssentialChecked: (essential) =>
+        set((state) => ({
+            nextMonthEssentials: state.nextMonthEssentials.map((item) =>
                 item.id === essential.id
                     ? { ...item, checked: essential.checked }
                     : { ...item }
