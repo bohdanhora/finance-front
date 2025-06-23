@@ -57,7 +57,8 @@
             "placeholder": "Укажи на что",
             "fillStandard": "Заполнить стандарными",
             "standardFillWarning": "Чтобы заполнить стандарными значениеми у вас не должно быть других !",
-            "standardValuesAdded": "Добавлены стандарные рассходы"
+            "standardValuesAdded": "Добавлены стандарные рассходы",
+            "removed": "Обязательный платеж удален!"
         }
     },
     "categories": {
