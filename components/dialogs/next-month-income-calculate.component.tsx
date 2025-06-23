@@ -33,9 +33,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '../ui/select'
-import useBankStore from '@/app/store/bank.store'
+import useBankStore from 'store/bank.store'
 import { toast } from 'react-toastify'
-import { formatCurrency } from '@/app/lib/utils'
+import { formatCurrency } from 'lib/utils'
 
 const formSchema = z.object({
     rate: z

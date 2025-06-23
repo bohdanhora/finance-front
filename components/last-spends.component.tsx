@@ -1,7 +1,7 @@
 'use client'
 
-import useStore from '../store/general.store'
-import { SpendType } from '../store/type'
+import useStore from 'store/general.store'
+import { SpendType } from 'store/type'
 import { ContentWrapper } from './wrappers/container.wrapper'
 
 export default function LastSpends() {

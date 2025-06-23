@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useGetCurrencyQuery } from '../api/bank.api'
-import useBankStore from '../store/bank.store'
+import { useGetCurrencyQuery } from 'api/bank.api'
+import useBankStore from 'store/bank.store'
 import { LangugaeDropdown } from './language-dropdown.component'
 import { CurrencyDropdown } from './currency-dropdown.component'
 import ThemeSwitch from './theme-switch.component'
-import { findCurrency } from '../lib/utils'
-import { CURRENCY, ISO4217Codes } from '../constants'
+import { findCurrency } from 'lib/utils'
+import { CURRENCY, ISO4217Codes } from 'constants/index'
 import { Loader } from './loader.component'
 import Image from 'next/image'
 

@@ -25,11 +25,11 @@ import {
     FormMessage,
 } from 'ui/form'
 import { Textarea } from 'ui/textarea'
-import { Checkbox } from '@/app/components/ui/checkbox'
-import { Label } from '@/app/components/ui/label'
+import { Checkbox } from 'components/ui/checkbox'
+import { Label } from 'components/ui/label'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
-import { DefaultEssentialsArray } from '@/app/constants'
+import { DefaultEssentialsArray } from 'constants/index'
 import { toast } from 'react-toastify'
 import { XIcon } from 'lucide-react'
 
