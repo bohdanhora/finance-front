@@ -57,7 +57,8 @@
             "placeholder": "Specify the purpose",
             "fillStandard": "Fill with standard items",
             "standardFillWarning": "To use standard values, you must not have any others!",
-            "standardValuesAdded": "Standard essentials have been added"
+            "standardValuesAdded": "Standard essentials have been added",
+            "removed": "Essential removed!"
         }
     },
     "categories": {

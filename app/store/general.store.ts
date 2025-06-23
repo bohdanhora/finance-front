@@ -39,6 +39,10 @@ const useStore = create<StoreType>((set) => ({
                     : { ...item }
             ),
         })),
+    removeEssential: (id) =>
+        set((state) => ({
+            essentials: state.essentials.filter((i) => i.id !== id),
+        })),
     setNextMonthFullEssentials: (essentialArray) =>
         set(() => ({
             nextMonthEssentials: essentialArray,
@@ -53,6 +57,12 @@ const useStore = create<StoreType>((set) => ({
                 item.id === essential.id
                     ? { ...item, checked: essential.checked }
                     : { ...item }
+            ),
+        })),
+    removeNextMonthEssential: (id) =>
+        set((state) => ({
+            nextMonthEssentials: state.nextMonthEssentials.filter(
+                (i) => i.id !== id
             ),
         })),
     setNewSpend: (spend) =>

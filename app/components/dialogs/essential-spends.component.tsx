@@ -31,6 +31,7 @@ import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
 import { DefaultEssentialsArray } from '@/app/constants'
 import { toast } from 'react-toastify'
+import { XIcon } from 'lucide-react'
 
 const formSchema = z.object({
     amount: z
@@ -108,6 +109,15 @@ export default function EssentialSpends({ nextMonth }: Props) {
         }
     }
 
+    const removeEssential = (id: string) => {
+        if (nextMonth) {
+            store.removeNextMonthEssential(id)
+        } else {
+            store.removeEssential(id)
+        }
+        toast.success(t('dialogs.essentials.removed'))
+    }
+
     return (
         <Dialog>
             <Form {...form}>
@@ -144,11 +154,21 @@ export default function EssentialSpends({ nextMonth }: Props) {
                                         />
                                         <Label
                                             htmlFor={id}
-                                            className={
-                                                checked ? 'line-through' : ''
-                                            }
+                                            className={twMerge(
+                                                'relative',
+                                                checked && 'line-through'
+                                            )}
                                         >
                                             {title} = {`${amount} ₴`}
+                                            <Button
+                                                onClick={() =>
+                                                    removeEssential(id)
+                                                }
+                                                variant="ghost"
+                                                className="size-4 absolute -right-10"
+                                            >
+                                                <XIcon />
+                                            </Button>
                                         </Label>
                                     </li>
                                 )

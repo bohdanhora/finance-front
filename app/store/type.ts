@@ -31,11 +31,13 @@ export type StoreType = {
     setEssentialChecked: (
         essential: Pick<EssentialType, 'id' | 'checked'>
     ) => void
+    removeEssential: (id: string) => void
     setNextMonthFullEssentials: (essentialAray: EssentialType[]) => void
     setNextMonthNewEssential: (essential: EssentialType) => void
     setNextMonthEssentialChecked: (
         essential: Pick<EssentialType, 'id' | 'checked'>
     ) => void
+    removeNextMonthEssential: (id: string) => void
     setNewSpend: (spend: SpendType) => void
     setTotalSpend: (spend: number) => void
     calculateTotalAfterExpence: (expence: number) => void
