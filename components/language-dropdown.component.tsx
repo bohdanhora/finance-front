@@ -2,16 +2,16 @@
 
 import * as React from 'react'
 
-import { Button } from '../components/ui/button'
+import { Button } from 'components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu'
+} from 'components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
-import { LANG_COOKIES_NAME } from '../constants'
+import { LANG_COOKIES_NAME } from 'constants/index'
 import { useTranslations } from 'next-intl'
 import { LanguagesIcon } from 'lucide-react'
 

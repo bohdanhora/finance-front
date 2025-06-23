@@ -4,7 +4,7 @@ import { FiSun, FiMoon } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
-import { Button } from './ui/button'
+import { Button } from 'ui/button'
 
 export default function ThemeSwitch() {
     const [mounted, setMounted] = useState(false)

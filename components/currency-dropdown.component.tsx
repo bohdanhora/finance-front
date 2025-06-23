@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import { Button } from '../components/ui/button'
+import { Button } from 'components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,9 +11,9 @@ import {
     DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
-import { CURRENCY, CURRENCY_COOKIES_NAME } from '../constants'
+import { CURRENCY, CURRENCY_COOKIES_NAME } from 'constants/index'
 import { useTranslations } from 'next-intl'
-import useBankStore from '../store/bank.store'
+import useBankStore from 'store/bank.store'
 import { DollarSign, EuroIcon } from 'lucide-react'
 
 export function CurrencyDropdown() {

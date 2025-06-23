@@ -1,12 +1,12 @@
 'use client'
 
-import useStore from '../store/general.store'
+import useStore from 'store/general.store'
 import { ContentWrapper } from './wrappers/container.wrapper'
 import { useEffect, useState } from 'react'
-import { calculateDailyBudget, formatCurrency } from '../lib/utils'
+import { calculateDailyBudget, formatCurrency } from 'lib/utils'
 import { useTranslations } from 'next-intl'
-import useBankStore from '../store/bank.store'
-import { CURRENCY } from '../constants'
+import useBankStore from 'store/bank.store'
+import { CURRENCY } from 'constants/index'
 import EssentialSpends from './dialogs/essential-spends.component'
 
 export default function PossibleRemaining() {

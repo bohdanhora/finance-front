@@ -1,14 +1,15 @@
 import { Manrope } from 'next/font/google'
-import './globals.css'
-import Navbar from './components/navbar.component'
-import ReactQueryProvider from './providers/react-query-provider'
-
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { Metadata } from 'next'
-import { ProviderTheme } from './providers/theme.provider'
+
 import { twMerge } from 'tailwind-merge'
-import { ToastProvider } from './providers/toast.provider'
+
+import ReactQueryProvider from 'providers/react-query-provider'
+import { ProviderTheme } from 'providers/theme.provider'
+import { ToastProvider } from 'providers/toast.provider'
+
+import './globals.css'
 
 const manrope = Manrope({ subsets: ['latin'] })
 
@@ -36,10 +37,7 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <ReactQueryProvider>
                         <ProviderTheme>
-                            <Navbar />
-                            <main className="flex flex-col items-start py-14 px-6">
-                                {children}
-                            </main>
+                            <main>{children}</main>
                             <ToastProvider />
                         </ProviderTheme>
                     </ReactQueryProvider>
