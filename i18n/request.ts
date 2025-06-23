@@ -1,4 +1,4 @@
-import { LANG_COOKIES_NAME } from '@/app/constants'
+import { LANG_COOKIES_NAME } from 'constants/index'
 import { getRequestConfig } from 'next-intl/server'
 import { cookies } from 'next/headers'
 
