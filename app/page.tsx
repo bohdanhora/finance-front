@@ -3,6 +3,7 @@ import Navbar from 'components/navbar.component'
 import { NextMonthIncome } from 'components/next-month-income.component'
 import PossibleRemaining from 'components/possible-remaining-balance.component'
 import Total from 'components/total'
+import TotalCredit from 'components/total-credit-section.component'
 
 export default function Home() {
     return (
@@ -12,6 +13,7 @@ export default function Home() {
                 <Total />
                 <PossibleRemaining />
                 <NextMonthIncome />
+                <TotalCredit />
                 <LastSpends />
             </div>
         </>
