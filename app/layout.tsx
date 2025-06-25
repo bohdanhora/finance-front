@@ -36,14 +36,12 @@ export default async function RootLayout({
                 )}
             >
                 <NextIntlClientProvider messages={messages}>
-                    <PrivateProvider>
-                        <ReactQueryProvider>
-                            <ProviderTheme>
-                                <main>{children}</main>
-                                <ToastProvider />
-                            </ProviderTheme>
-                        </ReactQueryProvider>
-                    </PrivateProvider>
+                    <ReactQueryProvider>
+                        <ProviderTheme>
+                            <main>{children}</main>
+                            <ToastProvider />
+                        </ProviderTheme>
+                    </ReactQueryProvider>
                 </NextIntlClientProvider>
             </body>
         </html>
