@@ -14,6 +14,7 @@ import {
     FormMessage,
 } from 'ui/form'
 import { Input } from 'ui/input'
+import { PublicProvider } from 'providers/auth-provider'
 
 const formSchema = z.object({
     firstName: z.string().min(2, {
@@ -48,21 +49,55 @@ export default function Registration() {
         console.log(values)
     }
     return (
-        <section className="w-full min-h-screen flex justify-center items-center">
-            <div className="p-10 border rounded-2xl min-w-md">
-                <h1 className="text-center mb-10 text-4xl">Registration</h1>
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
-                    >
-                        <div className="flex items-center justify-between gap-x-5">
+        <PublicProvider>
+            <section className="w-full min-h-screen flex justify-center items-center">
+                <div className="p-10 border rounded-2xl min-w-md">
+                    <h1 className="text-center mb-10 text-4xl">Registration</h1>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-8"
+                        >
+                            <div className="flex items-center justify-between gap-x-5">
+                                <FormField
+                                    control={form.control}
+                                    name="firstName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>First Name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder=""
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="lastName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Last Name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder=""
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={form.control}
-                                name="firstName"
+                                name="username"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>First Name</FormLabel>
+                                        <FormLabel>Username</FormLabel>
                                         <FormControl>
                                             <Input placeholder="" {...field} />
                                         </FormControl>
@@ -72,10 +107,10 @@ export default function Registration() {
                             />
                             <FormField
                                 control={form.control}
-                                name="lastName"
+                                name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Last Name</FormLabel>
+                                        <FormLabel>Email</FormLabel>
                                         <FormControl>
                                             <Input placeholder="" {...field} />
                                         </FormControl>
@@ -83,54 +118,28 @@ export default function Registration() {
                                     </FormItem>
                                 )}
                             />
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="username"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Username</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder=""
-                                            type="password"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit">Submit</Button>
-                    </form>
-                </Form>
-            </div>
-        </section>
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder=""
+                                                type="password"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit">Submit</Button>
+                        </form>
+                    </Form>
+                </div>
+            </section>
+        </PublicProvider>
     )
 }
