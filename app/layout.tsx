@@ -10,6 +10,7 @@ import { ProviderTheme } from 'providers/theme.provider'
 import { ToastProvider } from 'providers/toast.provider'
 
 import './globals.css'
+import { PrivateProvider } from 'providers/auth-provider'
 
 const manrope = Manrope({ subsets: ['latin'] })
 
@@ -35,12 +36,14 @@ export default async function RootLayout({
                 )}
             >
                 <NextIntlClientProvider messages={messages}>
-                    <ReactQueryProvider>
-                        <ProviderTheme>
-                            <main>{children}</main>
-                            <ToastProvider />
-                        </ProviderTheme>
-                    </ReactQueryProvider>
+                    <PrivateProvider>
+                        <ReactQueryProvider>
+                            <ProviderTheme>
+                                <main>{children}</main>
+                                <ToastProvider />
+                            </ProviderTheme>
+                        </ReactQueryProvider>
+                    </PrivateProvider>
                 </NextIntlClientProvider>
             </body>
         </html>
