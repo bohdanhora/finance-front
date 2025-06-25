@@ -10,7 +10,6 @@ import { ProviderTheme } from 'providers/theme.provider'
 import { ToastProvider } from 'providers/toast.provider'
 
 import './globals.css'
-import { PrivateProvider } from 'providers/auth-provider'
 
 const manrope = Manrope({ subsets: ['latin'] })
 
