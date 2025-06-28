@@ -16,7 +16,8 @@
     "errors": {
         "amountError": "Please enter a valid amount",
         "categoryError": "Please choose category",
-        "dateError": "Invalid date"
+        "dateError": "Invalid date",
+        "apiFailed": "Monobank API is failed, try again later."
     },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
