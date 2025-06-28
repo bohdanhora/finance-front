@@ -10,11 +10,18 @@ import { findCurrency } from 'lib/utils'
 import { CURRENCY, ISO4217Codes } from 'constants/index'
 import { Loader } from './loader.component'
 import Image from 'next/image'
+import { toast } from 'react-toastify'
+import { useTranslations } from 'next-intl'
 
 export default function Navbar() {
-    const { data: currency, isPending: currencyPending } = useGetCurrencyQuery()
+    const {
+        data: currency,
+        isPending: currencyPending,
+        isError,
+    } = useGetCurrencyQuery()
     const [buy, setBuy] = useState(0)
     const store = useBankStore()
+    const t = useTranslations('errors')
 
     useEffect(() => {
         if (!currency) return
@@ -37,6 +44,10 @@ export default function Navbar() {
         }
         setBuy(0)
     }, [store.currency, store.usd, store.eur])
+
+    useEffect(() => {
+        if (isError) toast.error(t('apiFailed'))
+    }, [isError])
 
     return (
         <>

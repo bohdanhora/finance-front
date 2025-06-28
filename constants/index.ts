@@ -16,19 +16,19 @@ export const DefaultEssentialsArray = [
     {
         id: '1',
         amount: 14000,
-        title: 'Квартира',
+        title: 'Квартплата',
         checked: false,
     },
     {
         id: '2',
         amount: 3900,
-        title: 'Квартплата',
+        title: 'Коммуналка',
         checked: false,
     },
     {
         id: '3',
         amount: 660,
-        title: 'Вода за 2 месяца',
+        title: 'Вода 4 бутылки',
         checked: false,
     },
     {
