@@ -14,35 +14,36 @@ import {
     FormMessage,
 } from 'ui/form'
 import { Input } from 'ui/input'
-import { useRouter } from 'next/navigation'
 import { PublicProvider } from 'providers/auth-provider'
+import { useLoginMutation } from 'api/main.api'
+import { Loader } from 'components/loader.component'
 
 const formSchema = z.object({
-    username: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
+    email: z.string().email().min(2, {
+        message: 'email must be at least 2 characters.',
     }),
     password: z.string().min(2, {
         message: 'password must be at least 2 characters.',
     }),
 })
 export default function Login() {
-    const router = useRouter()
+    const { mutateAsync: loginAsync, isPending: LoginPending } =
+        useLoginMutation()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            username: '',
+            email: '',
             password: '',
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        localStorage.setItem('token', 'testToken148')
-        console.log(values)
-        router.push('/')
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        await loginAsync(values)
     }
     return (
         <PublicProvider>
+            {LoginPending && <Loader />}
             <section className="w-full min-h-screen flex justify-center items-center">
                 <div className="p-10 border rounded-2xl min-w-md">
                     <h1 className="text-center mb-10 text-4xl">Login</h1>
@@ -53,13 +54,14 @@ export default function Login() {
                         >
                             <FormField
                                 control={form.control}
-                                name="username"
+                                name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Username</FormLabel>
+                                        <FormLabel>Email</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="shadcn"
+                                                placeholder="email"
+                                                type="email"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -75,7 +77,7 @@ export default function Login() {
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="shadcn"
+                                                placeholder="Password"
                                                 type="password"
                                                 {...field}
                                             />

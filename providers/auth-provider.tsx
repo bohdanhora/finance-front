@@ -8,7 +8,7 @@ export const PrivateProvider = ({ children }: { children: ReactNode }) => {
     const router = useRouter()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('accessToken')
 
         if (!token) {
             router.push('/login')
@@ -34,7 +34,7 @@ export const PublicProvider = ({ children }: { children: ReactNode }) => {
     const router = useRouter()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('accessToken')
 
         if (token) {
             router.replace('/')
