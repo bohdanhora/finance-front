@@ -42,19 +42,20 @@ export default function PossibleRemaining() {
         const totalEssentials = store.essentials.reduce((sum, item) => {
             return !item.checked ? sum + item.amount : sum
         }, 0)
+        const totalWithEssentials = store.total - totalEssentials
+
         const { dailyBudget: dailyFromTotal, daysLeft } = calculateDailyBudget(
             store.total
         )
-        const { dailyBudget: dailyAfterEssentials } = calculateDailyBudget(
-            store.total - totalEssentials
-        )
+        const { dailyBudget: dailyAfterEssentials } =
+            calculateDailyBudget(totalWithEssentials)
 
         setState({
             essentials: {
                 totalEssentials: {
-                    default: store.total - totalEssentials,
-                    [CURRENCY.EUR]: totalEssentials / eurRate,
-                    [CURRENCY.USD]: totalEssentials / usdRate,
+                    default: totalWithEssentials,
+                    [CURRENCY.EUR]: totalWithEssentials / eurRate,
+                    [CURRENCY.USD]: totalWithEssentials / usdRate,
                 },
                 dailyAfterEssentials: {
                     default: dailyAfterEssentials,

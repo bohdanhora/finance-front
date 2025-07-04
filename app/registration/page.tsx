@@ -15,91 +15,76 @@ import {
 } from 'ui/form'
 import { Input } from 'ui/input'
 import { PublicProvider } from 'providers/auth-provider'
+import { useRegistrationMutation } from 'api/main.api'
+import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 
-const formSchema = z.object({
-    firstName: z.string().min(2, {
-        message: 'First name must be at least 2 characters.',
-    }),
-    lastName: z.string().min(2, {
-        message: 'Last name must be at least 2 characters.',
-    }),
-    username: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-    }),
-    email: z.string().min(2, {
-        message: 'Email must be at least 2 characters.',
-    }),
-    password: z.string().min(2, {
-        message: 'password must be at least 2 characters.',
-    }),
-})
+const formSchema = z
+    .object({
+        name: z.string().min(2, {
+            message: 'Name must be at least 2 characters.',
+        }),
+        email: z.string().email({
+            message: 'Invalid email address.',
+        }),
+        password: z.string().min(2, {
+            message: 'Password must be at least 2 characters.',
+        }),
+        confirmPassword: z.string().min(2, {
+            message: 'Please confirm your password.',
+        }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match.',
+        path: ['confirmPassword'],
+    })
+
 export default function Registration() {
+    const t = useTranslations('auth.registration')
+
+    const { mutateAsync: registrationAsync } = useRegistrationMutation()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            firstName: '',
-            lastName: '',
-            username: '',
+            name: '',
             email: '',
             password: '',
+            confirmPassword: '',
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    function onSubmit({ password, name, email }: z.infer<typeof formSchema>) {
+        registrationAsync({
+            password,
+            name,
+            email,
+        })
     }
+
     return (
         <PublicProvider>
             <section className="w-full min-h-screen flex justify-center items-center">
                 <div className="p-10 border rounded-2xl min-w-md">
-                    <h1 className="text-center mb-10 text-4xl">Registration</h1>
+                    <h1 className="text-center mb-10 text-4xl">
+                        {t('registration')}
+                    </h1>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
                             className="space-y-8"
                         >
-                            <div className="flex items-center justify-between gap-x-5">
-                                <FormField
-                                    control={form.control}
-                                    name="firstName"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>First Name</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder=""
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="lastName"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Last Name</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder=""
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
                             <FormField
                                 control={form.control}
-                                name="username"
+                                name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Username</FormLabel>
+                                        <FormLabel>{t('name')}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="" {...field} />
+                                            <Input
+                                                placeholder={t('name')}
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -110,9 +95,12 @@ export default function Registration() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>{t('email')}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="" {...field} />
+                                            <Input
+                                                placeholder={t('email')}
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -123,10 +111,10 @@ export default function Registration() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel>{t('password')}</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder=""
+                                                placeholder={t('password')}
                                                 type="password"
                                                 {...field}
                                             />
@@ -135,7 +123,36 @@ export default function Registration() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">Submit</Button>
+                            <FormField
+                                control={form.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {t('confirmPassword')}
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder={t(
+                                                    'confirmPassword'
+                                                )}
+                                                type="password"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="flex items-center justify-between">
+                                <Button type="submit">
+                                    {t('registration')}
+                                </Button>
+
+                                <Link href="/login" className="text-xs">
+                                    {t('backToLogin')}
+                                </Link>
+                            </div>
                         </form>
                     </Form>
                 </div>

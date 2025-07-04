@@ -83,5 +83,22 @@
         "saveMoneyAfterPercent": "Тогда останеться",
         "remainingAfterEssentials": "Остаток после обязательных рассходов",
         "dailySpendingAvailable": "Можно потратить в день после обязательных рассходов"
+    },
+    "auth": {
+        "login": {
+            "login": "Вход",
+            "dontHaveAccount": "Нет аккаунта? Перейдите на страницу регистрации",
+            "email": "Электронная почта",
+            "password": "Пароль",
+            "forgotPassword": "Забыли пароль?"
+        },
+        "registration": {
+            "registration": "Регистрация",
+            "name": "Имя",
+            "email": "Электронная почта",
+            "password": "Пароль",
+            "confirmPassword": "Повторите пароль",
+            "backToLogin": "Вернуться ко входу"
+        }
     }
 }
