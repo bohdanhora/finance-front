@@ -17,6 +17,8 @@ import { Input } from 'ui/input'
 import { PublicProvider } from 'providers/auth-provider'
 import { useLoginMutation } from 'api/main.api'
 import { Loader } from 'components/loader.component'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 const formSchema = z.object({
     email: z.string().email().min(2, {
@@ -26,7 +28,9 @@ const formSchema = z.object({
         message: 'password must be at least 2 characters.',
     }),
 })
+
 export default function Login() {
+    const t = useTranslations('auth.login')
     const { mutateAsync: loginAsync, isPending: LoginPending } =
         useLoginMutation()
 
@@ -46,7 +50,7 @@ export default function Login() {
             {LoginPending && <Loader />}
             <section className="w-full min-h-screen flex justify-center items-center">
                 <div className="p-10 border rounded-2xl min-w-md">
-                    <h1 className="text-center mb-10 text-4xl">Login</h1>
+                    <h1 className="text-center mb-10 text-4xl">{t('login')}</h1>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
@@ -57,10 +61,10 @@ export default function Login() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>{t('email')}</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="email"
+                                                placeholder={t('email')}
                                                 type="email"
                                                 {...field}
                                             />
@@ -74,10 +78,10 @@ export default function Login() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel>{t('password')}</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Password"
+                                                placeholder={t('password')}
                                                 type="password"
                                                 {...field}
                                             />
@@ -86,7 +90,21 @@ export default function Login() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">Submit</Button>
+                            <div>
+                                <div className="flex items-center justify-between mb-5">
+                                    <Button type="submit">{t('login')}</Button>
+                                    <Link
+                                        href="/forgot-password"
+                                        className="text-xs"
+                                    >
+                                        {t('forgotPassword')}
+                                    </Link>
+                                </div>
+
+                                <Link href="/registration" className="text-xs">
+                                    {t('dontHaveAccount')}
+                                </Link>
+                            </div>
                         </form>
                     </Form>
                 </div>

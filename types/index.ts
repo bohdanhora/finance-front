@@ -21,3 +21,20 @@ export type LoginErrorResponse = {
     message: string
     statusCode: number
 }
+
+export type RegistrationPayload = {
+    name: string
+    email: string
+    password: string
+}
+
+export type RegistrationResponseType = {
+    accessToken: string
+    refreshToken: string
+}
+
+export type RegistrationErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}

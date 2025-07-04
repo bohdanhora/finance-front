@@ -8,6 +8,9 @@ import {
     LoginErrorResponse,
     LoginPayload,
     LoginResponseType,
+    RegistrationErrorResponse,
+    RegistrationPayload,
+    RegistrationResponseType,
 } from 'types/index'
 
 export const login = async (
@@ -30,6 +33,28 @@ export const useLoginMutation = () => {
             }
         },
         onError: (error: AxiosError<LoginErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+export const registration = async (
+    payload: RegistrationPayload
+): Promise<RegistrationResponseType> => {
+    const res = await authAxios.post('registration', payload)
+    return res.data
+}
+
+export const useRegistrationMutation = () => {
+    const router = useRouter()
+    return useMutation({
+        mutationKey: ['registration'],
+        mutationFn: registration,
+        onSuccess: () => {
+            toast.success('Registration success! Login Please')
+            router.push('/login')
+        },
+        onError: (error: AxiosError<RegistrationErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })

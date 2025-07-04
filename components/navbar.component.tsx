@@ -12,6 +12,10 @@ import { Loader } from './loader.component'
 import Image from 'next/image'
 import { toast } from 'react-toastify'
 import { useTranslations } from 'next-intl'
+import { LogOutIcon } from 'lucide-react'
+import { Button } from './ui/button'
+import { clearAfterLogout } from 'lib/logout'
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
     const {
@@ -19,9 +23,15 @@ export default function Navbar() {
         isPending: currencyPending,
         isError,
     } = useGetCurrencyQuery()
+    const router = useRouter()
     const [buy, setBuy] = useState(0)
     const store = useBankStore()
     const t = useTranslations('errors')
+
+    const logout = () => {
+        clearAfterLogout()
+        router.replace('/login')
+    }
 
     useEffect(() => {
         if (!currency) return
@@ -61,6 +71,9 @@ export default function Navbar() {
                     <CurrencyDropdown />
                     <LangugaeDropdown />
                     <ThemeSwitch />
+                    <Button variant="ghost" onClick={logout}>
+                        <LogOutIcon />
+                    </Button>
                 </div>
             </nav>
         </>

@@ -83,5 +83,22 @@
         "saveMoneyAfterPercent": "Then stay",
         "remainingAfterEssentials": "Remaining after essential expenses",
         "dailySpendingAvailable": "Daily available spending after essential expenses"
+    },
+    "auth": {
+        "login": {
+            "login": "Login",
+            "dontHaveAccount": "Dont have an account? Go to registration page",
+            "email": "Email",
+            "password": "Password",
+            "forgotPassword": "Forgot Password?"
+        },
+        "registration": {
+            "registration": "Registration",
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "confirmPassword": "Confirm Password",
+            "backToLogin": "Back to Login"
+        }
     }
 }
