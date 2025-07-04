@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Routes } from 'constants/routes'
 
 export const PrivateProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -11,7 +12,7 @@ export const PrivateProvider = ({ children }: { children: ReactNode }) => {
         const token = localStorage.getItem('accessToken')
 
         if (!token) {
-            router.push('/login')
+            router.push(Routes.LOGIN)
             setIsAuthenticated(false)
         } else {
             setIsAuthenticated(true)

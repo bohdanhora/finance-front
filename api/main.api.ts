@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import authAxios from 'config/axios.instances'
+import { Routes } from 'constants/routes'
 import { loginSetTokens } from 'lib/auth-helper'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
@@ -52,7 +53,7 @@ export const useRegistrationMutation = () => {
         mutationFn: registration,
         onSuccess: () => {
             toast.success('Registration success! Login Please')
-            router.push('/login')
+            router.push(Routes.LOGIN)
         },
         onError: (error: AxiosError<RegistrationErrorResponse>) => {
             toast.error(error.response?.data.message)

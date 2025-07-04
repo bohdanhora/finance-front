@@ -16,6 +16,7 @@ import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 import { clearAfterLogout } from 'lib/logout'
 import { useRouter } from 'next/navigation'
+import { Routes } from 'constants/routes'
 
 export default function Navbar() {
     const {
@@ -30,7 +31,7 @@ export default function Navbar() {
 
     const logout = () => {
         clearAfterLogout()
-        router.replace('/login')
+        router.replace(Routes.LOGIN)
     }
 
     useEffect(() => {

@@ -19,6 +19,7 @@ import { useLoginMutation } from 'api/main.api'
 import { Loader } from 'components/loader.component'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { Routes } from 'constants/routes'
 
 const formSchema = z.object({
     email: z.string().email().min(2, {
@@ -94,14 +95,17 @@ export default function Login() {
                                 <div className="flex items-center justify-between mb-5">
                                     <Button type="submit">{t('login')}</Button>
                                     <Link
-                                        href="/forgot-password"
+                                        href={Routes.FORGOT_PASSWORD}
                                         className="text-xs"
                                     >
                                         {t('forgotPassword')}
                                     </Link>
                                 </div>
 
-                                <Link href="/registration" className="text-xs">
+                                <Link
+                                    href={Routes.REGISTRATION}
+                                    className="text-xs"
+                                >
                                     {t('dontHaveAccount')}
                                 </Link>
                             </div>
