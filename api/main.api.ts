@@ -3,12 +3,16 @@ import { AxiosError } from 'axios'
 import authAxios from 'config/axios.instances'
 import { Routes } from 'constants/routes'
 import { loginSetTokens } from 'lib/auth-helper'
+import { clearAfterLogout } from 'lib/logout'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import {
     LoginErrorResponse,
     LoginPayload,
     LoginResponseType,
+    LogoutErrorResponse,
+    LogoutPayload,
+    LogoutResponseType,
     RegistrationErrorResponse,
     RegistrationPayload,
     RegistrationResponseType,
@@ -56,6 +60,28 @@ export const useRegistrationMutation = () => {
             router.push(Routes.LOGIN)
         },
         onError: (error: AxiosError<RegistrationErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+export const logout = async (
+    payload: LogoutPayload
+): Promise<LogoutResponseType> => {
+    const res = await authAxios.post('logout', payload)
+    return res.data
+}
+
+export const useLogoutMutation = () => {
+    const router = useRouter()
+    return useMutation({
+        mutationKey: ['logout'],
+        mutationFn: logout,
+        onSuccess: () => {
+            router.replace(Routes.LOGIN)
+            clearAfterLogout()
+        },
+        onError: (error: AxiosError<LogoutErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })

@@ -14,9 +14,7 @@ import { toast } from 'react-toastify'
 import { useTranslations } from 'next-intl'
 import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
-import { clearAfterLogout } from 'lib/logout'
-import { useRouter } from 'next/navigation'
-import { Routes } from 'constants/routes'
+import { useLogoutMutation } from 'api/main.api'
 
 export default function Navbar() {
     const {
@@ -24,14 +22,16 @@ export default function Navbar() {
         isPending: currencyPending,
         isError,
     } = useGetCurrencyQuery()
-    const router = useRouter()
     const [buy, setBuy] = useState(0)
     const store = useBankStore()
     const t = useTranslations('errors')
 
-    const logout = () => {
-        clearAfterLogout()
-        router.replace(Routes.LOGIN)
+    const { mutateAsync: logoutAsync, isPending: logoutPending } =
+        useLogoutMutation()
+
+    const logout = async () => {
+        const userId = localStorage.getItem('userId') || ''
+        await logoutAsync({ userId })
     }
 
     useEffect(() => {
@@ -62,7 +62,7 @@ export default function Navbar() {
 
     return (
         <>
-            {currencyPending && <Loader />}
+            {(currencyPending || logoutPending) && <Loader />}
             <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">

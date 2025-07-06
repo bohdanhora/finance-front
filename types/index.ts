@@ -14,6 +14,7 @@ export type LoginPayload = {
 export type LoginResponseType = {
     accessToken: string
     refreshToken: string
+    userId: string
 }
 
 export type LoginErrorResponse = {
@@ -34,6 +35,20 @@ export type RegistrationResponseType = {
 }
 
 export type RegistrationErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}
+
+export type LogoutPayload = {
+    userId: string
+}
+
+export type LogoutResponseType = {
+    message: string
+}
+
+export type LogoutErrorResponse = {
     error: string
     message: string
     statusCode: number
