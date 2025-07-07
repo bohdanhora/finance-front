@@ -13,6 +13,21 @@ export type TotalAmountErrorResponse = {
     statusCode: number
 }
 
+export type NextMonthTotalAmountPayload = {
+    nextMonthTotalAmount: number
+}
+
+export type NextMonthTotalAmountResponseType = {
+    message: string
+    nextMonthTotalAmount: number
+}
+
+export type NextMonthTotalAmountErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}
+
 export type AllTransactionsInfoResponse = {
     userId: string
     totalAmount: number

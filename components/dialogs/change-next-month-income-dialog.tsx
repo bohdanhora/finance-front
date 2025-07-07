@@ -26,6 +26,7 @@ import {
 } from 'ui/form'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
+import { useSetNextMonthTotalAmount } from 'api/main.api'
 
 const formSchema = z.object({
     value: z
@@ -36,6 +37,9 @@ const formSchema = z.object({
 
 export default function ChangeNextMonthIncome() {
     const store = useStore()
+    const { mutateAsync: setNextMonthAmountAsync } =
+        useSetNextMonthTotalAmount()
+
     const t = useTranslations('dialogs')
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -45,9 +49,12 @@ export default function ChangeNextMonthIncome() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         store.setNextMonthIncome(Number(values.value))
 
+        await setNextMonthAmountAsync({
+            nextMonthTotalAmount: Number(values.value),
+        })
         form.reset()
     }
 
