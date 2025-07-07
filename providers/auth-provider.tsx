@@ -3,13 +3,14 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Routes } from 'constants/routes'
+import Cookies from 'js-cookie'
 
 export const PrivateProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
     const router = useRouter()
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken')
+        const token = Cookies.get('accessToken')
 
         if (!token) {
             router.push(Routes.LOGIN)
@@ -19,11 +20,7 @@ export const PrivateProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [])
 
-    if (isAuthenticated === null) {
-        return null
-    }
-
-    if (!isAuthenticated) {
+    if (isAuthenticated === null || !isAuthenticated) {
         return null
     }
 
@@ -35,7 +32,7 @@ export const PublicProvider = ({ children }: { children: ReactNode }) => {
     const router = useRouter()
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken')
+        const token = Cookies.get('accessToken')
 
         if (token) {
             router.replace('/')

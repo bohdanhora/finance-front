@@ -53,3 +53,19 @@ export type LogoutErrorResponse = {
     message: string
     statusCode: number
 }
+
+export type RefreshPayload = {
+    refreshToken: string
+}
+
+export type RefreshResponseType = {
+    accessToken: string
+    refreshToken: string
+    userId: string
+}
+
+export type RefreshErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}

@@ -1,4 +1,4 @@
-import { MonobankCurrency } from '../types'
+import { MonobankCurrency } from '../types/auth.types'
 
 export type SpendType = {
     description: string

@@ -15,7 +15,7 @@ import {
 } from 'ui/form'
 import { Input } from 'ui/input'
 import { PublicProvider } from 'providers/auth-provider'
-import { useRegistrationMutation } from 'api/main.api'
+import { useRegistrationMutation } from 'api/auth.api'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 

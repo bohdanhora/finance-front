@@ -57,6 +57,7 @@ import { Textarea } from 'ui/textarea'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
 import { toast } from 'react-toastify'
+import { useSetTotalAmount } from 'api/main.api'
 
 const formSchema = z.object({
     value: z
@@ -86,6 +87,8 @@ export default function ExpenseDialogComponent() {
     const store = useStore()
     const t = useTranslations()
 
+    const { mutateAsync: setTotalAsync } = useSetTotalAmount()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -110,7 +113,7 @@ export default function ExpenseDialogComponent() {
         if (category === 'essentials') return <HandshakeIcon />
     }
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         if (store.total - Number(values.value) < 0) {
             toast.error(t('toasts.noMoney'))
             return
@@ -126,6 +129,8 @@ export default function ExpenseDialogComponent() {
         })
 
         store.calculateTotalAfterExpence(Number(values.value))
+
+        await setTotalAsync({ totalAmount: store.total - Number(values.value) })
 
         toast.success(
             t('toasts.addedExpense', {
