@@ -36,6 +36,7 @@ import {
 import useBankStore from 'store/bank.store'
 import { toast } from 'react-toastify'
 import { formatCurrency } from 'lib/utils'
+import { useSetNextMonthTotalAmount } from 'api/main.api'
 
 const formSchema = z.object({
     rate: z
@@ -56,6 +57,9 @@ export default function NextMonthIncomeCalculate() {
     const store = useStore()
     const bankStore = useBankStore()
 
+    const { mutateAsync: setNextMonthAmountAsync } =
+        useSetNextMonthTotalAmount()
+
     const t = useTranslations('dialogs')
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -68,7 +72,7 @@ export default function NextMonthIncomeCalculate() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         const { rate, hours, customValue, currency } = values
 
         const rateMultiplyHours = Number(rate) * Number(hours)
@@ -96,6 +100,9 @@ export default function NextMonthIncomeCalculate() {
         const result = rateInUah + customInUah
 
         store.setNextMonthIncome(result)
+
+        await setNextMonthAmountAsync({ nextMonthTotalAmount: result })
+
         toast.success(`you add ${formatCurrency(result)} uah`)
         form.reset()
     }

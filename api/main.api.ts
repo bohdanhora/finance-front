@@ -4,6 +4,9 @@ import { transactionsAxios } from 'config/axios.instances'
 import { toast } from 'react-toastify'
 import {
     AllTransactionsInfoResponse,
+    NextMonthTotalAmountErrorResponse,
+    NextMonthTotalAmountPayload,
+    NextMonthTotalAmountResponseType,
     TotalAmountErrorResponse,
     TotalAmountPayload,
     TotalAmountResponseType,
@@ -33,8 +36,24 @@ export const useSetTotalAmount = () => {
     return useMutation({
         mutationKey: ['total-amount'],
         mutationFn: setTotalAmount,
-        onSuccess: () => {},
         onError: (error: AxiosError<TotalAmountErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+export const setNextMonthTotalAmount = async (
+    payload: NextMonthTotalAmountPayload
+): Promise<NextMonthTotalAmountResponseType> => {
+    const res = await transactionsAxios.post('set-next-month-total', payload)
+    return res.data
+}
+
+export const useSetNextMonthTotalAmount = () => {
+    return useMutation({
+        mutationKey: ['next-month-total-amount'],
+        mutationFn: setNextMonthTotalAmount,
+        onError: (error: AxiosError<NextMonthTotalAmountErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })
