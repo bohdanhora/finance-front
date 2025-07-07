@@ -33,6 +33,7 @@ import { cn, createDateString } from 'lib/utils'
 import { useTranslations } from 'next-intl'
 import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
+import { useSetTotalAmount } from 'api/main.api'
 
 const formSchema = z.object({
     value: z
@@ -47,6 +48,8 @@ export default function IncomeDialogComponent() {
     const store = useStore()
     const t = useTranslations()
 
+    const { mutateAsync: setTotalAsync } = useSetTotalAmount()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -56,7 +59,7 @@ export default function IncomeDialogComponent() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         store.setTotal(Number(values.value))
         store.setTotalIncome(Number(values.value))
         store.setNewSpend({
@@ -66,6 +69,8 @@ export default function IncomeDialogComponent() {
             categorie: 'income',
             description: values.description || '',
         })
+
+        await setTotalAsync({ totalAmount: store.total + Number(values.value) })
 
         toast.success(
             t('toasts.addedIncome', {

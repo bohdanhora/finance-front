@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import axios from 'axios'
-import { MonobankCurrency } from 'types/index'
+import { MonobankCurrency } from 'types/auth.types'
 
 const getCurrency = async (): Promise<MonobankCurrency[]> => {
     const res = await axios.get<MonobankCurrency[]>(

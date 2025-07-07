@@ -14,7 +14,8 @@ import { toast } from 'react-toastify'
 import { useTranslations } from 'next-intl'
 import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
-import { useLogoutMutation } from 'api/main.api'
+import { useLogoutMutation } from 'api/auth.api'
+import Cookies from 'js-cookie'
 
 export default function Navbar() {
     const {
@@ -30,8 +31,13 @@ export default function Navbar() {
         useLogoutMutation()
 
     const logout = async () => {
-        const userId = localStorage.getItem('userId') || ''
+        const userId = Cookies.get('userId') || ''
+
         await logoutAsync({ userId })
+
+        Cookies.remove('accessToken')
+        Cookies.remove('refreshToken')
+        Cookies.remove('userId')
     }
 
     useEffect(() => {

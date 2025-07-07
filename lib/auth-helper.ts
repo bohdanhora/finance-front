@@ -1,11 +1,12 @@
-import { LoginResponseType } from 'types/index'
+import Cookies from 'js-cookie'
+import { LoginResponseType } from 'types/auth.types'
 
 export const loginSetTokens = ({
     accessToken,
     refreshToken,
     userId,
 }: LoginResponseType) => {
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('userId', userId)
+    Cookies.set('accessToken', accessToken, { expires: 1 })
+    Cookies.set('refreshToken', refreshToken, { expires: 3 })
+    Cookies.set('userId', userId, { expires: 3 })
 }
