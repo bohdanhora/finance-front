@@ -29,9 +29,10 @@ import { Checkbox } from 'components/ui/checkbox'
 import { Label } from 'components/ui/label'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
-import { DefaultEssentialsArray } from 'constants/index'
+import { DefaultEssentialsArray, EssentialsType } from 'constants/index'
 import { toast } from 'react-toastify'
 import { XIcon } from 'lucide-react'
+import { useSetEssentialPayments } from 'api/main.api'
 
 const formSchema = z.object({
     amount: z
@@ -50,6 +51,9 @@ export default function EssentialSpends({ nextMonth }: Props) {
 
     const t = useTranslations()
 
+    const { mutateAsync: setEssentialsPaymentsAsync } =
+        useSetEssentialPayments()
+
     const arrayEssentials = nextMonth
         ? store.nextMonthEssentials
         : store.essentials
@@ -62,13 +66,17 @@ export default function EssentialSpends({ nextMonth }: Props) {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         if (nextMonth) {
             store.setNextMonthNewEssential({
                 id: values.title + Math.random().toFixed(3) || '',
                 title: values.title || '',
                 amount: Number(values.amount) || 0,
                 checked: false,
+            })
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.NEXT_MONTH,
+                items: store.nextMonthEssentials,
             })
         } else {
             store.setNewEssential({
@@ -77,20 +85,32 @@ export default function EssentialSpends({ nextMonth }: Props) {
                 amount: Number(values.amount) || 0,
                 checked: false,
             })
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.THIS_MONTH,
+                items: store.essentials,
+            })
         }
 
         form.reset()
     }
 
-    const checkedFunc = (id: string, checked: boolean) => {
+    const checkedFunc = async (id: string, checked: boolean) => {
         if (nextMonth) {
             store.setNextMonthEssentialChecked({ id, checked })
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.NEXT_MONTH,
+                items: store.nextMonthEssentials,
+            })
         } else {
             store.setEssentialChecked({ id, checked })
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.THIS_MONTH,
+                items: store.essentials,
+            })
         }
     }
 
-    const setDefaultsEssentials = () => {
+    const setDefaultsEssentials = async () => {
         if (nextMonth && store.nextMonthEssentials.length > 0) {
             toast.error(t('dialogs.essentials.standardFillWarning'))
             return
@@ -104,17 +124,34 @@ export default function EssentialSpends({ nextMonth }: Props) {
 
         if (nextMonth) {
             store.setNextMonthFullEssentials(DefaultEssentialsArray)
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.NEXT_MONTH,
+                items: DefaultEssentialsArray,
+            })
         } else {
             store.setFullEssentials(DefaultEssentialsArray)
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.THIS_MONTH,
+                items: DefaultEssentialsArray,
+            })
         }
     }
 
-    const removeEssential = (id: string) => {
+    const removeEssential = async (id: string) => {
         if (nextMonth) {
             store.removeNextMonthEssential(id)
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.NEXT_MONTH,
+                items: store.nextMonthEssentials.filter((i) => i.id !== id),
+            })
         } else {
             store.removeEssential(id)
+            await setEssentialsPaymentsAsync({
+                type: EssentialsType.THIS_MONTH,
+                items: store.essentials.filter((i) => i.id !== id),
+            })
         }
+
         toast.success(t('dialogs.essentials.removed'))
     }
 

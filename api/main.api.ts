@@ -4,6 +4,8 @@ import { transactionsAxios } from 'config/axios.instances'
 import { toast } from 'react-toastify'
 import {
     AllTransactionsInfoResponse,
+    EssentialPaymentsPayload,
+    EssentialPaymentsResponseType,
     NextMonthTotalAmountErrorResponse,
     NextMonthTotalAmountPayload,
     NextMonthTotalAmountResponseType,
@@ -54,6 +56,23 @@ export const useSetNextMonthTotalAmount = () => {
         mutationKey: ['next-month-total-amount'],
         mutationFn: setNextMonthTotalAmount,
         onError: (error: AxiosError<NextMonthTotalAmountErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+export const setEssentialPayments = async (
+    payload: EssentialPaymentsPayload
+): Promise<EssentialPaymentsResponseType> => {
+    const res = await transactionsAxios.put('set-essential-payments', payload)
+    return res.data
+}
+
+export const useSetEssentialPayments = () => {
+    return useMutation({
+        mutationKey: ['essential-payments'],
+        mutationFn: setEssentialPayments,
+        onError: (error: AxiosError<EssentialPaymentsResponseType>) => {
             toast.error(error.response?.data.message)
         },
     })

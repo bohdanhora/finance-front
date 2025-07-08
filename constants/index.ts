@@ -9,6 +9,12 @@ export enum CURRENCY {
     EUR = 'eur',
 }
 
+export enum EssentialsType {
+    DEFAULT = 'default',
+    THIS_MONTH = 'this-month',
+    NEXT_MONTH = 'next-month',
+}
+
 export const LANG_COOKIES_NAME = 'LANG_FINANCE'
 export const CURRENCY_COOKIES_NAME = 'CURRENCY_FINANCE'
 
