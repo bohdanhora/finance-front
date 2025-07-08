@@ -2,80 +2,95 @@ import { create } from 'zustand'
 import { StoreType } from './type'
 
 const useStore = create<StoreType>((set) => ({
-    total: 0,
+    totalAmount: 0,
     totalIncome: 0,
     totalSpend: 0,
-    lastTransactions: [],
-    essentials: [],
-    nextMonthEssentials: [],
-    nextMonthIncome: 0,
+    nextMonthTotalAmount: 0,
 
-    setTotal: (addMoney) =>
-        set((state) => ({
-            total: state.total + addMoney,
-        })),
-    setTotalIncome: (addMoney) =>
-        set((state) => ({
-            totalIncome: state.totalIncome + addMoney,
-        })),
-    setNextMonthIncome: (income) =>
+    defaultEssentialsArray: [],
+    essentialsArray: [],
+    nextMonthEssentialsArray: [],
+    transactions: [],
+
+    setTotalAmount: (totalAmount) =>
         set(() => ({
-            nextMonthIncome: income,
+            totalAmount: totalAmount,
+        })),
+    setTotalIncome: (totalIncome) =>
+        set(() => ({
+            totalIncome: totalIncome,
+        })),
+    setTotalSpend: (totalSpend) =>
+        set(() => ({
+            totalSpend: totalSpend,
+        })),
+    setNextMonthTotalAmount: (nextMonthTotalAmount) =>
+        set(() => ({
+            nextMonthTotalAmount: nextMonthTotalAmount,
         })),
 
-    setFullEssentials: (essentialArray) =>
+    setDefaultEssentialsArray: (defaultEssentialsArray) =>
         set(() => ({
-            essentials: essentialArray,
+            defaultEssentialsArray: defaultEssentialsArray,
         })),
-    setNewEssential: (essential) =>
-        set((state) => ({
-            essentials: [essential, ...state.essentials],
-        })),
-    setEssentialChecked: (essential) =>
-        set((state) => ({
-            essentials: state.essentials.map((item) =>
-                item.id === essential.id
-                    ? { ...item, checked: essential.checked }
-                    : { ...item }
-            ),
-        })),
-    removeEssential: (id) =>
-        set((state) => ({
-            essentials: state.essentials.filter((i) => i.id !== id),
-        })),
-    setNextMonthFullEssentials: (essentialArray) =>
+    setEssentialsArray: (essentialsArray) =>
         set(() => ({
-            nextMonthEssentials: essentialArray,
+            essentialsArray: essentialsArray,
         })),
-    setNextMonthNewEssential: (essential) =>
-        set((state) => ({
-            nextMonthEssentials: [essential, ...state.nextMonthEssentials],
+    setNextMonthEssentialsArray: (nextMonthEssentialsArray) =>
+        set(() => ({
+            nextMonthEssentialsArray: nextMonthEssentialsArray,
         })),
-    setNextMonthEssentialChecked: (essential) =>
-        set((state) => ({
-            nextMonthEssentials: state.nextMonthEssentials.map((item) =>
-                item.id === essential.id
-                    ? { ...item, checked: essential.checked }
-                    : { ...item }
-            ),
+    setTransactions: (transactions) =>
+        set(() => ({
+            transactions: transactions,
         })),
-    removeNextMonthEssential: (id) =>
-        set((state) => ({
-            nextMonthEssentials: state.nextMonthEssentials.filter(
-                (i) => i.id !== id
-            ),
-        })),
-    setNewSpend: (spend) =>
-        set((state) => ({
-            lastTransactions: [spend, ...state.lastTransactions],
-        })),
-    calculateTotalAfterExpence: (expence) =>
-        set((state) => ({
-            total: state.total - expence,
-        })),
-    setTotalSpend: (spend) =>
-        set((state) => ({
-            totalSpend: state.totalSpend + spend,
-        })),
+
+    // setNewEssential: (essential) =>
+    //     set((state) => ({
+    //         essentials: [essential, ...state.essentials],
+    //     })),
+    // setEssentialChecked: (essential) =>
+    //     set((state) => ({
+    //         essentials: state.essentials.map((item) =>
+    //             item.id === essential.id
+    //                 ? { ...item, checked: essential.checked }
+    //                 : { ...item }
+    //         ),
+    //     })),
+    // removeEssential: (id) =>
+    //     set((state) => ({
+    //         essentials: state.essentials.filter((i) => i.id !== id),
+    //     })),
+    // setNextMonthFullEssentials: (essentialArray) =>
+    //     set(() => ({
+    //         nextMonthEssentials: essentialArray,
+    //     })),
+    // setNextMonthNewEssential: (essential) =>
+    //     set((state) => ({
+    //         nextMonthEssentials: [essential, ...state.nextMonthEssentials],
+    //     })),
+    // setNextMonthEssentialChecked: (essential) =>
+    //     set((state) => ({
+    //         nextMonthEssentials: state.nextMonthEssentials.map((item) =>
+    //             item.id === essential.id
+    //                 ? { ...item, checked: essential.checked }
+    //                 : { ...item }
+    //         ),
+    //     })),
+    // removeNextMonthEssential: (id) =>
+    //     set((state) => ({
+    //         nextMonthEssentials: state.nextMonthEssentials.filter(
+    //             (i) => i.id !== id
+    //         ),
+    //     })),
+    // setNewSpend: (spend) =>
+    //     set((state) => ({
+    //         lastTransactions: [spend, ...state.lastTransactions],
+    //     })),
+    // calculateTotalAfterExpence: (expence) =>
+    //     set((state) => ({
+    //         total: state.total - expence,
+    //     })),
 }))
 export default useStore

@@ -1,5 +1,7 @@
-export const clearAfterLogout = () => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('userId')
+import Cookies from 'js-cookie'
+
+export const clearCookies = () => {
+    Cookies.remove('accessToken')
+    Cookies.remove('refreshToken')
+    Cookies.remove('userId')
 }

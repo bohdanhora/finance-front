@@ -60,17 +60,20 @@ export default function IncomeDialogComponent() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setTotal(Number(values.value))
-        store.setTotalIncome(Number(values.value))
-        store.setNewSpend({
-            id: Math.random().toString(),
-            value: values.value,
-            date: createDateString(values.date),
-            categorie: 'income',
-            description: values.description || '',
+        const { totalAmount } = await setTotalAsync({
+            totalAmount: store.totalAmount,
         })
 
-        await setTotalAsync({ totalAmount: store.total + Number(values.value) })
+        store.setTotalAmount(totalAmount)
+
+        //TODO: set new transaction
+        // store.setNewSpend({
+        //     id: Math.random().toString(),
+        //     value: values.value,
+        //     date: createDateString(values.date),
+        //     categorie: 'income',
+        //     description: values.description || '',
+        // })
 
         toast.success(
             t('toasts.addedIncome', {

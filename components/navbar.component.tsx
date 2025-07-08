@@ -16,6 +16,7 @@ import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 import { useLogoutMutation } from 'api/auth.api'
 import Cookies from 'js-cookie'
+import { clearCookies } from 'lib/logout'
 
 export default function Navbar() {
     const {
@@ -34,10 +35,6 @@ export default function Navbar() {
         const userId = Cookies.get('userId') || ''
 
         await logoutAsync({ userId })
-
-        Cookies.remove('accessToken')
-        Cookies.remove('refreshToken')
-        Cookies.remove('userId')
     }
 
     useEffect(() => {

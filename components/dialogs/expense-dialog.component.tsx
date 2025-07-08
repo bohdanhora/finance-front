@@ -114,23 +114,23 @@ export default function ExpenseDialogComponent() {
     }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        if (store.total - Number(values.value) < 0) {
+        if (store.totalAmount - Number(values.value) < 0) {
             toast.error(t('toasts.noMoney'))
             return
         }
 
-        store.setTotalSpend(Number(values.value))
-        store.setNewSpend({
-            id: Math.random().toString(),
-            value: values.value,
-            date: createDateString(values.date),
-            categorie: values.categories,
-            description: values.description || '',
-        })
+        //TODO: set new transaction
+        // store.setNewSpend({
+        //     id: Math.random().toString(),
+        //     value: values.value,
+        //     date: createDateString(values.date),
+        //     categorie: values.categories,
+        //     description: values.description || '',
+        // })
 
         store.calculateTotalAfterExpence(Number(values.value))
 
-        await setTotalAsync({ totalAmount: store.total - Number(values.value) })
+        await setTotalAsync({ totalAmount: store.tota - Number(values.value) })
 
         toast.success(
             t('toasts.addedExpense', {

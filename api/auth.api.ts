@@ -3,7 +3,7 @@ import { AxiosError } from 'axios'
 import { authAxios } from 'config/axios.instances'
 import { Routes } from 'constants/routes'
 import { loginSetTokens } from 'lib/auth-helper'
-import { clearAfterLogout } from 'lib/logout'
+import { clearCookies } from 'lib/logout'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import {
@@ -81,8 +81,8 @@ export const useLogoutMutation = () => {
         mutationKey: ['logout'],
         mutationFn: logout,
         onSuccess: () => {
+            clearCookies()
             router.replace(Routes.LOGIN)
-            clearAfterLogout()
         },
         onError: (error: AxiosError<LogoutErrorResponse>) => {
             toast.error(error.response?.data.message)

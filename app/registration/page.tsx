@@ -64,8 +64,8 @@ export default function Registration() {
 
     return (
         <PublicProvider>
-            <section className="w-full min-h-screen flex justify-center items-center px-3">
-                <div className="p-10 border rounded-2xl min-w-md">
+            <section className="w-full min-h-screen flex justify-center items-center p-3">
+                <div className="p-10 border rounded-2xl w-96">
                     <h1 className="text-center mb-10 text-4xl">
                         {t('registration')}
                     </h1>
