@@ -1,3 +1,6 @@
+import { EssentialsType } from 'constants/index'
+import { EssentialType } from 'store/type'
+
 export type TotalAmountPayload = {
     totalAmount: number
 }
@@ -28,12 +31,28 @@ export type NextMonthTotalAmountErrorResponse = {
     statusCode: number
 }
 
+export type EssentialPaymentsPayload = {
+    type: EssentialsType
+    items: EssentialType[]
+}
+
+export type EssentialPaymentsResponseType = {
+    message: string
+    nextMonthTotalAmount: number
+}
+
+export type EssentialPaymentsErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}
+
 export type AllTransactionsInfoResponse = {
     userId: string
     totalAmount: number
     nextMonthTotalAmount: number
     defaultEssentialsArray: string[] | []
-    essentialsArray: string[] | []
-    nextMonthEssentialsArray: string[] | []
+    essentialsArray: EssentialType[] | []
+    nextMonthEssentialsArray: EssentialType[] | []
     transactions: string[] | []
 }

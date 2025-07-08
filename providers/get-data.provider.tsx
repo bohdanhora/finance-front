@@ -10,27 +10,16 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: allTransactionsData, isPending } = useAllTransactionInfo()
 
-    const prevTotalRef = useRef<number | undefined>(0)
-    const prevNextMonthRef = useRef<number | undefined>(0)
-
     useEffect(() => {
         if (!allTransactionsData) return
 
-        if (prevTotalRef.current !== allTransactionsData.totalAmount) {
-            store.setTotal(allTransactionsData.totalAmount || 0)
-            prevTotalRef.current = allTransactionsData.totalAmount
-        }
-
-        if (
-            prevNextMonthRef.current !==
-            allTransactionsData.nextMonthTotalAmount
-        ) {
-            store.setNextMonthIncome(
-                allTransactionsData.nextMonthTotalAmount || 0
-            )
-            prevNextMonthRef.current = allTransactionsData.nextMonthTotalAmount
-        }
-    }, [allTransactionsData, store])
+        store.setTotal(allTransactionsData.totalAmount || 0)
+        store.setNextMonthIncome(allTransactionsData.nextMonthTotalAmount || 0)
+        store.setFullEssentials(allTransactionsData.essentialsArray || [])
+        store.setNextMonthFullEssentials(
+            allTransactionsData.nextMonthEssentialsArray || []
+        )
+    }, [allTransactionsData])
 
     if (isPending) {
         return <Loader />
