@@ -79,6 +79,7 @@ export default function IncomeDialogComponent() {
         store.setTotalAmount(response.updatedTotals.totalAmount)
         store.setTotalIncome(response.updatedTotals.totalIncome)
         store.setTotalSpend(response.updatedTotals.totalSpend)
+        store.setTransactions(response.updatedItems)
 
         toast.success(
             t('toasts.addedIncome', {

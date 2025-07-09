@@ -146,7 +146,7 @@ export const useRemoveEssential = () => {
 const newEssential = async (
     payload: NewEssentialPayload
 ): Promise<NewEssentialResponseType> => {
-    const res = await transactionsAxios.put('new-essential', payload)
+    const res = await transactionsAxios.post('new-essential', payload)
     return res.data
 }
 

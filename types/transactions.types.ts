@@ -48,12 +48,12 @@ export type NextMonthTotalAmountErrorResponse = {
 
 export type EssentialPaymentsPayload = {
     type: EssentialsType
-    items: EssentialType[]
+    items: EssentialType[] | []
 }
 
 export type EssentialPaymentsResponseType = {
     message: string
-    updatedItems: EssentialType[]
+    updatedItems: EssentialType[] | []
 }
 
 export type EssentialPaymentsErrorResponse = {
@@ -78,6 +78,7 @@ export type NewTransactionResponseType = {
         totalIncome: number
         totalSpend: number
     }
+    updatedItems: TransactionType[] | []
 }
 
 export type NewTransactionErrorResponse = {
@@ -98,7 +99,7 @@ export type CheckedEssentialPayload = {
 
 export type CheckedEssentialResponseType = {
     message: string
-    updatedItems: EssentialType[]
+    updatedItems: EssentialType[] | []
 }
 
 export type CheckedEssentialErrorResponse = {
@@ -115,7 +116,7 @@ export type RemoveEssentialPayload = {
 export type RemoveEssentialResponseType = {
     message: string
     removedId: string
-    updatedItems: EssentialType[]
+    updatedItems: EssentialType[] | []
 }
 
 export type RemoveEssentialErrorResponse = {
@@ -132,7 +133,7 @@ export type NewEssentialPayload = {
 export type NewEssentialResponseType = {
     message: string
     addedItem: EssentialType
-    updatedItems: EssentialType[]
+    updatedItems: EssentialType[] | []
 }
 
 export type NewEssentialErrorResponse = {
