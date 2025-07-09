@@ -51,7 +51,7 @@ transactionsAxios.interceptors.response.use(
                 console.log('res after refresh', refreshToken)
 
                 const newToken = res.data.accessToken
-                console.log('newToken', refreshToken)
+                console.log('newToken', newToken)
 
                 Cookies.set('accessToken', newToken, { secure: true })
 
