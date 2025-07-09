@@ -26,6 +26,8 @@ transactionsAxios.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config
 
+        console.log('error', error)
+
         if (
             error.response?.data?.message === 'Invalid Token' &&
             !originalRequest._retry
@@ -34,6 +36,7 @@ transactionsAxios.interceptors.response.use(
 
             try {
                 const refreshToken = Cookies.get('refreshToken')
+                console.log('refreshToken', refreshToken)
 
                 if (!refreshToken) {
                     Cookies.remove('accessToken')
@@ -45,8 +48,10 @@ transactionsAxios.interceptors.response.use(
                 }
 
                 const res = await authAxios.post('/refresh', { refreshToken })
+                console.log('res after refresh', refreshToken)
 
                 const newToken = res.data.accessToken
+                console.log('newToken', refreshToken)
 
                 Cookies.set('accessToken', newToken, { secure: true })
 
@@ -57,9 +62,11 @@ transactionsAxios.interceptors.response.use(
                         Authorization: `Bearer ${newToken}`,
                     },
                 }
+                console.log('new req', newRequest)
 
                 return transactionsAxios(newRequest)
             } catch (refreshError) {
+                console.log('refresh error', refreshError)
                 Cookies.remove('accessToken')
                 Cookies.remove('refreshToken')
                 if (typeof window !== 'undefined') {
