@@ -1,4 +1,4 @@
-import { EssentialsType } from 'constants/index'
+import { EssentialsType, TransactionType } from 'constants/index'
 import { EssentialType } from 'store/type'
 
 export type TotalAmountPayload = {
@@ -42,6 +42,30 @@ export type EssentialPaymentsResponseType = {
 }
 
 export type EssentialPaymentsErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}
+
+export type NewTransactionPaymentsPayload = {
+    transactionType: TransactionType
+    id: string
+    value: number
+    date: Date
+    categorie: string
+    description: string
+}
+
+export type NewTransactionResponseType = {
+    message: string
+    updatedTotals: {
+        totalAmount: number
+        totalIncome: number
+        totalSpend: number
+    }
+}
+
+export type NewTransactionErrorResponse = {
     error: string
     message: string
     statusCode: number

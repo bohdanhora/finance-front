@@ -62,10 +62,6 @@ const useStore = create<StoreType>((set) => ({
     //     set((state) => ({
     //         essentials: state.essentials.filter((i) => i.id !== id),
     //     })),
-    // setNextMonthFullEssentials: (essentialArray) =>
-    //     set(() => ({
-    //         nextMonthEssentials: essentialArray,
-    //     })),
     // setNextMonthNewEssential: (essential) =>
     //     set((state) => ({
     //         nextMonthEssentials: [essential, ...state.nextMonthEssentials],
@@ -83,14 +79,6 @@ const useStore = create<StoreType>((set) => ({
     //         nextMonthEssentials: state.nextMonthEssentials.filter(
     //             (i) => i.id !== id
     //         ),
-    //     })),
-    // setNewSpend: (spend) =>
-    //     set((state) => ({
-    //         lastTransactions: [spend, ...state.lastTransactions],
-    //     })),
-    // calculateTotalAfterExpence: (expence) =>
-    //     set((state) => ({
-    //         total: state.total - expence,
     //     })),
 }))
 export default useStore

@@ -29,11 +29,13 @@ import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
 import { CalendarIcon, PlusIcon } from 'lucide-react'
 import { Calendar } from 'ui/calendar'
 import { format } from 'date-fns'
-import { cn, createDateString } from 'lib/utils'
+import { cn, formatCurrency } from 'lib/utils'
 import { useTranslations } from 'next-intl'
 import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
-import { useSetTotalAmount } from 'api/main.api'
+import { useSetNewTransaction } from 'api/main.api'
+import { v4 as uuidv4 } from 'uuid'
+import { TransactionType } from 'constants/index'
 
 const formSchema = z.object({
     value: z
@@ -48,7 +50,10 @@ export default function IncomeDialogComponent() {
     const store = useStore()
     const t = useTranslations()
 
-    const { mutateAsync: setTotalAsync } = useSetTotalAmount()
+    const {
+        mutateAsync: setNewTransactionAsync,
+        isPending: setNewTransactionPending,
+    } = useSetNewTransaction()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -60,24 +65,24 @@ export default function IncomeDialogComponent() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        const { totalAmount } = await setTotalAsync({
-            totalAmount: store.totalAmount,
-        })
+        const createTransaction = {
+            transactionType: TransactionType.INCOME,
+            id: uuidv4(),
+            value: Number(values.value),
+            date: values.date,
+            categorie: TransactionType.INCOME,
+            description: values.description || '',
+        }
 
-        store.setTotalAmount(totalAmount)
+        const response = await setNewTransactionAsync(createTransaction)
 
-        //TODO: set new transaction
-        // store.setNewSpend({
-        //     id: Math.random().toString(),
-        //     value: values.value,
-        //     date: createDateString(values.date),
-        //     categorie: 'income',
-        //     description: values.description || '',
-        // })
+        store.setTotalAmount(response.updatedTotals.totalAmount)
+        store.setTotalIncome(response.updatedTotals.totalIncome)
+        store.setTotalSpend(response.updatedTotals.totalSpend)
 
         toast.success(
             t('toasts.addedIncome', {
-                amount: values.value,
+                amount: formatCurrency(Number(values.value)),
             })
         )
         form.reset()
@@ -219,6 +224,7 @@ export default function IncomeDialogComponent() {
                                 </Button>
                             </DialogClose>
                             <Button
+                                disabled={setNewTransactionPending}
                                 type="submit"
                                 className={twMerge(
                                     !form.formState.isValid &&

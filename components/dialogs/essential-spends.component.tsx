@@ -55,8 +55,8 @@ export default function EssentialSpends({ nextMonth }: Props) {
         useSetEssentialPayments()
 
     const arrayEssentials = nextMonth
-        ? store.nextMonthEssentials
-        : store.essentials
+        ? store.nextMonthEssentialsArray
+        : store.essentialsArray
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

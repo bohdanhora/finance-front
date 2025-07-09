@@ -7,7 +7,7 @@ import { ContentWrapper } from './wrappers/container.wrapper'
 export default function LastSpends() {
     const store = useStore()
 
-    if (!store.lastTransactions.length) return <p>No any spends</p>
+    if (!store.transactions.length) return <p>No any spends</p>
 
     const renderLi = ({
         date,
@@ -26,7 +26,5 @@ export default function LastSpends() {
         </li>
     )
 
-    return (
-        <ContentWrapper>{store.lastTransactions.map(renderLi)}</ContentWrapper>
-    )
+    return <ContentWrapper>{store.transactions.map(renderLi)}</ContentWrapper>
 }

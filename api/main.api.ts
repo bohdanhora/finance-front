@@ -6,6 +6,8 @@ import {
     AllTransactionsInfoResponse,
     EssentialPaymentsPayload,
     EssentialPaymentsResponseType,
+    NewTransactionPaymentsPayload,
+    NewTransactionResponseType,
     NextMonthTotalAmountErrorResponse,
     NextMonthTotalAmountPayload,
     NextMonthTotalAmountResponseType,
@@ -73,6 +75,23 @@ export const useSetEssentialPayments = () => {
         mutationKey: ['essential-payments'],
         mutationFn: setEssentialPayments,
         onError: (error: AxiosError<EssentialPaymentsResponseType>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+export const setNewTransaction = async (
+    payload: NewTransactionPaymentsPayload
+): Promise<NewTransactionResponseType> => {
+    const res = await transactionsAxios.post('new-transaction', payload)
+    return res.data
+}
+
+export const useSetNewTransaction = () => {
+    return useMutation({
+        mutationKey: ['new-transaction'],
+        mutationFn: setNewTransaction,
+        onError: (error: AxiosError<NewTransactionResponseType>) => {
             toast.error(error.response?.data.message)
         },
     })

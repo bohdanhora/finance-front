@@ -50,7 +50,7 @@ export default function ChangeNextMonthIncome() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        store.setNextMonthIncome(Number(values.value))
+        store.setNextMonthTotalAmount(Number(values.value))
 
         await setNextMonthAmountAsync({
             nextMonthTotalAmount: Number(values.value),

@@ -39,13 +39,13 @@ export default function PossibleRemaining() {
         const eurRate = bankStore.eur?.rateBuy || 0
         const usdRate = bankStore.usd?.rateBuy || 0
 
-        const totalEssentials = store.essentials.reduce((sum, item) => {
+        const totalEssentials = store.essentialsArray.reduce((sum, item) => {
             return !item.checked ? sum + item.amount : sum
         }, 0)
-        const totalWithEssentials = store.total - totalEssentials
+        const totalWithEssentials = store.totalAmount - totalEssentials
 
         const { dailyBudget: dailyFromTotal, daysLeft } = calculateDailyBudget(
-            store.total
+            store.totalAmount
         )
         const { dailyBudget: dailyAfterEssentials } =
             calculateDailyBudget(totalWithEssentials)
@@ -71,10 +71,10 @@ export default function PossibleRemaining() {
             },
         })
     }, [
-        store.total,
+        store.totalAmount,
         bankStore.usd?.rateBuy,
         bankStore.eur?.rateBuy,
-        store.essentials,
+        store.essentialsArray,
     ])
 
     return (
