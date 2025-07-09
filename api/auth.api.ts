@@ -3,7 +3,7 @@ import { AxiosError } from 'axios'
 import { authAxios } from 'config/axios.instances'
 import { Routes } from 'constants/routes'
 import { loginSetTokens } from 'lib/auth-helper'
-import { clearAfterLogout } from 'lib/logout'
+import { clearCookies } from 'lib/logout'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import {
@@ -21,9 +21,7 @@ import {
     RegistrationResponseType,
 } from 'types/auth.types'
 
-export const login = async (
-    payload: LoginPayload
-): Promise<LoginResponseType> => {
+const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
     const res = await authAxios.post('login', payload)
     return res.data
 }
@@ -46,7 +44,7 @@ export const useLoginMutation = () => {
     })
 }
 
-export const registration = async (
+const registration = async (
     payload: RegistrationPayload
 ): Promise<RegistrationResponseType> => {
     const res = await authAxios.post('registration', payload)
@@ -68,9 +66,7 @@ export const useRegistrationMutation = () => {
     })
 }
 
-export const logout = async (
-    payload: LogoutPayload
-): Promise<LogoutResponseType> => {
+const logout = async (payload: LogoutPayload): Promise<LogoutResponseType> => {
     const res = await authAxios.post('logout', payload)
     return res.data
 }
@@ -81,8 +77,8 @@ export const useLogoutMutation = () => {
         mutationKey: ['logout'],
         mutationFn: logout,
         onSuccess: () => {
+            clearCookies()
             router.replace(Routes.LOGIN)
-            clearAfterLogout()
         },
         onError: (error: AxiosError<LogoutErrorResponse>) => {
             toast.error(error.response?.data.message)
@@ -90,7 +86,7 @@ export const useLogoutMutation = () => {
     })
 }
 
-export const refresh = async (
+const refresh = async (
     payload: RefreshPayload
 ): Promise<RefreshResponseType> => {
     const res = await authAxios.post('refresh', payload)

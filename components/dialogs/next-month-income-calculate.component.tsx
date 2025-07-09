@@ -99,7 +99,7 @@ export default function NextMonthIncomeCalculate() {
 
         const result = rateInUah + customInUah
 
-        store.setNextMonthIncome(result)
+        store.setNextMonthTotalAmount(result)
 
         await setNextMonthAmountAsync({ nextMonthTotalAmount: result })
 

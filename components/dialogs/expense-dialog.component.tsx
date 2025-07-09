@@ -50,14 +50,16 @@ import {
     HandshakeIcon,
     MinusIcon,
 } from 'lucide-react'
-import { cn, createDateString } from 'lib/utils'
+import { cn, formatCurrency } from 'lib/utils'
 import { Calendar } from 'ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from 'ui/popover'
 import { Textarea } from 'ui/textarea'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
 import { toast } from 'react-toastify'
-import { useSetTotalAmount } from 'api/main.api'
+import { useSetNewTransaction } from 'api/main.api'
+import { TransactionEnum } from 'constants/index'
+import { v4 as uuidv4 } from 'uuid'
 
 const formSchema = z.object({
     value: z
@@ -87,7 +89,10 @@ export default function ExpenseDialogComponent() {
     const store = useStore()
     const t = useTranslations()
 
-    const { mutateAsync: setTotalAsync } = useSetTotalAmount()
+    const {
+        mutateAsync: setNewTransactionAsync,
+        isPending: setNewTransactionPending,
+    } = useSetNewTransaction()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -114,27 +119,25 @@ export default function ExpenseDialogComponent() {
     }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        if (store.total - Number(values.value) < 0) {
-            toast.error(t('toasts.noMoney'))
-            return
-        }
-
-        store.setTotalSpend(Number(values.value))
-        store.setNewSpend({
-            id: Math.random().toString(),
-            value: values.value,
-            date: createDateString(values.date),
+        const createTransaction = {
+            transactionType: TransactionEnum.EXPENCE,
+            id: uuidv4(),
+            value: Number(values.value),
+            date: values.date,
             categorie: values.categories,
             description: values.description || '',
-        })
+        }
 
-        store.calculateTotalAfterExpence(Number(values.value))
+        const response = await setNewTransactionAsync(createTransaction)
 
-        await setTotalAsync({ totalAmount: store.total - Number(values.value) })
+        store.setTotalAmount(response.updatedTotals.totalAmount)
+        store.setTotalIncome(response.updatedTotals.totalIncome)
+        store.setTotalSpend(response.updatedTotals.totalSpend)
+        store.setTransactions(response.updatedItems)
 
         toast.success(
             t('toasts.addedExpense', {
-                amount: values.value,
+                amount: formatCurrency(Number(values.value)),
             })
         )
         form.reset()
@@ -314,6 +317,7 @@ export default function ExpenseDialogComponent() {
                                 </Button>
                             </DialogClose>
                             <Button
+                                disabled={setNewTransactionPending}
                                 type="submit"
                                 className={twMerge(
                                     !form.formState.isValid &&

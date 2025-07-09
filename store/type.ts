@@ -1,47 +1,30 @@
 import { MonobankCurrency } from '../types/auth.types'
-
-export type SpendType = {
-    description: string
-    value: string
-    date: string
-    categorie: string
-    id: string
-}
-
-export type EssentialType = {
-    id: string
-    amount: number
-    title: string
-    checked: boolean
-}
+import { EssentialType, TransactionType } from 'types/transactions.types'
 
 export type StoreType = {
-    total: number
+    totalAmount: number
     totalIncome: number
     totalSpend: number
-    nextMonthIncome: number
-    essentials: EssentialType[] | []
-    nextMonthEssentials: EssentialType[] | []
-    lastTransactions: SpendType[] | []
+    nextMonthTotalAmount: number
 
-    setTotalIncome: (spend: number) => void
-    setTotal: (spend: number) => void
-    setFullEssentials: (essentialAray: EssentialType[]) => void
-    setNewEssential: (essential: EssentialType) => void
-    setEssentialChecked: (
-        essential: Pick<EssentialType, 'id' | 'checked'>
+    defaultEssentialsArray: EssentialType[] | []
+    essentialsArray: EssentialType[] | []
+    nextMonthEssentialsArray: EssentialType[] | []
+    transactions: TransactionType[] | []
+
+    setTotalAmount: (totalAmount: number) => void
+    setTotalIncome: (totalIncome: number) => void
+    setTotalSpend: (totalSpend: number) => void
+    setNextMonthTotalAmount: (nextMonthTotalAmount: number) => void
+
+    setDefaultEssentialsArray: (
+        defaultEssentialsArray: EssentialType[] | []
     ) => void
-    removeEssential: (id: string) => void
-    setNextMonthFullEssentials: (essentialAray: EssentialType[]) => void
-    setNextMonthNewEssential: (essential: EssentialType) => void
-    setNextMonthEssentialChecked: (
-        essential: Pick<EssentialType, 'id' | 'checked'>
+    setEssentialsArray: (essentialsArray: EssentialType[] | []) => void
+    setNextMonthEssentialsArray: (
+        nextMonthEssentialsArray: EssentialType[] | []
     ) => void
-    removeNextMonthEssential: (id: string) => void
-    setNewSpend: (spend: SpendType) => void
-    setTotalSpend: (spend: number) => void
-    calculateTotalAfterExpence: (expence: number) => void
-    setNextMonthIncome: (income: number) => void
+    setTransactions: (transactions: TransactionType[] | []) => void
 }
 
 export type BankStoreType = {

@@ -15,6 +15,11 @@ export enum EssentialsType {
     NEXT_MONTH = 'next-month',
 }
 
+export enum TransactionEnum {
+    EXPENCE = 'expence',
+    INCOME = 'income',
+}
+
 export const LANG_COOKIES_NAME = 'LANG_FINANCE'
 export const CURRENCY_COOKIES_NAME = 'CURRENCY_FINANCE'
 

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { Routes } from 'constants/routes'
 import Cookies from 'js-cookie'
 
 const url = process.env.NEXT_PUBLIC_API_URL
@@ -38,7 +39,7 @@ transactionsAxios.interceptors.response.use(
                     Cookies.remove('accessToken')
                     Cookies.remove('refreshToken')
                     if (typeof window !== 'undefined') {
-                        window.location.href = '/login'
+                        window.location.href = Routes.LOGIN
                     }
                     return Promise.reject(new Error('No refresh token found'))
                 }
@@ -62,7 +63,7 @@ transactionsAxios.interceptors.response.use(
                 Cookies.remove('accessToken')
                 Cookies.remove('refreshToken')
                 if (typeof window !== 'undefined') {
-                    window.location.href = '/login'
+                    window.location.href = Routes.LOGIN
                 }
                 return Promise.reject(refreshError)
             }

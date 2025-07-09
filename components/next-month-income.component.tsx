@@ -43,7 +43,7 @@ export const NextMonthIncome = () => {
         const eurRate = bankStore.eur?.rateBuy || 0
         const usdRate = bankStore.usd?.rateBuy || 0
 
-        const totalEssentials = store.nextMonthEssentials.reduce(
+        const totalEssentials = store.nextMonthEssentialsArray.reduce(
             (sum, item) => {
                 return !item.checked ? sum + item.amount : sum
             },
@@ -51,15 +51,15 @@ export const NextMonthIncome = () => {
         )
 
         const totalIncomeWithEssentials =
-            store.nextMonthIncome - totalEssentials
+            store.nextMonthTotalAmount - totalEssentials
 
         const savedAfterEssentials = calculateSavings(totalIncomeWithEssentials)
 
         setState({
             totalIncome: {
-                default: store.nextMonthIncome,
-                [CURRENCY.EUR]: store.nextMonthIncome / eurRate,
-                [CURRENCY.USD]: store.nextMonthIncome / usdRate,
+                default: store.nextMonthTotalAmount,
+                [CURRENCY.EUR]: store.nextMonthTotalAmount / eurRate,
+                [CURRENCY.USD]: store.nextMonthTotalAmount / usdRate,
             },
             remainingIncome: {
                 default: totalIncomeWithEssentials,
@@ -78,10 +78,10 @@ export const NextMonthIncome = () => {
             },
         })
     }, [
-        store.nextMonthIncome,
+        store.nextMonthTotalAmount,
         bankStore.usd?.rateBuy,
         bankStore.eur?.rateBuy,
-        store.nextMonthEssentials,
+        store.nextMonthEssentialsArray,
     ])
 
     return (

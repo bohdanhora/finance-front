@@ -34,10 +34,6 @@ export default function Navbar() {
         const userId = Cookies.get('userId') || ''
 
         await logoutAsync({ userId })
-
-        Cookies.remove('accessToken')
-        Cookies.remove('refreshToken')
-        Cookies.remove('userId')
     }
 
     useEffect(() => {

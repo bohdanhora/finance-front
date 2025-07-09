@@ -23,19 +23,19 @@ export default function Total() {
 
     useEffect(() => {
         if (bankStore.usd?.rateBuy) {
-            setToDollar(store.total / bankStore.usd.rateBuy)
+            setToDollar(store.totalAmount / bankStore.usd.rateBuy)
         }
 
         if (bankStore.eur?.rateBuy) {
-            setToEuro(store.total / bankStore.eur.rateBuy)
+            setToEuro(store.totalAmount / bankStore.eur.rateBuy)
         }
-    }, [store.total, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
+    }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
         <header className="flex flex-col items-center justify-center gap-10">
             <div className="text-center">
                 <h1 className="md:text-9xl text-xl font-medium">
-                    {formatCurrency(store.total)} ₴
+                    {formatCurrency(store.totalAmount)} ₴
                 </h1>
                 <p>≈</p>
                 <p>{converted}</p>
