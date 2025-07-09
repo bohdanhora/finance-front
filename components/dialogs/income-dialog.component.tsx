@@ -35,7 +35,7 @@ import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
 import { useSetNewTransaction } from 'api/main.api'
 import { v4 as uuidv4 } from 'uuid'
-import { TransactionType } from 'constants/index'
+import { TransactionEnum } from 'constants/index'
 
 const formSchema = z.object({
     value: z
@@ -66,11 +66,11 @@ export default function IncomeDialogComponent() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const createTransaction = {
-            transactionType: TransactionType.INCOME,
+            transactionType: TransactionEnum.INCOME,
             id: uuidv4(),
             value: Number(values.value),
             date: values.date,
-            categorie: TransactionType.INCOME,
+            categorie: TransactionEnum.INCOME,
             description: values.description || '',
         }
 

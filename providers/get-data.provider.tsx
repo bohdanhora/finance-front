@@ -41,6 +41,7 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
         store.setNextMonthEssentialsArray(
             allTransactionsData.nextMonthEssentialsArray || []
         )
+        store.setTransactions(allTransactionsData.transactions || [])
     }, [allTransactionsData])
 
     if (isPending) {

@@ -58,7 +58,7 @@ import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
 import { toast } from 'react-toastify'
 import { useSetNewTransaction } from 'api/main.api'
-import { TransactionType } from 'constants/index'
+import { TransactionEnum } from 'constants/index'
 import { v4 as uuidv4 } from 'uuid'
 
 const formSchema = z.object({
@@ -120,7 +120,7 @@ export default function ExpenseDialogComponent() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const createTransaction = {
-            transactionType: TransactionType.EXPENCE,
+            transactionType: TransactionEnum.EXPENCE,
             id: uuidv4(),
             value: Number(values.value),
             date: values.date,

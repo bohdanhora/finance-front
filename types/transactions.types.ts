@@ -1,5 +1,5 @@
-import { EssentialsType, TransactionType } from 'constants/index'
-import { EssentialType } from 'store/type'
+import { EssentialsType, TransactionEnum } from 'constants/index'
+import { EssentialType, TransactionType } from 'store/type'
 
 export type TotalAmountPayload = {
     totalAmount: number
@@ -48,7 +48,7 @@ export type EssentialPaymentsErrorResponse = {
 }
 
 export type NewTransactionPaymentsPayload = {
-    transactionType: TransactionType
+    transactionType: TransactionEnum
     id: string
     value: number
     date: Date
@@ -78,5 +78,5 @@ export type AllTransactionsInfoResponse = {
     defaultEssentialsArray: string[] | []
     essentialsArray: EssentialType[] | []
     nextMonthEssentialsArray: EssentialType[] | []
-    transactions: string[] | []
+    transactions: TransactionType[] | []
 }

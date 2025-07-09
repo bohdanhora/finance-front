@@ -1,8 +1,10 @@
+import { TransactionEnum } from 'constants/index'
 import { MonobankCurrency } from '../types/auth.types'
 
-export type SpendType = {
+export type TransactionType = {
+    transactionType: TransactionEnum
     description: string
-    value: string
+    value: number
     date: string
     categorie: string
     id: string
@@ -24,7 +26,7 @@ export type StoreType = {
     defaultEssentialsArray: EssentialType[] | []
     essentialsArray: EssentialType[] | []
     nextMonthEssentialsArray: EssentialType[] | []
-    transactions: SpendType[] | []
+    transactions: TransactionType[] | []
 
     setTotalAmount: (totalAmount: number) => void
     setTotalIncome: (totalIncome: number) => void
@@ -38,7 +40,7 @@ export type StoreType = {
     setNextMonthEssentialsArray: (
         nextMonthEssentialsArray: EssentialType[] | []
     ) => void
-    setTransactions: (transactions: SpendType[] | []) => void
+    setTransactions: (transactions: TransactionType[] | []) => void
 }
 
 export type BankStoreType = {

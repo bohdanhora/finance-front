@@ -15,7 +15,7 @@ export enum EssentialsType {
     NEXT_MONTH = 'next-month',
 }
 
-export enum TransactionType {
+export enum TransactionEnum {
     EXPENCE = 'expence',
     INCOME = 'income',
 }
