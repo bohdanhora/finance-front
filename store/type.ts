@@ -1,21 +1,5 @@
-import { TransactionEnum } from 'constants/index'
 import { MonobankCurrency } from '../types/auth.types'
-
-export type TransactionType = {
-    transactionType: TransactionEnum
-    description: string
-    value: number
-    date: string
-    categorie: string
-    id: string
-}
-
-export type EssentialType = {
-    id: string
-    amount: number
-    title: string
-    checked: boolean
-}
+import { EssentialType, TransactionType } from 'types/transactions.types'
 
 export type StoreType = {
     totalAmount: number

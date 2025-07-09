@@ -45,40 +45,5 @@ const useStore = create<StoreType>((set) => ({
         set(() => ({
             transactions: transactions,
         })),
-
-    // setNewEssential: (essential) =>
-    //     set((state) => ({
-    //         essentials: [essential, ...state.essentials],
-    //     })),
-    // setEssentialChecked: (essential) =>
-    //     set((state) => ({
-    //         essentials: state.essentials.map((item) =>
-    //             item.id === essential.id
-    //                 ? { ...item, checked: essential.checked }
-    //                 : { ...item }
-    //         ),
-    //     })),
-    // removeEssential: (id) =>
-    //     set((state) => ({
-    //         essentials: state.essentials.filter((i) => i.id !== id),
-    //     })),
-    // setNextMonthNewEssential: (essential) =>
-    //     set((state) => ({
-    //         nextMonthEssentials: [essential, ...state.nextMonthEssentials],
-    //     })),
-    // setNextMonthEssentialChecked: (essential) =>
-    //     set((state) => ({
-    //         nextMonthEssentials: state.nextMonthEssentials.map((item) =>
-    //             item.id === essential.id
-    //                 ? { ...item, checked: essential.checked }
-    //                 : { ...item }
-    //         ),
-    //     })),
-    // removeNextMonthEssential: (id) =>
-    //     set((state) => ({
-    //         nextMonthEssentials: state.nextMonthEssentials.filter(
-    //             (i) => i.id !== id
-    //         ),
-    //     })),
 }))
 export default useStore

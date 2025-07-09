@@ -16,7 +16,6 @@ import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 import { useLogoutMutation } from 'api/auth.api'
 import Cookies from 'js-cookie'
-import { clearCookies } from 'lib/logout'
 
 export default function Navbar() {
     const {

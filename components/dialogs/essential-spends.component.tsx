@@ -32,7 +32,13 @@ import { twMerge } from 'tailwind-merge'
 import { DefaultEssentialsArray, EssentialsType } from 'constants/index'
 import { toast } from 'react-toastify'
 import { XIcon } from 'lucide-react'
-import { useSetEssentialPayments } from 'api/main.api'
+import {
+    useNewEssential,
+    useRemoveEssential,
+    useSetCheckedEssential,
+    useSetEssentialPayments,
+} from 'api/main.api'
+import { v4 as uuidv4 } from 'uuid'
 
 const formSchema = z.object({
     amount: z
@@ -51,8 +57,26 @@ export default function EssentialSpends({ nextMonth }: Props) {
 
     const t = useTranslations()
 
-    const { mutateAsync: setEssentialsPaymentsAsync } =
-        useSetEssentialPayments()
+    const {
+        mutateAsync: checkedEssentialAsync,
+        isPending: checkedEssentialPending,
+    } = useSetCheckedEssential()
+    const {
+        mutateAsync: essentialPaymentsAsync,
+        isPending: essentialPaymentsPending,
+    } = useSetEssentialPayments()
+    const {
+        mutateAsync: removeEssentialAsync,
+        isPending: removeEssentialPending,
+    } = useRemoveEssential()
+    const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } =
+        useNewEssential()
+
+    const apiPendings =
+        checkedEssentialPending ||
+        essentialPaymentsPending ||
+        removeEssentialPending ||
+        newEssentialPending
 
     const arrayEssentials = nextMonth
         ? store.nextMonthEssentialsArray
@@ -66,93 +90,81 @@ export default function EssentialSpends({ nextMonth }: Props) {
         },
     })
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        if (nextMonth) {
-            store.setNextMonthNewEssential({
-                id: values.title + Math.random().toFixed(3) || '',
-                title: values.title || '',
-                amount: Number(values.amount) || 0,
-                checked: false,
-            })
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.NEXT_MONTH,
-                items: store.nextMonthEssentials,
-            })
-        } else {
-            store.setNewEssential({
-                id: values.title + Math.random().toFixed(3) || '',
-                title: values.title || '',
-                amount: Number(values.amount) || 0,
-                checked: false,
-            })
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.THIS_MONTH,
-                items: store.essentials,
-            })
-        }
-
-        form.reset()
-    }
-
     const checkedFunc = async (id: string, checked: boolean) => {
         if (nextMonth) {
-            store.setNextMonthEssentialChecked({ id, checked })
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.NEXT_MONTH,
-                items: store.nextMonthEssentials,
-            })
+            const type = EssentialsType.NEXT_MONTH
+            const item = { id, checked }
+            const res = await checkedEssentialAsync({ type, item })
+            store.setNextMonthEssentialsArray(res.updatedItems)
         } else {
-            store.setEssentialChecked({ id, checked })
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.THIS_MONTH,
-                items: store.essentials,
-            })
+            const type = EssentialsType.THIS_MONTH
+            const item = { id, checked }
+            const res = await checkedEssentialAsync({ type, item })
+            store.setEssentialsArray(res.updatedItems)
         }
     }
 
     const setDefaultsEssentials = async () => {
-        if (nextMonth && store.nextMonthEssentials.length > 0) {
+        if (nextMonth && store.nextMonthEssentialsArray.length > 0) {
             toast.error(t('dialogs.essentials.standardFillWarning'))
             return
         }
-        if (!nextMonth && store.essentials.length > 0) {
+        if (!nextMonth && store.essentialsArray.length > 0) {
             toast.error(t('dialogs.essentials.standardFillWarning'))
             return
+        }
+
+        if (nextMonth) {
+            const type = EssentialsType.NEXT_MONTH
+            const res = await essentialPaymentsAsync({
+                type,
+                items: DefaultEssentialsArray,
+            })
+            store.setNextMonthEssentialsArray(res.updatedItems)
+        } else {
+            const type = EssentialsType.THIS_MONTH
+            const res = await essentialPaymentsAsync({
+                type,
+                items: DefaultEssentialsArray,
+            })
+            store.setEssentialsArray(res.updatedItems)
         }
 
         toast.success(t('dialogs.essentials.standardValuesAdded'))
-
-        if (nextMonth) {
-            store.setNextMonthFullEssentials(DefaultEssentialsArray)
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.NEXT_MONTH,
-                items: DefaultEssentialsArray,
-            })
-        } else {
-            store.setFullEssentials(DefaultEssentialsArray)
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.THIS_MONTH,
-                items: DefaultEssentialsArray,
-            })
-        }
     }
 
     const removeEssential = async (id: string) => {
         if (nextMonth) {
-            store.removeNextMonthEssential(id)
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.NEXT_MONTH,
-                items: store.nextMonthEssentials.filter((i) => i.id !== id),
-            })
+            const type = EssentialsType.NEXT_MONTH
+            const res = await removeEssentialAsync({ type, id })
+            store.setNextMonthEssentialsArray(res.updatedItems)
         } else {
-            store.removeEssential(id)
-            await setEssentialsPaymentsAsync({
-                type: EssentialsType.THIS_MONTH,
-                items: store.essentials.filter((i) => i.id !== id),
-            })
+            const type = EssentialsType.THIS_MONTH
+            const res = await removeEssentialAsync({ type, id })
+            store.setEssentialsArray(res.updatedItems)
         }
 
         toast.success(t('dialogs.essentials.removed'))
+    }
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        const item = {
+            id: uuidv4(),
+            title: values.title || '',
+            amount: Number(values.amount) || 0,
+            checked: false,
+        }
+        if (nextMonth) {
+            const type = EssentialsType.NEXT_MONTH
+            const res = await newEssentialAsync({ type, item })
+            store.setNextMonthEssentialsArray(res.updatedItems)
+        } else {
+            const type = EssentialsType.THIS_MONTH
+            const res = await newEssentialAsync({ type, item })
+            store.setEssentialsArray(res.updatedItems)
+        }
+
+        form.reset()
     }
 
     return (
@@ -198,6 +210,7 @@ export default function EssentialSpends({ nextMonth }: Props) {
                                         >
                                             {title} = {`${amount} ₴`}
                                             <Button
+                                                disabled={apiPendings}
                                                 onClick={() =>
                                                     removeEssential(id)
                                                 }
@@ -212,7 +225,10 @@ export default function EssentialSpends({ nextMonth }: Props) {
                             }
                         )}
                     </ul>
-                    <Button onClick={setDefaultsEssentials}>
+                    <Button
+                        onClick={setDefaultsEssentials}
+                        disabled={apiPendings}
+                    >
                         {t('dialogs.essentials.fillStandard')}
                     </Button>
                     <form
@@ -280,6 +296,7 @@ export default function EssentialSpends({ nextMonth }: Props) {
                                 </Button>
                             </DialogClose>
                             <Button
+                                disabled={apiPendings}
                                 type="submit"
                                 className={twMerge(
                                     !form.formState.isValid &&

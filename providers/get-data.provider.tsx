@@ -34,8 +34,13 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
         if (!allTransactionsData) return
 
         store.setTotalAmount(allTransactionsData.totalAmount || 0)
+        store.setTotalIncome(allTransactionsData.totalIncome || 0)
+        store.setTotalSpend(allTransactionsData.totalSpend || 0)
         store.setNextMonthTotalAmount(
             allTransactionsData.nextMonthTotalAmount || 0
+        )
+        store.setDefaultEssentialsArray(
+            allTransactionsData.defaultEssentialsArray || []
         )
         store.setEssentialsArray(allTransactionsData.essentialsArray || [])
         store.setNextMonthEssentialsArray(
