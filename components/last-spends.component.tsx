@@ -4,6 +4,7 @@ import useStore from 'store/general.store'
 import { ContentWrapper } from './wrappers/container.wrapper'
 import { TransactionType } from 'types/transactions.types'
 import { createDateString } from 'lib/utils'
+import { TransactionEnum } from 'constants/index'
 
 export default function LastSpends() {
     const store = useStore()
@@ -19,6 +20,7 @@ export default function LastSpends() {
     }
 
     const renderLi = ({
+        transactionType,
         date,
         description,
         value,
@@ -30,7 +32,7 @@ export default function LastSpends() {
             className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 px-4 py-3 border-b border-gray-200 text-sm"
         >
             <span className="font-medium text-gray-800">
-                {categorie !== 'income' && '-'} {value}
+                {transactionType !== TransactionEnum.INCOME && '-'} {value}
             </span>
             <span className="text-gray-600">{description}</span>
             <span className="text-gray-400">
