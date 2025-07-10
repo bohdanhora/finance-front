@@ -66,8 +66,12 @@ export default function Login() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsRedirecting(true)
-        await loginAsync(values)
-        router.replace(Routes.HOME)
+        try {
+            await loginAsync(values)
+            router.replace(Routes.HOME)
+        } catch (error) {
+            setIsRedirecting(false)
+        }
     }
 
     useEffect(() => {
