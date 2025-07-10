@@ -33,11 +33,8 @@ export default function Navbar() {
     const store = useBankStore()
     const t = useTranslations('errors')
 
-    const {
-        mutateAsync: logoutAsync,
-        isPending: logoutPending,
-        isError: LogoutError,
-    } = useLogoutMutation()
+    const { mutateAsync: logoutAsync, isPending: logoutPending } =
+        useLogoutMutation()
 
     const logout = async () => {
         const userId = Cookies.get('userId') || ''
