@@ -62,8 +62,8 @@ export default function ChangeNextMonthIncome() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button className="p-0 px-3 text-xs" variant="secondary">
-                        {t('change')}
+                    <Button variant="default">
+                        {t('changeNextMonthIncome')}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">

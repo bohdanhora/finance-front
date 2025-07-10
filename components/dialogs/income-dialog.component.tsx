@@ -94,8 +94,8 @@ export default function IncomeDialogComponent() {
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button
-                        variant="outline"
-                        className="hover:shadow-2xl hover:shadow-green-500/50"
+                        variant="default"
+                        className="hover:bg-green-500 dark:hover:bg-green-600"
                     >
                         <PlusIcon />
                         {t('expenses.income')}

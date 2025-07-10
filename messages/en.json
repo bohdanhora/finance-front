@@ -16,6 +16,9 @@
         "forgotPasswordSuccess": "We've sent you an email.",
         "resetPasswordSuccess": "Your password has been updated. You can now log in."
     },
+    "total": {
+        "currentBalance": "Current Balance"
+    },
     "expenses": {
         "income": "Income",
         "expence": "Expense"
@@ -33,6 +36,8 @@
     },
     "dialogs": {
         "change": "Change",
+        "changeNextMonthIncome": "Change next month income",
+        "calculateNextMonthIncome": "Calculate by rate",
         "submit": "Submit",
         "cancel": "Cancel",
         "inputIncome": "Enter your income amount",
@@ -83,13 +88,13 @@
         "essentials": "Essentials"
     },
     "possible": {
-        "dailyBudget": "Daily budget available",
+        "dailyBudget": "Daily budget",
         "daysLeft": "Days remaining",
         "totalMoneyIncome": "Total expected income",
-        "saveMoney": "You can save",
+        "saveMoney": "You can save 10%",
         "saveMoneyAfterPercent": "Then you'll have left",
-        "remainingAfterEssentials": "Remaining after essential expenses",
-        "dailySpendingAvailable": "Daily available spending after essential expenses"
+        "remainingAfterEssentials": "Remaining after essentials",
+        "dailySpendingAvailable": "Daily budget after essentials"
     },
     "auth": {
         "welcome": "Welcome!",
@@ -120,5 +125,19 @@
             "confirmPassword": "Please confirm your password.",
             "matchPasswords": "Passwords do not match."
         }
+    },
+    "transactions": {
+        "noSpends": "No spends yet",
+        "searchPlaceholder": "Search by description...",
+        "allCategories": "All Categories",
+        "all": "All",
+        "amount": "Amount",
+        "description": "Description",
+        "date": "Date",
+        "category": "Category",
+        "noMatchingTx": "No matching transactions",
+        "total": "Total",
+        "totalSpend": "Total spend",
+        "totalIncome": "Total income"
     }
 }

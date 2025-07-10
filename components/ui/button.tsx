@@ -19,7 +19,7 @@ const buttonVariants = cva(
                     'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
                 ghost: 'bg-transparent hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white',
                 popover:
-                    'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600',
+                    'bg-white dark:bg-zinc-500/10 border border-gray-300 dark:border-gray-600',
                 link: 'text-indigo-600 underline-offset-4 hover:underline dark:text-indigo-400',
             },
             size: {

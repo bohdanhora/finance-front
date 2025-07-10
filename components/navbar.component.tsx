@@ -42,7 +42,7 @@ export default function Navbar() {
             sessionStorage.setItem('showLogoutToast', 'true')
             setIsRedirecting(true)
             await logoutAsync({ userId })
-            router.replace(Routes.HOME)
+            router.replace(Routes.LOGIN)
         } catch (error) {
             console.error('Login failed:', error)
         } finally {
@@ -83,7 +83,7 @@ export default function Navbar() {
     return (
         <>
             {(currencyPending || logoutPending) && <Loader />}
-            <nav className="w-full border-b border-black/50 dark:border-white/50 py-4 px-6 flex justify-between items-center">
+            <nav className="w-full border-b border-black/50 dark:border-white/50 bg-white/80 dark:bg-black/80 py-4 px-6 flex justify-between items-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">
                     <p>

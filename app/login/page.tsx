@@ -20,7 +20,6 @@ import { Loader } from 'components/loader.component'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Routes } from 'constants/routes'
-import VantaBackground from 'components/animated-background.component'
 import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 import { Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -111,7 +110,6 @@ export default function Login() {
     return (
         <PublicProvider>
             {LoginPending && <Loader />}
-            <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <AuthSectionWrapper
                     title={tAuth('login')}

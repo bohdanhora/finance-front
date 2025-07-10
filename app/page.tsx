@@ -2,7 +2,7 @@
 
 import LastSpends from 'components/last-spends.component'
 import Navbar from 'components/navbar.component'
-import { NextMonthIncome } from 'components/next-month-income.component'
+import NextMonthIncome from 'components/next-month-income.component'
 import PossibleRemaining from 'components/possible-remaining-balance.component'
 import Total from 'components/total'
 import { useTranslations } from 'next-intl'
@@ -21,15 +21,18 @@ export default function Home() {
             sessionStorage.removeItem('showLoginToast')
         }
     }, [])
+
     return (
         <PrivateProvider>
             <GetDataProvider>
                 <Navbar />
-                <div className="relative w-full flex flex-col items-center gap-10 overflow-hidden mt-10">
-                    <Total />
-                    <PossibleRemaining />
-                    <NextMonthIncome />
-                    <LastSpends />
+                <div className="relative w-full flex justify-center my-10">
+                    <div className="max-w-7xl w-full flex flex-col gap-10 items-center px-3">
+                        <Total />
+                        <PossibleRemaining />
+                        <NextMonthIncome />
+                        <LastSpends />
+                    </div>
                 </div>
             </GetDataProvider>
         </PrivateProvider>

@@ -16,6 +16,9 @@
         "forgotPasswordSuccess": "Письмо отправлено.",
         "resetPasswordSuccess": "Пароль успешно обновлён. Вы можете войти."
     },
+    "total": {
+        "currentBalance": "Текущий Баланс"
+    },
     "expenses": {
         "income": "Доход",
         "expence": "Расход"
@@ -33,6 +36,8 @@
     },
     "dialogs": {
         "change": "Изменить",
+        "changeNextMonthIncome": "Изменить доход следующего месяца",
+        "calculateNextMonthIncome": "Рассчитать по рейту",
         "submit": "Подтвердить",
         "cancel": "Отмена",
         "inputIncome": "Введите ожидаемый доход",
@@ -86,10 +91,10 @@
         "dailyBudget": "Дневной бюджет",
         "daysLeft": "Осталось дней",
         "totalMoneyIncome": "Ожидаемый общий доход",
-        "saveMoney": "Можно отложить",
+        "saveMoney": "Можно отложить 10%",
         "saveMoneyAfterPercent": "Тогда останется",
-        "remainingAfterEssentials": "Остаток после обязательных расходов",
-        "dailySpendingAvailable": "Можно тратить в день после обязательных расходов"
+        "remainingAfterEssentials": "Остаток после расходов",
+        "dailySpendingAvailable": "Бюджет после расходов"
     },
     "auth": {
         "welcome": "Добро пожаловать!",
@@ -120,5 +125,19 @@
             "confirmPassword": "Пожалуйста, подтвердите пароль.",
             "matchPasswords": "Пароли не совпадают."
         }
+    },
+    "transactions": {
+        "noSpends": "Пока нет расходов",
+        "searchPlaceholder": "Поиск по описанию...",
+        "allCategories": "Все категории",
+        "all": "Все",
+        "amount": "Сумма",
+        "description": "Описание",
+        "date": "Дата",
+        "category": "Категория",
+        "noMatchingTx": "Нет подходящих транзакций",
+        "total": "Всего",
+        "totalSpend": "Всего потрачено",
+        "totalIncome": "Всего пришло"
     }
 }

@@ -7,8 +7,11 @@ import ExpenseDialogComponent from './dialogs/expense-dialog.component'
 import IncomeDialogComponent from './dialogs/income-dialog.component'
 import useBankStore from 'store/bank.store'
 import { CURRENCY } from 'constants/index'
+import { useTranslations } from 'next-intl'
 
 export default function Total() {
+    const t = useTranslations('total')
+
     const [toDollar, setToDollar] = useState(0)
     const [toEuro, setToEuro] = useState(0)
 
@@ -32,13 +35,16 @@ export default function Total() {
     }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
 
     return (
-        <header className="flex flex-col items-center justify-center gap-10">
+        <header className="flex flex-col items-center justify-center gap-10 bg-white/80 dark:bg-black/80 rounded-xl py-5 px-10">
             <div className="text-center">
-                <h1 className="md:text-9xl text-xl font-medium">
-                    {formatCurrency(store.totalAmount)} ₴
+                <h1 className="md:text-xl text-sm mb-10 font-medium ">
+                    {t('currentBalance')}
                 </h1>
-                <p>≈</p>
-                <p>{converted}</p>
+                <h2 className="md:text-9xl text-4xl font-medium">
+                    {formatCurrency(store.totalAmount)} ₴
+                </h2>
+                <p className="md:text-lg text-sm font-medium">≈</p>
+                <p className="md:text-lg text-sm font-medium">{converted}</p>
             </div>
             <div className="flex items-center justify-center gap-x-20">
                 <IncomeDialogComponent />
