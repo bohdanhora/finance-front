@@ -111,7 +111,6 @@ export default function Login() {
     return (
         <PublicProvider>
             {LoginPending && <Loader />}
-            <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <AuthSectionWrapper
                     title={tAuth('login')}

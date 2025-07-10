@@ -10,7 +10,7 @@ export const ContentWrapper = ({
     return (
         <section
             className={twMerge(
-                'w-fit p-5 rounded bg-white/80 dark:bg-black/80',
+                'w-fit flex flex-col items-center justify-between rounded-xl bg-white/80 dark:bg-black/80 p-5',
                 className
             )}
         >

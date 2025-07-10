@@ -42,6 +42,7 @@ export default function PossibleRemaining() {
         const totalEssentials = store.essentialsArray.reduce((sum, item) => {
             return !item.checked ? sum + item.amount : sum
         }, 0)
+
         const totalWithEssentials = store.totalAmount - totalEssentials
 
         const { dailyBudget: dailyFromTotal, daysLeft } = calculateDailyBudget(
@@ -54,20 +55,24 @@ export default function PossibleRemaining() {
             essentials: {
                 totalEssentials: {
                     default: totalWithEssentials,
-                    [CURRENCY.EUR]: totalWithEssentials / eurRate,
-                    [CURRENCY.USD]: totalWithEssentials / usdRate,
+                    [CURRENCY.EUR]: eurRate ? totalWithEssentials / eurRate : 0,
+                    [CURRENCY.USD]: usdRate ? totalWithEssentials / usdRate : 0,
                 },
                 dailyAfterEssentials: {
                     default: dailyAfterEssentials,
-                    [CURRENCY.EUR]: dailyAfterEssentials / eurRate,
-                    [CURRENCY.USD]: dailyAfterEssentials / usdRate,
+                    [CURRENCY.EUR]: eurRate
+                        ? dailyAfterEssentials / eurRate
+                        : 0,
+                    [CURRENCY.USD]: usdRate
+                        ? dailyAfterEssentials / usdRate
+                        : 0,
                 },
             },
             dailyBudget: dailyFromTotal,
             daysLeft,
             dailyBudgetToCurrency: {
-                [CURRENCY.EUR]: dailyFromTotal / eurRate,
-                [CURRENCY.USD]: dailyFromTotal / usdRate,
+                [CURRENCY.EUR]: eurRate ? dailyFromTotal / eurRate : 0,
+                [CURRENCY.USD]: usdRate ? dailyFromTotal / usdRate : 0,
             },
         })
     }, [
@@ -77,47 +82,58 @@ export default function PossibleRemaining() {
         store.essentialsArray,
     ])
 
-    return (
-        <ContentWrapper className="flex gap-10 justify-center flex-wrap">
-            <div className="flex flex-col items-center justify-between">
-                <span className="text-xl">{state.daysLeft}</span>
-                <p className="text-xs">{t('daysLeft')}</p>
-            </div>
-
-            <div className="flex flex-col items-center justify-between">
-                <span className="text-xl">
-                    {`${formatCurrency(state.dailyBudget)} ₴`}
-                </span>
-                <span className="text-xs">
-                    {bankStore.currency === CURRENCY.USD
-                        ? `${formatCurrency(state.dailyBudgetToCurrency[CURRENCY.USD])} $`
-                        : `${formatCurrency(state.dailyBudgetToCurrency[CURRENCY.EUR])} €`}
-                </span>
-                <p className="text-xs">{t('dailyBudget')}</p>
-            </div>
-            <div className="flex flex-col items-center justify-between">
-                <span className="text-xl">
-                    {`${formatCurrency(state.essentials.totalEssentials.default)} ₴`}
-                </span>
-                <span className="text-xs">
-                    {bankStore.currency === CURRENCY.USD
-                        ? `${formatCurrency(state.essentials.totalEssentials[CURRENCY.USD])} $`
-                        : `${formatCurrency(state.essentials.totalEssentials[CURRENCY.EUR])} €`}
-                </span>
-                <p className="text-xs">{t('remainingAfterEssentials')}</p>
-            </div>
-            <div className="flex flex-col items-center justify-between">
-                <span className="text-xl">
-                    {`${formatCurrency(state.essentials.dailyAfterEssentials.default)} ₴`}
-                </span>
-                <span className="text-xs">
-                    {bankStore.currency === CURRENCY.USD
-                        ? `${formatCurrency(state.essentials.dailyAfterEssentials[CURRENCY.USD])} $`
-                        : `${formatCurrency(state.essentials.dailyAfterEssentials[CURRENCY.EUR])} €`}
-                </span>
-                <p className="text-xs">{t('dailySpendingAvailable')}</p>
-            </div>
-            <EssentialSpends />
+    const renderCard = (
+        title: string,
+        valueUAH: number,
+        valueCurrency: number,
+        currencySymbol: string
+    ) => (
+        <ContentWrapper className="w-full sm:w-2xs">
+            <span className="text-xl font-semibold">
+                {formatCurrency(valueUAH)} ₴
+            </span>
+            <span className="text-sm">
+                {formatCurrency(valueCurrency)} {currencySymbol}
+            </span>
+            <p className="text-base font-bold text-center mt-1">{title}</p>
         </ContentWrapper>
+    )
+
+    const currency = bankStore.currency as CURRENCY
+    const getCurrencySymbol = () => (currency === CURRENCY.USD ? '$' : '€')
+
+    return (
+        <section className="w-full flex flex-col items-center gap-10">
+            <EssentialSpends />
+            <div className="flex gap-4 flex-wrap w-full justify-between">
+                <ContentWrapper className="w-full sm:w-2xs">
+                    <p className="text-base font-bold text-center mt-1">
+                        {t('daysLeft')}
+                    </p>
+
+                    <span className="text-xl font-semibold">
+                        {state.daysLeft}
+                    </span>
+                </ContentWrapper>
+                {renderCard(
+                    t('dailyBudget'),
+                    state.dailyBudget,
+                    state.dailyBudgetToCurrency[currency] ?? 0,
+                    getCurrencySymbol()
+                )}
+                {renderCard(
+                    t('remainingAfterEssentials'),
+                    state.essentials.totalEssentials.default,
+                    state.essentials.totalEssentials[currency] ?? 0,
+                    getCurrencySymbol()
+                )}
+                {renderCard(
+                    t('dailySpendingAvailable'),
+                    state.essentials.dailyAfterEssentials.default,
+                    state.essentials.dailyAfterEssentials[currency] ?? 0,
+                    getCurrencySymbol()
+                )}
+            </div>
+        </section>
     )
 }

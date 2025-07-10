@@ -18,7 +18,6 @@ import { PublicProvider } from 'providers/auth-provider'
 import { useRegistrationMutation } from 'api/auth.api'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import VantaBackground from 'components/animated-background.component'
 import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 import { Routes } from 'constants/routes'
 import { useState } from 'react'
@@ -76,8 +75,6 @@ export default function Registration() {
 
     return (
         <PublicProvider>
-            <VantaBackground />
-
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <AuthSectionWrapper
                     title={t('registration')}

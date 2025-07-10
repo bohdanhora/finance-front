@@ -171,7 +171,7 @@ export default function EssentialSpends({ nextMonth }: Props) {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="secondary">
+                    <Button variant="default" className="h-fit">
                         {nextMonth
                             ? t('dialogs.essentials.nextMonth')
                             : t('dialogs.essentials.title')}

@@ -148,8 +148,8 @@ export default function ExpenseDialogComponent() {
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button
-                        variant="outline"
-                        className="hover:shadow-2xl hover:shadow-red-500/50"
+                        variant="default"
+                        className="hover:bg-red-500 dark:hover:bg-red-500"
                     >
                         <MinusIcon />
                         {t('expenses.expence')}

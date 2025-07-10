@@ -1,54 +1,253 @@
 'use client'
 
-import useStore from 'store/general.store'
-import { ContentWrapper } from './wrappers/container.wrapper'
+import { useState, useMemo, JSX } from 'react'
+
 import { TransactionType } from 'types/transactions.types'
-import { createDateString } from 'lib/utils'
+import { createDateString, formatCurrency } from 'lib/utils'
 import { TransactionEnum } from 'constants/index'
+import useStore from 'store/general.store'
+
+import {
+    ShoppingBasketIcon,
+    SparklesIcon,
+    HouseIcon,
+    UtensilsIcon,
+    SmilePlusIcon,
+    HamburgerIcon,
+    CarTaxiFrontIcon,
+    BanknoteIcon,
+    GiftIcon,
+    ShirtIcon,
+    HandshakeIcon,
+    BanknoteArrowUp,
+} from 'lucide-react'
+import { Input } from './ui/input'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from './ui/select'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from './ui/table'
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from './ui/pagination'
+import { twMerge } from 'tailwind-merge'
+import { ContentWrapper } from './wrappers/container.wrapper'
+import { useTranslations } from 'next-intl'
+
+const categoriesIcons = (category: string) => {
+    const map: Record<string, JSX.Element> = {
+        groceries: <ShoppingBasketIcon className="h-4 w-4" />,
+        cosmetics: <SparklesIcon className="h-4 w-4" />,
+        home: <HouseIcon className="h-4 w-4" />,
+        restaurant: <UtensilsIcon className="h-4 w-4" />,
+        entertainment: <SmilePlusIcon className="h-4 w-4" />,
+        delivery: <HamburgerIcon className="h-4 w-4" />,
+        transport: <CarTaxiFrontIcon className="h-4 w-4" />,
+        credit: <BanknoteIcon className="h-4 w-4" />,
+        gifts: <GiftIcon className="h-4 w-4" />,
+        clothing: <ShirtIcon className="h-4 w-4" />,
+        essentials: <HandshakeIcon className="h-4 w-4" />,
+        income: <BanknoteArrowUp className="h-4 w-4" />,
+    }
+    return map[category] ?? null
+}
 
 export default function LastSpends() {
     const store = useStore()
+    const t = useTranslations('transactions')
 
-    if (!store.transactions.length) {
-        return (
-            <ContentWrapper>
-                <p className="text-center text-gray-500 italic">
-                    No spends yet
-                </p>
-            </ContentWrapper>
-        )
+    const [searchTerm, setSearchTerm] = useState('')
+    const [selectedCategory, setSelectedCategory] = useState('all')
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const ITEMS_PER_PAGE = 10
+
+    const filteredTransactions = useMemo(() => {
+        return store.transactions.filter((tx: TransactionType) => {
+            const matchesCategory =
+                selectedCategory === 'all' || tx.categorie === selectedCategory
+            const matchesSearch = tx.description
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+            return matchesCategory && matchesSearch
+        })
+    }, [searchTerm, selectedCategory, store.transactions])
+
+    const uniqueCategories = [
+        ...new Set(store.transactions.map((tx) => tx.categorie)),
+    ]
+
+    const totalForCategory = useMemo(() => {
+        if (selectedCategory === 'all') return null
+
+        return store.transactions
+            .filter((tx) => tx.categorie === selectedCategory)
+            .reduce((acc, tx) => acc + tx.value, 0)
+    }, [selectedCategory, store.transactions])
+
+    const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE)
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value)
+        setCurrentPage(1)
     }
 
-    const renderLi = ({
-        transactionType,
-        date,
-        description,
-        value,
-        categorie,
-        id,
-    }: TransactionType) => (
-        <li
-            key={id}
-            className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 px-4 py-3 border-b border-gray-200 text-sm"
-        >
-            <span className="font-medium text-gray-800">
-                {transactionType !== TransactionEnum.INCOME && '-'} {value}
-            </span>
-            <span className="text-gray-600">{description}</span>
-            <span className="text-gray-400">
-                {createDateString(new Date(date))}
-            </span>
-            <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500 uppercase">
-                {categorie}
-            </span>
-        </li>
-    )
+    const handleCategoryChange = (val: string) => {
+        setSelectedCategory(val)
+        setCurrentPage(1)
+    }
+
+    const paginatedTransactions = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE
+        const end = start + ITEMS_PER_PAGE
+        return filteredTransactions.slice(start, end)
+    }, [filteredTransactions, currentPage])
+
+    if (!store.transactions.length) {
+        return <ContentWrapper>{t('noSpends')}</ContentWrapper>
+    }
 
     return (
-        <ContentWrapper>
-            <ul className="divide-y divide-gray-100">
-                {store.transactions.map(renderLi)}
-            </ul>
+        <ContentWrapper className="w-full">
+            <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                {totalForCategory !== null ? (
+                    <p className="text-base">
+                        {t('total')}:
+                        <span className="font-bold pl-1">
+                            {selectedCategory === 'income' ? '+' : '-'}
+                            {formatCurrency(totalForCategory)} ₴
+                        </span>
+                    </p>
+                ) : (
+                    <div className="gap-3">
+                        <p className="text-base">
+                            {t('totalSpend')}:{' '}
+                            <span className="font-bold pl-1">
+                                - {formatCurrency(store.totalSpend)} ₴
+                            </span>
+                        </p>
+                        <p className="text-sm">
+                            {t('totalIncome')}:{' '}
+                            <span className="font-bold pl-1">
+                                + {formatCurrency(store.totalIncome)} ₴
+                            </span>
+                        </p>
+                    </div>
+                )}
+                <div className="flex items-center gap-2">
+                    <Input
+                        placeholder={t('searchPlaceholder')}
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="max-w-sm"
+                    />
+                    <Select
+                        value={selectedCategory}
+                        onValueChange={handleCategoryChange}
+                    >
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder={t('allCategories')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t('all')}</SelectItem>
+                            {uniqueCategories.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
+            <Table className="w-full border-separate border-spacing-y-1">
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t('amount')}</TableHead>
+                        <TableHead>{t('description')}</TableHead>
+                        <TableHead>{t('date')}</TableHead>
+                        <TableHead>{t('category')}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {paginatedTransactions.map((tx) => (
+                        <TableRow
+                            key={tx.id}
+                            className={twMerge(
+                                'border-b-0',
+                                tx.transactionType === TransactionEnum.INCOME
+                                    ? 'bg-green-500/20'
+                                    : 'bg-red-500/20'
+                            )}
+                        >
+                            <TableCell className="font-medium">
+                                {tx.transactionType !== TransactionEnum.INCOME
+                                    ? '-'
+                                    : '+'}{' '}
+                                {formatCurrency(tx.value)}
+                            </TableCell>
+                            <TableCell>{tx.description}</TableCell>
+                            <TableCell>
+                                {createDateString(new Date(tx.date))}
+                            </TableCell>
+                            <TableCell className="flex items-center gap-2 ">
+                                {categoriesIcons(tx.categorie)}
+                                <span className="uppercase text-xs">
+                                    {tx.categorie}
+                                </span>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+
+            {filteredTransactions.length === 0 && (
+                <p className="text-center text-sm italic">
+                    {t('noMatchingTx')}
+                </p>
+            )}
+
+            {totalPages > 1 && (
+                <Pagination className="mt-4">
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={() =>
+                                    setCurrentPage((p) => Math.max(p - 1, 1))
+                                }
+                            />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <span className="text-sm px-2">
+                                {currentPage} / {totalPages}
+                            </span>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={() =>
+                                    setCurrentPage((p) =>
+                                        Math.min(p + 1, totalPages)
+                                    )
+                                }
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            )}
         </ContentWrapper>
     )
 }

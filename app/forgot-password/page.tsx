@@ -17,7 +17,6 @@ import { PublicProvider } from 'providers/auth-provider'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Routes } from 'constants/routes'
-import VantaBackground from 'components/animated-background.component'
 import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 import { Input } from 'components/ui/input'
 import { useForgotPassword } from 'api/auth.api'
@@ -55,7 +54,6 @@ export default function ResetPassword() {
 
     return (
         <PublicProvider>
-            <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <AuthSectionWrapper
                     title={tAuth('forgotPasswordTitle')}

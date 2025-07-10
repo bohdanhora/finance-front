@@ -12,6 +12,7 @@ import { ProviderTheme } from 'providers/theme.provider'
 import { ToastProvider } from 'providers/toast.provider'
 
 import './globals.css'
+import VantaBackground from 'components/animated-background.component'
 
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' })
 const poppins = Poppins({
@@ -44,6 +45,7 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <ReactQueryProvider>
                         <ProviderTheme>
+                            <VantaBackground />
                             <main>{children}</main>
                             <ToastProvider />
                         </ProviderTheme>
