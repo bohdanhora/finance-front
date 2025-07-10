@@ -6,6 +6,12 @@ export type MonobankCurrency = {
     rateSell: number
 }
 
+export type ErrorResponse = {
+    error: string
+    message: string
+    statusCode: number
+}
+
 export type LoginPayload = {
     email: string
     password: string
@@ -17,10 +23,21 @@ export type LoginResponseType = {
     userId: string
 }
 
-export type LoginErrorResponse = {
-    error: string
+export type ForgotPasswordPayload = {
+    email: string
+}
+
+export type ForgotPasswordResponseType = {
     message: string
-    statusCode: number
+}
+
+export type ResetPasswordPayload = {
+    resetToken: string | null
+    newPassword: string
+}
+
+export type ResetPasswordResponseType = {
+    message: string
 }
 
 export type RegistrationPayload = {
@@ -34,24 +51,12 @@ export type RegistrationResponseType = {
     refreshToken: string
 }
 
-export type RegistrationErrorResponse = {
-    error: string
-    message: string
-    statusCode: number
-}
-
 export type LogoutPayload = {
     userId: string
 }
 
 export type LogoutResponseType = {
     message: string
-}
-
-export type LogoutErrorResponse = {
-    error: string
-    message: string
-    statusCode: number
 }
 
 export type RefreshPayload = {
@@ -62,10 +67,4 @@ export type RefreshResponseType = {
     accessToken: string
     refreshToken: string
     userId: string
-}
-
-export type RefreshErrorResponse = {
-    error: string
-    message: string
-    statusCode: number
 }

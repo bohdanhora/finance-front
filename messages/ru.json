@@ -2,64 +2,71 @@
     "navbar": {
         "currency": "Валюта",
         "lang": "Язык",
-        "theme": "Teмa",
+        "theme": "Тема",
         "ru": "Русский",
         "en": "Английский",
         "eur": "Евро",
         "usd": "Доллар",
         "uah": "Гривна"
     },
+    "api": {
+        "successLogin": "Вход выполнен успешно",
+        "successRegistration": "Регистрация прошла успешно!",
+        "logout": "Выход выполнен успешно",
+        "forgotPasswordSuccess": "Письмо отправлено.",
+        "resetPasswordSuccess": "Пароль успешно обновлён. Вы можете войти."
+    },
     "expenses": {
         "income": "Доход",
         "expence": "Расход"
     },
     "errors": {
-        "amountError": "Введите праильную сумму",
-        "categoryError": "Выберите категорию",
-        "dateError": "Не праильная дата",
-        "apiFailed": "Не удалось получить данные с Монобанка, попробуйте позже."
+        "amountError": "Введите правильную сумму.",
+        "categoryError": "Выберите категорию.",
+        "dateError": "Неверная дата.",
+        "apiFailed": "Не удалось получить данные с Монобанка. Попробуйте позже."
     },
     "toasts": {
-        "noMoney": "Вы не можете потратить больше чем у вас есть :(",
-        "addedIncome": "Успешно добавлено { amount }",
-        "addedExpense": "Потрачено { amount }"
+        "noMoney": "Вы не можете потратить больше, чем у вас есть :(",
+        "addedIncome": "Успешно добавлено {amount}",
+        "addedExpense": "Потрачено {amount}"
     },
     "dialogs": {
         "change": "Изменить",
         "submit": "Подтвердить",
-        "cancel": "Закрыть",
-        "inputIncome": "Введите сколько должно прийти",
-        "enterIncome": "Введите Доход",
+        "cancel": "Отмена",
+        "inputIncome": "Введите ожидаемый доход",
+        "enterIncome": "Введите доход",
         "incomeReceived": "Ура, деньги пришли!",
-        "enterExpense": "Введите Расход",
-        "expenseHint": "Надеюсь не много...",
-        "amount": "Сколько",
+        "enterExpense": "Введите расход",
+        "expenseHint": "Надеюсь, не слишком много...",
+        "amount": "Сумма",
         "category": "Категория",
         "date": "Дата",
         "description": "Описание",
         "chooseCategory": "Выберите категорию",
-        "expectedIncome": "Ожидаемое поступление",
+        "expectedIncome": "Ожидаемый доход",
         "planNextMonth": "Давай спланируем твой следующий месяц",
         "calculate": "Рассчитать",
-        "calculateByRate": "Здесь можно рассчитать доход следующего месяца по рейту",
-        "rate": "Рейт",
+        "calculateByRate": "Здесь можно рассчитать доход следующего месяца по ставке",
+        "rate": "Ставка",
         "hours": "Часы",
-        "ratePlaceholder": "Введите рейт",
-        "hoursPlaceholder": "Введите к-лво часов",
+        "ratePlaceholder": "Введите ставку",
+        "hoursPlaceholder": "Введите количество часов",
         "additionalAmount": "Дополнительная сумма",
         "additionalAmountPlaceholder": "Введите дополнительную сумму",
         "currency": "Валюта",
         "currencyPlaceholder": "Выберите валюту",
         "essentials": {
             "title": "Обязательные платежи",
-            "nextMonth": "Обязательные платежи следующий месяц",
-            "hint": "Укажи обязательный платеж заполнив поля ниже",
+            "nextMonth": "Обязательные платежи на следующий месяц",
+            "hint": "Укажите обязательный платёж, заполнив поля ниже",
             "label": "На что",
-            "placeholder": "Укажи на что",
-            "fillStandard": "Заполнить стандарными",
-            "standardFillWarning": "Чтобы заполнить стандарными значениеми у вас не должно быть других !",
-            "standardValuesAdded": "Добавлены стандарные рассходы",
-            "removed": "Обязательный платеж удален!"
+            "placeholder": "Укажите назначение",
+            "fillStandard": "Заполнить стандартными",
+            "standardFillWarning": "Чтобы использовать стандартные значения, у вас не должно быть других!",
+            "standardValuesAdded": "Стандартные расходы добавлены",
+            "removed": "Обязательный платёж удалён!"
         }
     },
     "categories": {
@@ -68,37 +75,50 @@
         "home": "Дом",
         "restaurant": "Ресторан",
         "entertainment": "Развлечения",
-        "delivery": "Доставки",
+        "delivery": "Доставка",
         "transport": "Транспорт",
         "credit": "Кредит",
         "gifts": "Подарки",
         "clothing": "Одежда",
-        "essentials": "Нужности"
+        "essentials": "Нужное"
     },
     "possible": {
-        "dailyBudget": "Можно потратить денег в день",
+        "dailyBudget": "Дневной бюджет",
         "daysLeft": "Осталось дней",
-        "totalMoneyIncome": "Всего должно прийти",
+        "totalMoneyIncome": "Ожидаемый общий доход",
         "saveMoney": "Можно отложить",
-        "saveMoneyAfterPercent": "Тогда останеться",
-        "remainingAfterEssentials": "Остаток после обязательных рассходов",
-        "dailySpendingAvailable": "Можно потратить в день после обязательных рассходов"
+        "saveMoneyAfterPercent": "Тогда останется",
+        "remainingAfterEssentials": "Остаток после обязательных расходов",
+        "dailySpendingAvailable": "Можно тратить в день после обязательных расходов"
     },
     "auth": {
-        "login": {
-            "login": "Вход",
-            "dontHaveAccount": "Нет аккаунта? Перейдите на страницу регистрации",
-            "email": "Электронная почта",
-            "password": "Пароль",
-            "forgotPassword": "Забыли пароль?"
-        },
-        "registration": {
-            "registration": "Регистрация",
-            "name": "Имя",
-            "email": "Электронная почта",
-            "password": "Пароль",
-            "confirmPassword": "Повторите пароль",
-            "backToLogin": "Вернуться ко входу"
+        "welcome": "Добро пожаловать!",
+        "login": "Вход",
+        "loginSubTitle": "Ваш бюджет - под контролем",
+        "registrationSubTitle": "Первый шаг к финансовому порядку",
+        "dontHaveAccount": "Нет аккаунта?",
+        "email": "Электронная почта",
+        "password": "Пароль",
+        "forgotPassword": "Забыли пароль?",
+        "forgotPasswordTitle": "Забыли пароль",
+        "forgotPasswordSubtitle": "Забыли пароль? Бывает",
+        "sendEmail": "Отправить сообщение",
+        "backToLoginFromForgot": "Вернуться ко входу?",
+        "resetPassword": "Восстановить пароль",
+        "resetPasswordSubtitle": "Обновите пароль для доступа",
+        "resetBtn": "Обновить",
+        "registration": "Регистрация",
+        "rememberMe": "Запомнить меня?",
+        "name": "Имя",
+        "confirmPassword": "Повторите пароль",
+        "backToLogin": "Уже есть аккаунт?",
+        "missingToken": "Токен не найден в параметрах запроса.",
+        "errors": {
+            "email": "Введите корректный email.",
+            "password": "Пароль должен содержать минимум 2 символа.",
+            "name": "Имя должно содержать минимум 2 символа.",
+            "confirmPassword": "Пожалуйста, подтвердите пароль.",
+            "matchPasswords": "Пароли не совпадают."
         }
     }
 }

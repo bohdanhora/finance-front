@@ -20,20 +20,41 @@ import { Loader } from 'components/loader.component'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Routes } from 'constants/routes'
-
-const formSchema = z.object({
-    email: z.string().email().min(2, {
-        message: 'email must be at least 2 characters.',
-    }),
-    password: z.string().min(2, {
-        message: 'password must be at least 2 characters.',
-    }),
-})
+import VantaBackground from 'components/animated-background.component'
+import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
+import { Eye, EyeOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Checkbox } from 'components/ui/checkbox'
+import { Label } from 'components/ui/label'
+import { CheckedState } from '@radix-ui/react-checkbox'
+import { twMerge } from 'tailwind-merge'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 
 export default function Login() {
-    const t = useTranslations('auth.login')
+    const tAuth = useTranslations('auth')
+    const tApi = useTranslations('api')
+
+    const router = useRouter()
+
+    const [isRedirecting, setIsRedirecting] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [rememberMe, setRememberMe] = useState<CheckedState>(false)
+
     const { mutateAsync: loginAsync, isPending: LoginPending } =
-        useLoginMutation()
+        useLoginMutation(rememberMe)
+
+    const formSchema = z.object({
+        email: z
+            .string()
+            .email()
+            .min(2, {
+                message: tAuth('errors.email'),
+            }),
+        password: z.string().min(2, {
+            message: tAuth('errors.password'),
+        }),
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -44,14 +65,52 @@ export default function Login() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        setIsRedirecting(true)
         await loginAsync(values)
+        router.replace(Routes.HOME)
     }
+
+    useEffect(() => {
+        const toastMap = [
+            {
+                key: 'showRegistrationToast',
+                message: tApi('successRegistration'),
+            },
+            {
+                key: 'showForgotPasswordToast',
+                message: tApi('forgotPasswordSuccess'),
+            },
+            {
+                key: 'showLogoutToast',
+                message: tApi('logout'),
+            },
+            {
+                key: 'showResetPasswordToast',
+                message: tApi('resetPasswordSuccess'),
+            },
+        ]
+
+        toastMap.forEach(({ key, message }) => {
+            if (sessionStorage.getItem(key)) {
+                toast.success(message)
+                sessionStorage.removeItem(key)
+            }
+        })
+    }, [])
+
+    if (isRedirecting) {
+        return <Loader />
+    }
+
     return (
         <PublicProvider>
             {LoginPending && <Loader />}
+            <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <div className="p-10 border rounded-2xl w-96">
-                    <h1 className="text-center mb-10 text-4xl">{t('login')}</h1>
+                <AuthSectionWrapper
+                    title={tAuth('login')}
+                    subtitle={tAuth('loginSubTitle')}
+                >
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
@@ -62,10 +121,11 @@ export default function Login() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('email')}</FormLabel>
+                                        <FormLabel>{tAuth('email')}</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={t('email')}
+                                                className="px-5 py-6"
+                                                placeholder={tAuth('email')}
                                                 type="email"
                                                 {...field}
                                             />
@@ -79,13 +139,46 @@ export default function Login() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('password')}</FormLabel>
+                                        <FormLabel>
+                                            {tAuth('password')}
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder={t('password')}
-                                                type="password"
-                                                {...field}
-                                            />
+                                            <div className="relative">
+                                                <Input
+                                                    className={twMerge(
+                                                        'px-5 py-6 pr-12',
+                                                        form.formState.errors
+                                                            .password
+                                                            ? 'border-red-600'
+                                                            : ''
+                                                    )}
+                                                    placeholder={tAuth(
+                                                        'password'
+                                                    )}
+                                                    type={
+                                                        showPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    {...field}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setShowPassword(
+                                                            (prev) => !prev
+                                                        )
+                                                    }
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all cursor-pointer"
+                                                    tabIndex={-1}
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff size={20} />
+                                                    ) : (
+                                                        <Eye size={20} />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -93,25 +186,50 @@ export default function Login() {
                             />
                             <div>
                                 <div className="flex items-center justify-between mb-5">
-                                    <Button type="submit">{t('login')}</Button>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="remember"
+                                            className="cursor-pointer"
+                                            onCheckedChange={(checked) =>
+                                                setRememberMe(checked)
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="remember"
+                                            className="text-sm cursor-pointer"
+                                        >
+                                            {tAuth('rememberMe')}
+                                        </Label>
+                                    </div>
                                     <Link
                                         href={Routes.FORGOT_PASSWORD}
-                                        className="text-xs"
+                                        className="text-sm font-medium hover:opacity-70 transition-all"
                                     >
-                                        {t('forgotPassword')}
+                                        {tAuth('forgotPassword')}
                                     </Link>
                                 </div>
-
-                                <Link
-                                    href={Routes.REGISTRATION}
-                                    className="text-xs"
+                                <Button
+                                    type="submit"
+                                    className="w-full mb-14 py-4"
                                 >
-                                    {t('dontHaveAccount')}
-                                </Link>
+                                    {tAuth('login')}
+                                </Button>
+
+                                <div className="flex justify-center gap-1">
+                                    <span className="text-sm opacity-60">
+                                        {tAuth('dontHaveAccount')}
+                                    </span>
+                                    <Link
+                                        href={Routes.REGISTRATION}
+                                        className="text-sm font-medium hover:opacity-70 transition-all"
+                                    >
+                                        {tAuth('registration')}
+                                    </Link>
+                                </div>
                             </div>
                         </form>
                     </Form>
-                </div>
+                </AuthSectionWrapper>
             </section>
         </PublicProvider>
     )

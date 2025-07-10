@@ -1,24 +1,24 @@
+import { CheckedState } from '@radix-ui/react-checkbox'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { authAxios } from 'config/axios.instances'
-import { Routes } from 'constants/routes'
 import { loginSetTokens } from 'lib/auth-helper'
 import { clearCookies } from 'lib/logout'
-import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import {
-    LoginErrorResponse,
+    ErrorResponse,
+    ForgotPasswordPayload,
+    ForgotPasswordResponseType,
     LoginPayload,
     LoginResponseType,
-    LogoutErrorResponse,
     LogoutPayload,
     LogoutResponseType,
-    RefreshErrorResponse,
     RefreshPayload,
     RefreshResponseType,
-    RegistrationErrorResponse,
     RegistrationPayload,
     RegistrationResponseType,
+    ResetPasswordPayload,
+    ResetPasswordResponseType,
 } from 'types/auth.types'
 
 const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
@@ -26,19 +26,61 @@ const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
     return res.data
 }
 
-export const useLoginMutation = () => {
-    const router = useRouter()
+export const useLoginMutation = (rememberMe: CheckedState) => {
     return useMutation({
         mutationKey: ['login'],
         mutationFn: login,
         onSuccess: (data) => {
             if (data.accessToken) {
-                loginSetTokens(data)
-                toast.success('Login Success')
-                router.push('/')
+                sessionStorage.setItem('showLoginToast', 'true')
+                loginSetTokens(data, rememberMe)
             }
         },
-        onError: (error: AxiosError<LoginErrorResponse>) => {
+        onError: (error: AxiosError<ErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+const forgotPassword = async (
+    payload: ForgotPasswordPayload
+): Promise<ForgotPasswordResponseType> => {
+    const res = await authAxios.post('forgot-password', payload)
+    return res.data
+}
+
+export const useForgotPassword = () => {
+    return useMutation({
+        mutationKey: ['forgot-password'],
+        mutationFn: forgotPassword,
+        onSuccess: (data) => {
+            if (data.message) {
+                sessionStorage.setItem('showForgotPasswordToast', 'true')
+            }
+        },
+        onError: (error: AxiosError<ErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+const resetPassword = async (
+    payload: ResetPasswordPayload
+): Promise<ResetPasswordResponseType> => {
+    const res = await authAxios.put('reset-password', payload)
+    return res.data
+}
+
+export const useResetPassword = () => {
+    return useMutation({
+        mutationKey: ['reset-password'],
+        mutationFn: resetPassword,
+        onSuccess: (data) => {
+            if (data.message) {
+                sessionStorage.setItem('showResetPasswordToast', 'true')
+            }
+        },
+        onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })
@@ -52,15 +94,13 @@ const registration = async (
 }
 
 export const useRegistrationMutation = () => {
-    const router = useRouter()
     return useMutation({
         mutationKey: ['registration'],
         mutationFn: registration,
         onSuccess: () => {
-            toast.success('Registration success! Login Please')
-            router.push(Routes.LOGIN)
+            sessionStorage.setItem('showRegistrationToast', 'true')
         },
-        onError: (error: AxiosError<RegistrationErrorResponse>) => {
+        onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })
@@ -72,15 +112,14 @@ const logout = async (payload: LogoutPayload): Promise<LogoutResponseType> => {
 }
 
 export const useLogoutMutation = () => {
-    const router = useRouter()
     return useMutation({
         mutationKey: ['logout'],
         mutationFn: logout,
         onSuccess: () => {
+            sessionStorage.setItem('showLogoutToast', 'true')
             clearCookies()
-            router.replace(Routes.LOGIN)
         },
-        onError: (error: AxiosError<LogoutErrorResponse>) => {
+        onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })
@@ -98,9 +137,9 @@ export const useRefresh = () => {
         mutationKey: ['refresh'],
         mutationFn: refresh,
         onSuccess: (data) => {
-            loginSetTokens(data)
+            loginSetTokens(data, true)
         },
-        onError: (error: AxiosError<RefreshErrorResponse>) => {
+        onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
         },
     })

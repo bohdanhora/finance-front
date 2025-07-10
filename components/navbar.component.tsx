@@ -16,6 +16,8 @@ import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 import { useLogoutMutation } from 'api/auth.api'
 import Cookies from 'js-cookie'
+import { Routes } from 'constants/routes'
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
     const {
@@ -23,7 +25,11 @@ export default function Navbar() {
         isPending: currencyPending,
         isError,
     } = useGetCurrencyQuery()
+    const router = useRouter()
+
+    const [isRedirecting, setIsRedirecting] = useState(false)
     const [buy, setBuy] = useState(0)
+
     const store = useBankStore()
     const t = useTranslations('errors')
 
@@ -33,7 +39,10 @@ export default function Navbar() {
     const logout = async () => {
         const userId = Cookies.get('userId') || ''
 
+        sessionStorage.setItem('showLogoutToast', 'true')
+        setIsRedirecting(true)
         await logoutAsync({ userId })
+        router.replace(Routes.LOGIN)
     }
 
     useEffect(() => {
@@ -61,6 +70,10 @@ export default function Navbar() {
     useEffect(() => {
         if (isError) toast.error(t('apiFailed'))
     }, [isError])
+
+    if (isRedirecting) {
+        return <Loader />
+    }
 
     return (
         <>

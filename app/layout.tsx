@@ -1,4 +1,6 @@
 import { Manrope } from 'next/font/google'
+import { Poppins } from 'next/font/google'
+
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { Metadata } from 'next'
@@ -11,7 +13,12 @@ import { ToastProvider } from 'providers/toast.provider'
 
 import './globals.css'
 
-const manrope = Manrope({ subsets: ['latin'] })
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' })
+const poppins = Poppins({
+    subsets: ['latin'],
+    weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    variable: '--font-poppins',
+})
 
 export const metadata: Metadata = {
     title: 'My app finance',
@@ -31,7 +38,7 @@ export default async function RootLayout({
             <body
                 className={twMerge(
                     'bg-white dark:bg-black text-black dark:text-white text-base font-normal',
-                    manrope.className
+                    `${manrope.variable} ${poppins.variable} font-manrope`
                 )}
             >
                 <NextIntlClientProvider messages={messages}>

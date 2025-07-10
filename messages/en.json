@@ -9,15 +9,22 @@
         "usd": "Dollar",
         "uah": "Hryvnia"
     },
+    "api": {
+        "successLogin": "Successfully logged in",
+        "successRegistration": "Registration successful!",
+        "logout": "Successfully logged out",
+        "forgotPasswordSuccess": "We've sent you an email.",
+        "resetPasswordSuccess": "Your password has been updated. You can now log in."
+    },
     "expenses": {
         "income": "Income",
-        "expence": "Expence"
+        "expence": "Expense"
     },
     "errors": {
-        "amountError": "Please enter a valid amount",
-        "categoryError": "Please choose category",
-        "dateError": "Invalid date",
-        "apiFailed": "Monobank API is failed, try again later."
+        "amountError": "Please enter a valid amount.",
+        "categoryError": "Please choose a category.",
+        "dateError": "Invalid date.",
+        "apiFailed": "Monobank API failed. Please try again later."
     },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
@@ -28,7 +35,7 @@
         "change": "Change",
         "submit": "Submit",
         "cancel": "Cancel",
-        "inputIncome": "Input how much income",
+        "inputIncome": "Enter your income amount",
         "enterIncome": "Enter Income",
         "incomeReceived": "Yay, money has arrived!",
         "enterExpense": "Enter Expense",
@@ -37,29 +44,29 @@
         "category": "Category",
         "date": "Date",
         "description": "Description",
-        "chooseCategory": "Choose category",
+        "chooseCategory": "Choose a category",
         "expectedIncome": "Expected income",
         "planNextMonth": "Let's plan your next month",
         "calculate": "Calculate",
-        "calculateByRate": "Here you can calculate next month income by rate",
+        "calculateByRate": "Here you can calculate next month's income based on your rate",
         "rate": "Rate",
         "hours": "Hours",
-        "ratePlaceholder": "Enter rate",
-        "hoursPlaceholder": "Enter number of hours",
+        "ratePlaceholder": "Enter your rate",
+        "hoursPlaceholder": "Enter the number of hours",
         "additionalAmount": "Additional amount",
         "additionalAmountPlaceholder": "Enter additional amount",
         "currency": "Currency",
-        "currencyPlaceholder": "Choose currency",
+        "currencyPlaceholder": "Choose a currency",
         "essentials": {
             "title": "Essential payments",
             "nextMonth": "Essential payments for next month",
-            "hint": "Specify an essential payment by filling in the fields below",
-            "label": "For what",
+            "hint": "Specify essential payments by filling in the fields below",
+            "label": "Purpose",
             "placeholder": "Specify the purpose",
             "fillStandard": "Fill with standard items",
-            "standardFillWarning": "To use standard values, you must not have any others!",
+            "standardFillWarning": "To use standard values, no other entries must exist!",
             "standardValuesAdded": "Standard essentials have been added",
-            "removed": "Essential removed!"
+            "removed": "Essential payment removed!"
         }
     },
     "categories": {
@@ -80,25 +87,38 @@
         "daysLeft": "Days remaining",
         "totalMoneyIncome": "Total expected income",
         "saveMoney": "You can save",
-        "saveMoneyAfterPercent": "Then stay",
+        "saveMoneyAfterPercent": "Then you'll have left",
         "remainingAfterEssentials": "Remaining after essential expenses",
         "dailySpendingAvailable": "Daily available spending after essential expenses"
     },
     "auth": {
-        "login": {
-            "login": "Login",
-            "dontHaveAccount": "Dont have an account? Go to registration page",
-            "email": "Email",
-            "password": "Password",
-            "forgotPassword": "Forgot Password?"
-        },
-        "registration": {
-            "registration": "Registration",
-            "name": "Name",
-            "email": "Email",
-            "password": "Password",
-            "confirmPassword": "Confirm Password",
-            "backToLogin": "Back to Login"
+        "welcome": "Welcome!",
+        "login": "Login",
+        "loginSubTitle": "Keep your budget under control",
+        "registrationSubTitle": "Take the first step toward financial clarity",
+        "dontHaveAccount": "Don’t have an account?",
+        "email": "Email",
+        "password": "Password",
+        "forgotPassword": "Forgot password?",
+        "forgotPasswordTitle": "Forgot Password",
+        "forgotPasswordSubtitle": "Forgot your password? It happens",
+        "sendEmail": "Send Email",
+        "backToLoginFromForgot": "Back to Login?",
+        "resetPassword": "Reset Password",
+        "resetPasswordSubtitle": "Update your password to regain access",
+        "resetBtn": "Update",
+        "registration": "Registration",
+        "rememberMe": "Remember me?",
+        "name": "Name",
+        "confirmPassword": "Confirm password",
+        "backToLogin": "Already have an account?",
+        "missingToken": "Token is missing from the request parameters.",
+        "errors": {
+            "email": "Invalid email address.",
+            "password": "Password must be at least 2 characters.",
+            "name": "Name must be at least 2 characters.",
+            "confirmPassword": "Please confirm your password.",
+            "matchPasswords": "Passwords do not match."
         }
     }
 }
