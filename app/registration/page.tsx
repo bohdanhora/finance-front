@@ -18,6 +18,7 @@ import { PublicProvider } from 'providers/auth-provider'
 import { useRegistrationMutation } from 'api/auth.api'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import VantaBackground from 'components/animated-background.component'
 
 const formSchema = z
     .object({
@@ -64,6 +65,7 @@ export default function Registration() {
 
     return (
         <PublicProvider>
+            <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <div className="p-10 border rounded-2xl w-96">
                     <h1 className="text-center mb-10 text-4xl">

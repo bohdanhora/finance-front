@@ -86,7 +86,8 @@
     },
     "auth": {
         "login": {
-            "login": "Login",
+            "welcome": "Welcome !",
+            "login": "Login to",
             "dontHaveAccount": "Dont have an account? Go to registration page",
             "email": "Email",
             "password": "Password",

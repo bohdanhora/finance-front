@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Routes } from 'constants/routes'
 import VantaBackground from 'components/animated-background.component'
+import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 
 const formSchema = z.object({
     email: z.string().email().min(2, {
@@ -52,8 +53,10 @@ export default function Login() {
             {LoginPending && <Loader />}
             <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <div className="p-10 border rounded-2xl w-96">
-                    <h1 className="text-center mb-10 text-4xl">{t('login')}</h1>
+                <AuthSectionWrapper>
+                    <p className="mb-6 font-light text-base">{t('welcome')}</p>
+                    <h1 className="font-medium mb-1 text-3xl">{t('login')}</h1>
+                    <p className="mb-12 font-light text-base">Finance App</p>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
@@ -67,6 +70,7 @@ export default function Login() {
                                         <FormLabel>{t('email')}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                className="px-5 py-6"
                                                 placeholder={t('email')}
                                                 type="email"
                                                 {...field}
@@ -84,6 +88,7 @@ export default function Login() {
                                         <FormLabel>{t('password')}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                className="px-5 py-6"
                                                 placeholder={t('password')}
                                                 type="password"
                                                 {...field}
@@ -113,7 +118,7 @@ export default function Login() {
                             </div>
                         </form>
                     </Form>
-                </div>
+                </AuthSectionWrapper>
             </section>
         </PublicProvider>
     )
