@@ -68,10 +68,13 @@ export default function Login() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        setIsRedirecting(true)
-        await loginAsync(values)
-        router.replace(Routes.HOME)
-        if (LoginError) {
+        try {
+            setIsRedirecting(true)
+            await loginAsync(values)
+            router.replace(Routes.HOME)
+        } catch (error) {
+            console.error('Login failed:', error)
+        } finally {
             setIsRedirecting(false)
         }
     }

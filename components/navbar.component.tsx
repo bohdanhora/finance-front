@@ -33,16 +33,24 @@ export default function Navbar() {
     const store = useBankStore()
     const t = useTranslations('errors')
 
-    const { mutateAsync: logoutAsync, isPending: logoutPending } =
-        useLogoutMutation()
+    const {
+        mutateAsync: logoutAsync,
+        isPending: logoutPending,
+        isError: LogoutError,
+    } = useLogoutMutation()
 
     const logout = async () => {
         const userId = Cookies.get('userId') || ''
-
-        sessionStorage.setItem('showLogoutToast', 'true')
-        setIsRedirecting(true)
-        await logoutAsync({ userId })
-        router.replace(Routes.LOGIN)
+        try {
+            sessionStorage.setItem('showLogoutToast', 'true')
+            setIsRedirecting(true)
+            await logoutAsync({ userId })
+            router.replace(Routes.HOME)
+        } catch (error) {
+            console.error('Login failed:', error)
+        } finally {
+            setIsRedirecting(false)
+        }
     }
 
     useEffect(() => {
