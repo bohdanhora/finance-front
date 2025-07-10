@@ -93,7 +93,11 @@
             "password": "Пароль",
             "forgotPassword": "Забыли пароль?",
             "registration": "Регистрация",
-            "rememberMe": "Запомнить меня?"
+            "rememberMe": "Запомнить меня?",
+            "errors": {
+                "email": "Введите валидный емейл.",
+                "password": "Пароль должен состоять из минимум 2 символов."
+            }
         },
         "registration": {
             "registration": "Регистрация",

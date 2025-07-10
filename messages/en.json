@@ -93,7 +93,11 @@
             "password": "Password",
             "forgotPassword": "Forgot Password?",
             "registration": "Registration",
-            "rememberMe": "Remember me?"
+            "rememberMe": "Remember me?",
+            "errors": {
+                "email": "Enter valid email.",
+                "password": "Password must be at least 2 characters."
+            }
         },
         "registration": {
             "registration": "Registration",

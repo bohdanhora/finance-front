@@ -27,15 +27,7 @@ import { useState } from 'react'
 import { Checkbox } from 'components/ui/checkbox'
 import { Label } from 'components/ui/label'
 import { CheckedState } from '@radix-ui/react-checkbox'
-
-const formSchema = z.object({
-    email: z.string().email().min(2, {
-        message: 'email must be at least 2 characters.',
-    }),
-    password: z.string().min(2, {
-        message: 'password must be at least 2 characters.',
-    }),
-})
+import { twMerge } from 'tailwind-merge'
 
 export default function Login() {
     const t = useTranslations('auth.login')
@@ -45,6 +37,18 @@ export default function Login() {
 
     const { mutateAsync: loginAsync, isPending: LoginPending } =
         useLoginMutation(rememberMe)
+
+    const formSchema = z.object({
+        email: z
+            .string()
+            .email()
+            .min(2, {
+                message: t('errors.email'),
+            }),
+        password: z.string().min(2, {
+            message: t('errors.password'),
+        }),
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -57,6 +61,7 @@ export default function Login() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         await loginAsync(values)
     }
+
     return (
         <PublicProvider>
             {LoginPending && <Loader />}
@@ -98,7 +103,13 @@ export default function Login() {
                                         <FormControl>
                                             <div className="relative">
                                                 <Input
-                                                    className="px-5 py-6 pr-12"
+                                                    className={twMerge(
+                                                        'px-5 py-6 pr-12',
+                                                        form.formState.errors
+                                                            .password
+                                                            ? 'border-red-600'
+                                                            : ''
+                                                    )}
                                                     placeholder={t('password')}
                                                     type={
                                                         showPassword

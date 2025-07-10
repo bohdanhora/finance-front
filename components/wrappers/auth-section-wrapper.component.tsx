@@ -1,3 +1,5 @@
+import { LangugaeDropdown } from 'components/language-dropdown.component'
+import ThemeSwitch from 'components/theme-switch.component'
 import { twMerge } from 'tailwind-merge'
 
 export const AuthSectionWrapper = ({
@@ -14,6 +16,10 @@ export const AuthSectionWrapper = ({
                 className
             )}
         >
+            <div className="absolute top-10 right-10">
+                <LangugaeDropdown />
+                <ThemeSwitch />
+            </div>
             {children}
         </div>
     )
