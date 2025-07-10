@@ -25,6 +25,7 @@ export type StoreType = {
         nextMonthEssentialsArray: EssentialType[] | []
     ) => void
     setTransactions: (transactions: TransactionType[] | []) => void
+    setAllToDefaults: () => void
 }
 
 export type BankStoreType = {
