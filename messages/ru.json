@@ -87,11 +87,13 @@
     "auth": {
         "login": {
             "welcome": "Добро пожаловать !",
-            "login": "Вход в",
-            "dontHaveAccount": "Нет аккаунта? Перейдите на страницу регистрации",
+            "login": "Вход",
+            "dontHaveAccount": "Нет аккаунта?",
             "email": "Электронная почта",
             "password": "Пароль",
-            "forgotPassword": "Забыли пароль?"
+            "forgotPassword": "Забыли пароль?",
+            "registration": "Регистрация",
+            "rememberMe": "Запомнить меня?"
         },
         "registration": {
             "registration": "Регистрация",

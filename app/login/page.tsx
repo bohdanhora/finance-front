@@ -22,6 +22,11 @@ import { useTranslations } from 'next-intl'
 import { Routes } from 'constants/routes'
 import VantaBackground from 'components/animated-background.component'
 import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
+import { Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
+import { Checkbox } from 'components/ui/checkbox'
+import { Label } from 'components/ui/label'
+import { CheckedState } from '@radix-ui/react-checkbox'
 
 const formSchema = z.object({
     email: z.string().email().min(2, {
@@ -34,8 +39,12 @@ const formSchema = z.object({
 
 export default function Login() {
     const t = useTranslations('auth.login')
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [rememberMe, setRememberMe] = useState<CheckedState>(false)
+
     const { mutateAsync: loginAsync, isPending: LoginPending } =
-        useLoginMutation()
+        useLoginMutation(rememberMe)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -87,12 +96,34 @@ export default function Login() {
                                     <FormItem>
                                         <FormLabel>{t('password')}</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                className="px-5 py-6"
-                                                placeholder={t('password')}
-                                                type="password"
-                                                {...field}
-                                            />
+                                            <div className="relative">
+                                                <Input
+                                                    className="px-5 py-6 pr-12"
+                                                    placeholder={t('password')}
+                                                    type={
+                                                        showPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    {...field}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setShowPassword(
+                                                            (prev) => !prev
+                                                        )
+                                                    }
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all cursor-pointer"
+                                                    tabIndex={-1}
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff size={20} />
+                                                    ) : (
+                                                        <Eye size={20} />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -100,21 +131,46 @@ export default function Login() {
                             />
                             <div>
                                 <div className="flex items-center justify-between mb-5">
-                                    <Button type="submit">{t('login')}</Button>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="remember"
+                                            className="cursor-pointer"
+                                            onCheckedChange={(checked) =>
+                                                setRememberMe(checked)
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="remember"
+                                            className="text-sm cursor-pointer"
+                                        >
+                                            {t('rememberMe')}
+                                        </Label>
+                                    </div>
                                     <Link
                                         href={Routes.FORGOT_PASSWORD}
-                                        className="text-xs"
+                                        className="text-sm font-medium hover:opacity-70 transition-all"
                                     >
                                         {t('forgotPassword')}
                                     </Link>
                                 </div>
-
-                                <Link
-                                    href={Routes.REGISTRATION}
-                                    className="text-xs"
+                                <Button
+                                    type="submit"
+                                    className="w-full mb-14 py-4"
                                 >
-                                    {t('dontHaveAccount')}
-                                </Link>
+                                    {t('login')}
+                                </Button>
+
+                                <div className="flex justify-center gap-1">
+                                    <span className="text-sm opacity-60">
+                                        {t('dontHaveAccount')}
+                                    </span>
+                                    <Link
+                                        href={Routes.REGISTRATION}
+                                        className="text-sm font-medium hover:opacity-70 transition-all"
+                                    >
+                                        {t('registration')}
+                                    </Link>
+                                </div>
                             </div>
                         </form>
                     </Form>

@@ -1,3 +1,4 @@
+import { CheckedState } from '@radix-ui/react-checkbox'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { authAxios } from 'config/axios.instances'
@@ -26,14 +27,14 @@ const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
     return res.data
 }
 
-export const useLoginMutation = () => {
+export const useLoginMutation = (rememberMe: CheckedState) => {
     const router = useRouter()
     return useMutation({
         mutationKey: ['login'],
         mutationFn: login,
         onSuccess: (data) => {
             if (data.accessToken) {
-                loginSetTokens(data)
+                loginSetTokens(data, rememberMe)
                 toast.success('Login Success')
                 router.push('/')
             }
@@ -98,7 +99,7 @@ export const useRefresh = () => {
         mutationKey: ['refresh'],
         mutationFn: refresh,
         onSuccess: (data) => {
-            loginSetTokens(data)
+            loginSetTokens(data, true)
         },
         onError: (error: AxiosError<RefreshErrorResponse>) => {
             toast.error(error.response?.data.message)

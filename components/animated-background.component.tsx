@@ -56,12 +56,13 @@ const VantaBackground = () => {
 
 const styles: { vanta: React.CSSProperties } = {
     vanta: {
-        position: 'absolute',
+        position: 'fixed',
         width: '100%',
         height: '100%',
-        zIndex: -1,
         top: 0,
         left: 0,
+        zIndex: -1,
+        pointerEvents: 'none',
     },
 }
 

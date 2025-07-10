@@ -87,11 +87,13 @@
     "auth": {
         "login": {
             "welcome": "Welcome !",
-            "login": "Login to",
-            "dontHaveAccount": "Dont have an account? Go to registration page",
+            "login": "Login",
+            "dontHaveAccount": "Don’t have an Account ?",
             "email": "Email",
             "password": "Password",
-            "forgotPassword": "Forgot Password?"
+            "forgotPassword": "Forgot Password?",
+            "registration": "Registration",
+            "rememberMe": "Remember me?"
         },
         "registration": {
             "registration": "Registration",

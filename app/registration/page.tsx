@@ -19,6 +19,7 @@ import { useRegistrationMutation } from 'api/auth.api'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import VantaBackground from 'components/animated-background.component'
+import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 
 const formSchema = z
     .object({
@@ -67,7 +68,7 @@ export default function Registration() {
         <PublicProvider>
             <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <div className="p-10 border rounded-2xl w-96">
+                <AuthSectionWrapper>
                     <h1 className="text-center mb-10 text-4xl">
                         {t('registration')}
                     </h1>
@@ -157,7 +158,7 @@ export default function Registration() {
                             </div>
                         </form>
                     </Form>
-                </div>
+                </AuthSectionWrapper>
             </section>
         </PublicProvider>
     )
