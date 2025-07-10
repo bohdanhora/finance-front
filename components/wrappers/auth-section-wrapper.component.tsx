@@ -1,14 +1,21 @@
 import { LangugaeDropdown } from 'components/language-dropdown.component'
 import ThemeSwitch from 'components/theme-switch.component'
+import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
 
 export const AuthSectionWrapper = ({
     children,
     className,
+    title,
+    subtitle,
 }: {
     children: React.ReactNode
+    title: string
+    subtitle?: string
     className?: string
 }) => {
+    const tAuth = useTranslations('auth')
+
     return (
         <div
             className={twMerge(
@@ -16,10 +23,16 @@ export const AuthSectionWrapper = ({
                 className
             )}
         >
-            <div className="absolute top-10 right-10">
-                <LangugaeDropdown />
-                <ThemeSwitch />
+            <div className="w-full flex items-center justify-between mb-6">
+                <p className="font-light text-base">{tAuth('welcome')}</p>
+                <div className="flex items-center gap-3">
+                    <LangugaeDropdown />
+                    <ThemeSwitch />
+                </div>
             </div>
+
+            <h1 className="font-medium mb-1 text-3xl">{title}</h1>
+            <p className="mb-12 font-light text-base">{subtitle}</p>
             {children}
         </div>
     )

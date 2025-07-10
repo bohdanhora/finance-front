@@ -95,14 +95,10 @@ export default function Login() {
             {LoginPending && <Loader />}
             <VantaBackground />
             <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper>
-                    <p className="mb-6 font-light text-base">
-                        {tAuth('welcome')}
-                    </p>
-                    <h1 className="font-medium mb-1 text-3xl">
-                        {tAuth('login')}
-                    </h1>
-                    <p className="mb-12 font-light text-base">Finance App</p>
+                <AuthSectionWrapper
+                    title={tAuth('login')}
+                    subtitle={tAuth('loginSubTitle')}
+                >
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}

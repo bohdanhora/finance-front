@@ -92,6 +92,8 @@
     "auth": {
         "welcome": "Welcome!",
         "login": "Login",
+        "loginSubTitle": "Keep your budget under control",
+        "registrationSubTitle": "Take the first step toward financial clarity",
         "dontHaveAccount": "Don’t have an account?",
         "email": "Email",
         "password": "Password",

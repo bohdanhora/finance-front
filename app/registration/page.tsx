@@ -137,13 +137,10 @@ export default function Registration() {
             {registrationPending && <Loader />}
 
             <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper>
-                    <p className="mb-6 font-light text-base">{t('welcome')}</p>
-                    <h1 className="font-medium mb-1 text-3xl">
-                        {t('registration')}
-                    </h1>
-                    <p className="mb-12 font-light text-base">Finance App</p>
-
+                <AuthSectionWrapper
+                    title={t('registration')}
+                    subtitle={t('registrationSubTitle')}
+                >
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}

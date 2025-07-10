@@ -92,6 +92,8 @@
     "auth": {
         "welcome": "Добро пожаловать!",
         "login": "Вход",
+        "loginSubTitle": "Ваш бюджет - под контролем",
+        "registrationSubTitle": "Первый шаг к финансовому порядку",
         "dontHaveAccount": "Нет аккаунта?",
         "email": "Электронная почта",
         "password": "Пароль",
