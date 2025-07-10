@@ -41,8 +41,11 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState<CheckedState>(false)
 
-    const { mutateAsync: loginAsync, isPending: LoginPending } =
-        useLoginMutation(rememberMe)
+    const {
+        mutateAsync: loginAsync,
+        isPending: LoginPending,
+        isError: LoginError,
+    } = useLoginMutation(rememberMe)
 
     const formSchema = z.object({
         email: z
@@ -66,10 +69,9 @@ export default function Login() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsRedirecting(true)
-        try {
-            await loginAsync(values)
-            router.replace(Routes.HOME)
-        } catch (error) {
+        await loginAsync(values)
+        router.replace(Routes.HOME)
+        if (LoginError) {
             setIsRedirecting(false)
         }
     }
