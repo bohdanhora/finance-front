@@ -27,7 +27,7 @@ const VantaBackground = () => {
                     color1: 0xffffff,
                     color2: 0x000000,
                     size: 0.9,
-                    speed: 0.6,
+                    speed: 1.6,
                 })
             )
         }
