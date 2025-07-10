@@ -22,7 +22,6 @@ import VantaBackground from 'components/animated-background.component'
 import { AuthSectionWrapper } from 'components/wrappers/auth-section-wrapper.component'
 import { Routes } from 'constants/routes'
 import { useState } from 'react'
-import { Loader } from 'components/loader.component'
 import { useRouter } from 'next/navigation'
 import { PasswordInput } from 'components/password-input.component'
 
@@ -36,7 +35,6 @@ export default function Registration() {
     const t = useTranslations('auth')
     const router = useRouter()
 
-    const [isRedirecting, setIsRedirecting] = useState(false)
     const [showPassword, toggleShowPassword] = useToggle(false)
     const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false)
 
@@ -68,21 +66,17 @@ export default function Registration() {
     })
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
-        setIsRedirecting(true)
         await registrationAsync({
             name: data.name,
             email: data.email,
             password: data.password,
         })
-        router.replace(Routes.HOME)
+        router.replace(Routes.LOGIN)
     }
-
-    if (isRedirecting) return <Loader />
 
     return (
         <PublicProvider>
             <VantaBackground />
-            {registrationPending && <Loader />}
 
             <section className="w-full min-h-screen flex justify-center items-center p-3">
                 <AuthSectionWrapper
@@ -167,7 +161,11 @@ export default function Registration() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full mb-5 py-4">
+                            <Button
+                                disabled={registrationPending}
+                                type="submit"
+                                className="w-full mb-5 py-4"
+                            >
                                 {t('registration')}
                             </Button>
 

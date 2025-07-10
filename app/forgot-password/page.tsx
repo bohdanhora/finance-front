@@ -27,7 +27,10 @@ export default function ResetPassword() {
     const tAuth = useTranslations('auth')
     const router = useRouter()
 
-    const { mutateAsync: forgotPasswordAsync } = useForgotPassword()
+    const {
+        mutateAsync: forgotPasswordAsync,
+        isPending: forgotPasswordPending,
+    } = useForgotPassword()
 
     const formSchema = z.object({
         email: z
@@ -81,7 +84,11 @@ export default function ResetPassword() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="w-full mb-5 py-4">
+                            <Button
+                                disabled={forgotPasswordPending}
+                                type="submit"
+                                className="w-full mb-5 py-4"
+                            >
                                 {tAuth('sendEmail')}
                             </Button>
 

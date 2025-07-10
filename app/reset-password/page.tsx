@@ -31,7 +31,8 @@ export default function ForgotPassword() {
 
     const token = searchParams.get('token')
 
-    const { mutateAsync: resetPasswordAsync } = useResetPassword()
+    const { mutateAsync: resetPasswordAsync, isPending: resetPasswordPending } =
+        useResetPassword()
 
     const [showPassword, toggleShowPassword] = useToggle(false)
     const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false)
@@ -123,7 +124,11 @@ export default function ForgotPassword() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full mb-5 py-4">
+                            <Button
+                                disabled={resetPasswordPending}
+                                type="submit"
+                                className="w-full mb-5 py-4"
+                            >
                                 {tAuth('resetBtn')}
                             </Button>
 
