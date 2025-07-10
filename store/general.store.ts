@@ -45,5 +45,17 @@ const useStore = create<StoreType>((set) => ({
         set(() => ({
             transactions: transactions,
         })),
+    setAllToDefaults: () =>
+        set(() => ({
+            totalAmount: 0,
+            totalIncome: 0,
+            totalSpend: 0,
+            nextMonthTotalAmount: 0,
+
+            defaultEssentialsArray: [],
+            essentialsArray: [],
+            nextMonthEssentialsArray: [],
+            transactions: [],
+        })),
 }))
 export default useStore

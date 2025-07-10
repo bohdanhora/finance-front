@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { authAxios } from 'config/axios.instances'
 import { loginSetTokens } from 'lib/auth-helper'
-import { clearCookies } from 'lib/logout'
 import { toast } from 'react-toastify'
 import {
     ErrorResponse,
@@ -117,7 +116,6 @@ export const useLogoutMutation = () => {
         mutationFn: logout,
         onSuccess: () => {
             sessionStorage.setItem('showLogoutToast', 'true')
-            clearCookies()
         },
         onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
