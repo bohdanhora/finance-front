@@ -22,8 +22,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-    title: 'My app finance',
-    description: 'My perfect site finance',
+    title: 'Finance App',
+    description: 'Personal Finance App',
 }
 
 export default async function RootLayout({
