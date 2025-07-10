@@ -12,7 +12,9 @@
     "api": {
         "successLogin": "Вход выполнен успешно",
         "successRegistration": "Регистрация прошла успешно!",
-        "logout": "Выход выполнен успешно"
+        "logout": "Выход выполнен успешно",
+        "forgotPasswordSuccess": "Письмо отправлено.",
+        "resetPasswordSuccess": "Пароль успешно обновлён. Вы можете войти."
     },
     "expenses": {
         "income": "Доход",
@@ -98,11 +100,19 @@
         "email": "Электронная почта",
         "password": "Пароль",
         "forgotPassword": "Забыли пароль?",
+        "forgotPasswordTitle": "Забыли пароль",
+        "forgotPasswordSubtitle": "Забыли пароль? Бывает",
+        "sendEmail": "Отправить сообщение",
+        "backToLoginFromForgot": "Вернуться ко входу?",
+        "resetPassword": "Восстановить пароль",
+        "resetPasswordSubtitle": "Обновите пароль для доступа",
+        "resetBtn": "Обновить",
         "registration": "Регистрация",
         "rememberMe": "Запомнить меня?",
         "name": "Имя",
         "confirmPassword": "Повторите пароль",
         "backToLogin": "Уже есть аккаунт?",
+        "missingToken": "Токен не найден в параметрах запроса.",
         "errors": {
             "email": "Введите корректный email.",
             "password": "Пароль должен содержать минимум 2 символа.",

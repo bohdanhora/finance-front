@@ -71,19 +71,31 @@ export default function Login() {
     }
 
     useEffect(() => {
-        const shouldRegistrationShowToast = sessionStorage.getItem(
-            'showRegistrationToast'
-        )
-        if (shouldRegistrationShowToast) {
-            toast.success(tApi('successRegistration'))
-            sessionStorage.removeItem('showRegistrationToast')
-        }
+        const toastMap = [
+            {
+                key: 'showRegistrationToast',
+                message: tApi('successRegistration'),
+            },
+            {
+                key: 'showForgotPasswordToast',
+                message: tApi('forgotPasswordSuccess'),
+            },
+            {
+                key: 'showLogoutToast',
+                message: tApi('logout'),
+            },
+            {
+                key: 'showResetPasswordToast',
+                message: tApi('resetPasswordSuccess'),
+            },
+        ]
 
-        const shouldLogoutShowToast = sessionStorage.getItem('showLogoutToast')
-        if (shouldLogoutShowToast) {
-            toast.success(tApi('logout'))
-            sessionStorage.removeItem('showLogoutToast')
-        }
+        toastMap.forEach(({ key, message }) => {
+            if (sessionStorage.getItem(key)) {
+                toast.success(message)
+                sessionStorage.removeItem(key)
+            }
+        })
     }, [])
 
     if (isRedirecting) {

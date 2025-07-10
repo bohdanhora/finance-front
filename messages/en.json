@@ -12,7 +12,9 @@
     "api": {
         "successLogin": "Successfully logged in",
         "successRegistration": "Registration successful!",
-        "logout": "Successfully logged out"
+        "logout": "Successfully logged out",
+        "forgotPasswordSuccess": "We've sent you an email.",
+        "resetPasswordSuccess": "Your password has been updated. You can now log in."
     },
     "expenses": {
         "income": "Income",
@@ -98,11 +100,19 @@
         "email": "Email",
         "password": "Password",
         "forgotPassword": "Forgot password?",
+        "forgotPasswordTitle": "Forgot Password",
+        "forgotPasswordSubtitle": "Forgot your password? It happens",
+        "sendEmail": "Send Email",
+        "backToLoginFromForgot": "Back to Login?",
+        "resetPassword": "Reset Password",
+        "resetPasswordSubtitle": "Update your password to regain access",
+        "resetBtn": "Update",
         "registration": "Registration",
         "rememberMe": "Remember me?",
         "name": "Name",
         "confirmPassword": "Confirm password",
         "backToLogin": "Already have an account?",
+        "missingToken": "Token is missing from the request parameters.",
         "errors": {
             "email": "Invalid email address.",
             "password": "Password must be at least 2 characters.",
