@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useTheme } from 'next-themes'
 
-// @ts-expect-error
+// @ts-expect-error: vanta type definitions are not available
 import CELLS from 'vanta/dist/vanta.cells.min'
 
 type VantaEffect = {
