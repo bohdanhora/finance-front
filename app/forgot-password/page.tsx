@@ -48,7 +48,7 @@ export default function ResetPassword() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await forgotPasswordAsync(values)
+        await forgotPasswordAsync({ email: values.email.toLowerCase() })
         router.replace(Routes.LOGIN)
     }
 
