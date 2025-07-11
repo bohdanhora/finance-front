@@ -10,28 +10,27 @@ import { findCurrency } from 'lib/utils'
 import { CURRENCY, ISO4217Codes } from 'constants/index'
 import { Loader } from './loader.component'
 import Image from 'next/image'
-import { toast } from 'react-toastify'
-import { useTranslations } from 'next-intl'
 import { LogOutIcon } from 'lucide-react'
 import { Button } from './ui/button'
 import { useLogoutMutation } from 'api/auth.api'
 import Cookies from 'js-cookie'
 import { Routes } from 'constants/routes'
 import { useRouter } from 'next/navigation'
+import useStore from 'store/general.store'
+import { clearCookies } from 'lib/logout'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function Navbar() {
-    const {
-        data: currency,
-        isPending: currencyPending,
-        isError,
-    } = useGetCurrencyQuery()
+    const { data: currency, isPending: currencyPending } = useGetCurrencyQuery()
+    const queryClient = useQueryClient()
+
     const router = useRouter()
 
     const [isRedirecting, setIsRedirecting] = useState(false)
     const [buy, setBuy] = useState(0)
 
     const store = useBankStore()
-    const t = useTranslations('errors')
+    const generalStore = useStore()
 
     const { mutateAsync: logoutAsync, isPending: logoutPending } =
         useLogoutMutation()
@@ -39,9 +38,11 @@ export default function Navbar() {
     const logout = async () => {
         const userId = Cookies.get('userId') || ''
         try {
-            sessionStorage.setItem('showLogoutToast', 'true')
             setIsRedirecting(true)
             await logoutAsync({ userId })
+            clearCookies()
+            queryClient.clear()
+            generalStore.setAllToDefaults()
             router.replace(Routes.LOGIN)
         } catch (error) {
             console.error('Login failed:', error)
@@ -71,10 +72,6 @@ export default function Navbar() {
         }
         setBuy(0)
     }, [store.currency, store.usd, store.eur])
-
-    useEffect(() => {
-        if (isError) toast.error(t('apiFailed'))
-    }, [isError])
 
     if (isRedirecting) {
         return <Loader />
