@@ -23,8 +23,8 @@ export default function Home() {
     }, [])
 
     return (
-        <PrivateProvider>
-            <GetDataProvider>
+        <GetDataProvider>
+            <PrivateProvider>
                 <Navbar />
                 <div className="relative w-full flex justify-center my-10">
                     <div className="max-w-7xl w-full flex flex-col gap-10 items-center px-3">
@@ -34,7 +34,7 @@ export default function Home() {
                         <LastSpends />
                     </div>
                 </div>
-            </GetDataProvider>
-        </PrivateProvider>
+            </PrivateProvider>
+        </GetDataProvider>
     )
 }
