@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import GoogleButton from 'react-google-button'
 
 import { Button } from 'ui/button'
 import {
@@ -27,13 +28,17 @@ import { Checkbox } from 'components/ui/checkbox'
 import { Label } from 'components/ui/label'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { twMerge } from 'tailwind-merge'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-toastify'
+import { loginSetTokens } from 'lib/auth-helper'
+import { useTheme } from 'next-themes'
 
 export default function Login() {
     const tAuth = useTranslations('auth')
     const tApi = useTranslations('api')
 
+    const searchParams = useSearchParams()
+    const { theme } = useTheme()
     const router = useRouter()
 
     const [isRedirecting, setIsRedirecting] = useState(false)
@@ -62,6 +67,11 @@ export default function Login() {
             password: '',
         },
     })
+
+    const handleClickGoogleAuth = () => {
+        window.location.href =
+            'https://finance-backend-production-03b7.up.railway.app/auth/google'
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -101,6 +111,14 @@ export default function Login() {
                 sessionStorage.removeItem(key)
             }
         })
+    }, [])
+
+    useEffect(() => {
+        const accessToken = searchParams.get('accessToken') || ''
+        const refreshToken = searchParams.get('refreshToken') || ''
+        const userId = searchParams.get('userId') || ''
+
+        loginSetTokens({ accessToken, refreshToken, userId }, false)
     }, [])
 
     if (isRedirecting) {
@@ -212,12 +230,18 @@ export default function Login() {
                                         {tAuth('forgotPassword')}
                                     </Link>
                                 </div>
-                                <Button
-                                    type="submit"
-                                    className="w-full mb-14 py-4"
-                                >
+                                <Button type="submit" className="w-full  py-4">
                                     {tAuth('login')}
                                 </Button>
+                                <div className="flex flex-col items-center mb-5">
+                                    <span className="my-5">{tAuth('or')}</span>
+                                    <GoogleButton
+                                        type={
+                                            theme === 'dark' ? 'dark' : 'light'
+                                        }
+                                        onClick={handleClickGoogleAuth}
+                                    />
+                                </div>
 
                                 <div className="flex justify-center gap-1">
                                     <span className="text-sm opacity-60">
