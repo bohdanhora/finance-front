@@ -118,7 +118,10 @@ export default function Login() {
         const refreshToken = searchParams.get('refreshToken') || ''
         const userId = searchParams.get('userId') || ''
 
-        loginSetTokens({ accessToken, refreshToken, userId }, false)
+        if (accessToken && refreshToken) {
+            loginSetTokens({ accessToken, refreshToken, userId }, false)
+            router.replace(Routes.HOME)
+        }
     }, [])
 
     if (isRedirecting) {
