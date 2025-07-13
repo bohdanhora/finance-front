@@ -49,8 +49,14 @@ transactionsAxios.interceptors.response.use(
                 const newToken = res.data.accessToken
                 const newRefreshToken = res.data.refreshToken
 
-                Cookies.set('accessToken', newToken, { secure: true })
-                Cookies.set('refreshToken', newRefreshToken, { secure: true })
+                Cookies.set('accessToken', newToken, {
+                    secure: true,
+                    expires: 3,
+                })
+                Cookies.set('refreshToken', newRefreshToken, {
+                    secure: true,
+                    expires: 3,
+                })
 
                 const newRequest = {
                     ...originalRequest,
