@@ -159,3 +159,30 @@ export const useNewEssential = () => {
         },
     })
 }
+
+const exportPdf = async (userId: string): Promise<Blob> => {
+    const res = await transactionsAxios.get(userId, {
+        responseType: 'blob',
+    })
+    return res.data
+}
+
+export const useExportPdf = () => {
+    return useMutation({
+        mutationKey: ['export-pdf'],
+        mutationFn: (userId: string) => exportPdf(userId),
+        onSuccess: (blob) => {
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', 'report.pdf')
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            window.URL.revokeObjectURL(url)
+        },
+        onError: (err) => {
+            console.error('PDF export error:', err)
+        },
+    })
+}
