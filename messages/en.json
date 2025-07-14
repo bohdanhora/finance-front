@@ -27,7 +27,8 @@
         "amountError": "Please enter a valid amount.",
         "categoryError": "Please choose a category.",
         "dateError": "Invalid date.",
-        "apiFailed": "Monobank API failed. Please try again later."
+        "apiFailed": "Monobank API failed. Please try again later.",
+        "noUserId": "No user id."
     },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
@@ -139,6 +140,8 @@
         "noMatchingTx": "No matching transactions",
         "total": "Total",
         "totalSpend": "Total spend",
-        "totalIncome": "Total income"
+        "totalIncome": "Total income",
+        "exporting": "Exporting...",
+        "exportPdf": "Export PDF"
     }
 }

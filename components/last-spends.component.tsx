@@ -47,6 +47,10 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { ContentWrapper } from './wrappers/container.wrapper'
 import { useTranslations } from 'next-intl'
+import { Button } from './ui/button'
+import Cookies from 'js-cookie'
+import { useExportPdf } from 'api/main.api'
+import { toast } from 'react-toastify'
 
 const categoriesIcons = (category: string) => {
     const map: Record<string, JSX.Element> = {
@@ -68,11 +72,18 @@ const categoriesIcons = (category: string) => {
 
 export default function LastSpends() {
     const store = useStore()
+
+    const userId = Cookies.get('userId') || ''
+
     const t = useTranslations('transactions')
+    const tErr = useTranslations('errors')
 
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
+
+    const { mutate: exportPdfMutation, isPending: exportPdfPending } =
+        useExportPdf()
 
     const ITEMS_PER_PAGE = 10
 
@@ -109,6 +120,14 @@ export default function LastSpends() {
     const handleCategoryChange = (val: string) => {
         setSelectedCategory(val)
         setCurrentPage(1)
+    }
+
+    const exportPdfHandle = () => {
+        if (!userId) {
+            toast.error(tErr('noUserId'))
+            return
+        }
+        exportPdfMutation(userId)
     }
 
     const paginatedTransactions = useMemo(() => {
@@ -149,6 +168,9 @@ export default function LastSpends() {
                     </div>
                 )}
                 <div className="flex items-center gap-2">
+                    <Button onClick={exportPdfHandle}>
+                        {exportPdfPending ? t('exporting') : t('exportPdf')}
+                    </Button>
                     <Input
                         placeholder={t('searchPlaceholder')}
                         value={searchTerm}
