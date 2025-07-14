@@ -86,7 +86,8 @@
         "credit": "Credit",
         "gifts": "Gifts",
         "clothing": "Clothing",
-        "essentials": "Essentials"
+        "essentials": "Essentials",
+        "income": "Income"
     },
     "possible": {
         "dailyBudget": "Daily budget",
@@ -120,12 +121,19 @@
         "backToLogin": "Already have an account?",
         "missingToken": "Token is missing from the request parameters.",
         "or": "or",
+        "emailVerificationTitle": "Email Verification",
+        "emailVerificationSubtitle": "Enter your email to receive a code",
+        "sendCode": "Send Code",
+        "resendCode": "Resend Code",
+        "iReceivedCode": "I received the code, continue registration",
+        "verificationCode": "Verification Code",
         "errors": {
             "email": "Invalid email address.",
             "password": "Password must be at least 2 characters.",
             "name": "Name must be at least 2 characters.",
             "confirmPassword": "Please confirm your password.",
-            "matchPasswords": "Passwords do not match."
+            "matchPasswords": "Passwords do not match.",
+            "verificationCode": "Enter valid verification code."
         }
     },
     "transactions": {
@@ -142,6 +150,8 @@
         "totalSpend": "Total spend",
         "totalIncome": "Total income",
         "exporting": "Exporting...",
-        "exportPdf": "Export PDF"
+        "exportPdf": "Export PDF",
+        "prev": "Previous",
+        "next": "Next"
     }
 }

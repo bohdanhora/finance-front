@@ -251,7 +251,7 @@ export default function Login() {
                                         {tAuth('dontHaveAccount')}
                                     </span>
                                     <Link
-                                        href={Routes.REGISTRATION}
+                                        href={Routes.SEND_EMAIL_CODE}
                                         className="text-sm font-medium hover:opacity-70 transition-all"
                                     >
                                         {tAuth('registration')}

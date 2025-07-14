@@ -136,6 +136,14 @@ export type NewEssentialResponseType = {
     updatedItems: EssentialType[] | []
 }
 
+export type RequestEmailCodePayload = {
+    email: string
+}
+
+export type RequestEmailCodeResponseType = {
+    message: string
+}
+
 export type NewEssentialErrorResponse = {
     error: string
     message: string
