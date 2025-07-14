@@ -19,6 +19,10 @@ import {
     ResetPasswordPayload,
     ResetPasswordResponseType,
 } from 'types/auth.types'
+import {
+    RequestEmailCodePayload,
+    RequestEmailCodeResponseType,
+} from 'types/transactions.types'
 
 const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
     const res = await authAxios.post('login', payload)
@@ -137,6 +141,23 @@ export const useRefresh = () => {
         onSuccess: (data) => {
             loginSetTokens(data, true)
         },
+        onError: (error: AxiosError<ErrorResponse>) => {
+            toast.error(error.response?.data.message)
+        },
+    })
+}
+
+const requestEmailCode = async (
+    payload: RequestEmailCodePayload
+): Promise<RequestEmailCodeResponseType> => {
+    const res = await authAxios.post('request-email-code', payload)
+    return res.data
+}
+
+export const useRequestEmailCode = () => {
+    return useMutation({
+        mutationKey: ['request-email-code'],
+        mutationFn: requestEmailCode,
         onError: (error: AxiosError<ErrorResponse>) => {
             toast.error(error.response?.data.message)
         },

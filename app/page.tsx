@@ -5,6 +5,7 @@ import Navbar from 'components/navbar.component'
 import NextMonthIncome from 'components/next-month-income.component'
 import PossibleRemaining from 'components/possible-remaining-balance.component'
 import Total from 'components/total'
+import TotalAmounts from 'components/total-amounts.component'
 import { useTranslations } from 'next-intl'
 import { PrivateProvider } from 'providers/auth-provider'
 import { GetDataProvider } from 'providers/get-data.provider'
@@ -32,6 +33,7 @@ export default function Home() {
                         <PossibleRemaining />
                         <NextMonthIncome />
                         <LastSpends />
+                        <TotalAmounts />
                     </div>
                 </div>
             </PrivateProvider>

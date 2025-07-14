@@ -37,3 +37,8 @@ export type BankStoreType = {
     setEur: (obj: MonobankCurrency | null) => void
     setCurrency: (newCurrency: string) => void
 }
+export type OtherStoreType = {
+    email: string
+
+    setEmail: (email: string) => void
+}

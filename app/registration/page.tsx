@@ -23,6 +23,7 @@ import { Routes } from 'constants/routes'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PasswordInput } from 'components/password-input.component'
+import useOtherStore from 'store/other.store'
 
 function useToggle(initial = false) {
     const [state, setState] = useState(initial)
@@ -31,6 +32,8 @@ function useToggle(initial = false) {
 }
 
 export default function Registration() {
+    const otherStore = useOtherStore()
+
     const t = useTranslations('auth')
     const router = useRouter()
 
@@ -44,6 +47,9 @@ export default function Registration() {
         .object({
             name: z.string().min(2, { message: t('errors.name') }),
             email: z.string().email({ message: t('errors.email') }),
+            verificationCode: z
+                .string()
+                .min(6, { message: t('errors.verificationCode') }),
             password: z.string().min(2, { message: t('errors.password') }),
             confirmPassword: z
                 .string()
@@ -58,7 +64,8 @@ export default function Registration() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: '',
-            email: '',
+            email: otherStore.email,
+            verificationCode: '',
             password: '',
             confirmPassword: '',
         },
@@ -69,6 +76,7 @@ export default function Registration() {
             name: data.name,
             email: data.email,
             password: data.password,
+            verificationCode: data.verificationCode,
         })
         router.replace(Routes.LOGIN)
     }
@@ -113,6 +121,28 @@ export default function Registration() {
                                             <Input
                                                 className="px-5 py-6"
                                                 placeholder={t('email')}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="verificationCode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {t('verificationCode')}
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                className="px-5 py-6"
+                                                placeholder={t(
+                                                    'verificationCode'
+                                                )}
                                                 {...field}
                                             />
                                         </FormControl>

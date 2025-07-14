@@ -86,7 +86,8 @@
         "credit": "Кредит",
         "gifts": "Подарки",
         "clothing": "Одежда",
-        "essentials": "Нужное"
+        "essentials": "Нужное",
+        "income": "Доход"
     },
     "possible": {
         "dailyBudget": "Дневной бюджет",
@@ -120,12 +121,19 @@
         "backToLogin": "Уже есть аккаунт?",
         "missingToken": "Токен не найден в параметрах запроса.",
         "or": "или",
+        "emailVerificationTitle": "Подтверждение email",
+        "emailVerificationSubtitle": "Введите ваш email, чтобы получить код",
+        "sendCode": "Отправить код",
+        "resendCode": "Переотправить код",
+        "iReceivedCode": "Я получил код, продолжить регистрацию",
+        "verificationCode": "Код Верификации",
         "errors": {
             "email": "Введите корректный email.",
             "password": "Пароль должен содержать минимум 2 символа.",
             "name": "Имя должно содержать минимум 2 символа.",
             "confirmPassword": "Пожалуйста, подтвердите пароль.",
-            "matchPasswords": "Пароли не совпадают."
+            "matchPasswords": "Пароли не совпадают.",
+            "verificationCode": "Введите код верификации."
         }
     },
     "transactions": {
@@ -142,6 +150,8 @@
         "totalSpend": "Всего потрачено",
         "totalIncome": "Всего пришло",
         "exporting": "Экспортируем...",
-        "exportPdf": "Экспорт в PDF"
+        "exportPdf": "Экспорт в PDF",
+        "prev": "Предыдущая",
+        "next": "Следующая"
     }
 }

@@ -76,6 +76,7 @@ export default function LastSpends() {
     const userId = Cookies.get('userId') || ''
 
     const t = useTranslations('transactions')
+    const tCategory = useTranslations('categories')
     const tErr = useTranslations('errors')
 
     const [searchTerm, setSearchTerm] = useState('')
@@ -90,7 +91,8 @@ export default function LastSpends() {
     const filteredTransactions = useMemo(() => {
         return store.transactions.filter((tx: TransactionType) => {
             const matchesCategory =
-                selectedCategory === 'all' || tx.categorie === selectedCategory
+                selectedCategory === 'all' ||
+                tCategory(tx.categorie) === selectedCategory
             const matchesSearch = tx.description
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase())
@@ -99,14 +101,14 @@ export default function LastSpends() {
     }, [searchTerm, selectedCategory, store.transactions])
 
     const uniqueCategories = [
-        ...new Set(store.transactions.map((tx) => tx.categorie)),
+        ...new Set(store.transactions.map((tx) => tCategory(tx.categorie))),
     ]
 
     const totalForCategory = useMemo(() => {
         if (selectedCategory === 'all') return null
 
         return store.transactions
-            .filter((tx) => tx.categorie === selectedCategory)
+            .filter((tx) => tCategory(tx.categorie) === selectedCategory)
             .reduce((acc, tx) => acc + tx.value, 0)
     }, [selectedCategory, store.transactions])
 
@@ -143,31 +145,19 @@ export default function LastSpends() {
     return (
         <ContentWrapper className="w-full">
             <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                {totalForCategory !== null ? (
+                {totalForCategory !== null && (
                     <p className="text-base">
                         {t('total')}:
                         <span className="font-bold pl-1">
-                            {selectedCategory === 'income' ? '+' : '-'}
-                            {formatCurrency(totalForCategory)} ₴
+                            {selectedCategory === tCategory('income')
+                                ? '+'
+                                : '-'}
+                            {formatCurrency(totalForCategory)}
                         </span>
+                        <span>₴</span>
                     </p>
-                ) : (
-                    <div className="gap-3">
-                        <p className="text-base">
-                            {t('totalSpend')}:{' '}
-                            <span className="font-bold pl-1">
-                                - {formatCurrency(store.totalSpend)} ₴
-                            </span>
-                        </p>
-                        <p className="text-sm">
-                            {t('totalIncome')}:{' '}
-                            <span className="font-bold pl-1">
-                                + {formatCurrency(store.totalIncome)} ₴
-                            </span>
-                        </p>
-                    </div>
                 )}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full justify-end">
                     <Button onClick={exportPdfHandle}>
                         {exportPdfPending ? t('exporting') : t('exportPdf')}
                     </Button>
@@ -229,7 +219,7 @@ export default function LastSpends() {
                             <TableCell className="flex items-center gap-2 ">
                                 {categoriesIcons(tx.categorie)}
                                 <span className="uppercase text-xs">
-                                    {tx.categorie}
+                                    {tCategory(tx.categorie)}
                                 </span>
                             </TableCell>
                         </TableRow>
