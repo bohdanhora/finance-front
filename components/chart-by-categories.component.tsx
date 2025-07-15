@@ -16,6 +16,7 @@ import { ContentWrapper } from './wrappers/container.wrapper'
 import { Button } from './ui/button'
 import { twMerge } from 'tailwind-merge'
 import { formatCurrency } from 'lib/utils'
+import { ChartBarByDay } from './chart-bar-by-day.components'
 
 type ChartConfigItem = {
     label: string
@@ -96,30 +97,49 @@ export function ChartPieByCategory() {
 
             {showChart && (
                 <>
-                    <ChartContainer
-                        config={chartConfig}
-                        className="w-full max-w-xl aspect-square"
-                    >
-                        <PieChart>
-                            <ChartTooltip
-                                cursor={false}
-                                content={
-                                    <ChartTooltipContent
-                                        hideLabel
-                                        formatter={(value, name) =>
-                                            `${name}: -${formatCurrency(Number(value)).toLocaleString()} ₴`
-                                        }
-                                    />
-                                }
-                            />
-                            <Pie
-                                data={chartData}
-                                dataKey="value"
-                                nameKey="category"
-                                stroke="0"
-                            />
-                        </PieChart>
-                    </ChartContainer>
+                    <div className="flex flex-col md:flex-row w-full max-w-xl items-center gap-8">
+                        <ChartContainer
+                            config={chartConfig}
+                            className="w-full max-w-xl aspect-square"
+                        >
+                            <PieChart>
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={
+                                        <ChartTooltipContent
+                                            hideLabel
+                                            formatter={(value, name) =>
+                                                `${name}: -${formatCurrency(Number(value)).toLocaleString()} ₴`
+                                            }
+                                        />
+                                    }
+                                />
+                                <Pie
+                                    data={chartData}
+                                    dataKey="value"
+                                    nameKey="category"
+                                    stroke="0"
+                                />
+                            </PieChart>
+                        </ChartContainer>
+
+                        <div className="flex flex-col gap-2 text-sm">
+                            {chartData.map((item) => (
+                                <div
+                                    key={item.category}
+                                    className="flex items-center gap-2"
+                                >
+                                    <span
+                                        className="inline-block w-4 h-4 rounded-sm"
+                                        style={{ backgroundColor: item.fill }}
+                                    ></span>
+                                    <span>{item.category}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <ChartBarByDay />
 
                     <div className="text-sm text-muted-foreground text-center">
                         <div className="flex items-center justify-center gap-2 font-medium">

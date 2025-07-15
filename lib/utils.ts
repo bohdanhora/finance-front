@@ -7,7 +7,13 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export function createDateString(date: Date) {
+export function createDateString(input: string | Date): string {
+    const date = input instanceof Date ? input : new Date(input)
+
+    if (isNaN(date.getTime())) {
+        return 'Invalid Date'
+    }
+
     const day = String(date.getDate()).padStart(2, '0')
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const year = date.getFullYear()
