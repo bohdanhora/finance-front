@@ -29,7 +29,7 @@ import { Checkbox } from 'components/ui/checkbox'
 import { Label } from 'components/ui/label'
 import { useTranslations } from 'next-intl'
 import { twMerge } from 'tailwind-merge'
-import { DefaultEssentialsArray, EssentialsType } from 'constants/index'
+import { EssentialsType } from 'constants/index'
 import { toast } from 'react-toastify'
 import { XIcon } from 'lucide-react'
 import {
@@ -105,6 +105,11 @@ export default function EssentialSpends({ nextMonth }: Props) {
     }
 
     const setDefaultsEssentials = async () => {
+        if (store.defaultEssentialsArray.length <= 0) {
+            toast.error(t('dialogs.essentials.noStandardPayments'))
+            return
+        }
+
         if (nextMonth && store.nextMonthEssentialsArray.length > 0) {
             toast.error(t('dialogs.essentials.standardFillWarning'))
             return
@@ -118,14 +123,14 @@ export default function EssentialSpends({ nextMonth }: Props) {
             const type = EssentialsType.NEXT_MONTH
             const res = await essentialPaymentsAsync({
                 type,
-                items: DefaultEssentialsArray,
+                items: store.defaultEssentialsArray,
             })
             store.setNextMonthEssentialsArray(res.updatedItems)
         } else {
             const type = EssentialsType.THIS_MONTH
             const res = await essentialPaymentsAsync({
                 type,
-                items: DefaultEssentialsArray,
+                items: store.defaultEssentialsArray,
             })
             store.setEssentialsArray(res.updatedItems)
         }
@@ -225,12 +230,14 @@ export default function EssentialSpends({ nextMonth }: Props) {
                             }
                         )}
                     </ul>
-                    <Button
-                        onClick={setDefaultsEssentials}
-                        disabled={apiPendings}
-                    >
-                        {t('dialogs.essentials.fillStandard')}
-                    </Button>
+                    {arrayEssentials.length <= 0 && (
+                        <Button
+                            onClick={setDefaultsEssentials}
+                            disabled={apiPendings}
+                        >
+                            {t('dialogs.essentials.fillStandard')}
+                        </Button>
+                    )}
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="space-y-8"

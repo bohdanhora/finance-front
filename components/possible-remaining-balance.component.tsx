@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import useBankStore from 'store/bank.store'
 import { CURRENCY } from 'constants/index'
 import EssentialSpends from './dialogs/essential-spends.component'
+import ChangeDefaultEssentials from './dialogs/change-default-essentials-dialog.component'
 
 export default function PossibleRemaining() {
     const store = useStore()
@@ -104,7 +105,10 @@ export default function PossibleRemaining() {
 
     return (
         <section className="w-full flex flex-col items-center gap-10">
-            <EssentialSpends />
+            <div className="flex justify-center items-center gap-5 flex-wrap">
+                <EssentialSpends />
+                <ChangeDefaultEssentials />
+            </div>
             <div className="flex gap-4 flex-wrap w-full justify-between">
                 <ContentWrapper className="w-full sm:w-2xs">
                     <p className="text-base font-bold text-center mt-1">
