@@ -57,10 +57,13 @@ export default function NextMonthIncomeCalculate() {
     const store = useStore()
     const bankStore = useBankStore()
 
-    const { mutateAsync: setNextMonthAmountAsync } =
-        useSetNextMonthTotalAmount()
+    const {
+        mutateAsync: setNextMonthAmountAsync,
+        isPending: nextMonthAmountPending,
+    } = useSetNextMonthTotalAmount()
 
     const t = useTranslations('dialogs')
+    const tToast = useTranslations('toasts')
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -103,7 +106,7 @@ export default function NextMonthIncomeCalculate() {
 
         await setNextMonthAmountAsync({ nextMonthTotalAmount: result })
 
-        toast.success(`you add ${formatCurrency(result)} uah`)
+        toast.success(tToast('addedIncome', { amount: formatCurrency(result) }))
         form.reset()
     }
 
@@ -282,6 +285,7 @@ export default function NextMonthIncomeCalculate() {
                                 </Button>
                             </DialogClose>
                             <Button
+                                disabled={nextMonthAmountPending}
                                 type="submit"
                                 className={twMerge(
                                     !form.formState.isValid &&

@@ -32,8 +32,8 @@
     },
     "toasts": {
         "noMoney": "Вы не можете потратить больше, чем у вас есть :(",
-        "addedIncome": "Успешно добавлено {amount}",
-        "addedExpense": "Потрачено {amount}"
+        "addedIncome": "Успешно добавлено {amount} ₴",
+        "addedExpense": "Потрачено {amount} ₴"
     },
     "dialogs": {
         "change": "Изменить",
@@ -153,5 +153,13 @@
         "exportPdf": "Экспорт в PDF",
         "prev": "Предыдущая",
         "next": "Следующая"
+    },
+    "chart": {
+        "expensesByCategory": "Расходы по категориям",
+        "excludingIncomeTransactions": "Без учета доходных транзакций",
+        "hideChart": "Скрыть чарт",
+        "showChart": "Показать чарт",
+        "basedOnRecentExpenses": "На основе ваших последних расходов",
+        "totalTransactions": "{ totalTransactions } всего транзакций"
     }
 }
