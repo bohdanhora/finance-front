@@ -1,5 +1,6 @@
 'use client'
 
+import { ChartPieByCategory } from 'components/chart-by-categories.component'
 import LastSpends from 'components/last-spends.component'
 import Navbar from 'components/navbar.component'
 import NextMonthIncome from 'components/next-month-income.component'
@@ -34,6 +35,7 @@ export default function Home() {
                         <NextMonthIncome />
                         <LastSpends />
                         <TotalAmounts />
+                        <ChartPieByCategory />
                     </div>
                 </div>
             </PrivateProvider>

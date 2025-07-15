@@ -45,7 +45,12 @@ export default function TotalAmounts() {
                 [CURRENCY.USD]: usdRate ? totalSpend / usdRate : 0,
             },
         })
-    }, [store.totalIncome, store.totalSpend])
+    }, [
+        store.totalIncome,
+        store.totalSpend,
+        bankStore.eur?.rateBuy,
+        bankStore.usd?.rateBuy,
+    ])
 
     const currency = bankStore.currency as CURRENCY
     const getCurrencySymbol = () => (currency === CURRENCY.USD ? '$' : '€')
