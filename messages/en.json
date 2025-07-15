@@ -72,7 +72,13 @@
             "fillStandard": "Fill with standard items",
             "standardFillWarning": "To use standard values, no other entries must exist!",
             "standardValuesAdded": "Standard essentials have been added",
-            "removed": "Essential payment removed!"
+            "removed": "Essential payment removed!",
+            "standardPaymentsTitle": "Standard Mandatory Payments",
+            "standardPaymentsSubtitle": "Add recurring payments that must be included every month",
+            "add": "Add",
+            "cancel": "Cancel",
+            "noStandardPayments": "No standard mandatory payments",
+            "standartPaymentAdded": "Default essential added"
         }
     },
     "categories": {
