@@ -1,7 +1,6 @@
 "use client";
 
 import { z } from "zod";
-import { useMemo } from "react";
 
 import { Button } from "ui/button";
 import { Form } from "ui/form";
@@ -29,8 +28,7 @@ export default function SendEmailCodePage() {
     const { resendTimer, codeSent, startTimer } = useResendTimer();
 
     const form = useSendEmailForm(tAuth);
-    const schema = useMemo(() => sendEmailSchema(tAuth), [tAuth]);
-    type SendEmailData = z.infer<typeof schema>;
+    type SendEmailData = z.infer<ReturnType<typeof sendEmailSchema>>;
 
     const email = form.watch("email");
 

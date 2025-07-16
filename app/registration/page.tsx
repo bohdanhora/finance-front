@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
 import { z } from "zod";
 
 import { useRegistrationMutation } from "api/auth.api";
@@ -32,8 +31,7 @@ export default function Registration() {
     const { mutateAsync: registrationAsync, isPending: registrationPending } = useRegistrationMutation();
 
     const form = useRegistrationForm(t, otherStore.email);
-    const schema = useMemo(() => registrationSchema(t), [t]);
-    type RegistrationFormData = z.infer<typeof schema>;
+    type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
 
     const onSubmit = async (data: RegistrationFormData) => {
         await registrationAsync({

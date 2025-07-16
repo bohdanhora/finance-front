@@ -8,7 +8,7 @@ import { PublicProvider } from "providers/auth-provider";
 import { useTranslations } from "next-intl";
 import { Routes } from "constants/routes";
 import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { useResetPassword } from "api/auth.api";
@@ -31,8 +31,7 @@ export default function ForgotPassword() {
     const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false);
 
     const form = useResetPasswordForm(tAuth);
-    const schema = useMemo(() => resetPasswordSchema(tAuth), [tAuth]);
-    type ResetPasswordData = z.infer<typeof schema>;
+    type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
     const onSubmit = async (values: ResetPasswordData) => {
         const body = {

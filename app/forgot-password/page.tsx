@@ -1,7 +1,6 @@
 "use client";
 
 import { z } from "zod";
-import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -23,8 +22,7 @@ export default function ResetPassword() {
     const { mutateAsync: forgotPasswordAsync, isPending: forgotPasswordPending } = useForgotPassword();
 
     const form = useForgotPasswordForm(tAuth);
-    const schema = useMemo(() => forgotPasswordSchema(tAuth), [tAuth]);
-    type ForgotPasswordFormData = z.infer<typeof schema>;
+    type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
     const onSubmit = async (values: ForgotPasswordFormData) => {
         await forgotPasswordAsync({ email: values.email.toLowerCase() });

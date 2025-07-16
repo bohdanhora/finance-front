@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-toastify";
 
 import { PrivateProvider } from "providers/auth-provider";
 import { GetDataProvider } from "providers/get-data.provider";

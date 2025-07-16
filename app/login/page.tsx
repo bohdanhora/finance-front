@@ -3,7 +3,7 @@
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { useLoginMutation } from "api/auth.api";
@@ -38,9 +38,7 @@ export default function Login() {
     const isLoading = isRedirecting || LoginPending;
 
     const form = useLoginForm(tAuth);
-
-    const schema = useMemo(() => loginSchema(tAuth), [tAuth]);
-    type LoginFormData = z.infer<typeof schema>;
+    type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
 
     const onSubmit = async (values: LoginFormData) => {
         try {
