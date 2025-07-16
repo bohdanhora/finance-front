@@ -1,5 +1,5 @@
-import { create } from 'zustand'
-import { StoreType } from './type'
+import { create } from "zustand";
+import { StoreType } from "types/stores.types";
 
 const useStore = create<StoreType>((set) => ({
     totalAmount: 0,
@@ -57,5 +57,5 @@ const useStore = create<StoreType>((set) => ({
             nextMonthEssentialsArray: [],
             transactions: [],
         })),
-}))
-export default useStore
+}));
+export default useStore;

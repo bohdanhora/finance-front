@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import useStore from 'store/general.store'
-import { Button } from 'ui/button'
+import { useForm } from "react-hook-form";
+import useStore from "store/general.store";
+import { Button } from "ui/button";
 import {
     Dialog,
     DialogClose,
@@ -12,27 +12,20 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from 'ui/dialog'
-import { Input } from 'ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from 'ui/form'
-import { useTranslations } from 'next-intl'
-import { twMerge } from 'tailwind-merge'
-import { useNewEssential, useRemoveEssential } from 'api/main.api'
-import { Textarea } from 'components/ui/textarea'
-import { Label } from 'components/ui/label'
-import { XIcon } from 'lucide-react'
-import { v4 as uuidv4 } from 'uuid'
-import { EssentialsType } from 'constants/index'
-import { toast } from 'react-toastify'
+} from "ui/dialog";
+import { Input } from "ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
+import { useTranslations } from "next-intl";
+import { twMerge } from "tailwind-merge";
+import { useNewEssential, useRemoveEssential } from "api/main.api";
+import { Textarea } from "components/ui/textarea";
+import { Label } from "components/ui/label";
+import { XIcon } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { EssentialsType } from "constants/index";
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
     amount: z
@@ -40,95 +33,74 @@ const formSchema = z.object({
         .min(1)
         .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
     title: z.string().min(1),
-})
+});
 
 export default function ChangeDefaultEssentials() {
-    const store = useStore()
+    const store = useStore();
 
-    const arrayEssentials = store.defaultEssentialsArray
+    const arrayEssentials = store.defaultEssentialsArray;
 
-    const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } =
-        useNewEssential()
+    const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } = useNewEssential();
 
-    const {
-        mutateAsync: removeEssentialAsync,
-        isPending: removeEssentialPending,
-    } = useRemoveEssential()
+    const { mutateAsync: removeEssentialAsync, isPending: removeEssentialPending } = useRemoveEssential();
 
-    const pendings = removeEssentialPending || newEssentialPending
+    const pendings = removeEssentialPending || newEssentialPending;
 
-    const t = useTranslations('dialogs')
+    const t = useTranslations("dialogs");
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            amount: '',
-            title: '',
+            amount: "",
+            title: "",
         },
-    })
+    });
 
     const removeEssential = async (id: string) => {
-        const type = EssentialsType.DEFAULT
-        const res = await removeEssentialAsync({ type, id })
-        store.setDefaultEssentialsArray(res.updatedItems)
+        const type = EssentialsType.DEFAULT;
+        const res = await removeEssentialAsync({ type, id });
+        store.setDefaultEssentialsArray(res.updatedItems);
 
-        toast.success(t('essentials.removed'))
-    }
+        toast.success(t("essentials.removed"));
+    };
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const item = {
             id: uuidv4(),
-            title: values.title || '',
+            title: values.title || "",
             amount: Number(values.amount) || 0,
             checked: false,
-        }
-        const type = EssentialsType.DEFAULT
-        const res = await newEssentialAsync({ type, item })
-        store.setDefaultEssentialsArray(res.updatedItems)
-        toast.success(t('essentials.standartPaymentAdded'))
+        };
+        const type = EssentialsType.DEFAULT;
+        const res = await newEssentialAsync({ type, item });
+        store.setDefaultEssentialsArray(res.updatedItems);
+        toast.success(t("essentials.standartPaymentAdded"));
 
-        form.reset()
+        form.reset();
     }
 
     return (
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default">
-                        {t('essentials.standardPaymentsTitle')}
-                    </Button>
+                    <Button variant="default">{t("essentials.standardPaymentsTitle")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
-                    >
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <DialogHeader>
-                            <DialogTitle>
-                                {t('essentials.standardPaymentsTitle')}
-                            </DialogTitle>
-                            <DialogDescription>
-                                {t('essentials.standardPaymentsSubtitle')}
-                            </DialogDescription>
+                            <DialogTitle>{t("essentials.standardPaymentsTitle")}</DialogTitle>
+                            <DialogDescription>{t("essentials.standardPaymentsSubtitle")}</DialogDescription>
                         </DialogHeader>
                         <ul className="flex flex-col gap-3">
                             {arrayEssentials?.map(({ id, title, amount }) => {
                                 return (
-                                    <li
-                                        className="flex items-center gap-3"
-                                        key={id}
-                                    >
-                                        <Label
-                                            htmlFor={id}
-                                            className="relative"
-                                        >
+                                    <li className="flex items-center gap-3" key={id}>
+                                        <Label htmlFor={id} className="relative">
                                             {title} = {`${amount} ₴`}
                                             <Button
                                                 type="button"
                                                 disabled={pendings}
-                                                onClick={() =>
-                                                    removeEssential(id)
-                                                }
+                                                onClick={() => removeEssential(id)}
                                                 variant="ghost"
                                                 className="size-4 absolute -right-10"
                                             >
@@ -136,7 +108,7 @@ export default function ChangeDefaultEssentials() {
                                             </Button>
                                         </Label>
                                     </li>
-                                )
+                                );
                             })}
                         </ul>
                         <FormField
@@ -144,27 +116,22 @@ export default function ChangeDefaultEssentials() {
                             name="amount"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{t('amount')}</FormLabel>
+                                    <FormLabel>{t("amount")}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder={t('amount')}
+                                            placeholder={t("amount")}
                                             {...field}
                                             onChange={(e) => {
-                                                const val = e.target.value
+                                                const val = e.target.value;
 
-                                                if (val === '') {
-                                                    field.onChange(val)
-                                                    return
+                                                if (val === "") {
+                                                    field.onChange(val);
+                                                    return;
                                                 }
 
-                                                if (
-                                                    !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(
-                                                        val
-                                                    )
-                                                )
-                                                    return
+                                                if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
 
-                                                field.onChange(val)
+                                                field.onChange(val);
                                             }}
                                         />
                                     </FormControl>
@@ -177,14 +144,10 @@ export default function ChangeDefaultEssentials() {
                             name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {t('essentials.label')}
-                                    </FormLabel>
+                                    <FormLabel>{t("essentials.label")}</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder={t(
-                                                'essentials.placeholder'
-                                            )}
+                                            placeholder={t("essentials.placeholder")}
                                             className="resize-none"
                                             {...field}
                                         />
@@ -195,24 +158,19 @@ export default function ChangeDefaultEssentials() {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">
-                                    {t('cancel')}
-                                </Button>
+                                <Button variant="destructive">{t("cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={pendings}
                                 type="submit"
-                                className={twMerge(
-                                    !form.formState.isValid &&
-                                        'opacity-10 pointer-events-none'
-                                )}
+                                className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
                             >
-                                {t('essentials.add')}
+                                {t("essentials.add")}
                             </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
             </Form>
         </Dialog>
-    )
+    );
 }

@@ -1,28 +1,23 @@
-'use client'
+"use client";
 
-import { ChartPieByCategory } from 'components/chart-by-categories.component'
-import LastSpends from 'components/last-spends.component'
-import Navbar from 'components/navbar.component'
-import NextMonthIncome from 'components/next-month-income.component'
-import PossibleRemaining from 'components/possible-remaining-balance.component'
-import Total from 'components/total'
-import TotalAmounts from 'components/total-amounts.component'
-import { useTranslations } from 'next-intl'
-import { PrivateProvider } from 'providers/auth-provider'
-import { GetDataProvider } from 'providers/get-data.provider'
-import { useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { useTranslations } from "next-intl";
+
+import { PrivateProvider } from "providers/auth-provider";
+import { GetDataProvider } from "providers/get-data.provider";
+
+import Navbar from "components/navbar.component";
+import Total from "components/total";
+import PossibleRemaining from "components/possible-remaining-balance.component";
+import NextMonthIncome from "components/next-month-income.component";
+import LastSpends from "components/last-spends.component";
+import TotalAmounts from "components/total-amounts.component";
+import { ChartPieByCategory } from "components/chart-by-categories.component";
+import { useLoginToast } from "hooks/use-login-toast";
 
 export default function Home() {
-    const t = useTranslations()
+    const t = useTranslations();
 
-    useEffect(() => {
-        const shouldShowToast = sessionStorage.getItem('showLoginToast')
-        if (shouldShowToast) {
-            toast.success(t('api.successLogin'))
-            sessionStorage.removeItem('showLoginToast')
-        }
-    }, [])
+    useLoginToast(t);
 
     return (
         <GetDataProvider>
@@ -40,5 +35,5 @@ export default function Home() {
                 </div>
             </PrivateProvider>
         </GetDataProvider>
-    )
+    );
 }

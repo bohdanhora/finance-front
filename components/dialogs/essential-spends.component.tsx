@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import useStore from 'store/general.store'
-import { Button } from 'ui/button'
+import { useForm } from "react-hook-form";
+import useStore from "store/general.store";
+import { Button } from "ui/button";
 import {
     Dialog,
     DialogClose,
@@ -12,33 +12,21 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from 'ui/dialog'
-import { Input } from 'ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from 'ui/form'
-import { Textarea } from 'ui/textarea'
-import { Checkbox } from 'components/ui/checkbox'
-import { Label } from 'components/ui/label'
-import { useTranslations } from 'next-intl'
-import { twMerge } from 'tailwind-merge'
-import { EssentialsType } from 'constants/index'
-import { toast } from 'react-toastify'
-import { XIcon } from 'lucide-react'
-import {
-    useNewEssential,
-    useRemoveEssential,
-    useSetCheckedEssential,
-    useSetEssentialPayments,
-} from 'api/main.api'
-import { v4 as uuidv4 } from 'uuid'
+} from "ui/dialog";
+import { Input } from "ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
+import { Textarea } from "ui/textarea";
+import { Checkbox } from "components/ui/checkbox";
+import { Label } from "components/ui/label";
+import { useTranslations } from "next-intl";
+import { twMerge } from "tailwind-merge";
+import { EssentialsType } from "constants/index";
+import { toast } from "react-toastify";
+import { XIcon } from "lucide-react";
+import { useNewEssential, useRemoveEssential, useSetCheckedEssential, useSetEssentialPayments } from "api/main.api";
+import { v4 as uuidv4 } from "uuid";
 
 const formSchema = z.object({
     amount: z
@@ -46,130 +34,115 @@ const formSchema = z.object({
         .min(1)
         .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
     title: z.string().min(1),
-})
+});
 
 type Props = {
-    nextMonth?: boolean
-}
+    nextMonth?: boolean;
+};
 
 export default function EssentialSpends({ nextMonth }: Props) {
-    const store = useStore()
+    const store = useStore();
 
-    const t = useTranslations()
+    const t = useTranslations();
 
-    const {
-        mutateAsync: checkedEssentialAsync,
-        isPending: checkedEssentialPending,
-    } = useSetCheckedEssential()
-    const {
-        mutateAsync: essentialPaymentsAsync,
-        isPending: essentialPaymentsPending,
-    } = useSetEssentialPayments()
-    const {
-        mutateAsync: removeEssentialAsync,
-        isPending: removeEssentialPending,
-    } = useRemoveEssential()
-    const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } =
-        useNewEssential()
+    const { mutateAsync: checkedEssentialAsync, isPending: checkedEssentialPending } = useSetCheckedEssential();
+    const { mutateAsync: essentialPaymentsAsync, isPending: essentialPaymentsPending } = useSetEssentialPayments();
+    const { mutateAsync: removeEssentialAsync, isPending: removeEssentialPending } = useRemoveEssential();
+    const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } = useNewEssential();
 
     const apiPendings =
-        checkedEssentialPending ||
-        essentialPaymentsPending ||
-        removeEssentialPending ||
-        newEssentialPending
+        checkedEssentialPending || essentialPaymentsPending || removeEssentialPending || newEssentialPending;
 
-    const arrayEssentials = nextMonth
-        ? store.nextMonthEssentialsArray
-        : store.essentialsArray
+    const arrayEssentials = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            amount: '',
-            title: '',
+            amount: "",
+            title: "",
         },
-    })
+    });
 
     const checkedFunc = async (id: string, checked: boolean) => {
         if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH
-            const item = { id, checked }
-            const res = await checkedEssentialAsync({ type, item })
-            store.setNextMonthEssentialsArray(res.updatedItems)
+            const type = EssentialsType.NEXT_MONTH;
+            const item = { id, checked };
+            const res = await checkedEssentialAsync({ type, item });
+            store.setNextMonthEssentialsArray(res.updatedItems);
         } else {
-            const type = EssentialsType.THIS_MONTH
-            const item = { id, checked }
-            const res = await checkedEssentialAsync({ type, item })
-            store.setEssentialsArray(res.updatedItems)
+            const type = EssentialsType.THIS_MONTH;
+            const item = { id, checked };
+            const res = await checkedEssentialAsync({ type, item });
+            store.setEssentialsArray(res.updatedItems);
         }
-    }
+    };
 
     const setDefaultsEssentials = async () => {
         if (store.defaultEssentialsArray.length <= 0) {
-            toast.error(t('dialogs.essentials.noStandardPayments'))
-            return
+            toast.error(t("dialogs.essentials.noStandardPayments"));
+            return;
         }
 
         if (nextMonth && store.nextMonthEssentialsArray.length > 0) {
-            toast.error(t('dialogs.essentials.standardFillWarning'))
-            return
+            toast.error(t("dialogs.essentials.standardFillWarning"));
+            return;
         }
         if (!nextMonth && store.essentialsArray.length > 0) {
-            toast.error(t('dialogs.essentials.standardFillWarning'))
-            return
+            toast.error(t("dialogs.essentials.standardFillWarning"));
+            return;
         }
 
         if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH
+            const type = EssentialsType.NEXT_MONTH;
             const res = await essentialPaymentsAsync({
                 type,
                 items: store.defaultEssentialsArray,
-            })
-            store.setNextMonthEssentialsArray(res.updatedItems)
+            });
+            store.setNextMonthEssentialsArray(res.updatedItems);
         } else {
-            const type = EssentialsType.THIS_MONTH
+            const type = EssentialsType.THIS_MONTH;
             const res = await essentialPaymentsAsync({
                 type,
                 items: store.defaultEssentialsArray,
-            })
-            store.setEssentialsArray(res.updatedItems)
+            });
+            store.setEssentialsArray(res.updatedItems);
         }
 
-        toast.success(t('dialogs.essentials.standardValuesAdded'))
-    }
+        toast.success(t("dialogs.essentials.standardValuesAdded"));
+    };
 
     const removeEssential = async (id: string) => {
         if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH
-            const res = await removeEssentialAsync({ type, id })
-            store.setNextMonthEssentialsArray(res.updatedItems)
+            const type = EssentialsType.NEXT_MONTH;
+            const res = await removeEssentialAsync({ type, id });
+            store.setNextMonthEssentialsArray(res.updatedItems);
         } else {
-            const type = EssentialsType.THIS_MONTH
-            const res = await removeEssentialAsync({ type, id })
-            store.setEssentialsArray(res.updatedItems)
+            const type = EssentialsType.THIS_MONTH;
+            const res = await removeEssentialAsync({ type, id });
+            store.setEssentialsArray(res.updatedItems);
         }
 
-        toast.success(t('dialogs.essentials.removed'))
-    }
+        toast.success(t("dialogs.essentials.removed"));
+    };
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const item = {
             id: uuidv4(),
-            title: values.title || '',
+            title: values.title || "",
             amount: Number(values.amount) || 0,
             checked: false,
-        }
+        };
         if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH
-            const res = await newEssentialAsync({ type, item })
-            store.setNextMonthEssentialsArray(res.updatedItems)
+            const type = EssentialsType.NEXT_MONTH;
+            const res = await newEssentialAsync({ type, item });
+            store.setNextMonthEssentialsArray(res.updatedItems);
         } else {
-            const type = EssentialsType.THIS_MONTH
-            const res = await newEssentialAsync({ type, item })
-            store.setEssentialsArray(res.updatedItems)
+            const type = EssentialsType.THIS_MONTH;
+            const res = await newEssentialAsync({ type, item });
+            store.setEssentialsArray(res.updatedItems);
         }
 
-        form.reset()
+        form.reset();
     }
 
     return (
@@ -177,97 +150,65 @@ export default function EssentialSpends({ nextMonth }: Props) {
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="default" className="h-fit">
-                        {nextMonth
-                            ? t('dialogs.essentials.nextMonth')
-                            : t('dialogs.essentials.title')}
+                        {nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title")}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>
-                            {t('dialogs.essentials.title')}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {t('dialogs.essentials.hint')}
-                        </DialogDescription>
+                        <DialogTitle>{t("dialogs.essentials.title")}</DialogTitle>
+                        <DialogDescription>{t("dialogs.essentials.hint")}</DialogDescription>
                     </DialogHeader>
                     <ul className="flex flex-col gap-3">
-                        {arrayEssentials?.map(
-                            ({ id, title, amount, checked }) => {
-                                return (
-                                    <li
-                                        className="flex items-center gap-3"
-                                        key={id}
-                                    >
-                                        <Checkbox
-                                            id={id}
-                                            checked={checked}
-                                            onCheckedChange={(val) =>
-                                                checkedFunc(id, Boolean(val))
-                                            }
-                                        />
-                                        <Label
-                                            htmlFor={id}
-                                            className={twMerge(
-                                                'relative',
-                                                checked && 'line-through'
-                                            )}
+                        {arrayEssentials?.map(({ id, title, amount, checked }) => {
+                            return (
+                                <li className="flex items-center gap-3" key={id}>
+                                    <Checkbox
+                                        id={id}
+                                        checked={checked}
+                                        onCheckedChange={(val) => checkedFunc(id, Boolean(val))}
+                                    />
+                                    <Label htmlFor={id} className={twMerge("relative", checked && "line-through")}>
+                                        {title} = {`${amount} ₴`}
+                                        <Button
+                                            disabled={apiPendings}
+                                            onClick={() => removeEssential(id)}
+                                            variant="ghost"
+                                            className="size-4 absolute -right-10"
                                         >
-                                            {title} = {`${amount} ₴`}
-                                            <Button
-                                                disabled={apiPendings}
-                                                onClick={() =>
-                                                    removeEssential(id)
-                                                }
-                                                variant="ghost"
-                                                className="size-4 absolute -right-10"
-                                            >
-                                                <XIcon />
-                                            </Button>
-                                        </Label>
-                                    </li>
-                                )
-                            }
-                        )}
+                                            <XIcon />
+                                        </Button>
+                                    </Label>
+                                </li>
+                            );
+                        })}
                     </ul>
                     {arrayEssentials.length <= 0 && (
-                        <Button
-                            onClick={setDefaultsEssentials}
-                            disabled={apiPendings}
-                        >
-                            {t('dialogs.essentials.fillStandard')}
+                        <Button onClick={setDefaultsEssentials} disabled={apiPendings}>
+                            {t("dialogs.essentials.fillStandard")}
                         </Button>
                     )}
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
-                    >
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <FormField
                             control={form.control}
                             name="amount"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{t('dialogs.amount')}</FormLabel>
+                                    <FormLabel>{t("dialogs.amount")}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder={t('dialogs.amount')}
+                                            placeholder={t("dialogs.amount")}
                                             {...field}
                                             onChange={(e) => {
-                                                const val = e.target.value
+                                                const val = e.target.value;
 
-                                                if (val === '') {
-                                                    field.onChange(val)
-                                                    return
+                                                if (val === "") {
+                                                    field.onChange(val);
+                                                    return;
                                                 }
 
-                                                if (
-                                                    !/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(
-                                                        val
-                                                    )
-                                                )
-                                                    return
+                                                if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
 
-                                                field.onChange(val)
+                                                field.onChange(val);
                                             }}
                                         />
                                     </FormControl>
@@ -280,14 +221,10 @@ export default function EssentialSpends({ nextMonth }: Props) {
                             name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {t('dialogs.essentials.label')}
-                                    </FormLabel>
+                                    <FormLabel>{t("dialogs.essentials.label")}</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder={t(
-                                                'dialogs.essentials.placeholder'
-                                            )}
+                                            placeholder={t("dialogs.essentials.placeholder")}
                                             className="resize-none"
                                             {...field}
                                         />
@@ -298,24 +235,19 @@ export default function EssentialSpends({ nextMonth }: Props) {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">
-                                    {t('dialogs.cancel')}
-                                </Button>
+                                <Button variant="destructive">{t("dialogs.cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={apiPendings}
                                 type="submit"
-                                className={twMerge(
-                                    !form.formState.isValid &&
-                                        'opacity-10 pointer-events-none'
-                                )}
+                                className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
                             >
-                                {t('dialogs.submit')}
+                                {t("dialogs.submit")}
                             </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
             </Form>
         </Dialog>
-    )
+    );
 }

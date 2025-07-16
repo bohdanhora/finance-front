@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { BankStoreType } from './type'
-import { CURRENCY } from 'constants/index'
+import { create } from "zustand";
+import { BankStoreType } from "types/stores.types";
+import { CURRENCY } from "constants/index";
 
 const useBankStore = create<BankStoreType>((set) => ({
     usd: null,
@@ -19,5 +19,5 @@ const useBankStore = create<BankStoreType>((set) => ({
         set(() => ({
             currency: newCurrency,
         })),
-}))
-export default useBankStore
+}));
+export default useBankStore;
