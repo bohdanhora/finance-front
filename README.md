@@ -5,8 +5,8 @@ It allows users to manage budgets, visualize expenses, and export data — all f
 
 ## 🌍 Live Demo
 
-🔗 [https://finance-front-zeta.vercel.app/](https://finance-front-zeta.vercel.app/)
-🔗 [https://bohdanhora.github.io/finance-front/](https://bohdanhora.github.io/finance-front/)
+- 🔗 [https://finance-front-zeta.vercel.app/](https://finance-front-zeta.vercel.app/)
+- 🔗 [https://bohdanhora.github.io/finance-front/](https://bohdanhora.github.io/finance-front/)
 
 ---
 
@@ -71,5 +71,5 @@ It is not intended for production use.
 
 ## 👤 Author
 
-Bohdan Hora
-🔗 GitHub: @bohdanhora
+**Bohdan Hora**
+🔗 GitHub: [@bohdanhora](https://github.com/bohdanhora)
