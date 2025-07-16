@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState, useMemo, JSX } from 'react'
+import { useState, useMemo, JSX } from "react";
 
-import { TransactionType } from 'types/transactions.types'
-import { createDateString, formatCurrency } from 'lib/utils'
-import { TransactionEnum } from 'constants/index'
-import useStore from 'store/general.store'
+import { TransactionType } from "types/transactions.types";
+import { createDateString, formatCurrency } from "lib/utils";
+import { TransactionEnum } from "constants/index";
+import useStore from "store/general.store";
 
 import {
     ShoppingBasketIcon,
@@ -20,37 +20,18 @@ import {
     ShirtIcon,
     HandshakeIcon,
     BanknoteArrowUp,
-} from 'lucide-react'
-import { Input } from './ui/input'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from './ui/select'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from './ui/table'
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationNext,
-    PaginationPrevious,
-} from './ui/pagination'
-import { twMerge } from 'tailwind-merge'
-import { ContentWrapper } from './wrappers/container.wrapper'
-import { useTranslations } from 'next-intl'
-import { Button } from './ui/button'
-import Cookies from 'js-cookie'
-import { useExportPdf } from 'api/main.api'
-import { toast } from 'react-toastify'
+} from "lucide-react";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
+import { twMerge } from "tailwind-merge";
+import { ContentWrapper } from "./wrappers/container.wrapper";
+import { useTranslations } from "next-intl";
+import { Button } from "./ui/button";
+import Cookies from "js-cookie";
+import { useExportPdf } from "api/main.api";
+import { toast } from "react-toastify";
 
 const categoriesIcons = (category: string) => {
     const map: Record<string, JSX.Element> = {
@@ -66,80 +47,73 @@ const categoriesIcons = (category: string) => {
         clothing: <ShirtIcon className="h-4 w-4" />,
         essentials: <HandshakeIcon className="h-4 w-4" />,
         income: <BanknoteArrowUp className="h-4 w-4" />,
-    }
-    return map[category] ?? null
-}
+    };
+    return map[category] ?? null;
+};
 
 export default function LastSpends() {
-    const store = useStore()
+    const store = useStore();
 
-    const userId = Cookies.get('userId') || ''
+    const userId = Cookies.get("userId") || "";
 
-    const t = useTranslations('transactions')
-    const tCategory = useTranslations('categories')
-    const tErr = useTranslations('errors')
+    const t = useTranslations("transactions");
+    const tCategory = useTranslations("categories");
+    const tErr = useTranslations("errors");
 
-    const [searchTerm, setSearchTerm] = useState('')
-    const [selectedCategory, setSelectedCategory] = useState('all')
-    const [currentPage, setCurrentPage] = useState(1)
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const { mutate: exportPdfMutation, isPending: exportPdfPending } =
-        useExportPdf()
+    const { mutate: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
 
-    const ITEMS_PER_PAGE = 10
+    const ITEMS_PER_PAGE = 10;
 
     const filteredTransactions = useMemo(() => {
         return store.transactions.filter((tx: TransactionType) => {
-            const matchesCategory =
-                selectedCategory === 'all' ||
-                tCategory(tx.categorie) === selectedCategory
-            const matchesSearch = tx.description
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            return matchesCategory && matchesSearch
-        })
-    }, [searchTerm, selectedCategory, store.transactions])
+            const matchesCategory = selectedCategory === "all" || tCategory(tx.categorie) === selectedCategory;
+            const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase());
+            return matchesCategory && matchesSearch;
+        });
+    }, [searchTerm, selectedCategory, store.transactions]);
 
-    const uniqueCategories = [
-        ...new Set(store.transactions.map((tx) => tCategory(tx.categorie))),
-    ]
+    const uniqueCategories = [...new Set(store.transactions.map((tx) => tCategory(tx.categorie)))];
 
     const totalForCategory = useMemo(() => {
-        if (selectedCategory === 'all') return null
+        if (selectedCategory === "all") return null;
 
         return store.transactions
             .filter((tx) => tCategory(tx.categorie) === selectedCategory)
-            .reduce((acc, tx) => acc + tx.value, 0)
-    }, [selectedCategory, store.transactions])
+            .reduce((acc, tx) => acc + tx.value, 0);
+    }, [selectedCategory, store.transactions]);
 
-    const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE)
+    const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value)
-        setCurrentPage(1)
-    }
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+    };
 
     const handleCategoryChange = (val: string) => {
-        setSelectedCategory(val)
-        setCurrentPage(1)
-    }
+        setSelectedCategory(val);
+        setCurrentPage(1);
+    };
 
     const exportPdfHandle = () => {
         if (!userId) {
-            toast.error(tErr('noUserId'))
-            return
+            toast.error(tErr("noUserId"));
+            return;
         }
-        exportPdfMutation(userId)
-    }
+        exportPdfMutation(userId);
+    };
 
     const paginatedTransactions = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE
-        const end = start + ITEMS_PER_PAGE
-        return filteredTransactions.slice(start, end)
-    }, [filteredTransactions, currentPage])
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        return filteredTransactions.slice(start, end);
+    }, [filteredTransactions, currentPage]);
 
     if (!store.transactions.length) {
-        return <ContentWrapper>{t('noSpends')}</ContentWrapper>
+        return <ContentWrapper>{t("noSpends")}</ContentWrapper>;
     }
 
     return (
@@ -147,35 +121,28 @@ export default function LastSpends() {
             <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 {totalForCategory !== null && (
                     <p className="text-base">
-                        {t('total')}:
+                        {t("total")}:
                         <span className="font-bold pl-1">
-                            {selectedCategory === tCategory('income')
-                                ? '+'
-                                : '-'}
+                            {selectedCategory === tCategory("income") ? "+" : "-"}
                             {formatCurrency(totalForCategory)}
                         </span>
                         <span>₴</span>
                     </p>
                 )}
                 <div className="flex items-center gap-2 w-full justify-end">
-                    <Button onClick={exportPdfHandle}>
-                        {exportPdfPending ? t('exporting') : t('exportPdf')}
-                    </Button>
+                    <Button onClick={exportPdfHandle}>{exportPdfPending ? t("exporting") : t("exportPdf")}</Button>
                     <Input
-                        placeholder={t('searchPlaceholder')}
+                        placeholder={t("searchPlaceholder")}
                         value={searchTerm}
                         onChange={handleSearchChange}
                         className="max-w-sm"
                     />
-                    <Select
-                        value={selectedCategory}
-                        onValueChange={handleCategoryChange}
-                    >
+                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder={t('allCategories')} />
+                            <SelectValue placeholder={t("allCategories")} />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">{t('all')}</SelectItem>
+                            <SelectItem value="all">{t("all")}</SelectItem>
                             {uniqueCategories.map((cat) => (
                                 <SelectItem key={cat} value={cat}>
                                     {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -189,10 +156,10 @@ export default function LastSpends() {
             <Table className="w-full border-separate border-spacing-y-1">
                 <TableHeader>
                     <TableRow>
-                        <TableHead>{t('amount')}</TableHead>
-                        <TableHead>{t('description')}</TableHead>
-                        <TableHead>{t('date')}</TableHead>
-                        <TableHead>{t('category')}</TableHead>
+                        <TableHead>{t("amount")}</TableHead>
+                        <TableHead>{t("description")}</TableHead>
+                        <TableHead>{t("date")}</TableHead>
+                        <TableHead>{t("category")}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -200,48 +167,31 @@ export default function LastSpends() {
                         <TableRow
                             key={tx.id}
                             className={twMerge(
-                                'border-b-0',
-                                tx.transactionType === TransactionEnum.INCOME
-                                    ? 'bg-green-500/20'
-                                    : 'bg-red-500/20'
+                                "border-b-0",
+                                tx.transactionType === TransactionEnum.INCOME ? "bg-green-500/20" : "bg-red-500/20",
                             )}
                         >
                             <TableCell className="font-medium">
-                                {tx.transactionType !== TransactionEnum.INCOME
-                                    ? '-'
-                                    : '+'}{' '}
-                                {formatCurrency(tx.value)}
+                                {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"} {formatCurrency(tx.value)}
                             </TableCell>
                             <TableCell>{tx.description}</TableCell>
-                            <TableCell>
-                                {createDateString(new Date(tx.date))}
-                            </TableCell>
+                            <TableCell>{createDateString(new Date(tx.date))}</TableCell>
                             <TableCell className="flex items-center gap-2 ">
                                 {categoriesIcons(tx.categorie)}
-                                <span className="uppercase text-xs">
-                                    {tCategory(tx.categorie)}
-                                </span>
+                                <span className="uppercase text-xs">{tCategory(tx.categorie)}</span>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
 
-            {filteredTransactions.length === 0 && (
-                <p className="text-center text-sm italic">
-                    {t('noMatchingTx')}
-                </p>
-            )}
+            {filteredTransactions.length === 0 && <p className="text-center text-sm italic">{t("noMatchingTx")}</p>}
 
             {totalPages > 1 && (
                 <Pagination className="mt-4">
                     <PaginationContent>
                         <PaginationItem>
-                            <PaginationPrevious
-                                onClick={() =>
-                                    setCurrentPage((p) => Math.max(p - 1, 1))
-                                }
-                            />
+                            <PaginationPrevious onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} />
                         </PaginationItem>
                         <PaginationItem>
                             <span className="text-sm px-2">
@@ -249,17 +199,11 @@ export default function LastSpends() {
                             </span>
                         </PaginationItem>
                         <PaginationItem>
-                            <PaginationNext
-                                onClick={() =>
-                                    setCurrentPage((p) =>
-                                        Math.min(p + 1, totalPages)
-                                    )
-                                }
-                            />
+                            <PaginationNext onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} />
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
             )}
         </ContentWrapper>
-    )
+    );
 }

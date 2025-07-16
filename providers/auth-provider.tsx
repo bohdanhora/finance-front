@@ -1,48 +1,48 @@
-'use client'
+"use client";
 
-import { ReactNode, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Routes } from 'constants/routes'
-import Cookies from 'js-cookie'
-import { Loader } from 'components/loader.component'
+import { ReactNode, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Routes } from "constants/routes";
+import Cookies from "js-cookie";
+import { Loader } from "components/loader.component";
 
 export const PrivateProvider = ({ children }: { children: ReactNode }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-    const router = useRouter()
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
-        const token = Cookies.get('accessToken')
+        const token = Cookies.get("accessToken");
 
         if (!token) {
-            router.push(Routes.LOGIN)
-            setIsAuthenticated(false)
+            router.push(Routes.LOGIN);
+            setIsAuthenticated(false);
         } else {
-            setIsAuthenticated(true)
+            setIsAuthenticated(true);
         }
-    }, [])
+    }, []);
 
     if (isAuthenticated === null || !isAuthenticated) {
-        return null
+        return null;
     }
 
-    return <>{children}</>
-}
+    return <>{children}</>;
+};
 
 export const PublicProvider = ({ children }: { children: ReactNode }) => {
-    const [checking, setChecking] = useState(true)
-    const router = useRouter()
+    const [checking, setChecking] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-        const token = Cookies.get('accessToken')
+        const token = Cookies.get("accessToken");
 
         if (token) {
-            router.replace(Routes.HOME)
+            router.replace(Routes.HOME);
         } else {
-            setChecking(false)
+            setChecking(false);
         }
-    }, [router])
+    }, [router]);
 
-    if (checking) return <Loader />
+    if (checking) return <Loader />;
 
-    return <>{children}</>
-}
+    return <>{children}</>;
+};

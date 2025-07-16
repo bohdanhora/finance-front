@@ -1,48 +1,42 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { formatCurrency } from 'lib/utils'
-import useStore from 'store/general.store'
-import ExpenseDialogComponent from './dialogs/expense-dialog.component'
-import IncomeDialogComponent from './dialogs/income-dialog.component'
-import useBankStore from 'store/bank.store'
-import { CURRENCY } from 'constants/index'
-import { useTranslations } from 'next-intl'
+import { useEffect, useState } from "react";
+import { formatCurrency } from "lib/utils";
+import useStore from "store/general.store";
+import ExpenseDialogComponent from "./dialogs/expense-dialog.component";
+import IncomeDialogComponent from "./dialogs/income-dialog.component";
+import useBankStore from "store/bank.store";
+import { CURRENCY } from "constants/index";
+import { useTranslations } from "next-intl";
 
 export default function Total() {
-    const t = useTranslations('total')
+    const t = useTranslations("total");
 
-    const [toDollar, setToDollar] = useState(0)
-    const [toEuro, setToEuro] = useState(0)
+    const [toDollar, setToDollar] = useState(0);
+    const [toEuro, setToEuro] = useState(0);
 
-    const store = useStore()
+    const store = useStore();
 
-    const bankStore = useBankStore()
+    const bankStore = useBankStore();
 
     const converted =
-        bankStore.currency === CURRENCY.USD
-            ? `${formatCurrency(toDollar)} $`
-            : `${formatCurrency(toEuro)} €`
+        bankStore.currency === CURRENCY.USD ? `${formatCurrency(toDollar)} $` : `${formatCurrency(toEuro)} €`;
 
     useEffect(() => {
         if (bankStore.usd?.rateBuy) {
-            setToDollar(store.totalAmount / bankStore.usd.rateBuy)
+            setToDollar(store.totalAmount / bankStore.usd.rateBuy);
         }
 
         if (bankStore.eur?.rateBuy) {
-            setToEuro(store.totalAmount / bankStore.eur.rateBuy)
+            setToEuro(store.totalAmount / bankStore.eur.rateBuy);
         }
-    }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy])
+    }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy]);
 
     return (
         <header className="flex flex-col items-center justify-center gap-10 bg-white/80 dark:bg-black/80 rounded-xl py-5 px-10">
             <div className="text-center">
-                <h1 className="md:text-xl text-sm mb-10 font-medium ">
-                    {t('currentBalance')}
-                </h1>
-                <h2 className="md:text-9xl text-4xl font-medium">
-                    {formatCurrency(store.totalAmount)} ₴
-                </h2>
+                <h1 className="md:text-xl text-sm mb-10 font-medium ">{t("currentBalance")}</h1>
+                <h2 className="md:text-9xl text-4xl font-medium">{formatCurrency(store.totalAmount)} ₴</h2>
                 <p className="md:text-lg text-sm font-medium">≈</p>
                 <p className="md:text-lg text-sm font-medium">{converted}</p>
             </div>
@@ -51,5 +45,5 @@ export default function Total() {
                 <ExpenseDialogComponent />
             </div>
         </header>
-    )
+    );
 }

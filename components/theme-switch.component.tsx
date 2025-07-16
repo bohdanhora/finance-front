@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { FiSun, FiMoon } from 'react-icons/fi'
-import { useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
-import Image from 'next/image'
-import { Button } from 'ui/button'
+import { FiSun, FiMoon } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import { Button } from "ui/button";
 
 export default function ThemeSwitch() {
-    const [mounted, setMounted] = useState(false)
-    const { setTheme, resolvedTheme } = useTheme()
+    const [mounted, setMounted] = useState(false);
+    const { setTheme, resolvedTheme } = useTheme();
 
-    useEffect(() => setMounted(true), [])
+    useEffect(() => setMounted(true), []);
 
     if (!mounted)
         return (
@@ -23,21 +23,21 @@ export default function ThemeSwitch() {
                 priority={false}
                 title="Loading Light/Dark Toggle"
             />
-        )
+        );
 
-    if (resolvedTheme === 'dark') {
+    if (resolvedTheme === "dark") {
         return (
-            <Button variant="ghost" onClick={() => setTheme('light')}>
+            <Button variant="ghost" onClick={() => setTheme("light")}>
                 <FiSun />
             </Button>
-        )
+        );
     }
 
-    if (resolvedTheme === 'light') {
+    if (resolvedTheme === "light") {
         return (
-            <Button variant="ghost" onClick={() => setTheme('dark')}>
+            <Button variant="ghost" onClick={() => setTheme("dark")}>
                 <FiMoon />
             </Button>
-        )
+        );
     }
 }
