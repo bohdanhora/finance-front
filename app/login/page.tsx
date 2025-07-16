@@ -1,27 +1,27 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { CheckedState } from "@radix-ui/react-checkbox";
+import { useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
-import { Button } from "ui/button";
-import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
 import { useLoginMutation } from "api/auth.api";
-import { Loader } from "components/loader.component";
-import { useTranslations } from "next-intl";
 import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
-import { useEffect, useMemo, useState } from "react";
-import { CheckedState } from "@radix-ui/react-checkbox";
-import { useRouter, useSearchParams } from "next/navigation";
 import { loginSetTokens } from "lib/auth-helper";
+import { extractTokensFromParams, showSessionToasts } from "lib/utils";
+import { Loader } from "components/loader.component";
 import { RenderEmailField } from "components/form-fields/email";
 import { LoginPassword } from "components/form-fields/login-password";
 import { LoginOptions } from "components/login-options.component";
 import { GoogleAuth } from "components/google-auth.component";
 import { RegistrationWay } from "components/way-to-registration.component";
-import { extractTokensFromParams, showSessionToasts } from "lib/utils";
+import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { Button } from "ui/button";
+import { Form } from "ui/form";
+import { PublicProvider } from "providers/auth-provider";
+import { useLoginForm } from "./use-login-form";
+import { loginSchema } from "schemas/auth.schema";
 
 export default function Login() {
     const tAuth = useTranslations("auth");
@@ -37,31 +37,12 @@ export default function Login() {
 
     const isLoading = isRedirecting || LoginPending;
 
-    const formSchema = useMemo(
-        () =>
-            z.object({
-                email: z
-                    .string()
-                    .email({
-                        message: tAuth("errors.email"),
-                    })
-                    .min(2),
-                password: z.string().min(2, {
-                    message: tAuth("errors.password"),
-                }),
-            }),
-        [tAuth],
-    );
+    const form = useLoginForm(tAuth);
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            email: "",
-            password: "",
-        },
-    });
+    const schema = useMemo(() => loginSchema(tAuth), [tAuth]);
+    type LoginFormData = z.infer<typeof schema>;
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: LoginFormData) => {
         try {
             setIsRedirecting(true);
             await loginAsync(values);
@@ -71,7 +52,7 @@ export default function Login() {
         } finally {
             setIsRedirecting(false);
         }
-    }
+    };
 
     useEffect(() => {
         const toastMap = [

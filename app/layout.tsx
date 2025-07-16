@@ -1,5 +1,4 @@
-import { Manrope } from "next/font/google";
-import { Poppins } from "next/font/google";
+import { Manrope, Poppins } from "next/font/google";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";

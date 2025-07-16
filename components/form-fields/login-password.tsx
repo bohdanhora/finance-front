@@ -9,6 +9,7 @@ import { RenderFieldProps } from "types/other.types";
 
 export const LoginPassword = <T extends FieldValues>({ form, name }: RenderFieldProps<T>) => {
     const tAuth = useTranslations("auth");
+    const passwordLabel = tAuth("password");
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -18,7 +19,7 @@ export const LoginPassword = <T extends FieldValues>({ form, name }: RenderField
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>{tAuth("password")}</FormLabel>
+                    <FormLabel>{passwordLabel}</FormLabel>
                     <FormControl>
                         <div className="relative">
                             <Input
@@ -26,7 +27,7 @@ export const LoginPassword = <T extends FieldValues>({ form, name }: RenderField
                                     "px-5 py-6 pr-12",
                                     form.formState.errors.password ? "border-red-600" : "",
                                 )}
-                                placeholder={tAuth("password")}
+                                placeholder={passwordLabel}
                                 type={showPassword ? "text" : "password"}
                                 {...field}
                             />

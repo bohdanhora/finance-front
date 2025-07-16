@@ -1,20 +1,20 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
+import { useForgotPassword } from "api/auth.api";
+import { PublicProvider } from "providers/auth-provider";
+import { Routes } from "constants/routes";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
-import { useTranslations } from "next-intl";
-import { Routes } from "constants/routes";
 import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
-import { useForgotPassword } from "api/auth.api";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
 import { RenderEmailField } from "components/form-fields/email";
 import { BackToLogin } from "components/back-to-login.component";
+import { useForgotPasswordForm } from "./use-forgot-password-form";
+import { forgotPasswordSchema } from "schemas/auth.schema";
 
 export default function ResetPassword() {
     const tAuth = useTranslations("auth");
@@ -22,30 +22,14 @@ export default function ResetPassword() {
 
     const { mutateAsync: forgotPasswordAsync, isPending: forgotPasswordPending } = useForgotPassword();
 
-    const formSchema = useMemo(
-        () =>
-            z.object({
-                email: z
-                    .string()
-                    .email({
-                        message: tAuth("errors.email"),
-                    })
-                    .min(2),
-            }),
-        [tAuth],
-    );
+    const form = useForgotPasswordForm(tAuth);
+    const schema = useMemo(() => forgotPasswordSchema(tAuth), [tAuth]);
+    type ForgotPasswordFormData = z.infer<typeof schema>;
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            email: "",
-        },
-    });
-
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: ForgotPasswordFormData) => {
         await forgotPasswordAsync({ email: values.email.toLowerCase() });
         router.replace(Routes.LOGIN);
-    }
+    };
 
     return (
         <PublicProvider>
