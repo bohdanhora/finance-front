@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { MonobankCurrency } from "types/auth.types";
 import { ISO4217Codes } from "constants/index";
+import { toast } from "react-toastify";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -76,3 +77,20 @@ export const calculateSavings = (totalAmount: number) => {
         remaining,
     };
 };
+
+export function showSessionToasts(keys: { key: string; message: string }[]) {
+    keys.forEach(({ key, message }) => {
+        if (sessionStorage.getItem(key)) {
+            toast.success(message);
+            sessionStorage.removeItem(key);
+        }
+    });
+}
+
+export function extractTokensFromParams(params: URLSearchParams) {
+    const accessToken = params.get("accessToken");
+    const refreshToken = params.get("refreshToken");
+    const userId = params.get("userId");
+    if (!accessToken || !refreshToken || !userId) return null;
+    return { accessToken, refreshToken, userId };
+}

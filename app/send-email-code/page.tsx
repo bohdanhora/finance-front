@@ -17,6 +17,7 @@ import { Input } from "components/ui/input";
 import { useRequestEmailCode } from "api/auth.api";
 import { toast } from "react-toastify";
 import useOtherStore from "store/other.store";
+import { RenderEmailField } from "components/form-fields/email";
 
 export default function SendCode() {
     const otherStore = useOtherStore();
@@ -79,19 +80,7 @@ export default function SendCode() {
                 >
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{tAuth("email")}</FormLabel>
-                                        <FormControl>
-                                            <Input className="px-5 py-6" placeholder={tAuth("email")} {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <RenderEmailField form={form} name="email" />
 
                             {codeSent ? (
                                 <Button

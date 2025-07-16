@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PasswordInput } from "components/password-input.component";
 import useOtherStore from "store/other.store";
+import { RenderEmailField } from "components/form-fields/email";
 
 function useToggle(initial = false) {
     const [state, setState] = useState(initial);
@@ -89,19 +90,7 @@ export default function Registration() {
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("email")}</FormLabel>
-                                        <FormControl>
-                                            <Input className="px-5 py-6" placeholder={t("email")} {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <RenderEmailField form={form} name="email" />
 
                             <FormField
                                 control={form.control}
