@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💸 Finance App — Frontend
 
-## Getting Started
+This is the **frontend** of the Finance App — a personal finance tracker built as a **pet project** by [**Bohdan Hora**](https://github.com/bohdanhora).  
+It allows users to manage budgets, visualize expenses, and export data — all from a modern, responsive interface.
 
-First, run the development server:
+## 🌍 Live Demo
+
+🔗 [https://finance-front-zeta.vercel.app/](https://finance-front-zeta.vercel.app/)
+🔗 [https://bohdanhora.github.io/finance-front/](https://bohdanhora.github.io/finance-front/)
+
+---
+
+## ✨ Features
+
+- 🔐 Register an account or log in with **Google**
+- 🍪 Session management using cookies
+- 💵 Add and categorize **incomes** and **expenses**
+- 📊 Automatically calculate:
+    - Budget until the end of the current month
+    - Budget forecast for the next month
+    - Take into account **required (fixed) monthly payments**
+- 🔍 Filter and search transactions by **category**
+- 📄 Export income/expense lists to **PDF**
+- 📈 Track spending with dynamic **charts**
+- 💱 Convert UAH to **USD/EUR** using **Monobank exchange rates**
+- 🌗 Support for **dark** and **light** themes
+- 🌍 Available in **English** and **Russian**
+
+---
+
+## 🛠️ Tech Stack
+
+| Tech                      | Description                       |
+| ------------------------- | --------------------------------- |
+| Next.js 15                | React framework with Turbopack    |
+| TypeScript                | Static typing                     |
+| Zustand                   | Lightweight state management      |
+| Tailwind CSS              | Utility-first styling             |
+| Radix UI                  | Accessible UI components          |
+| React Hook Form + Zod     | Form validation                   |
+| TanStack Query            | Server state and caching          |
+| js-cookie                 | Cookie management                 |
+| Recharts                  | Data visualization                |
+| date-fns                  | Date utilities                    |
+| react-i18next + next-intl | Internationalization (i18n)       |
+| react-toastify            | Toast notifications               |
+| Vanta.js + Three.js       | Animated background effects       |
+| Monobank API              | UAH ➝ USD/EUR currency conversion |
+
+---
+
+## 📦 Scripts
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev         # Start development server
+npm run build       # Build for production
+npm run start       # Start production server
+npm run deploy      # Deploy to GitHub Pages
+npm run lint        # Lint code
+npm run prettier    # Format code using Prettier
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚧 Disclaimer
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is a personal experiment and learning exercise.
+It is not intended for production use.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 👤 Author
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bohdan Hora
+🔗 GitHub: @bohdanhora
