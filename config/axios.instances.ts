@@ -15,6 +15,19 @@ const transactionsAxios = axios.create({
 
 const retryMap = new WeakMap();
 
+let isRefreshing = false;
+
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+function onRefreshed(token: string) {
+    refreshSubscribers.forEach((callback) => callback(token));
+    refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(callback: (token: string) => void) {
+    refreshSubscribers.push(callback);
+}
+
 transactionsAxios.interceptors.request.use((config) => {
     const token = Cookies.get("accessToken");
     if (token) {
@@ -25,13 +38,15 @@ transactionsAxios.interceptors.request.use((config) => {
 
 transactionsAxios.interceptors.response.use(
     (response) => response,
-    async (error) => {
+    (error) => {
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !retryMap.get(originalRequest)) {
             retryMap.set(originalRequest, true);
 
-            try {
+            if (!isRefreshing) {
+                isRefreshing = true;
+
                 const refreshToken = Cookies.get("refreshToken");
 
                 if (!refreshToken) {
@@ -43,36 +58,44 @@ transactionsAxios.interceptors.response.use(
                     return Promise.reject(new Error("No refresh token found"));
                 }
 
-                const res = await authAxios.post("/refresh", { refreshToken });
+                return authAxios
+                    .post("/refresh", { refreshToken })
+                    .then((res) => {
+                        const newToken = res.data.accessToken;
+                        const newRefreshToken = res.data.refreshToken;
 
-                const newToken = res.data.accessToken;
-                const newRefreshToken = res.data.refreshToken;
+                        Cookies.set("accessToken", newToken, {
+                            secure: true,
+                            expires: 3,
+                        });
+                        Cookies.set("refreshToken", newRefreshToken, {
+                            secure: true,
+                            expires: 3,
+                        });
 
-                Cookies.set("accessToken", newToken, {
-                    secure: true,
-                    expires: 3,
+                        isRefreshing = false;
+
+                        onRefreshed(newToken);
+
+                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                        return transactionsAxios(originalRequest);
+                    })
+                    .catch((refreshError) => {
+                        isRefreshing = false;
+                        Cookies.remove("accessToken");
+                        Cookies.remove("refreshToken");
+                        if (typeof window !== "undefined") {
+                            window.location.href = Routes.LOGIN;
+                        }
+                        return Promise.reject(refreshError);
+                    });
+            } else {
+                return new Promise((resolve) => {
+                    addRefreshSubscriber((token: string) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        resolve(transactionsAxios(originalRequest));
+                    });
                 });
-                Cookies.set("refreshToken", newRefreshToken, {
-                    secure: true,
-                    expires: 3,
-                });
-
-                const newRequest = {
-                    ...originalRequest,
-                    headers: {
-                        ...originalRequest.headers,
-                        Authorization: `Bearer ${newToken}`,
-                    },
-                };
-
-                return transactionsAxios(newRequest);
-            } catch (refreshError) {
-                Cookies.remove("accessToken");
-                Cookies.remove("refreshToken");
-                if (typeof window !== "undefined") {
-                    window.location.href = Routes.LOGIN;
-                }
-                return Promise.reject(refreshError);
             }
         }
 
