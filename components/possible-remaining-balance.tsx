@@ -2,77 +2,58 @@
 
 import useStore from "store/general";
 import { ContentWrapper } from "./wrappers/container";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { calculateDailyBudget, formatCurrency } from "lib/utils";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
+import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import EssentialSpends from "./dialogs/essential-spends";
 import ChangeDefaultEssentials from "./dialogs/change-default-essentials";
 
 export default function PossibleRemaining() {
+    const t = useTranslations("possible");
     const store = useStore();
     const bankStore = useBankStore();
-    const t = useTranslations("possible");
 
-    const [state, setState] = useState({
-        essentials: {
-            totalEssentials: {
-                default: 0,
-                [CURRENCY.EUR]: 0,
-                [CURRENCY.USD]: 0,
-            },
-            dailyAfterEssentials: {
-                default: 0,
-                [CURRENCY.EUR]: 0,
-                [CURRENCY.USD]: 0,
-            },
-        },
-        dailyBudget: 0,
-        daysLeft: 0,
-        dailyBudgetToCurrency: {
-            [CURRENCY.EUR]: 0,
-            [CURRENCY.USD]: 0,
-        },
-    });
+    const eurRate = bankStore.eur?.rateBuy || 0;
+    const usdRate = bankStore.usd?.rateBuy || 0;
+    const rates = { [CURRENCY.EUR]: eurRate, [CURRENCY.USD]: usdRate };
 
-    useEffect(() => {
-        const eurRate = bankStore.eur?.rateBuy || 0;
-        const usdRate = bankStore.usd?.rateBuy || 0;
-
-        const totalEssentials = store.essentialsArray.reduce((sum, item) => {
+    const {
+        totalEssentials,
+        dailyAfterEssentials,
+        dailyBudget,
+        daysLeft,
+        dailyBudgetToCurrency,
+        essentialsConverted,
+        essentialsDailyConverted,
+    } = useMemo(() => {
+        const totalEssentialsAmount = store.essentialsArray.reduce((sum, item) => {
             return !item.checked ? sum + item.amount : sum;
         }, 0);
 
-        const totalWithEssentials = store.totalAmount - totalEssentials;
+        const remainingAfterEssentials = store.totalAmount - totalEssentialsAmount;
 
-        const { dailyBudget: dailyFromTotal, daysLeft } = calculateDailyBudget(store.totalAmount);
-        const { dailyBudget: dailyAfterEssentials } = calculateDailyBudget(totalWithEssentials);
+        const { dailyBudget: dailyFull, daysLeft } = calculateDailyBudget(store.totalAmount);
+        const { dailyBudget: dailyAfterEssentials } = calculateDailyBudget(remainingAfterEssentials);
 
-        setState({
-            essentials: {
-                totalEssentials: {
-                    default: totalWithEssentials,
-                    [CURRENCY.EUR]: eurRate ? totalWithEssentials / eurRate : 0,
-                    [CURRENCY.USD]: usdRate ? totalWithEssentials / usdRate : 0,
-                },
-                dailyAfterEssentials: {
-                    default: dailyAfterEssentials,
-                    [CURRENCY.EUR]: eurRate ? dailyAfterEssentials / eurRate : 0,
-                    [CURRENCY.USD]: usdRate ? dailyAfterEssentials / usdRate : 0,
-                },
-            },
-            dailyBudget: dailyFromTotal,
+        return {
+            totalEssentials: remainingAfterEssentials,
+            dailyAfterEssentials,
+            dailyBudget: dailyFull,
             daysLeft,
-            dailyBudgetToCurrency: {
-                [CURRENCY.EUR]: eurRate ? dailyFromTotal / eurRate : 0,
-                [CURRENCY.USD]: usdRate ? dailyFromTotal / usdRate : 0,
-            },
-        });
-    }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy, store.essentialsArray]);
+            dailyBudgetToCurrency: convertToAllCurrencies(dailyFull, rates),
+            essentialsConverted: convertToAllCurrencies(remainingAfterEssentials, rates),
+            essentialsDailyConverted: convertToAllCurrencies(dailyAfterEssentials, rates),
+        };
+    }, [store.totalAmount, store.essentialsArray, eurRate, usdRate]);
+
+    const currency = bankStore.currency as CURRENCY;
+    const currencySymbol = getCurrencySymbol(currency);
 
     const renderCard = (title: string, valueUAH: number, valueCurrency: number, currencySymbol: string) => (
-        <ContentWrapper className="w-full sm:w-2xs">
+        <ContentWrapper className="w-full sm:w-2xs bg-white/10 backdrop-blur-md rounded-2xl shadow-md p-4">
             <span className="text-xl font-semibold">{formatCurrency(valueUAH)} ₴</span>
             <span className="text-sm">
                 {formatCurrency(valueCurrency)} {currencySymbol}
@@ -81,9 +62,6 @@ export default function PossibleRemaining() {
         </ContentWrapper>
     );
 
-    const currency = bankStore.currency as CURRENCY;
-    const getCurrencySymbol = () => (currency === CURRENCY.USD ? "$" : "€");
-
     return (
         <section className="w-full flex flex-col items-center gap-10">
             <div className="flex justify-center items-center gap-5 flex-wrap">
@@ -91,28 +69,22 @@ export default function PossibleRemaining() {
                 <ChangeDefaultEssentials />
             </div>
             <div className="flex gap-4 flex-wrap w-full justify-between">
-                <ContentWrapper className="w-full sm:w-2xs">
+                <ContentWrapper className="w-full sm:w-2xs bg-white/10 backdrop-blur-md rounded-2xl shadow-md p-4">
                     <p className="text-base font-bold text-center mt-1">{t("daysLeft")}</p>
-
-                    <span className="text-xl font-semibold">{state.daysLeft}</span>
+                    <span className="text-xl font-semibold">{daysLeft}</span>
                 </ContentWrapper>
-                {renderCard(
-                    t("dailyBudget"),
-                    state.dailyBudget,
-                    state.dailyBudgetToCurrency[currency] ?? 0,
-                    getCurrencySymbol(),
-                )}
+                {renderCard(t("dailyBudget"), dailyBudget, dailyBudgetToCurrency[currency] ?? 0, currencySymbol)}
                 {renderCard(
                     t("remainingAfterEssentials"),
-                    state.essentials.totalEssentials.default,
-                    state.essentials.totalEssentials[currency] ?? 0,
-                    getCurrencySymbol(),
+                    totalEssentials,
+                    essentialsConverted[currency] ?? 0,
+                    currencySymbol,
                 )}
                 {renderCard(
                     t("dailySpendingAvailable"),
-                    state.essentials.dailyAfterEssentials.default,
-                    state.essentials.dailyAfterEssentials[currency] ?? 0,
-                    getCurrencySymbol(),
+                    dailyAfterEssentials,
+                    essentialsDailyConverted[currency] ?? 0,
+                    currencySymbol,
                 )}
             </div>
         </section>
