@@ -37,7 +37,7 @@ import {
     HandshakeIcon,
     MinusIcon,
 } from "lucide-react";
-import { formatCurrency } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { Calendar } from "ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
 import { Textarea } from "ui/textarea";
@@ -152,18 +152,7 @@ export default function ExpenseDialogComponent() {
                                         <Input
                                             placeholder={t("dialogs.amount")}
                                             {...field}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-
-                                                if (val === "") {
-                                                    field.onChange(val);
-                                                    return;
-                                                }
-
-                                                if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
-
-                                                field.onChange(val);
-                                            }}
+                                            onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
                                     <FormMessage />

@@ -20,6 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { useSetNextMonthTotalAmount } from "api/main";
+import { handleDecimalInputChange } from "lib/utils";
 
 const formSchema = z.object({
     value: z
@@ -72,18 +73,7 @@ export default function ChangeNextMonthIncome() {
                                         <Input
                                             placeholder={t("inputIncome")}
                                             {...field}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-
-                                                if (val === "") {
-                                                    field.onChange(val);
-                                                    return;
-                                                }
-
-                                                if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
-
-                                                field.onChange(val);
-                                            }}
+                                            onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
                                     <FormMessage />

@@ -26,6 +26,7 @@ import { XIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
+import { handleDecimalInputChange } from "lib/utils";
 
 const formSchema = z.object({
     amount: z
@@ -121,18 +122,7 @@ export default function ChangeDefaultEssentials() {
                                         <Input
                                             placeholder={t("amount")}
                                             {...field}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-
-                                                if (val === "") {
-                                                    field.onChange(val);
-                                                    return;
-                                                }
-
-                                                if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
-
-                                                field.onChange(val);
-                                            }}
+                                            onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
                                     <FormMessage />

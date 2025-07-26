@@ -103,3 +103,17 @@ export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
         toast.error("Error");
     }
 };
+
+export const handleDecimalInputChange =
+    (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            fieldOnChange(val);
+            return;
+        }
+
+        if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
+
+        fieldOnChange(val);
+    };
