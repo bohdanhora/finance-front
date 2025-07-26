@@ -89,17 +89,32 @@ export default function ExpenseDialogComponent() {
     });
 
     const categoriesIcons = (category: string) => {
-        if (category === "groceries") return <ShoppingBasketIcon />;
-        if (category === "cosmetics") return <SparklesIcon />;
-        if (category === "home") return <HouseIcon />;
-        if (category === "restaurant") return <UtensilsIcon />;
-        if (category === "entertainment") return <SmilePlusIcon />;
-        if (category === "delivery") return <HamburgerIcon />;
-        if (category === "transport") return <CarTaxiFrontIcon />;
-        if (category === "credit") return <BanknoteIcon />;
-        if (category === "gifts") return <GiftIcon />;
-        if (category === "clothing") return <ShirtIcon />;
-        if (category === "essentials") return <HandshakeIcon />;
+        switch (category) {
+            case "groceries":
+                return <ShoppingBasketIcon />;
+            case "cosmetics":
+                return <SparklesIcon />;
+            case "home":
+                return <HouseIcon />;
+            case "restaurant":
+                return <UtensilsIcon />;
+            case "entertainment":
+                return <SmilePlusIcon />;
+            case "delivery":
+                return <HamburgerIcon />;
+            case "transport":
+                return <CarTaxiFrontIcon />;
+            case "credit":
+                return <BanknoteIcon />;
+            case "gifts":
+                return <GiftIcon />;
+            case "clothing":
+                return <ShirtIcon />;
+            case "essentials":
+                return <HandshakeIcon />;
+            default:
+                return null;
+        }
     };
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
