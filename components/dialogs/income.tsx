@@ -29,12 +29,13 @@ import { twMerge } from "tailwind-merge";
 import { useSetNewTransaction } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { TransactionEnum } from "constants/index";
+import { useState } from "react";
 
 const formSchema = z.object({
     value: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
+        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
     description: z.string().optional(),
     date: z.date(),
 });
@@ -44,6 +45,8 @@ export const IncomeDialogComponent = () => {
     const t = useTranslations();
 
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
+
+    const [open, setOpen] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -64,23 +67,29 @@ export const IncomeDialogComponent = () => {
             description: values.description || "",
         };
 
-        const response = await setNewTransactionAsync(createTransaction);
+        try {
+            const response = await setNewTransactionAsync(createTransaction);
 
-        store.setTotalAmount(response.updatedTotals.totalAmount);
-        store.setTotalIncome(response.updatedTotals.totalIncome);
-        store.setTotalSpend(response.updatedTotals.totalSpend);
-        store.setTransactions(response.updatedItems);
+            store.setTotalAmount(response.updatedTotals.totalAmount);
+            store.setTotalIncome(response.updatedTotals.totalIncome);
+            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.setTransactions(response.updatedItems);
 
-        toast.success(
-            t("toasts.addedIncome", {
-                amount: formatCurrency(Number(values.value)),
-            }),
-        );
-        form.reset();
+            toast.success(
+                t("toasts.addedIncome", {
+                    amount: formatCurrency(Number(values.value)),
+                }),
+            );
+
+            form.reset();
+            setOpen(false);
+        } catch (error) {
+            toast.error(t("toasts.errorOccurred") || "Error occurred");
+        }
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="default" className="hover:bg-green-500 dark:hover:bg-green-600">

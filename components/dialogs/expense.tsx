@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import useStore from "store/general";
 
 import { z } from "zod";
@@ -52,7 +53,7 @@ const formSchema = z.object({
     value: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
+        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
     description: z.string().optional(),
     categories: z.string().min(1),
     date: z.date(),
@@ -77,6 +78,8 @@ export const ExpenseDialogComponent = () => {
     const t = useTranslations();
 
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
+
+    const [open, setOpen] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -127,23 +130,37 @@ export const ExpenseDialogComponent = () => {
             description: values.description || "",
         };
 
-        const response = await setNewTransactionAsync(createTransaction);
+        try {
+            const response = await setNewTransactionAsync(createTransaction);
 
-        store.setTotalAmount(response.updatedTotals.totalAmount);
-        store.setTotalIncome(response.updatedTotals.totalIncome);
-        store.setTotalSpend(response.updatedTotals.totalSpend);
-        store.setTransactions(response.updatedItems);
+            store.setTotalAmount(response.updatedTotals.totalAmount);
+            store.setTotalIncome(response.updatedTotals.totalIncome);
+            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.setTransactions(response.updatedItems);
 
-        toast.success(
-            t("toasts.addedExpense", {
-                amount: formatCurrency(Number(values.value)),
-            }),
-        );
-        form.reset();
+            toast.success(
+                t("toasts.addedExpense", {
+                    amount: formatCurrency(Number(values.value)),
+                }),
+            );
+
+            form.reset();
+            setOpen(false);
+        } catch (error) {
+            toast.error(t("toasts.errorOccurred") || "Error occurred");
+        }
+    };
+
+    const handleOpenChange = (isOpen: boolean) => {
+        if (store.totalAmount <= 0 && isOpen) {
+            toast.warning(t("toasts.noFunds"));
+            return;
+        }
+        setOpen(isOpen);
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="default" className="hover:bg-red-500 dark:hover:bg-red-500">
@@ -151,6 +168,7 @@ export const ExpenseDialogComponent = () => {
                         {t("expenses.expence")}
                     </Button>
                 </DialogTrigger>
+
                 <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <DialogHeader>

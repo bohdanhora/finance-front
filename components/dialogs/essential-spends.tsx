@@ -33,7 +33,7 @@ const formSchema = z.object({
     amount: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
+        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
     title: z.string().min(1),
 });
 

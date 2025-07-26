@@ -24,12 +24,13 @@ import useBankStore from "store/bank";
 import { toast } from "react-toastify";
 import { formatCurrency } from "lib/utils";
 import { useSetNextMonthTotalAmount } from "api/main";
+import { useState } from "react";
 
 const formSchema = z.object({
     rate: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
+        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
     hours: z
         .string()
         .min(1)
@@ -45,6 +46,7 @@ export const NextMonthIncomeCalculate = () => {
     const bankStore = useBankStore();
 
     const { mutateAsync: setNextMonthAmountAsync, isPending: nextMonthAmountPending } = useSetNextMonthTotalAmount();
+    const [open, setOpen] = useState(false);
 
     const t = useTranslations("dialogs");
     const tToast = useTranslations("toasts");
@@ -88,12 +90,13 @@ export const NextMonthIncomeCalculate = () => {
 
         await setNextMonthAmountAsync({ nextMonthTotalAmount: result });
 
-        toast.success(tToast("addedIncome", { amount: formatCurrency(result) }));
+        toast.success(tToast("nextMonthIcomeChanged", { amount: formatCurrency(result) }));
         form.reset();
+        setOpen(false);
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="default">{t("calculateNextMonthIncome")}</Button>

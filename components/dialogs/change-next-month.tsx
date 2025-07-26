@@ -20,19 +20,23 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { useSetNextMonthTotalAmount } from "api/main";
-import { handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
     value: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
+        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
 });
 
 export const ChangeNextMonthIncome = () => {
     const store = useStore();
     const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
+    const [open, setOpen] = useState(false);
 
+    const tGlobal = useTranslations();
     const t = useTranslations("dialogs");
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -49,10 +53,12 @@ export const ChangeNextMonthIncome = () => {
             nextMonthTotalAmount: Number(values.value),
         });
         form.reset();
+        setOpen(false);
+        toast.success(tGlobal("toasts.nextMonthIcomeChanged", { amount: formatCurrency(Number(values.value)) }));
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="default">{t("changeNextMonthIncome")}</Button>

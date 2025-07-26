@@ -33,7 +33,9 @@
     "toasts": {
         "noMoney": "Вы не можете потратить больше, чем у вас есть :(",
         "addedIncome": "Успешно добавлено {amount} ₴",
-        "addedExpense": "Потрачено {amount} ₴"
+        "addedExpense": "Потрачено {amount} ₴",
+        "noFunds": "К сожалению, вы не можете тратить деньги, когда ваш баланс равен нулю.",
+        "nextMonthIcomeChanged": "В следующем месяце прийдёт {amount} ₴"
     },
     "dialogs": {
         "change": "Изменить",
