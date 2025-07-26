@@ -13,6 +13,8 @@ const transactionsAxios = axios.create({
     headers: {},
 });
 
+const retryMap = new WeakMap();
+
 transactionsAxios.interceptors.request.use((config) => {
     const token = Cookies.get("accessToken");
     if (token) {
@@ -26,8 +28,8 @@ transactionsAxios.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.data?.message === "Invalid Token" && !originalRequest._retry) {
-            originalRequest._retry = true;
+        if (error.response?.data?.message === "Invalid Token" && !retryMap.get(originalRequest)) {
+            retryMap.set(originalRequest, true);
 
             try {
                 const refreshToken = Cookies.get("refreshToken");
