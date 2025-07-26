@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FieldValues } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
-import { RenderFieldProps } from "types/other.types";
+import { RenderFieldProps } from "types/other";
 
 export const LoginPassword = <T extends FieldValues>({ form, name }: RenderFieldProps<T>) => {
     const tAuth = useTranslations("auth");

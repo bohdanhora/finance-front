@@ -1,8 +1,8 @@
-import { PasswordInput } from "components/password-input.component";
+import { PasswordInput } from "components/password-input";
 import { FormField } from "components/ui/form";
 import { useTranslations } from "next-intl";
 import { FieldValues } from "react-hook-form";
-import { RenderPasswordFieldProps } from "types/other.types";
+import { RenderPasswordFieldProps } from "types/other";
 
 export const RenderPassword = <T extends FieldValues>({
     form,

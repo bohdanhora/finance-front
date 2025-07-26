@@ -40,7 +40,6 @@ It allows users to manage budgets, visualize expenses, and export data — all f
 | React Hook Form + Zod     | Form validation                   |
 | TanStack Query            | Server state and caching          |
 | js-cookie                 | Cookie management                 |
-| Recharts                  | Data visualization                |
 | date-fns                  | Date utilities                    |
 | react-i18next + next-intl | Internationalization (i18n)       |
 | react-toastify            | Toast notifications               |

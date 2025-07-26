@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency } from "lib/utils";
-import useStore from "store/general.store";
-import ExpenseDialogComponent from "./dialogs/expense-dialog.component";
-import IncomeDialogComponent from "./dialogs/income-dialog.component";
-import useBankStore from "store/bank.store";
+import useStore from "store/general";
+import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
 import { useTranslations } from "next-intl";
+import { IncomeDialogComponent } from "./dialogs/income";
+import { ExpenseDialogComponent } from "./dialogs/expense";
 
-export default function Total() {
+export const Total = () => {
     const t = useTranslations("total");
 
     const [toDollar, setToDollar] = useState(0);
@@ -46,4 +46,4 @@ export default function Total() {
             </div>
         </header>
     );
-}
+};
