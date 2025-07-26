@@ -2,6 +2,9 @@ import { MonobankCurrency } from "types/auth";
 import { ISO4217Codes } from "constants/index";
 import { toast } from "react-toastify";
 
+import { AxiosError } from "axios";
+import { ErrorResponse } from "types/other";
+
 export function createDateString(input: string | Date): string {
     const date = input instanceof Date ? input : new Date(input);
 
@@ -88,3 +91,15 @@ export function extractTokensFromParams(params: URLSearchParams) {
     if (!accessToken || !refreshToken || !userId) return null;
     return { accessToken, refreshToken, userId };
 }
+
+export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
+    const message = error.response?.data.message;
+
+    if (Array.isArray(message)) {
+        message.forEach((msg) => toast.error(msg));
+    } else if (typeof message === "string") {
+        toast.error(message);
+    } else {
+        toast.error("Error");
+    }
+};

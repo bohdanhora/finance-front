@@ -1,9 +1,8 @@
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { authAxios } from "config/axios.instances";
 import { loginSetTokens } from "lib/auth-helper";
-import { toast } from "react-toastify";
+import { showAxiosError } from "lib/utils";
 import {
     ErrorResponse,
     ForgotPasswordPayload,
@@ -36,9 +35,7 @@ export const useLoginMutation = (rememberMe: CheckedState) => {
                 loginSetTokens(data, rememberMe);
             }
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -56,9 +53,7 @@ export const useForgotPassword = () => {
                 sessionStorage.setItem("showForgotPasswordToast", "true");
             }
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -76,9 +71,7 @@ export const useResetPassword = () => {
                 sessionStorage.setItem("showResetPasswordToast", "true");
             }
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -94,9 +87,7 @@ export const useRegistrationMutation = () => {
         onSuccess: () => {
             sessionStorage.setItem("showRegistrationToast", "true");
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -112,9 +103,7 @@ export const useLogoutMutation = () => {
         onSuccess: () => {
             sessionStorage.setItem("showLogoutToast", "true");
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -130,9 +119,7 @@ export const useRefresh = () => {
         onSuccess: (data) => {
             loginSetTokens(data, true);
         },
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };
 
@@ -145,8 +132,6 @@ export const useRequestEmailCode = () => {
     return useMutation({
         mutationKey: ["request-email-code"],
         mutationFn: requestEmailCode,
-        onError: (error: AxiosError<ErrorResponse>) => {
-            toast.error(error.response?.data.message);
-        },
+        onError: showAxiosError,
     });
 };

@@ -159,13 +159,5 @@
         "exportPdf": "Экспорт в PDF",
         "prev": "Предыдущая",
         "next": "Следующая"
-    },
-    "chart": {
-        "expensesByCategory": "Расходы по категориям",
-        "excludingIncomeTransactions": "Без учета доходных транзакций",
-        "hideChart": "Скрыть чарт",
-        "showChart": "Показать чарт",
-        "basedOnRecentExpenses": "На основе ваших последних расходов",
-        "totalTransactions": "{ totalTransactions } всего транзакций"
     }
 }

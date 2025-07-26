@@ -15,3 +15,7 @@ export interface RenderPasswordFieldProps<T extends FieldValues> extends RenderF
 export interface RenderInpitFieldProps<T extends FieldValues> extends RenderFieldProps<T> {
     label: string;
 }
+
+export type ErrorResponse = {
+    message: string | string[];
+};

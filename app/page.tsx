@@ -11,7 +11,6 @@ import PossibleRemaining from "components/possible-remaining-balance";
 import NextMonthIncome from "components/next-month-income";
 import LastSpends from "components/last-spends";
 import TotalAmounts from "components/total-amounts";
-import { ChartPieByCategory } from "components/chart-by-categories";
 import { useLoginToast } from "hooks/use-login-toast";
 
 export default function Home() {
@@ -30,7 +29,6 @@ export default function Home() {
                         <NextMonthIncome />
                         <LastSpends />
                         <TotalAmounts />
-                        <ChartPieByCategory />
                     </div>
                 </div>
             </PrivateProvider>
