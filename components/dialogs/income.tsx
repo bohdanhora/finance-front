@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { Calendar } from "ui/calendar";
 import { format } from "date-fns";
-import { cn, formatCurrency } from "lib/utils";
+import { formatCurrency } from "lib/utils";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
@@ -150,7 +150,7 @@ export default function IncomeDialogComponent() {
                                             <FormControl>
                                                 <Button
                                                     variant="popover"
-                                                    className={cn(
+                                                    className={twMerge(
                                                         "w-[240px] pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}

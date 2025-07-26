@@ -37,7 +37,7 @@ import {
     HandshakeIcon,
     MinusIcon,
 } from "lucide-react";
-import { cn, formatCurrency } from "lib/utils";
+import { formatCurrency } from "lib/utils";
 import { Calendar } from "ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
 import { Textarea } from "ui/textarea";
@@ -210,7 +210,7 @@ export default function ExpenseDialogComponent() {
                                             <FormControl>
                                                 <Button
                                                     variant="popover"
-                                                    className={cn(
+                                                    className={twMerge(
                                                         "w-[240px] pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}

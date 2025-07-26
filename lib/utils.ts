@@ -1,12 +1,6 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { MonobankCurrency } from "types/auth";
 import { ISO4217Codes } from "constants/index";
 import { toast } from "react-toastify";
-
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 export function createDateString(input: string | Date): string {
     const date = input instanceof Date ? input : new Date(input);
