@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import useBankStore from "store/bank.store";
-import useStore from "store/general.store";
-import { ContentWrapper } from "./wrappers/container.wrapper";
+import useBankStore from "store/bank";
+import useStore from "store/general";
+import { ContentWrapper } from "./wrappers/container";
 import { formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
 

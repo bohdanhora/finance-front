@@ -1,5 +1,5 @@
-import { LangugaeDropdown } from "components/language-dropdown.component";
-import ThemeSwitch from "components/theme-switch.component";
+import { LangugaeDropdown } from "components/language-dropdown";
+import ThemeSwitch from "components/theme-switch";
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 

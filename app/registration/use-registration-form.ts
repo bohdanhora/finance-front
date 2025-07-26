@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
-import { registrationSchema } from "schemas/auth.schema";
+import { registrationSchema } from "schemas/auth";
 import { z } from "zod";
 
 export function useRegistrationForm(t: ReturnType<typeof import("next-intl").useTranslations>, email: string) {

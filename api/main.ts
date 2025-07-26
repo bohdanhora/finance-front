@@ -24,7 +24,7 @@ import {
     TotalAmountErrorResponse,
     TotalAmountPayload,
     TotalAmountResponseType,
-} from "types/transactions.types";
+} from "types/transactions";
 
 const allTransactionInfo = async (): Promise<AllTransactionsInfoResponse> => {
     const res = await transactionsAxios.get("all-info");

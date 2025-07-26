@@ -2,10 +2,10 @@
 
 import { useState, useMemo, JSX } from "react";
 
-import { TransactionType } from "types/transactions.types";
+import { TransactionType } from "types/transactions";
 import { createDateString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
-import useStore from "store/general.store";
+import useStore from "store/general";
 
 import {
     ShoppingBasketIcon,
@@ -26,11 +26,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
 import { twMerge } from "tailwind-merge";
-import { ContentWrapper } from "./wrappers/container.wrapper";
+import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useExportPdf } from "api/main.api";
+import { useExportPdf } from "api/main";
 import { toast } from "react-toastify";
 
 const categoriesIcons = (category: string) => {

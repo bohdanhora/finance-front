@@ -1,9 +1,9 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { useAllTransactionInfo } from "api/main.api";
-import useStore from "store/general.store";
-import { Loader } from "components/loader.component";
+import { useAllTransactionInfo } from "api/main";
+import useStore from "store/general";
+import { Loader } from "components/loader";
 import { useRouter } from "next/navigation";
 import { Routes } from "constants/routes";
 import { clearCookies } from "lib/logout";

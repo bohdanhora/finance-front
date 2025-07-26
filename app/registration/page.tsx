@@ -4,19 +4,19 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-import { useRegistrationMutation } from "api/auth.api";
+import { useRegistrationMutation } from "api/auth";
 import { Routes } from "constants/routes";
 import { RenderEmailField } from "components/form-fields/email";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
-import useOtherStore from "store/other.store";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
+import useOtherStore from "store/other";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { RenderPassword } from "components/form-fields/password";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { RenderInputField } from "components/form-fields/input";
 import { useRegistrationForm } from "./use-registration-form";
-import { registrationSchema } from "schemas/auth.schema";
+import { registrationSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
 export default function Registration() {

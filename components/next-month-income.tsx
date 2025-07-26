@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import useBankStore from "store/bank.store";
-import useStore from "store/general.store";
-import { ContentWrapper } from "./wrappers/container.wrapper";
+import useBankStore from "store/bank";
+import useStore from "store/general";
+import { ContentWrapper } from "./wrappers/container";
 import { calculateSavings, formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
-import ChangeNextMonthIncome from "./dialogs/change-next-month-income-dialog";
-import NextMonthIncomeCalculate from "./dialogs/next-month-income-calculate.component";
-import EssentialSpends from "./dialogs/essential-spends.component";
+import ChangeNextMonthIncome from "./dialogs/change-next-month";
+import NextMonthIncomeCalculate from "./dialogs/next-month-income-calculate";
+import EssentialSpends from "./dialogs/essential-spends";
 
 export default function NextMonthIncome() {
     const store = useStore();

@@ -6,13 +6,13 @@ import { Pie, PieChart } from "recharts";
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "components/ui/chart";
 
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { useTranslations } from "next-intl";
-import { ContentWrapper } from "./wrappers/container.wrapper";
+import { ContentWrapper } from "./wrappers/container";
 import { Button } from "./ui/button";
 import { twMerge } from "tailwind-merge";
 import { formatCurrency } from "lib/utils";
-import { ChartBarByDay } from "./chart-bar-by-day.components";
+import { ChartBarByDay } from "./chart-bar-by-day";
 
 type ChartConfigItem = {
     label: string;

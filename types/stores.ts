@@ -1,5 +1,5 @@
-import { MonobankCurrency } from "./auth.types";
-import { EssentialType, TransactionType } from "types/transactions.types";
+import { MonobankCurrency } from "./auth";
+import { EssentialType, TransactionType } from "types/transactions";
 
 export type StoreType = {
     totalAmount: number;

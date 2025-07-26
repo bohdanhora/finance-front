@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { BankStoreType } from "types/stores.types";
+import { BankStoreType } from "types/stores";
 import { CURRENCY } from "constants/index";
 
 const useBankStore = create<BankStoreType>((set) => ({

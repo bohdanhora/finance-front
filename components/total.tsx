@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency } from "lib/utils";
-import useStore from "store/general.store";
-import ExpenseDialogComponent from "./dialogs/expense-dialog.component";
-import IncomeDialogComponent from "./dialogs/income-dialog.component";
-import useBankStore from "store/bank.store";
+import useStore from "store/general";
+import ExpenseDialogComponent from "./dialogs/expense";
+import IncomeDialogComponent from "./dialogs/income";
+import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
 import { useTranslations } from "next-intl";
 

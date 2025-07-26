@@ -4,18 +4,18 @@ import { z } from "zod";
 
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { useTranslations } from "next-intl";
 import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { useResetPassword } from "api/auth.api";
+import { useResetPassword } from "api/auth";
 import { RenderPassword } from "components/form-fields/password";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { useResetPasswordForm } from "./use-reset-password-form";
-import { resetPasswordSchema } from "schemas/auth.schema";
+import { resetPasswordSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
 export default function ForgotPassword() {

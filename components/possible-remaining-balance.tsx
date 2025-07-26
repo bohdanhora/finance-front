@@ -1,14 +1,14 @@
 "use client";
 
-import useStore from "store/general.store";
-import { ContentWrapper } from "./wrappers/container.wrapper";
+import useStore from "store/general";
+import { ContentWrapper } from "./wrappers/container";
 import { useEffect, useState } from "react";
 import { calculateDailyBudget, formatCurrency } from "lib/utils";
 import { useTranslations } from "next-intl";
-import useBankStore from "store/bank.store";
+import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
-import EssentialSpends from "./dialogs/essential-spends.component";
-import ChangeDefaultEssentials from "./dialogs/change-default-essentials-dialog.component";
+import EssentialSpends from "./dialogs/essential-spends";
+import ChangeDefaultEssentials from "./dialogs/change-default-essentials";
 
 export default function PossibleRemaining() {
     const store = useStore();

@@ -1,15 +1,8 @@
 "use client";
 
-import useStore from "store/general.store";
-
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
+import useStore from "store/general";
 import { Button } from "ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
-import { Input } from "ui/input";
 import {
     Dialog,
     DialogClose,
@@ -20,33 +13,22 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "ui/dialog";
-
-import { format } from "date-fns";
-import {
-    ShoppingBasketIcon,
-    CalendarIcon,
-    SparklesIcon,
-    HouseIcon,
-    SmilePlusIcon,
-    UtensilsIcon,
-    HamburgerIcon,
-    CarTaxiFrontIcon,
-    BanknoteIcon,
-    GiftIcon,
-    ShirtIcon,
-    HandshakeIcon,
-    MinusIcon,
-} from "lucide-react";
-import { cn, formatCurrency } from "lib/utils";
-import { Calendar } from "ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
+import { Input } from "ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { Textarea } from "ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
+import { CalendarIcon, PlusIcon } from "lucide-react";
+import { Calendar } from "ui/calendar";
+import { format } from "date-fns";
+import { cn, formatCurrency } from "lib/utils";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
-import { useSetNewTransaction } from "api/main.api";
-import { TransactionEnum } from "constants/index";
+import { twMerge } from "tailwind-merge";
+import { useSetNewTransaction } from "api/main";
 import { v4 as uuidv4 } from "uuid";
+import { TransactionEnum } from "constants/index";
 
 const formSchema = z.object({
     value: z
@@ -54,25 +36,10 @@ const formSchema = z.object({
         .min(1)
         .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
     description: z.string().optional(),
-    categories: z.string().min(1),
     date: z.date(),
 });
 
-const categoryKeys = [
-    "groceries",
-    "cosmetics",
-    "home",
-    "restaurant",
-    "entertainment",
-    "delivery",
-    "transport",
-    "credit",
-    "gifts",
-    "clothing",
-    "essentials",
-];
-
-export default function ExpenseDialogComponent() {
+export default function IncomeDialogComponent() {
     const store = useStore();
     const t = useTranslations();
 
@@ -83,32 +50,17 @@ export default function ExpenseDialogComponent() {
         defaultValues: {
             value: "",
             description: "",
-            categories: "",
             date: new Date(),
         },
     });
 
-    const categoriesIcons = (category: string) => {
-        if (category === "groceries") return <ShoppingBasketIcon />;
-        if (category === "cosmetics") return <SparklesIcon />;
-        if (category === "home") return <HouseIcon />;
-        if (category === "restaurant") return <UtensilsIcon />;
-        if (category === "entertainment") return <SmilePlusIcon />;
-        if (category === "delivery") return <HamburgerIcon />;
-        if (category === "transport") return <CarTaxiFrontIcon />;
-        if (category === "credit") return <BanknoteIcon />;
-        if (category === "gifts") return <GiftIcon />;
-        if (category === "clothing") return <ShirtIcon />;
-        if (category === "essentials") return <HandshakeIcon />;
-    };
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const createTransaction = {
-            transactionType: TransactionEnum.EXPENCE,
+            transactionType: TransactionEnum.INCOME,
             id: uuidv4(),
             value: Number(values.value),
             date: values.date,
-            categorie: values.categories,
+            categorie: TransactionEnum.INCOME,
             description: values.description || "",
         };
 
@@ -120,7 +72,7 @@ export default function ExpenseDialogComponent() {
         store.setTransactions(response.updatedItems);
 
         toast.success(
-            t("toasts.addedExpense", {
+            t("toasts.addedIncome", {
                 amount: formatCurrency(Number(values.value)),
             }),
         );
@@ -131,16 +83,16 @@ export default function ExpenseDialogComponent() {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className="hover:bg-red-500 dark:hover:bg-red-500">
-                        <MinusIcon />
-                        {t("expenses.expence")}
+                    <Button variant="default" className="hover:bg-green-500 dark:hover:bg-green-600">
+                        <PlusIcon />
+                        {t("expenses.income")}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <DialogHeader>
-                            <DialogTitle>{t("dialogs.enterExpense")}</DialogTitle>
-                            <DialogDescription>{t("dialogs.expenseHint")}</DialogDescription>
+                            <DialogTitle>{t("dialogs.enterIncome")}</DialogTitle>
+                            <DialogDescription>{t("dialogs.incomeReceived")}</DialogDescription>
                         </DialogHeader>
                         <FormField
                             control={form.control}
@@ -172,29 +124,17 @@ export default function ExpenseDialogComponent() {
                         />
                         <FormField
                             control={form.control}
-                            name="categories"
+                            name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{t("dialogs.category")}</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={t("dialogs.chooseCategory")} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {categoryKeys.map((item) => (
-                                                <SelectItem
-                                                    value={item}
-                                                    key={item}
-                                                    className="flex items-center justify-between gap-x-7"
-                                                >
-                                                    {categoriesIcons(item)}
-                                                    {t(`categories.${item}`)}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormLabel>{t("dialogs.description")}</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder={t("dialogs.description")}
+                                            className="resize-none"
+                                            {...field}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -216,7 +156,7 @@ export default function ExpenseDialogComponent() {
                                                     )}
                                                 >
                                                     {field.value ? (
-                                                        format(field.value, "dd/MM/yyyy")
+                                                        format(field.value, "PPP")
                                                     ) : (
                                                         <span>Pick a date</span>
                                                     )}
@@ -234,23 +174,6 @@ export default function ExpenseDialogComponent() {
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("dialogs.description")}</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder={t("dialogs.description")}
-                                            className="resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

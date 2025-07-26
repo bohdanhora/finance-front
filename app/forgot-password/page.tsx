@@ -4,16 +4,16 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { useForgotPassword } from "api/auth.api";
-import { PublicProvider } from "providers/auth-provider";
+import { useForgotPassword } from "api/auth";
+import { PublicProvider } from "providers/auth";
 import { Routes } from "constants/routes";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { RenderEmailField } from "components/form-fields/email";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
-import { forgotPasswordSchema } from "schemas/auth.schema";
+import { forgotPasswordSchema } from "schemas/auth";
 
 export default function ResetPassword() {
     const tAuth = useTranslations("auth");

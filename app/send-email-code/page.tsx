@@ -4,18 +4,18 @@ import { z } from "zod";
 
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { useTranslations } from "next-intl";
 import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { useRouter } from "next/navigation";
-import { useRequestEmailCode } from "api/auth.api";
+import { useRequestEmailCode } from "api/auth";
 import { toast } from "react-toastify";
-import useOtherStore from "store/other.store";
+import useOtherStore from "store/other";
 import { RenderEmailField } from "components/form-fields/email";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { useSendEmailForm } from "./use-send-email-form";
-import { sendEmailSchema } from "schemas/auth.schema";
+import { sendEmailSchema } from "schemas/auth";
 import { useResendTimer } from "hooks/use-resend-timer";
 
 export default function SendEmailCodePage() {

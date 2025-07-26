@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { Button } from "ui/button";
 import {
     Dialog,
@@ -19,7 +19,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
-import { useSetNextMonthTotalAmount } from "api/main.api";
+import { useSetNextMonthTotalAmount } from "api/main";
 
 const formSchema = z.object({
     value: z

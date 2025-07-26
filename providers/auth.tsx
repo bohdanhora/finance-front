@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Routes } from "constants/routes";
 import Cookies from "js-cookie";
-import { Loader } from "components/loader.component";
+import { Loader } from "components/loader";
 
 export const PrivateProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);

@@ -1,6 +1,6 @@
 import { CheckedState } from "@radix-ui/react-checkbox";
 import Cookies from "js-cookie";
-import { LoginResponseType } from "types/auth.types";
+import { LoginResponseType } from "types/auth";
 
 export const loginSetTokens = ({ accessToken, refreshToken, userId }: LoginResponseType, rememberMe: CheckedState) => {
     if (rememberMe === true) {

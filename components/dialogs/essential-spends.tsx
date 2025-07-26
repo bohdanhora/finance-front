@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { Button } from "ui/button";
 import {
     Dialog,
@@ -25,7 +25,7 @@ import { twMerge } from "tailwind-merge";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { XIcon } from "lucide-react";
-import { useNewEssential, useRemoveEssential, useSetCheckedEssential, useSetEssentialPayments } from "api/main.api";
+import { useNewEssential, useRemoveEssential, useSetCheckedEssential, useSetEssentialPayments } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 
 const formSchema = z.object({

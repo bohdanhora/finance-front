@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { StoreType } from "types/stores.types";
+import { StoreType } from "types/stores";
 
 const useStore = create<StoreType>((set) => ({
     totalAmount: 0,

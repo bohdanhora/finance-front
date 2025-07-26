@@ -9,11 +9,11 @@ import {
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { CURRENCY, CURRENCY_COOKIES_NAME } from "constants/index";
 import { useTranslations } from "next-intl";
-import useBankStore from "store/bank.store";
+import useBankStore from "store/bank";
 import { DollarSign, EuroIcon } from "lucide-react";
 
 export function CurrencyDropdown() {

@@ -18,8 +18,8 @@ import {
     RegistrationResponseType,
     ResetPasswordPayload,
     ResetPasswordResponseType,
-} from "types/auth.types";
-import { RequestEmailCodePayload, RequestEmailCodeResponseType } from "types/transactions.types";
+} from "types/auth";
+import { RequestEmailCodePayload, RequestEmailCodeResponseType } from "types/transactions";
 
 const login = async (payload: LoginPayload): Promise<LoginResponseType> => {
     const res = await authAxios.post("login", payload);

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
-import { resetPasswordSchema } from "schemas/auth.schema";
+import { resetPasswordSchema } from "schemas/auth";
 import { z } from "zod";
 
 export function useResetPasswordForm(t: ReturnType<typeof import("next-intl").useTranslations>) {

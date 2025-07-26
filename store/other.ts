@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { OtherStoreType } from "types/stores.types";
+import { OtherStoreType } from "types/stores";
 
 const useOtherStore = create<OtherStoreType>((set) => ({
     email: "",

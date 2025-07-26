@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useGetCurrencyQuery } from "api/bank.api";
-import useBankStore from "store/bank.store";
-import { LangugaeDropdown } from "./language-dropdown.component";
-import { CurrencyDropdown } from "./currency-dropdown.component";
-import ThemeSwitch from "./theme-switch.component";
+import { useGetCurrencyQuery } from "api/bank";
+import useBankStore from "store/bank";
+import { LangugaeDropdown } from "./language-dropdown";
+import { CurrencyDropdown } from "./currency-dropdown";
+import ThemeSwitch from "./theme-switch";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
-import { Loader } from "./loader.component";
+import { Loader } from "./loader";
 import Image from "next/image";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { useLogoutMutation } from "api/auth.api";
+import { useLogoutMutation } from "api/auth";
 import Cookies from "js-cookie";
 import { Routes } from "constants/routes";
 import { useRouter } from "next/navigation";
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { clearCookies } from "lib/logout";
 import { useQueryClient } from "@tanstack/react-query";
 

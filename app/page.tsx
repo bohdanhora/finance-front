@@ -2,16 +2,16 @@
 
 import { useTranslations } from "next-intl";
 
-import { PrivateProvider } from "providers/auth-provider";
-import { GetDataProvider } from "providers/get-data.provider";
+import { PrivateProvider } from "providers/auth";
+import { GetDataProvider } from "providers/get-data";
 
-import Navbar from "components/navbar.component";
+import Navbar from "components/navbar";
 import Total from "components/total";
-import PossibleRemaining from "components/possible-remaining-balance.component";
-import NextMonthIncome from "components/next-month-income.component";
-import LastSpends from "components/last-spends.component";
-import TotalAmounts from "components/total-amounts.component";
-import { ChartPieByCategory } from "components/chart-by-categories.component";
+import PossibleRemaining from "components/possible-remaining-balance";
+import NextMonthIncome from "components/next-month-income";
+import LastSpends from "components/last-spends";
+import TotalAmounts from "components/total-amounts";
+import { ChartPieByCategory } from "components/chart-by-categories";
 import { useLoginToast } from "hooks/use-login-toast";
 
 export default function Home() {

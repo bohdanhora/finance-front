@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { Button } from "ui/button";
 import {
     Dialog,
@@ -20,10 +20,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import useBankStore from "store/bank.store";
+import useBankStore from "store/bank";
 import { toast } from "react-toastify";
 import { formatCurrency } from "lib/utils";
-import { useSetNextMonthTotalAmount } from "api/main.api";
+import { useSetNextMonthTotalAmount } from "api/main";
 
 const formSchema = z.object({
     rate: z

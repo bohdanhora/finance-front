@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import axios from "axios";
-import { MonobankCurrency } from "types/auth.types";
+import { MonobankCurrency } from "types/auth";
 
 const url = process.env.NEXT_PUBLIC_MONO_API_URL || "";
 

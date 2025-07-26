@@ -6,12 +6,12 @@ import { Metadata } from "next";
 
 import { twMerge } from "tailwind-merge";
 
-import ReactQueryProvider from "providers/react-query-provider";
-import { ProviderTheme } from "providers/theme.provider";
-import { ToastProvider } from "providers/toast.provider";
+import ReactQueryProvider from "providers/react-query";
+import { ProviderTheme } from "providers/theme";
+import { ToastProvider } from "providers/toast";
 
 import "./globals.css";
-import VantaBackground from "components/animated-background.component";
+import VantaBackground from "components/animated-background";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 const poppins = Poppins({

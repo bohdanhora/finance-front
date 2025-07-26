@@ -2,7 +2,7 @@
 
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useMemo } from "react";
-import useStore from "store/general.store";
+import useStore from "store/general";
 import { formatCurrency } from "lib/utils";
 
 export function ChartBarByDay() {
