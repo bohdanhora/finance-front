@@ -13,7 +13,7 @@ import { NextMonthIncome } from "components/next-month-income";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
 
-export const Home = () => {
+const Home = () => {
     const t = useTranslations();
 
     useLoginToast(t);
@@ -35,3 +35,5 @@ export const Home = () => {
         </GetDataProvider>
     );
 };
+
+export default Home;

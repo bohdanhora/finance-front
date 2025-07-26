@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description: "Personal Finance App",
 };
 
-export const RootLayout = async ({
+const RootLayout = async ({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -54,3 +54,5 @@ export const RootLayout = async ({
         </html>
     );
 };
+
+export default RootLayout;

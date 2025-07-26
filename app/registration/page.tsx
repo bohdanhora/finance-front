@@ -19,7 +19,7 @@ import { useRegistrationForm } from "./use-registration-form";
 import { registrationSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
-export const Registration = () => {
+const Registration = () => {
     const otherStore = useOtherStore();
 
     const t = useTranslations("auth");
@@ -80,3 +80,5 @@ export const Registration = () => {
         </PublicProvider>
     );
 };
+
+export default Registration;
