@@ -28,7 +28,7 @@ transactionsAxios.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.data?.message === "Invalid Token" && !retryMap.get(originalRequest)) {
+        if (error.response?.status === 401 && !retryMap.get(originalRequest)) {
             retryMap.set(originalRequest, true);
 
             try {
