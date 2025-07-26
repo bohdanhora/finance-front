@@ -23,7 +23,7 @@ import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
 import { loginSchema } from "schemas/auth";
 
-export default function Login() {
+export const Login = () => {
     const tAuth = useTranslations("auth");
     const tApi = useTranslations("api");
 
@@ -105,4 +105,4 @@ export default function Login() {
             </section>
         </PublicProvider>
     );
-}
+};

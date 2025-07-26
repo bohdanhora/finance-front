@@ -41,7 +41,7 @@ type Props = {
     nextMonth?: boolean;
 };
 
-export default function EssentialSpends({ nextMonth }: Props) {
+export const EssentialSpends = ({ nextMonth }: Props) => {
     const store = useStore();
 
     const t = useTranslations();
@@ -126,7 +126,7 @@ export default function EssentialSpends({ nextMonth }: Props) {
         toast.success(t("dialogs.essentials.removed"));
     };
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const item = {
             id: uuidv4(),
             title: values.title || "",
@@ -144,7 +144,7 @@ export default function EssentialSpends({ nextMonth }: Props) {
         }
 
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -240,4 +240,4 @@ export default function EssentialSpends({ nextMonth }: Props) {
             </Form>
         </Dialog>
     );
-}
+};

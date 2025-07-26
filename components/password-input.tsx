@@ -3,7 +3,7 @@ import { FormControl, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Eye, EyeOff } from "lucide-react";
 
-export function PasswordInput({
+export const PasswordInput = ({
     label,
     placeholder,
     error,
@@ -21,7 +21,7 @@ export function PasswordInput({
     show: boolean;
     onToggleShow: () => void;
     name: string;
-}) {
+}) => {
     return (
         <FormItem>
             <FormLabel>{label}</FormLabel>
@@ -49,4 +49,4 @@ export function PasswordInput({
             <FormMessage />
         </FormItem>
     );
-}
+};

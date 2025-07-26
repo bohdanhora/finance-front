@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { loginSchema } from "schemas/auth";
 import { z } from "zod";
 
-export function useLoginForm(t: ReturnType<typeof import("next-intl").useTranslations>) {
+export const useLoginForm = (t: ReturnType<typeof import("next-intl").useTranslations>) => {
     const schema = useMemo(() => loginSchema(t), [t]);
 
     const form = useForm<z.infer<typeof schema>>({
@@ -16,4 +16,4 @@ export function useLoginForm(t: ReturnType<typeof import("next-intl").useTransla
     });
 
     return form;
-}
+};

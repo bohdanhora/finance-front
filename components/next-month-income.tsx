@@ -8,11 +8,11 @@ import { ContentWrapper } from "./wrappers/container";
 import { formatCurrency, calculateSavings } from "lib/utils";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
-import ChangeNextMonthIncome from "./dialogs/change-next-month";
-import NextMonthIncomeCalculate from "./dialogs/next-month-income-calculate";
-import EssentialSpends from "./dialogs/essential-spends";
+import { EssentialSpends } from "./dialogs/essential-spends";
+import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
+import { NextMonthIncomeCalculate } from "./dialogs/next-month-income-calculate";
 
-export default function NextMonthIncome() {
+export const NextMonthIncome = () => {
     const store = useStore();
     const bankStore = useBankStore();
     const t = useTranslations("possible");
@@ -66,4 +66,4 @@ export default function NextMonthIncome() {
             </div>
         </section>
     );
-}
+};

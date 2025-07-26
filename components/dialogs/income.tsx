@@ -39,7 +39,7 @@ const formSchema = z.object({
     date: z.date(),
 });
 
-export default function IncomeDialogComponent() {
+export const IncomeDialogComponent = () => {
     const store = useStore();
     const t = useTranslations();
 
@@ -54,7 +54,7 @@ export default function IncomeDialogComponent() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const createTransaction = {
             transactionType: TransactionEnum.INCOME,
             id: uuidv4(),
@@ -77,7 +77,7 @@ export default function IncomeDialogComponent() {
             }),
         );
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -184,4 +184,4 @@ export default function IncomeDialogComponent() {
             </Form>
         </Dialog>
     );
-}
+};

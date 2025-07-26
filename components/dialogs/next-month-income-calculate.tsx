@@ -40,7 +40,7 @@ const formSchema = z.object({
 
 const currencyArray = ["$", "₴", "€"];
 
-export default function NextMonthIncomeCalculate() {
+export const NextMonthIncomeCalculate = () => {
     const store = useStore();
     const bankStore = useBankStore();
 
@@ -59,7 +59,7 @@ export default function NextMonthIncomeCalculate() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const { rate, hours, customValue, currency } = values;
 
         const rateMultiplyHours = Number(rate) * Number(hours);
@@ -90,7 +90,7 @@ export default function NextMonthIncomeCalculate() {
 
         toast.success(tToast("addedIncome", { amount: formatCurrency(result) }));
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -240,4 +240,4 @@ export default function NextMonthIncomeCalculate() {
             </Form>
         </Dialog>
     );
-}
+};

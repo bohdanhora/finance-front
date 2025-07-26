@@ -29,7 +29,7 @@ const formSchema = z.object({
         .regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/),
 });
 
-export default function ChangeNextMonthIncome() {
+export const ChangeNextMonthIncome = () => {
     const store = useStore();
     const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
 
@@ -42,14 +42,14 @@ export default function ChangeNextMonthIncome() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         store.setNextMonthTotalAmount(Number(values.value));
 
         await setNextMonthAmountAsync({
             nextMonthTotalAmount: Number(values.value),
         });
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -96,4 +96,4 @@ export default function ChangeNextMonthIncome() {
             </Form>
         </Dialog>
     );
-}
+};

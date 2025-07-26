@@ -36,7 +36,7 @@ const formSchema = z.object({
     title: z.string().min(1),
 });
 
-export default function ChangeDefaultEssentials() {
+export const ChangeDefaultEssentials = () => {
     const store = useStore();
 
     const arrayEssentials = store.defaultEssentialsArray;
@@ -65,7 +65,7 @@ export default function ChangeDefaultEssentials() {
         toast.success(t("essentials.removed"));
     };
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const item = {
             id: uuidv4(),
             title: values.title || "",
@@ -78,7 +78,7 @@ export default function ChangeDefaultEssentials() {
         toast.success(t("essentials.standartPaymentAdded"));
 
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -163,4 +163,4 @@ export default function ChangeDefaultEssentials() {
             </Form>
         </Dialog>
     );
-}
+};

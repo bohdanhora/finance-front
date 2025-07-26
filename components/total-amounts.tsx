@@ -9,7 +9,7 @@ import { formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 
-export default function TotalAmounts() {
+export const TotalAmounts = () => {
     const store = useStore();
     const bankStore = useBankStore();
     const t = useTranslations("transactions");
@@ -48,4 +48,4 @@ export default function TotalAmounts() {
             </div>
         </section>
     );
-}
+};

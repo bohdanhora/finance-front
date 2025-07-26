@@ -5,15 +5,15 @@ import { useTranslations } from "next-intl";
 import { PrivateProvider } from "providers/auth";
 import { GetDataProvider } from "providers/get-data";
 
-import Navbar from "components/navbar";
-import Total from "components/total";
-import PossibleRemaining from "components/possible-remaining-balance";
-import NextMonthIncome from "components/next-month-income";
-import LastSpends from "components/last-spends";
-import TotalAmounts from "components/total-amounts";
 import { useLoginToast } from "hooks/use-login-toast";
+import { Navbar } from "components/navbar";
+import { Total } from "components/total";
+import { PossibleRemaining } from "components/possible-remaining-balance";
+import { NextMonthIncome } from "components/next-month-income";
+import { LastSpends } from "components/last-spends";
+import { TotalAmounts } from "components/total-amounts";
 
-export default function Home() {
+export const Home = () => {
     const t = useTranslations();
 
     useLoginToast(t);
@@ -34,4 +34,4 @@ export default function Home() {
             </PrivateProvider>
         </GetDataProvider>
     );
-}
+};

@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { DollarSign, EuroIcon } from "lucide-react";
 
-export function CurrencyDropdown() {
+export const CurrencyDropdown = () => {
     const store = useBankStore();
     const [currency, setCurrency] = React.useState("");
     const router = useRouter();
@@ -59,4 +59,4 @@ export function CurrencyDropdown() {
             </DropdownMenuContent>
         </DropdownMenu>
     );
-}
+};

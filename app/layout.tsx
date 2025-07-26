@@ -6,12 +6,12 @@ import { Metadata } from "next";
 
 import { twMerge } from "tailwind-merge";
 
-import ReactQueryProvider from "providers/react-query";
 import { ProviderTheme } from "providers/theme";
 import { ToastProvider } from "providers/toast";
 
 import "./globals.css";
 import VantaBackground from "components/animated-background";
+import { ReactQueryProvider } from "providers/react-query";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 const poppins = Poppins({
@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     description: "Personal Finance App",
 };
 
-export default async function RootLayout({
+export const RootLayout = async ({
     children,
 }: Readonly<{
     children: React.ReactNode;
-}>) {
+}>) => {
     const locale = await getLocale();
     const messages = await getMessages();
 
@@ -53,4 +53,4 @@ export default async function RootLayout({
             </body>
         </html>
     );
-}
+};

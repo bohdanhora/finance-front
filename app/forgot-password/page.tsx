@@ -15,7 +15,7 @@ import { BackToLogin } from "components/back-to-login";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
 import { forgotPasswordSchema } from "schemas/auth";
 
-export default function ResetPassword() {
+export const ResetPassword = () => {
     const tAuth = useTranslations("auth");
     const router = useRouter();
 
@@ -46,4 +46,4 @@ export default function ResetPassword() {
             </section>
         </PublicProvider>
     );
-}
+};

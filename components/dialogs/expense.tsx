@@ -72,7 +72,7 @@ const categoryKeys = [
     "essentials",
 ];
 
-export default function ExpenseDialogComponent() {
+export const ExpenseDialogComponent = () => {
     const store = useStore();
     const t = useTranslations();
 
@@ -117,7 +117,7 @@ export default function ExpenseDialogComponent() {
         }
     };
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const createTransaction = {
             transactionType: TransactionEnum.EXPENCE,
             id: uuidv4(),
@@ -140,7 +140,7 @@ export default function ExpenseDialogComponent() {
             }),
         );
         form.reset();
-    }
+    };
 
     return (
         <Dialog>
@@ -276,4 +276,4 @@ export default function ExpenseDialogComponent() {
             </Form>
         </Dialog>
     );
-}
+};

@@ -18,7 +18,7 @@ import { useResetPasswordForm } from "./use-reset-password-form";
 import { resetPasswordSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
-export default function ForgotPassword() {
+export const ForgotPassword = () => {
     const tAuth = useTranslations("auth");
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -83,4 +83,4 @@ export default function ForgotPassword() {
             </section>
         </PublicProvider>
     );
-}
+};

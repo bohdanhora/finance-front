@@ -19,14 +19,14 @@ let isRefreshing = false;
 
 let refreshSubscribers: ((token: string) => void)[] = [];
 
-function onRefreshed(token: string) {
+const onRefreshed = (token: string) => {
     refreshSubscribers.forEach((callback) => callback(token));
     refreshSubscribers = [];
-}
+};
 
-function addRefreshSubscriber(callback: (token: string) => void) {
+const addRefreshSubscriber = (callback: (token: string) => void) => {
     refreshSubscribers.push(callback);
-}
+};
 
 transactionsAxios.interceptors.request.use((config) => {
     const token = Cookies.get("accessToken");

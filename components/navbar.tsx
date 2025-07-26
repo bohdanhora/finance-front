@@ -5,7 +5,6 @@ import { useGetCurrencyQuery } from "api/bank";
 import useBankStore from "store/bank";
 import { LangugaeDropdown } from "./language-dropdown";
 import { CurrencyDropdown } from "./currency-dropdown";
-import ThemeSwitch from "./theme-switch";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
 import { Loader } from "./loader";
@@ -19,8 +18,9 @@ import { useRouter } from "next/navigation";
 import useStore from "store/general";
 import { clearCookies } from "lib/logout";
 import { useQueryClient } from "@tanstack/react-query";
+import { ThemeSwitch } from "./theme-switch";
 
-export default function Navbar() {
+export const Navbar = () => {
     const { data: currency, isPending: currencyPending } = useGetCurrencyQuery();
     const queryClient = useQueryClient();
 
@@ -93,4 +93,4 @@ export default function Navbar() {
             </nav>
         </>
     );
-}
+};

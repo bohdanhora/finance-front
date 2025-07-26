@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { ErrorResponse } from "types/other";
 
-export function createDateString(input: string | Date): string {
+export const createDateString = (input: string | Date): string => {
     const date = input instanceof Date ? input : new Date(input);
 
     if (isNaN(date.getTime())) {
@@ -17,7 +17,7 @@ export function createDateString(input: string | Date): string {
     const year = date.getFullYear();
 
     return `${day}/${month}/${year}`;
-}
+};
 
 export const findCurrency = (currency: MonobankCurrency[], isoCode: ISO4217Codes) => {
     if (!currency.length) return null;
@@ -75,22 +75,22 @@ export const calculateSavings = (totalAmount: number) => {
     };
 };
 
-export function showSessionToasts(keys: { key: string; message: string }[]) {
+export const showSessionToasts = (keys: { key: string; message: string }[]) => {
     keys.forEach(({ key, message }) => {
         if (sessionStorage.getItem(key)) {
             toast.success(message);
             sessionStorage.removeItem(key);
         }
     });
-}
+};
 
-export function extractTokensFromParams(params: URLSearchParams) {
+export const extractTokensFromParams = (params: URLSearchParams) => {
     const accessToken = params.get("accessToken");
     const refreshToken = params.get("refreshToken");
     const userId = params.get("userId");
     if (!accessToken || !refreshToken || !userId) return null;
     return { accessToken, refreshToken, userId };
-}
+};
 
 export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
     const message = error.response?.data.message;

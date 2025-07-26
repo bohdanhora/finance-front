@@ -51,7 +51,7 @@ const categoriesIcons = (category: string) => {
     return map[category] ?? null;
 };
 
-export default function LastSpends() {
+export const LastSpends = () => {
     const store = useStore();
 
     const userId = Cookies.get("userId") || "";
@@ -206,4 +206,4 @@ export default function LastSpends() {
             )}
         </ContentWrapper>
     );
-}
+};

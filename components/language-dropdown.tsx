@@ -15,7 +15,7 @@ import { LANG_COOKIES_NAME } from "constants/index";
 import { useTranslations } from "next-intl";
 import { LanguagesIcon } from "lucide-react";
 
-export function LangugaeDropdown() {
+export const LangugaeDropdown = () => {
     const [language, setLanguage] = React.useState("");
     const router = useRouter();
     const t = useTranslations("navbar");
@@ -56,4 +56,4 @@ export function LangugaeDropdown() {
             </DropdownMenuContent>
         </DropdownMenu>
     );
-}
+};

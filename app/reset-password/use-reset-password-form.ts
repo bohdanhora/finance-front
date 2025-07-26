@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { resetPasswordSchema } from "schemas/auth";
 import { z } from "zod";
 
-export function useResetPasswordForm(t: ReturnType<typeof import("next-intl").useTranslations>) {
+export const useResetPasswordForm = (t: ReturnType<typeof import("next-intl").useTranslations>) => {
     const schema = useMemo(() => resetPasswordSchema(t), [t]);
 
     const form = useForm<z.infer<typeof schema>>({
@@ -16,4 +16,4 @@ export function useResetPasswordForm(t: ReturnType<typeof import("next-intl").us
     });
 
     return form;
-}
+};

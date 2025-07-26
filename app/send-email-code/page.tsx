@@ -18,7 +18,7 @@ import { useSendEmailForm } from "./use-send-email-form";
 import { sendEmailSchema } from "schemas/auth";
 import { useResendTimer } from "hooks/use-resend-timer";
 
-export default function SendEmailCodePage() {
+export const SendEmailCodePage = () => {
     const otherStore = useOtherStore();
     const tAuth = useTranslations("auth");
     const router = useRouter();
@@ -92,4 +92,4 @@ export default function SendEmailCodePage() {
             </section>
         </PublicProvider>
     );
-}
+};

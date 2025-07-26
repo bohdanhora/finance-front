@@ -8,10 +8,10 @@ import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
-import EssentialSpends from "./dialogs/essential-spends";
-import ChangeDefaultEssentials from "./dialogs/change-default-essentials";
+import { EssentialSpends } from "./dialogs/essential-spends";
+import { ChangeDefaultEssentials } from "./dialogs/change-default-essentials";
 
-export default function PossibleRemaining() {
+export const PossibleRemaining = () => {
     const t = useTranslations("possible");
     const store = useStore();
     const bankStore = useBankStore();
@@ -89,4 +89,4 @@ export default function PossibleRemaining() {
             </div>
         </section>
     );
-}
+};
