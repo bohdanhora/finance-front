@@ -73,9 +73,7 @@ export default function Login() {
         ];
 
         showSessionToasts(toastMap);
-    }, []);
 
-    useEffect(() => {
         const tokens = extractTokensFromParams(searchParams);
         if (tokens) {
             loginSetTokens(tokens, false);
