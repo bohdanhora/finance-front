@@ -27,18 +27,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { handleDecimalInputChange } from "lib/utils";
-
-const formSchema = z.object({
-    amount: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    title: z.string().min(1),
-});
+import { changeDefaultFormSchema } from "schemas/other";
 
 export const ChangeDefaultEssentials = () => {
     const store = useStore();
@@ -53,8 +42,8 @@ export const ChangeDefaultEssentials = () => {
 
     const t = useTranslations("dialogs");
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof changeDefaultFormSchema>>({
+        resolver: zodResolver(changeDefaultFormSchema),
         defaultValues: {
             amount: "",
             title: "",
@@ -73,7 +62,7 @@ export const ChangeDefaultEssentials = () => {
         }
     };
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof changeDefaultFormSchema>) => {
         try {
             const item = {
                 id: uuidv4(),

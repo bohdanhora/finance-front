@@ -25,35 +25,8 @@ import { toast } from "react-toastify";
 import { formatCurrency } from "lib/utils";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { useState } from "react";
-
-const formSchema = z.object({
-    rate: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    hours: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    customValue: z
-        .string()
-        .optional()
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    currency: z.string().optional(),
-});
-
-const currencyArray = ["$", "₴", "€"];
+import { nextMonthIncomeFormSchema } from "schemas/other";
+import { currencyArray } from "constants/index";
 
 export const NextMonthIncomeCalculate = () => {
     const store = useStore();
@@ -65,8 +38,8 @@ export const NextMonthIncomeCalculate = () => {
     const t = useTranslations("dialogs");
     const tToast = useTranslations("toasts");
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof nextMonthIncomeFormSchema>>({
+        resolver: zodResolver(nextMonthIncomeFormSchema),
         defaultValues: {
             rate: "",
             hours: "",
@@ -75,7 +48,7 @@ export const NextMonthIncomeCalculate = () => {
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof nextMonthIncomeFormSchema>) => {
         const { rate, hours, customValue, currency } = values;
 
         const rateMultiplyHours = Number(rate) * Number(hours);

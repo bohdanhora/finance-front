@@ -23,17 +23,7 @@ import { useSetNextMonthTotalAmount } from "api/main";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useState } from "react";
 import { toast } from "react-toastify";
-
-const formSchema = z.object({
-    value: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-});
+import { changeNextMonthFormSchema } from "schemas/other";
 
 export const ChangeNextMonthIncome = () => {
     const store = useStore();
@@ -43,14 +33,14 @@ export const ChangeNextMonthIncome = () => {
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs");
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
+        resolver: zodResolver(changeNextMonthFormSchema),
         defaultValues: {
             value: "",
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof changeNextMonthFormSchema>) => {
         try {
             store.setNextMonthTotalAmount(Number(values.value));
 

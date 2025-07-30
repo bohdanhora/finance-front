@@ -28,18 +28,7 @@ import { XIcon } from "lucide-react";
 import { useNewEssential, useRemoveEssential, useSetCheckedEssential, useSetEssentialPayments } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { handleDecimalInputChange } from "lib/utils";
-
-const formSchema = z.object({
-    amount: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    title: z.string().min(1),
-});
+import { essentialSpendsFormSchema } from "schemas/other";
 
 type Props = {
     nextMonth?: boolean;
@@ -60,8 +49,8 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
 
     const arrayEssentials = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof essentialSpendsFormSchema>>({
+        resolver: zodResolver(essentialSpendsFormSchema),
         defaultValues: {
             amount: "",
             title: "",
@@ -145,7 +134,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
         }
     };
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof essentialSpendsFormSchema>) => {
         try {
             const item = {
                 id: uuidv4(),

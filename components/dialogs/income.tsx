@@ -31,19 +31,7 @@ import { v4 as uuidv4 } from "uuid";
 import { TransactionEnum } from "constants/index";
 import { useState } from "react";
 import dayjs from "dayjs";
-
-const formSchema = z.object({
-    value: z
-        .string()
-        .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-        .refine((val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-        }),
-    description: z.string().optional(),
-    date: z.date(),
-});
+import { incomeFormSchema } from "schemas/other";
 
 export const IncomeDialogComponent = () => {
     const store = useStore();
@@ -53,8 +41,8 @@ export const IncomeDialogComponent = () => {
 
     const [open, setOpen] = useState(false);
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof incomeFormSchema>>({
+        resolver: zodResolver(incomeFormSchema),
         defaultValues: {
             value: "",
             description: "",
@@ -62,7 +50,7 @@ export const IncomeDialogComponent = () => {
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof incomeFormSchema>) => {
         const createTransaction = {
             transactionType: TransactionEnum.INCOME,
             id: uuidv4(),

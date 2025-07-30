@@ -49,6 +49,7 @@ import { useSetNewTransaction } from "api/main";
 import { TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
+import { getIncomeFormSchema } from "schemas/other";
 
 const categoryKeys = [
     "groceries",
@@ -72,23 +73,7 @@ export const ExpenseDialogComponent = () => {
 
     const [open, setOpen] = useState(false);
 
-    const formSchema = z.object({
-        value: z
-            .string()
-            .min(1)
-            .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-            .refine((val) => {
-                const num = Number(val);
-                return !isNaN(num) && num > 0;
-            })
-            .refine((val) => {
-                const num = Number(val);
-                return num <= store.totalAmount;
-            }),
-        description: z.string().optional(),
-        categories: z.string().min(1),
-        date: z.date(),
-    });
+    const formSchema = getIncomeFormSchema(store.totalAmount);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
