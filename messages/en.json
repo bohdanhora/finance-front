@@ -179,6 +179,8 @@
         "exporting": "Exporting...",
         "exportPdf": "Export PDF",
         "prev": "Previous",
-        "next": "Next"
+        "next": "Next",
+        "openChart": "Open Chart",
+        "hideChart": "Hide Chart"
     }
 }

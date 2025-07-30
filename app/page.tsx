@@ -12,9 +12,12 @@ import { PossibleRemaining } from "components/possible-remaining-balance";
 import { NextMonthIncome } from "components/next-month-income";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
+import { CategoryChart } from "components/chart";
+import useStore from "store/general";
 
 const Home = () => {
     const t = useTranslations();
+    const store = useStore();
 
     useLoginToast(t);
 
@@ -29,6 +32,7 @@ const Home = () => {
                         <NextMonthIncome />
                         <LastSpends />
                         <TotalAmounts />
+                        <CategoryChart transactions={store.transactions} />
                     </div>
                 </div>
             </PrivateProvider>
