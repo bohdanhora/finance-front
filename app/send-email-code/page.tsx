@@ -18,6 +18,8 @@ import { useSendEmailForm } from "./use-send-email-form";
 import { sendEmailSchema } from "schemas/auth";
 import { useResendTimer } from "hooks/use-resend-timer";
 
+type SendEmailData = z.infer<ReturnType<typeof sendEmailSchema>>;
+
 const SendEmailCodePage = () => {
     const otherStore = useOtherStore();
     const tAuth = useTranslations("auth");
@@ -28,7 +30,6 @@ const SendEmailCodePage = () => {
     const { resendTimer, codeSent, startTimer } = useResendTimer();
 
     const form = useSendEmailForm(tAuth);
-    type SendEmailData = z.infer<ReturnType<typeof sendEmailSchema>>;
 
     const email = form.watch("email");
 
@@ -77,7 +78,11 @@ const SendEmailCodePage = () => {
                                     {resendTimer > 0 ? `${tAuth("resendCode")} (${resendTimer})` : tAuth("resendCode")}
                                 </Button>
                             ) : (
-                                <Button disabled={requestEmailPending} type="submit" className="w-full mb-5 py-4">
+                                <Button
+                                    disabled={requestEmailPending || !email || !form.formState.isValid}
+                                    type="submit"
+                                    className="w-full mb-5 py-4"
+                                >
                                     {tAuth("sendCode")}
                                 </Button>
                             )}

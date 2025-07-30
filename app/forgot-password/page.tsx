@@ -15,6 +15,8 @@ import { BackToLogin } from "components/back-to-login";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
 import { forgotPasswordSchema } from "schemas/auth";
 
+type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
+
 const ResetPassword = () => {
     const tAuth = useTranslations("auth");
     const router = useRouter();
@@ -22,7 +24,6 @@ const ResetPassword = () => {
     const { mutateAsync: forgotPasswordAsync, isPending: forgotPasswordPending } = useForgotPassword();
 
     const form = useForgotPasswordForm(tAuth);
-    type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
     const onSubmit = async (values: ForgotPasswordFormData) => {
         try {

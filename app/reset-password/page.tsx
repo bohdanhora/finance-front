@@ -18,6 +18,8 @@ import { useResetPasswordForm } from "./use-reset-password-form";
 import { resetPasswordSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
+type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
+
 const ForgotPassword = () => {
     const tAuth = useTranslations("auth");
     const searchParams = useSearchParams();
@@ -31,7 +33,6 @@ const ForgotPassword = () => {
     const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false);
 
     const form = useResetPasswordForm(tAuth);
-    type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
     const onSubmit = async (values: ResetPasswordData) => {
         try {

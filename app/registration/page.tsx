@@ -19,6 +19,8 @@ import { useRegistrationForm } from "./use-registration-form";
 import { registrationSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
+type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
+
 const Registration = () => {
     const otherStore = useOtherStore();
 
@@ -31,7 +33,6 @@ const Registration = () => {
     const { mutateAsync: registrationAsync, isPending: registrationPending } = useRegistrationMutation();
 
     const form = useRegistrationForm(t, otherStore.email);
-    type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
 
     const onSubmit = async (data: RegistrationFormData) => {
         try {

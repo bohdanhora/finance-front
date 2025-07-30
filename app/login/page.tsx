@@ -23,6 +23,8 @@ import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
 import { loginSchema } from "schemas/auth";
 
+type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
+
 const Login = () => {
     const tAuth = useTranslations("auth");
     const tApi = useTranslations("api");
@@ -38,7 +40,6 @@ const Login = () => {
     const isLoading = isRedirecting || LoginPending;
 
     const form = useLoginForm(tAuth);
-    type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
 
     const onSubmit = async (values: LoginFormData) => {
         try {
