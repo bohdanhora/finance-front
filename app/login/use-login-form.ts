@@ -9,6 +9,7 @@ export const useLoginForm = (t: ReturnType<typeof import("next-intl").useTransla
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
+        mode: "onChange",
         defaultValues: {
             email: "",
             password: "",

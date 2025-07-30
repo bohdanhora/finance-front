@@ -9,6 +9,7 @@ export const useResetPasswordForm = (t: ReturnType<typeof import("next-intl").us
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
+        mode: "onChange",
         defaultValues: {
             password: "",
             confirmPassword: "",

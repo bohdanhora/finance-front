@@ -45,7 +45,11 @@ const ResetPassword = () => {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             <RenderEmailField form={form} name="email" />
-                            <Button disabled={forgotPasswordPending} type="submit" className="w-full mb-5 py-4">
+                            <Button
+                                disabled={forgotPasswordPending || !form.watch("email") || !form.formState.isValid}
+                                type="submit"
+                                className="w-full mb-5 py-4"
+                            >
                                 {tAuth("sendEmail")}
                             </Button>
                             <BackToLogin />

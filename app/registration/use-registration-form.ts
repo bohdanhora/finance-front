@@ -9,6 +9,7 @@ export const useRegistrationForm = (t: ReturnType<typeof import("next-intl").use
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
+        mode: "onChange",
         defaultValues: {
             name: "",
             email,

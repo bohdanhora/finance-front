@@ -9,6 +9,7 @@ export const useForgotPasswordForm = (t: ReturnType<typeof import("next-intl").u
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
+        mode: "onChange",
         defaultValues: {
             email: "",
         },
