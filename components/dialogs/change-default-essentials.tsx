@@ -32,7 +32,11 @@ const formSchema = z.object({
     amount: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
+        .refine((val) => {
+            const num = Number(val);
+            return !isNaN(num) && num > 0;
+        }),
     title: z.string().min(1),
 });
 

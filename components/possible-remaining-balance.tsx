@@ -53,7 +53,7 @@ export const PossibleRemaining = () => {
     const currencySymbol = getCurrencySymbol(currency);
 
     const renderCard = (title: string, valueUAH: number, valueCurrency: number, currencySymbol: string) => (
-        <ContentWrapper className="w-full sm:w-2xs bg-white/10 backdrop-blur-md rounded-2xl shadow-md p-4">
+        <ContentWrapper className="w-full sm:w-2xs">
             <span className="text-xl font-semibold">{formatCurrency(valueUAH)} ₴</span>
             <span className="text-sm">
                 {formatCurrency(valueCurrency)} {currencySymbol}
@@ -69,7 +69,7 @@ export const PossibleRemaining = () => {
                 <ChangeDefaultEssentials />
             </div>
             <div className="flex gap-4 flex-wrap w-full justify-between">
-                <ContentWrapper className="w-full sm:w-2xs bg-white/10 backdrop-blur-md rounded-2xl shadow-md p-4">
+                <ContentWrapper className="w-full sm:w-2xs">
                     <p className="text-base font-bold text-center mt-1">{t("daysLeft")}</p>
                     <span className="text-xl font-semibold">{daysLeft}</span>
                 </ContentWrapper>

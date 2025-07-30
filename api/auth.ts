@@ -10,8 +10,6 @@ import {
     LoginResponseType,
     LogoutPayload,
     LogoutResponseType,
-    RefreshPayload,
-    RefreshResponseType,
     RegistrationPayload,
     RegistrationResponseType,
     ResetPasswordPayload,

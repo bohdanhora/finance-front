@@ -30,12 +30,26 @@ const formSchema = z.object({
     rate: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
+        .refine((val) => {
+            const num = Number(val);
+            return !isNaN(num) && num > 0;
+        }),
     hours: z
         .string()
         .min(1)
-        .regex(/^(0|[1-9]\d*)?$/),
-    customValue: z.string().optional(),
+        .regex(/^(0|[1-9]\d*)?$/)
+        .refine((val) => {
+            const num = Number(val);
+            return !isNaN(num) && num > 0;
+        }),
+    customValue: z
+        .string()
+        .optional()
+        .refine((val) => {
+            const num = Number(val);
+            return !isNaN(num) && num > 0;
+        }),
     currency: z.string().optional(),
 });
 

@@ -76,7 +76,14 @@ export const ExpenseDialogComponent = () => {
             .string()
             .min(1)
             .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
-            .refine((val) => Number(val) <= store.totalAmount),
+            .refine((val) => {
+                const num = Number(val);
+                return !isNaN(num) && num > 0;
+            })
+            .refine((val) => {
+                const num = Number(val);
+                return num <= store.totalAmount;
+            }),
         description: z.string().optional(),
         categories: z.string().min(1),
         date: z.date(),
