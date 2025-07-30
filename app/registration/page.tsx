@@ -18,6 +18,7 @@ import { RenderInputField } from "components/form-fields/input";
 import { useRegistrationForm } from "./use-registration-form";
 import { registrationSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
+import { toast } from "react-toastify";
 
 type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
 
@@ -45,10 +46,7 @@ const Registration = () => {
             router.replace(Routes.LOGIN);
         } catch (error) {
             console.error(t("registrationRequestError"), error);
-            form.setError("email", {
-                type: "manual",
-                message: t("registrationError"),
-            });
+            toast.error(t("registrationError"));
         }
     };
 

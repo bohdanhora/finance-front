@@ -22,6 +22,7 @@ import { Form } from "ui/form";
 import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
 import { loginSchema } from "schemas/auth";
+import { toast } from "react-toastify";
 
 type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
 
@@ -48,10 +49,7 @@ const Login = () => {
             router.replace(Routes.HOME);
         } catch (error) {
             console.error(tAuth("loginRequestError"), error);
-            form.setError("email", {
-                type: "manual",
-                message: tAuth("loginError"),
-            });
+            toast.error(tAuth("loginError"));
         } finally {
             setIsRedirecting(false);
         }

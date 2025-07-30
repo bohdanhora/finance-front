@@ -14,6 +14,7 @@ import { RenderEmailField } from "components/form-fields/email";
 import { BackToLogin } from "components/back-to-login";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
 import { forgotPasswordSchema } from "schemas/auth";
+import { toast } from "react-toastify";
 
 type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
@@ -31,10 +32,7 @@ const ResetPassword = () => {
             router.replace(Routes.LOGIN);
         } catch (error) {
             console.error(tAuth("forgotPasswordRequestError"), error);
-            form.setError("email", {
-                type: "manual",
-                message: tAuth("forgotPasswordError"),
-            });
+            toast.error(tAuth("loginError"));
         }
     };
 

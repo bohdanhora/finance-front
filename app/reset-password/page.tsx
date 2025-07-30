@@ -45,10 +45,7 @@ const ForgotPassword = () => {
             router.replace(Routes.LOGIN);
         } catch (error) {
             console.error(tAuth("resetPasswordRequestError"), error);
-            form.setError("password", {
-                type: "manual",
-                message: tAuth("resetPasswordError"),
-            });
+            toast.error(tAuth("resetPasswordError"));
         }
     };
 
