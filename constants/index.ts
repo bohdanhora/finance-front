@@ -22,3 +22,5 @@ export enum TransactionEnum {
 
 export const LANG_COOKIES_NAME = "LANG_FINANCE";
 export const CURRENCY_COOKIES_NAME = "CURRENCY_FINANCE";
+
+export const currencyArray = ["$", "₴", "€"];

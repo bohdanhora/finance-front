@@ -6,24 +6,27 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-import { useLoginMutation } from "api/auth.api";
+import { useLoginMutation } from "api/auth";
 import { Routes } from "constants/routes";
 import { loginSetTokens } from "lib/auth-helper";
 import { extractTokensFromParams, showSessionToasts } from "lib/utils";
-import { Loader } from "components/loader.component";
+import { Loader } from "components/loader";
 import { RenderEmailField } from "components/form-fields/email";
 import { LoginPassword } from "components/form-fields/login-password";
-import { LoginOptions } from "components/login-options.component";
-import { GoogleAuth } from "components/google-auth.component";
-import { RegistrationWay } from "components/way-to-registration.component";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { LoginOptions } from "components/login-options";
+import { GoogleAuth } from "components/google-auth";
+import { RegistrationWay } from "components/way-to-registration";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
-import { loginSchema } from "schemas/auth.schema";
+import { loginSchema } from "schemas/auth";
+import { toast } from "react-toastify";
 
-export default function Login() {
+type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
+
+const Login = () => {
     const tAuth = useTranslations("auth");
     const tApi = useTranslations("api");
 
@@ -38,7 +41,6 @@ export default function Login() {
     const isLoading = isRedirecting || LoginPending;
 
     const form = useLoginForm(tAuth);
-    type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
 
     const onSubmit = async (values: LoginFormData) => {
         try {
@@ -46,7 +48,8 @@ export default function Login() {
             await loginAsync(values);
             router.replace(Routes.HOME);
         } catch (error) {
-            console.error("Login failed:", error);
+            console.error(tAuth("loginRequestError"), error);
+            toast.error(tAuth("loginError"));
         } finally {
             setIsRedirecting(false);
         }
@@ -73,9 +76,7 @@ export default function Login() {
         ];
 
         showSessionToasts(toastMap);
-    }, []);
 
-    useEffect(() => {
         const tokens = extractTokensFromParams(searchParams);
         if (tokens) {
             loginSetTokens(tokens, false);
@@ -107,4 +108,6 @@ export default function Login() {
             </section>
         </PublicProvider>
     );
-}
+};
+
+export default Login;

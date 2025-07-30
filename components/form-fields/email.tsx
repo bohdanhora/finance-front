@@ -2,7 +2,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "compon
 import { Input } from "components/ui/input";
 import { useTranslations } from "next-intl";
 import { FieldValues } from "react-hook-form";
-import { RenderFieldProps } from "types/other.types";
+import { RenderFieldProps } from "types/other";
 
 export const RenderEmailField = <T extends FieldValues>({ form, name }: RenderFieldProps<T>) => {
     const tAuth = useTranslations("auth");

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useResendTimer(seconds = 60) {
+export const useResendTimer = (seconds = 60) => {
     const [resendTimer, setResendTimer] = useState(0);
     const [codeSent, setCodeSent] = useState(false);
 
@@ -20,4 +20,4 @@ export function useResendTimer(seconds = 60) {
     }, [resendTimer]);
 
     return { resendTimer, codeSent, startTimer };
-}
+};

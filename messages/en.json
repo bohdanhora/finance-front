@@ -33,12 +33,18 @@
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
         "addedIncome": "Successfully added {amount} ₴",
-        "addedExpense": "Spent {amount} ₴"
+        "addedExpense": "Spent {amount} ₴",
+        "noFunds": "Unfortunately, you can’t spend money when your balance is zero.",
+        "nextMonthIcomeChanged": "{amount} ₴ will come in next month."
     },
     "dialogs": {
         "change": "Change",
         "changeNextMonthIncome": "Change next month income",
+        "changeNextMonthIncomeRequestError": "Error while updating next month's income:",
+        "changeNextMonthIncomeError": "Failed to save expected income. Please try again.",
         "calculateNextMonthIncome": "Calculate by rate",
+        "nextMonthIcomeChanged": "Next month's income updated: {amount}",
+        "nextMonthIcomeFailed": "Failed to update next month's income",
         "submit": "Submit",
         "cancel": "Cancel",
         "inputIncome": "Enter your income amount",
@@ -63,6 +69,7 @@
         "additionalAmountPlaceholder": "Enter additional amount",
         "currency": "Currency",
         "currencyPlaceholder": "Choose a currency",
+        "occurred": "An error occurred. Please try again.",
         "essentials": {
             "title": "Essential payments",
             "nextMonth": "Essential payments for next month",
@@ -78,7 +85,11 @@
             "add": "Add",
             "cancel": "Cancel",
             "noStandardPayments": "No standard mandatory payments",
-            "standartPaymentAdded": "Default essential added"
+            "standartPaymentAdded": "Default essential added",
+            "addErrorRequest": "Error while adding a standard payment:",
+            "addError": "Failed to add the standard payment. Please try again.",
+            "removeErrorRequest": "Error while removing a standard payment:",
+            "removeError": "Failed to remove the payment. Please try again."
         }
     },
     "categories": {
@@ -108,6 +119,8 @@
         "welcome": "Welcome!",
         "login": "Login",
         "loginSubTitle": "Keep your budget under control",
+        "loginRequestError": "Error during login:",
+        "loginError": "Invalid email or password",
         "registrationSubTitle": "Take the first step toward financial clarity",
         "dontHaveAccount": "Don’t have an account?",
         "email": "Email",
@@ -115,12 +128,18 @@
         "forgotPassword": "Forgot password?",
         "forgotPasswordTitle": "Forgot Password",
         "forgotPasswordSubtitle": "Forgot your password? It happens",
+        "forgotPasswordError": "Failed to send the email. Please try again.",
+        "forgotPasswordRequestError": "Error during password recovery:",
         "sendEmail": "Send Email",
         "backToLoginFromForgot": "Back to Login?",
         "resetPassword": "Reset Password",
         "resetPasswordSubtitle": "Update your password to regain access",
         "resetBtn": "Update",
+        "resetPasswordRequestError": "Error during password reset:",
+        "resetPasswordError": "Failed to reset the password. Please try again.",
         "registration": "Registration",
+        "registrationRequestError": "Error during registration:",
+        "registrationError": "Registration failed. Please try again.",
         "rememberMe": "Remember me?",
         "name": "Name",
         "confirmPassword": "Confirm password",
@@ -131,6 +150,8 @@
         "emailVerificationSubtitle": "Enter your email to receive a code",
         "sendCode": "Send Code",
         "resendCode": "Resend Code",
+        "sendEmailRequestError": "Error sending email:",
+        "sendEmailError": "Failed to send the email. Please try again.",
         "iReceivedCode": "I received the code, continue registration",
         "verificationCode": "Verification Code",
         "errors": {
@@ -158,14 +179,8 @@
         "exporting": "Exporting...",
         "exportPdf": "Export PDF",
         "prev": "Previous",
-        "next": "Next"
-    },
-    "chart": {
-        "expensesByCategory": "Expenses by Category",
-        "excludingIncomeTransactions": "Excluding income transactions",
-        "hideChart": "Hide chart",
-        "showChart": "Show chart",
-        "basedOnRecentExpenses": "Based on your recent expenses",
-        "totalTransactions": "{ totalTransactions } total transactions"
+        "next": "Next",
+        "openChart": "Open Chart",
+        "hideChart": "Hide Chart"
     }
 }

@@ -1,14 +1,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
-import { loginSchema } from "schemas/auth.schema";
+import { loginSchema } from "schemas/auth";
 import { z } from "zod";
 
-export function useLoginForm(t: ReturnType<typeof import("next-intl").useTranslations>) {
+export const useLoginForm = (t: ReturnType<typeof import("next-intl").useTranslations>) => {
     const schema = useMemo(() => loginSchema(t), [t]);
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
+        mode: "onChange",
         defaultValues: {
             email: "",
             password: "",
@@ -16,4 +17,4 @@ export function useLoginForm(t: ReturnType<typeof import("next-intl").useTransla
     });
 
     return form;
-}
+};

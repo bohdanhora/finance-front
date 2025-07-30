@@ -4,22 +4,25 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-import { useRegistrationMutation } from "api/auth.api";
+import { useRegistrationMutation } from "api/auth";
 import { Routes } from "constants/routes";
 import { RenderEmailField } from "components/form-fields/email";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
-import useOtherStore from "store/other.store";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
+import useOtherStore from "store/other";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { RenderPassword } from "components/form-fields/password";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { RenderInputField } from "components/form-fields/input";
 import { useRegistrationForm } from "./use-registration-form";
-import { registrationSchema } from "schemas/auth.schema";
+import { registrationSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
+import { toast } from "react-toastify";
 
-export default function Registration() {
+type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
+
+const Registration = () => {
     const otherStore = useOtherStore();
 
     const t = useTranslations("auth");
@@ -31,16 +34,20 @@ export default function Registration() {
     const { mutateAsync: registrationAsync, isPending: registrationPending } = useRegistrationMutation();
 
     const form = useRegistrationForm(t, otherStore.email);
-    type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
 
     const onSubmit = async (data: RegistrationFormData) => {
-        await registrationAsync({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            verificationCode: data.verificationCode,
-        });
-        router.replace(Routes.LOGIN);
+        try {
+            await registrationAsync({
+                name: data.name,
+                email: data.email,
+                password: data.password,
+                verificationCode: data.verificationCode,
+            });
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(t("registrationRequestError"), error);
+            toast.error(t("registrationError"));
+        }
     };
 
     return (
@@ -79,4 +86,6 @@ export default function Registration() {
             </section>
         </PublicProvider>
     );
-}
+};
+
+export default Registration;

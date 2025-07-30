@@ -4,21 +4,23 @@ import { z } from "zod";
 
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { PublicProvider } from "providers/auth-provider";
+import { PublicProvider } from "providers/auth";
 import { useTranslations } from "next-intl";
 import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { useResetPassword } from "api/auth.api";
+import { useResetPassword } from "api/auth";
 import { RenderPassword } from "components/form-fields/password";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { useResetPasswordForm } from "./use-reset-password-form";
-import { resetPasswordSchema } from "schemas/auth.schema";
+import { resetPasswordSchema } from "schemas/auth";
 import { useToggle } from "hooks/use-toggle";
 
-export default function ForgotPassword() {
+type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
+
+const ForgotPassword = () => {
     const tAuth = useTranslations("auth");
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -31,16 +33,20 @@ export default function ForgotPassword() {
     const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false);
 
     const form = useResetPasswordForm(tAuth);
-    type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
     const onSubmit = async (values: ResetPasswordData) => {
-        const body = {
-            resetToken: token,
-            newPassword: values.password,
-        };
+        try {
+            const body = {
+                resetToken: token,
+                newPassword: values.password,
+            };
 
-        await resetPasswordAsync(body);
-        router.replace(Routes.LOGIN);
+            await resetPasswordAsync(body);
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(tAuth("resetPasswordRequestError"), error);
+            toast.error(tAuth("resetPasswordError"));
+        }
     };
 
     useEffect(() => {
@@ -83,4 +89,6 @@ export default function ForgotPassword() {
             </section>
         </PublicProvider>
     );
-}
+};
+
+export default ForgotPassword;

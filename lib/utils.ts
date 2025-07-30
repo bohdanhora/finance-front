@@ -1,26 +1,20 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { MonobankCurrency } from "types/auth.types";
+import { MonobankCurrency } from "types/auth";
 import { ISO4217Codes } from "constants/index";
 import { toast } from "react-toastify";
 
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
+import { AxiosError } from "axios";
+import { ErrorResponse } from "types/other";
+import dayjs from "dayjs";
 
-export function createDateString(input: string | Date): string {
-    const date = input instanceof Date ? input : new Date(input);
+export const createDateString = (input: string | Date): string => {
+    const date = dayjs(input);
 
-    if (isNaN(date.getTime())) {
+    if (!date.isValid()) {
         return "Invalid Date";
     }
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-}
+    return date.format("DD/MM/YYYY");
+};
 
 export const findCurrency = (currency: MonobankCurrency[], isoCode: ISO4217Codes) => {
     if (!currency.length) return null;
@@ -78,19 +72,45 @@ export const calculateSavings = (totalAmount: number) => {
     };
 };
 
-export function showSessionToasts(keys: { key: string; message: string }[]) {
+export const showSessionToasts = (keys: { key: string; message: string }[]) => {
     keys.forEach(({ key, message }) => {
         if (sessionStorage.getItem(key)) {
             toast.success(message);
             sessionStorage.removeItem(key);
         }
     });
-}
+};
 
-export function extractTokensFromParams(params: URLSearchParams) {
+export const extractTokensFromParams = (params: URLSearchParams) => {
     const accessToken = params.get("accessToken");
     const refreshToken = params.get("refreshToken");
     const userId = params.get("userId");
     if (!accessToken || !refreshToken || !userId) return null;
     return { accessToken, refreshToken, userId };
-}
+};
+
+export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
+    const message = error.response?.data.message;
+
+    if (Array.isArray(message)) {
+        message.forEach((msg) => toast.error(msg));
+    } else if (typeof message === "string") {
+        toast.error(message);
+    } else {
+        toast.error("Error");
+    }
+};
+
+export const handleDecimalInputChange =
+    (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            fieldOnChange(val);
+            return;
+        }
+
+        if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
+
+        fieldOnChange(val);
+    };

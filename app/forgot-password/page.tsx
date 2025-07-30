@@ -4,29 +4,36 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { useForgotPassword } from "api/auth.api";
-import { PublicProvider } from "providers/auth-provider";
+import { useForgotPassword } from "api/auth";
+import { PublicProvider } from "providers/auth";
 import { Routes } from "constants/routes";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
-import { AuthSectionWrapper } from "components/wrappers/auth-section-wrapper.component";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { RenderEmailField } from "components/form-fields/email";
-import { BackToLogin } from "components/back-to-login.component";
+import { BackToLogin } from "components/back-to-login";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
-import { forgotPasswordSchema } from "schemas/auth.schema";
+import { forgotPasswordSchema } from "schemas/auth";
+import { toast } from "react-toastify";
 
-export default function ResetPassword() {
+type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
+
+const ResetPassword = () => {
     const tAuth = useTranslations("auth");
     const router = useRouter();
 
     const { mutateAsync: forgotPasswordAsync, isPending: forgotPasswordPending } = useForgotPassword();
 
     const form = useForgotPasswordForm(tAuth);
-    type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
     const onSubmit = async (values: ForgotPasswordFormData) => {
-        await forgotPasswordAsync({ email: values.email.toLowerCase() });
-        router.replace(Routes.LOGIN);
+        try {
+            await forgotPasswordAsync({ email: values.email.toLowerCase() });
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(tAuth("forgotPasswordRequestError"), error);
+            toast.error(tAuth("loginError"));
+        }
     };
 
     return (
@@ -36,7 +43,11 @@ export default function ResetPassword() {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             <RenderEmailField form={form} name="email" />
-                            <Button disabled={forgotPasswordPending} type="submit" className="w-full mb-5 py-4">
+                            <Button
+                                disabled={forgotPasswordPending || !form.watch("email") || !form.formState.isValid}
+                                type="submit"
+                                className="w-full mb-5 py-4"
+                            >
                                 {tAuth("sendEmail")}
                             </Button>
                             <BackToLogin />
@@ -46,4 +57,6 @@ export default function ResetPassword() {
             </section>
         </PublicProvider>
     );
-}
+};
+
+export default ResetPassword;
