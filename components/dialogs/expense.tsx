@@ -48,6 +48,7 @@ import { toast } from "react-toastify";
 import { useSetNewTransaction } from "api/main";
 import { TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
+import dayjs from "dayjs";
 
 const categoryKeys = [
     "groceries",
@@ -155,6 +156,7 @@ export const ExpenseDialogComponent = () => {
             form.reset();
             setOpen(false);
         } catch (error) {
+            console.error(error);
             toast.error(t("toasts.errorOccurred") || "Error occurred");
         }
     };
@@ -240,16 +242,13 @@ export const ExpenseDialogComponent = () => {
                                             <FormControl>
                                                 <Button
                                                     variant="popover"
+                                                    type="button"
                                                     className={twMerge(
                                                         "w-[240px] pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}
                                                 >
-                                                    {field.value ? (
-                                                        format(field.value, "dd/MM/yyyy")
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
+                                                    {dayjs(field.value).format("DD MMMM YYYY")}
                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                 </Button>
                                             </FormControl>
@@ -259,7 +258,10 @@ export const ExpenseDialogComponent = () => {
                                                 mode="single"
                                                 selected={field.value}
                                                 onSelect={field.onChange}
-                                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                disabled={(date) =>
+                                                    dayjs(date).isAfter(dayjs(), "day") ||
+                                                    dayjs(date).isBefore(dayjs("1900-01-01"), "day")
+                                                }
                                                 captionLayout="dropdown"
                                             />
                                         </PopoverContent>

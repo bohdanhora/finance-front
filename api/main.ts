@@ -26,7 +26,7 @@ const allTransactionInfo = async (): Promise<AllTransactionsInfoResponse> => {
 
 export const useAllTransactionInfo = () => {
     return useQuery({
-        queryKey: ["total-amount"],
+        queryKey: ["all-info"],
         queryFn: allTransactionInfo,
     });
 };

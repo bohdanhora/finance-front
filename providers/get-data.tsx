@@ -7,6 +7,7 @@ import { Loader } from "components/loader";
 import { useRouter } from "next/navigation";
 import { Routes } from "constants/routes";
 import { clearCookies } from "lib/logout";
+import { AxiosError } from "axios";
 
 export const GetDataProvider = ({ children }: { children: ReactNode }) => {
     const store = useStore();
@@ -16,10 +17,10 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (error && typeof error === "object" && "response" in error) {
-            const axiosError = error as any;
-            const message = axiosError?.response?.data?.message;
+            const axiosError = error as AxiosError;
+            const status = axiosError.response?.status;
 
-            if (message === "User dont found") {
+            if (status === 401) {
                 clearCookies();
                 router.replace(Routes.LOGIN);
             }

@@ -4,19 +4,16 @@ import { toast } from "react-toastify";
 
 import { AxiosError } from "axios";
 import { ErrorResponse } from "types/other";
+import dayjs from "dayjs";
 
 export const createDateString = (input: string | Date): string => {
-    const date = input instanceof Date ? input : new Date(input);
+    const date = dayjs(input);
 
-    if (isNaN(date.getTime())) {
+    if (!date.isValid()) {
         return "Invalid Date";
     }
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
+    return date.format("DD/MM/YYYY");
 };
 
 export const findCurrency = (currency: MonobankCurrency[], isoCode: ISO4217Codes) => {
