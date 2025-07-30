@@ -34,13 +34,21 @@ const Registration = () => {
     type RegistrationFormData = z.infer<ReturnType<typeof registrationSchema>>;
 
     const onSubmit = async (data: RegistrationFormData) => {
-        await registrationAsync({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            verificationCode: data.verificationCode,
-        });
-        router.replace(Routes.LOGIN);
+        try {
+            await registrationAsync({
+                name: data.name,
+                email: data.email,
+                password: data.password,
+                verificationCode: data.verificationCode,
+            });
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(t("registrationRequestError"), error);
+            form.setError("email", {
+                type: "manual",
+                message: t("registrationError"),
+            });
+        }
     };
 
     return (

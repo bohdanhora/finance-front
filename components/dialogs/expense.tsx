@@ -49,16 +49,6 @@ import { useSetNewTransaction } from "api/main";
 import { TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
 
-const formSchema = z.object({
-    value: z
-        .string()
-        .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
-    description: z.string().optional(),
-    categories: z.string().min(1),
-    date: z.date(),
-});
-
 const categoryKeys = [
     "groceries",
     "cosmetics",
@@ -80,6 +70,17 @@ export const ExpenseDialogComponent = () => {
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
 
     const [open, setOpen] = useState(false);
+
+    const formSchema = z.object({
+        value: z
+            .string()
+            .min(1)
+            .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/)
+            .refine((val) => Number(val) <= store.totalAmount),
+        description: z.string().optional(),
+        categories: z.string().min(1),
+        date: z.date(),
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

@@ -25,8 +25,16 @@ const ResetPassword = () => {
     type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
     const onSubmit = async (values: ForgotPasswordFormData) => {
-        await forgotPasswordAsync({ email: values.email.toLowerCase() });
-        router.replace(Routes.LOGIN);
+        try {
+            await forgotPasswordAsync({ email: values.email.toLowerCase() });
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(tAuth("forgotPasswordRequestError"), error);
+            form.setError("email", {
+                type: "manual",
+                message: tAuth("forgotPasswordError"),
+            });
+        }
     };
 
     return (

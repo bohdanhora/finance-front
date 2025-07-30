@@ -34,13 +34,21 @@ const ForgotPassword = () => {
     type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
     const onSubmit = async (values: ResetPasswordData) => {
-        const body = {
-            resetToken: token,
-            newPassword: values.password,
-        };
+        try {
+            const body = {
+                resetToken: token,
+                newPassword: values.password,
+            };
 
-        await resetPasswordAsync(body);
-        router.replace(Routes.LOGIN);
+            await resetPasswordAsync(body);
+            router.replace(Routes.LOGIN);
+        } catch (error) {
+            console.error(tAuth("resetPasswordRequestError"), error);
+            form.setError("password", {
+                type: "manual",
+                message: tAuth("resetPasswordError"),
+            });
+        }
     };
 
     useEffect(() => {

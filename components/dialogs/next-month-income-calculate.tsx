@@ -30,7 +30,7 @@ const formSchema = z.object({
     rate: z
         .string()
         .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
     hours: z
         .string()
         .min(1)
@@ -81,18 +81,21 @@ export const NextMonthIncomeCalculate = () => {
         };
 
         const rateInUah = rateMultiplyHours * usdRate;
-
         const customInUah = customValue ? convertToUah(Number(customValue), currency || currencyArray[0]) : 0;
 
         const result = rateInUah + customInUah;
 
-        store.setNextMonthTotalAmount(result);
+        try {
+            store.setNextMonthTotalAmount(result);
+            await setNextMonthAmountAsync({ nextMonthTotalAmount: result });
 
-        await setNextMonthAmountAsync({ nextMonthTotalAmount: result });
-
-        toast.success(tToast("nextMonthIcomeChanged", { amount: formatCurrency(result) }));
-        form.reset();
-        setOpen(false);
+            toast.success(tToast("nextMonthIcomeChanged", { amount: formatCurrency(result) }));
+            form.reset();
+            setOpen(false);
+        } catch (error) {
+            console.error("Error setting next month amount:", error);
+            toast.error(tToast("nextMonthIcomeFailed", { defaultValue: "Something went wrong. Please try again." }));
+        }
     };
 
     return (

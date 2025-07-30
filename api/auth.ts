@@ -4,7 +4,6 @@ import { authAxios } from "config/axios.instances";
 import { loginSetTokens } from "lib/auth-helper";
 import { showAxiosError } from "lib/utils";
 import {
-    ErrorResponse,
     ForgotPasswordPayload,
     ForgotPasswordResponseType,
     LoginPayload,
@@ -102,22 +101,6 @@ export const useLogoutMutation = () => {
         mutationFn: logout,
         onSuccess: () => {
             sessionStorage.setItem("showLogoutToast", "true");
-        },
-        onError: showAxiosError,
-    });
-};
-
-const refresh = async (payload: RefreshPayload): Promise<RefreshResponseType> => {
-    const res = await authAxios.post("refresh", payload);
-    return res.data;
-};
-
-export const useRefresh = () => {
-    return useMutation({
-        mutationKey: ["refresh"],
-        mutationFn: refresh,
-        onSuccess: (data) => {
-            loginSetTokens(data, true);
         },
         onError: showAxiosError,
     });

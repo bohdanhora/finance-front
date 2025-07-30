@@ -32,7 +32,7 @@ const formSchema = z.object({
     amount: z
         .string()
         .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
     title: z.string().min(1),
 });
 
@@ -58,26 +58,35 @@ export const ChangeDefaultEssentials = () => {
     });
 
     const removeEssential = async (id: string) => {
-        const type = EssentialsType.DEFAULT;
-        const res = await removeEssentialAsync({ type, id });
-        store.setDefaultEssentialsArray(res.updatedItems);
-
-        toast.success(t("essentials.removed"));
+        try {
+            const type = EssentialsType.DEFAULT;
+            const res = await removeEssentialAsync({ type, id });
+            store.setDefaultEssentialsArray(res.updatedItems);
+            toast.success(t("essentials.removed"));
+        } catch (error) {
+            console.error(t("essentials.removeErrorRequest"), error);
+            toast.error(t("essentials.removeError"));
+        }
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        const item = {
-            id: uuidv4(),
-            title: values.title || "",
-            amount: Number(values.amount) || 0,
-            checked: false,
-        };
-        const type = EssentialsType.DEFAULT;
-        const res = await newEssentialAsync({ type, item });
-        store.setDefaultEssentialsArray(res.updatedItems);
-        toast.success(t("essentials.standartPaymentAdded"));
+        try {
+            const item = {
+                id: uuidv4(),
+                title: values.title || "",
+                amount: Number(values.amount) || 0,
+                checked: false,
+            };
+            const type = EssentialsType.DEFAULT;
+            const res = await newEssentialAsync({ type, item });
+            store.setDefaultEssentialsArray(res.updatedItems);
+            toast.success(t("essentials.standartPaymentAdded"));
 
-        form.reset();
+            form.reset();
+        } catch (error) {
+            console.error(t("essentials.addErrorRequest"), error);
+            toast.error(t("essentials.addError"));
+        }
     };
 
     return (

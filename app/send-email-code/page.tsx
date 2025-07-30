@@ -33,9 +33,14 @@ const SendEmailCodePage = () => {
     const email = form.watch("email");
 
     const onSubmit = async (values: SendEmailData) => {
-        const res = await requestEmailCode(values);
-        toast.success(res.message);
-        startTimer();
+        try {
+            const res = await requestEmailCode(values);
+            toast.success(res.message);
+            startTimer();
+        } catch (error) {
+            console.error(tAuth("sendEmailRequestError"), error);
+            toast.error(tAuth("sendEmailError"));
+        }
     };
 
     const proceedToRegistration = () => {

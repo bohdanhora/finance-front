@@ -33,7 +33,7 @@ const formSchema = z.object({
     amount: z
         .string()
         .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
     title: z.string().min(1),
 });
 
@@ -65,85 +65,105 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
     });
 
     const checkedFunc = async (id: string, checked: boolean) => {
-        if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH;
-            const item = { id, checked };
-            const res = await checkedEssentialAsync({ type, item });
-            store.setNextMonthEssentialsArray(res.updatedItems);
-        } else {
-            const type = EssentialsType.THIS_MONTH;
-            const item = { id, checked };
-            const res = await checkedEssentialAsync({ type, item });
-            store.setEssentialsArray(res.updatedItems);
+        try {
+            if (nextMonth) {
+                const type = EssentialsType.NEXT_MONTH;
+                const item = { id, checked };
+                const res = await checkedEssentialAsync({ type, item });
+                store.setNextMonthEssentialsArray(res.updatedItems);
+            } else {
+                const type = EssentialsType.THIS_MONTH;
+                const item = { id, checked };
+                const res = await checkedEssentialAsync({ type, item });
+                store.setEssentialsArray(res.updatedItems);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(t("dialogs.occurred"));
         }
     };
 
     const setDefaultsEssentials = async () => {
-        if (store.defaultEssentialsArray.length <= 0) {
-            toast.error(t("dialogs.essentials.noStandardPayments"));
-            return;
-        }
+        try {
+            if (store.defaultEssentialsArray.length <= 0) {
+                toast.error(t("dialogs.essentials.noStandardPayments"));
+                return;
+            }
 
-        if (nextMonth && store.nextMonthEssentialsArray.length > 0) {
-            toast.error(t("dialogs.essentials.standardFillWarning"));
-            return;
-        }
-        if (!nextMonth && store.essentialsArray.length > 0) {
-            toast.error(t("dialogs.essentials.standardFillWarning"));
-            return;
-        }
+            if (nextMonth && store.nextMonthEssentialsArray.length > 0) {
+                toast.error(t("dialogs.essentials.standardFillWarning"));
+                return;
+            }
+            if (!nextMonth && store.essentialsArray.length > 0) {
+                toast.error(t("dialogs.essentials.standardFillWarning"));
+                return;
+            }
 
-        if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH;
-            const res = await essentialPaymentsAsync({
-                type,
-                items: store.defaultEssentialsArray,
-            });
-            store.setNextMonthEssentialsArray(res.updatedItems);
-        } else {
-            const type = EssentialsType.THIS_MONTH;
-            const res = await essentialPaymentsAsync({
-                type,
-                items: store.defaultEssentialsArray,
-            });
-            store.setEssentialsArray(res.updatedItems);
-        }
+            if (nextMonth) {
+                const type = EssentialsType.NEXT_MONTH;
+                const res = await essentialPaymentsAsync({
+                    type,
+                    items: store.defaultEssentialsArray,
+                });
+                store.setNextMonthEssentialsArray(res.updatedItems);
+            } else {
+                const type = EssentialsType.THIS_MONTH;
+                const res = await essentialPaymentsAsync({
+                    type,
+                    items: store.defaultEssentialsArray,
+                });
+                store.setEssentialsArray(res.updatedItems);
+            }
 
-        toast.success(t("dialogs.essentials.standardValuesAdded"));
+            toast.success(t("dialogs.essentials.standardValuesAdded"));
+        } catch (error) {
+            console.error(error);
+            toast.error(t("dialogs.occurred"));
+        }
     };
 
     const removeEssential = async (id: string) => {
-        if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH;
-            const res = await removeEssentialAsync({ type, id });
-            store.setNextMonthEssentialsArray(res.updatedItems);
-        } else {
-            const type = EssentialsType.THIS_MONTH;
-            const res = await removeEssentialAsync({ type, id });
-            store.setEssentialsArray(res.updatedItems);
-        }
+        try {
+            if (nextMonth) {
+                const type = EssentialsType.NEXT_MONTH;
+                const res = await removeEssentialAsync({ type, id });
+                store.setNextMonthEssentialsArray(res.updatedItems);
+            } else {
+                const type = EssentialsType.THIS_MONTH;
+                const res = await removeEssentialAsync({ type, id });
+                store.setEssentialsArray(res.updatedItems);
+            }
 
-        toast.success(t("dialogs.essentials.removed"));
+            toast.success(t("dialogs.essentials.removed"));
+        } catch (error) {
+            console.error(error);
+            toast.error(t("dialogs.occurred"));
+        }
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        const item = {
-            id: uuidv4(),
-            title: values.title || "",
-            amount: Number(values.amount) || 0,
-            checked: false,
-        };
-        if (nextMonth) {
-            const type = EssentialsType.NEXT_MONTH;
-            const res = await newEssentialAsync({ type, item });
-            store.setNextMonthEssentialsArray(res.updatedItems);
-        } else {
-            const type = EssentialsType.THIS_MONTH;
-            const res = await newEssentialAsync({ type, item });
-            store.setEssentialsArray(res.updatedItems);
-        }
+        try {
+            const item = {
+                id: uuidv4(),
+                title: values.title || "",
+                amount: Number(values.amount) || 0,
+                checked: false,
+            };
+            if (nextMonth) {
+                const type = EssentialsType.NEXT_MONTH;
+                const res = await newEssentialAsync({ type, item });
+                store.setNextMonthEssentialsArray(res.updatedItems);
+            } else {
+                const type = EssentialsType.THIS_MONTH;
+                const res = await newEssentialAsync({ type, item });
+                store.setEssentialsArray(res.updatedItems);
+            }
 
-        form.reset();
+            form.reset();
+        } catch (error) {
+            console.error(error);
+            toast.error(t("dialogs.occurred"));
+        }
     };
 
     return (

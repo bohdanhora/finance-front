@@ -35,7 +35,7 @@ const formSchema = z.object({
     value: z
         .string()
         .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
     description: z.string().optional(),
     date: z.date(),
 });

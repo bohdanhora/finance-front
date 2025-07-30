@@ -28,7 +28,7 @@ const formSchema = z.object({
     value: z
         .string()
         .min(1)
-        .regex(/^([1-9]\d*|0\.(0*[1-9]\d?))$/),
+        .regex(/^(0|[1-9]\d*)(\.\d{0,2})?$/),
 });
 
 export const ChangeNextMonthIncome = () => {
@@ -47,16 +47,26 @@ export const ChangeNextMonthIncome = () => {
     });
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        store.setNextMonthTotalAmount(Number(values.value));
+        try {
+            store.setNextMonthTotalAmount(Number(values.value));
 
-        await setNextMonthAmountAsync({
-            nextMonthTotalAmount: Number(values.value),
-        });
-        form.reset();
-        setOpen(false);
-        toast.success(tGlobal("toasts.nextMonthIcomeChanged", { amount: formatCurrency(Number(values.value)) }));
+            await setNextMonthAmountAsync({
+                nextMonthTotalAmount: Number(values.value),
+            });
+
+            form.reset();
+            setOpen(false);
+
+            toast.success(
+                tGlobal("toasts.nextMonthIcomeChanged", {
+                    amount: formatCurrency(Number(values.value)),
+                }),
+            );
+        } catch (error) {
+            console.error(t("changeNextMonthIncomeRequestError"), error);
+            toast.error(t("changeNextMonthIncomeError"));
+        }
     };
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>

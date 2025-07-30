@@ -46,7 +46,11 @@ const Login = () => {
             await loginAsync(values);
             router.replace(Routes.HOME);
         } catch (error) {
-            console.error("Login failed:", error);
+            console.error(tAuth("loginRequestError"), error);
+            form.setError("email", {
+                type: "manual",
+                message: tAuth("loginError"),
+            });
         } finally {
             setIsRedirecting(false);
         }
