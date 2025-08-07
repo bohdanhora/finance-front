@@ -90,15 +90,23 @@ export const extractTokensFromParams = (params: URLSearchParams) => {
 };
 
 export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
-    const message = error.response?.data.message;
+    const message = error.response?.data?.message;
 
     if (Array.isArray(message)) {
-        message.forEach((msg) => toast.error(msg));
-    } else if (typeof message === "string") {
-        toast.error(message);
-    } else {
-        toast.error("Error");
+        message.forEach((msg) => {
+            if (typeof msg === "string") {
+                toast.error(msg);
+            }
+        });
+        return;
     }
+
+    if (typeof message === "string") {
+        toast.error(message);
+        return;
+    }
+
+    toast.error("Unexpected error occurred");
 };
 
 export const handleDecimalInputChange =
