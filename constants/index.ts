@@ -16,7 +16,7 @@ export enum EssentialsType {
 }
 
 export enum TransactionEnum {
-    EXPENCE = "expence",
+    EXPENSE = "expense",
     INCOME = "income",
 }
 

@@ -21,7 +21,7 @@
     },
     "expenses": {
         "income": "Income",
-        "expence": "Expense"
+        "expense": "Expense"
     },
     "errors": {
         "amountError": "Please enter a valid amount.",
@@ -35,7 +35,8 @@
         "addedIncome": "Successfully added {amount} ₴",
         "addedExpense": "Spent {amount} ₴",
         "noFunds": "Unfortunately, you can’t spend money when your balance is zero.",
-        "nextMonthIcomeChanged": "{amount} ₴ will come in next month."
+        "nextMonthIcomeChanged": "{amount} ₴ will come in next month.",
+        "errorOccurred": "Error occurred"
     },
     "dialogs": {
         "change": "Change",

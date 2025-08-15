@@ -116,7 +116,7 @@ export const ExpenseDialogComponent = () => {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const createTransaction = {
-            transactionType: TransactionEnum.EXPENCE,
+            transactionType: TransactionEnum.EXPENSE,
             id: uuidv4(),
             value: Number(values.value),
             date: values.date,
@@ -160,7 +160,7 @@ export const ExpenseDialogComponent = () => {
                 <DialogTrigger asChild>
                     <Button variant="default" className="hover:bg-red-500 dark:hover:bg-red-500">
                         <MinusIcon />
-                        {t("expenses.expence")}
+                        {t("expenses.expense")}
                     </Button>
                 </DialogTrigger>
 

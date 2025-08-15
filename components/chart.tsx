@@ -27,7 +27,7 @@ export const CategoryChart = ({ transactions }: Props) => {
         const categoryMap = new Map<string, number>();
 
         transactions
-            .filter((tx) => tx.transactionType === TransactionEnum.EXPENCE)
+            .filter((tx) => tx.transactionType === TransactionEnum.EXPENSE)
             .forEach((tx) => {
                 const current = categoryMap.get(tx.categorie) || 0;
                 categoryMap.set(tx.categorie, current + tx.value);

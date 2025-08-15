@@ -21,7 +21,7 @@
     },
     "expenses": {
         "income": "Доход",
-        "expence": "Расход"
+        "expense": "Расход"
     },
     "errors": {
         "amountError": "Введите правильную сумму.",
@@ -35,7 +35,8 @@
         "addedIncome": "Успешно добавлено {amount} ₴",
         "addedExpense": "Потрачено {amount} ₴",
         "noFunds": "К сожалению, вы не можете тратить деньги, когда ваш баланс равен нулю.",
-        "nextMonthIcomeChanged": "В следующем месяце прийдёт {amount} ₴"
+        "nextMonthIcomeChanged": "В следующем месяце прийдёт {amount} ₴",
+        "errorOccurred": "Произошла ошибка"
     },
     "dialogs": {
         "change": "Изменить",
