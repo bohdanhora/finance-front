@@ -30,7 +30,7 @@ import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useExportPdf } from "api/main";
+import { useClearData, useExportPdf } from "api/main";
 import { toast } from "react-toastify";
 
 const categoriesIcons = (category: string) => {
@@ -65,6 +65,7 @@ export const LastSpends = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const { mutate: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
+    const { mutate: clearDataMutation } = useClearData();
 
     const ITEMS_PER_PAGE = 10;
 
@@ -106,6 +107,14 @@ export const LastSpends = () => {
         exportPdfMutation(userId);
     };
 
+    const clearDataHandle = () => {
+        if (!userId) {
+            toast.error(tErr("noUserId"));
+            return;
+        }
+        clearDataMutation({ clearTotals: true });
+    };
+
     const paginatedTransactions = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
@@ -130,6 +139,7 @@ export const LastSpends = () => {
                     </p>
                 )}
                 <div className="flex items-center gap-2 w-full justify-end">
+                    <Button onClick={clearDataHandle}>clear data</Button>
                     <Button onClick={exportPdfHandle}>{exportPdfPending ? t("exporting") : t("exportPdf")}</Button>
                     <Input
                         placeholder={t("searchPlaceholder")}

@@ -162,3 +162,13 @@ export type AllTransactionsInfoResponse = {
     nextMonthEssentialsArray: EssentialType[] | [];
     transactions: TransactionType[] | [];
 };
+
+export type ClearDataPayload = {
+    clearTotals: boolean;
+};
+
+export type ClearDataResponseType = {
+    message: string;
+    clearedTransactions: boolean;
+    clearedTotals: boolean;
+};
