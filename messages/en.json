@@ -182,6 +182,10 @@
         "prev": "Previous",
         "next": "Next",
         "openChart": "Open Chart",
-        "hideChart": "Hide Chart"
+        "hideChart": "Hide Chart",
+        "clearDataTitle": "Clear Data",
+        "clearDataConfirmation": "Are you absolutely sure?",
+        "clearDataWarning": "This action cannot be undone. It will permanently delete your data. If you check the box, you can also clear totals.",
+        "clearTotalsLabel": "Clear totals?"
     }
 }
