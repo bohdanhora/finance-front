@@ -1,4 +1,7 @@
 {
+    "common": {
+        "fillForm": "Fill out the form"
+    },
     "navbar": {
         "currency": "Currency",
         "lang": "Language",

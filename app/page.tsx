@@ -14,6 +14,7 @@ import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
 import { CategoryChart } from "components/chart";
 import useStore from "store/general";
+import { FillForm } from "components/fill-form";
 
 const Home = () => {
     const t = useTranslations();
@@ -34,6 +35,7 @@ const Home = () => {
                         <TotalAmounts />
                         <CategoryChart transactions={store.transactions} />
                     </div>
+                    <FillForm />
                 </div>
             </PrivateProvider>
         </GetDataProvider>

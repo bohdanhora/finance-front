@@ -1,4 +1,7 @@
 {
+    "common": {
+        "fillForm": "Заполните форму"
+    },
     "navbar": {
         "currency": "Валюта",
         "lang": "Язык",
