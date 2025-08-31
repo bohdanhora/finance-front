@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, JSX } from "react";
+import { useState, useMemo, JSX, useEffect } from "react";
 
 import { TransactionType } from "types/transactions";
 import { createDateString, formatCurrency } from "lib/utils";
@@ -30,8 +30,12 @@ import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useExportPdf } from "api/main";
+import { useClearData, useExportPdf } from "api/main";
 import { toast } from "react-toastify";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 const categoriesIcons = (category: string) => {
     const map: Record<string, JSX.Element> = {
@@ -63,8 +67,10 @@ export const LastSpends = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
+    const [clearTotalsChck, setClearTotalsChck] = useState<CheckedState>(false);
 
-    const { mutate: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
+    const { mutateAsync: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
+    const { mutateAsync: clearDataMutation } = useClearData();
 
     const ITEMS_PER_PAGE = 10;
 
@@ -106,6 +112,28 @@ export const LastSpends = () => {
         exportPdfMutation(userId);
     };
 
+    const clearDataHandle = async () => {
+        if (!userId) {
+            toast.error(tErr("noUserId"));
+            return;
+        }
+        const res = await clearDataMutation({ clearTotals: Boolean(clearTotalsChck) });
+
+        if (res.clearedTransactions) {
+            store.setTransactions([]);
+        }
+
+        if (res.clearedTotals) {
+            store.setTotalAmount(0);
+            store.setTotalIncome(0);
+            store.setTotalSpend(0);
+        }
+
+        if (res.message) {
+            toast.success(res.message);
+        }
+    };
+
     const paginatedTransactions = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
@@ -130,6 +158,28 @@ export const LastSpends = () => {
                     </p>
                 )}
                 <div className="flex items-center gap-2 w-full justify-end">
+                    <Dialog>
+                        <DialogTrigger className="border cursor-pointer border-gray-500 px-4 h-9 text-gray-800 bg-transparent rounded-lg hover:bg-gray-500 hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-400 dark:hover:text-black">
+                            {t("clearDataTitle")}
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle> {t("clearDataConfirmation")}</DialogTitle>
+                                <DialogDescription>{t("clearDataWarning")}</DialogDescription>
+                            </DialogHeader>
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id="clearTotals"
+                                    className="cursor-pointer"
+                                    onCheckedChange={(checked) => setClearTotalsChck(checked)}
+                                />
+                                <Label htmlFor="clearTotals" className="text-sm cursor-pointer">
+                                    {t("clearTotalsLabel")}
+                                </Label>
+                            </div>
+                            <Button onClick={clearDataHandle}> {t("clearDataTitle")}</Button>
+                        </DialogContent>
+                    </Dialog>
                     <Button onClick={exportPdfHandle}>{exportPdfPending ? t("exporting") : t("exportPdf")}</Button>
                     <Input
                         placeholder={t("searchPlaceholder")}

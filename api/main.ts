@@ -5,6 +5,8 @@ import {
     AllTransactionsInfoResponse,
     CheckedEssentialPayload,
     CheckedEssentialResponseType,
+    ClearDataPayload,
+    ClearDataResponseType,
     EssentialPaymentsPayload,
     EssentialPaymentsResponseType,
     NewEssentialPayload,
@@ -145,6 +147,19 @@ export const useExportPdf = () => {
             link.remove();
             window.URL.revokeObjectURL(url);
         },
+        onError: showAxiosError,
+    });
+};
+
+const clearData = async (payload: ClearDataPayload): Promise<ClearDataResponseType> => {
+    const res = await transactionsAxios.post("clear-all", payload);
+    return res.data;
+};
+
+export const useClearData = () => {
+    return useMutation({
+        mutationKey: ["clear-data"],
+        mutationFn: clearData,
         onError: showAxiosError,
     });
 };
