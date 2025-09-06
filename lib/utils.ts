@@ -61,8 +61,12 @@ export const calculateDailyBudget = (totalAmount: number) => {
     return result;
 };
 
-export const calculateSavings = (totalAmount: number) => {
-    const percentageToSave = 0.1;
+export const calculateSavings = (totalAmount: number, percentage: number) => {
+    if (percentage < 1 || percentage > 100) {
+        throw new Error("Percentage must be between 1 and 100");
+    }
+
+    const percentageToSave = percentage / 100;
     const saved = Number((totalAmount * percentageToSave).toFixed(2));
     const remaining = Number((totalAmount - saved).toFixed(2));
 

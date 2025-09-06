@@ -6,6 +6,7 @@ export type StoreType = {
     totalIncome: number;
     totalSpend: number;
     nextMonthTotalAmount: number;
+    percentage: number;
 
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];
@@ -16,6 +17,7 @@ export type StoreType = {
     setTotalIncome: (totalIncome: number) => void;
     setTotalSpend: (totalSpend: number) => void;
     setNextMonthTotalAmount: (nextMonthTotalAmount: number) => void;
+    setPercentage: (percentage: number) => void;
 
     setDefaultEssentialsArray: (defaultEssentialsArray: EssentialType[] | []) => void;
     setEssentialsArray: (essentialsArray: EssentialType[] | []) => void;

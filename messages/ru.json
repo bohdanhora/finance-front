@@ -39,7 +39,8 @@
         "addedExpense": "Потрачено {amount} ₴",
         "noFunds": "К сожалению, вы не можете тратить деньги, когда ваш баланс равен нулю.",
         "nextMonthIcomeChanged": "В следующем месяце прийдёт {amount} ₴",
-        "errorOccurred": "Произошла ошибка"
+        "errorOccurred": "Произошла ошибка",
+        "percentChanged": "Процент сбережений обновлён."
     },
     "dialogs": {
         "change": "Изменить",
@@ -94,6 +95,12 @@
             "addError": "Не удалось добавить стандартный платёж. Попробуйте снова.",
             "removeErrorRequest": "Ошибка при удалении стандартного платежа:",
             "removeError": "Не удалось удалить платёж. Попробуйте снова."
+        },
+        "percent": {
+            "title": "Установите процент сбережений",
+            "subtitle": "Выберите, какую часть дохода вы хотите откладывать",
+            "label": "Процент сбережений",
+            "from": "С 1 до 100%"
         }
     },
     "categories": {
@@ -114,7 +121,7 @@
         "dailyBudget": "Дневной бюджет",
         "daysLeft": "Осталось дней",
         "totalMoneyIncome": "Ожидаемый общий доход",
-        "saveMoney": "Можно отложить 10%",
+        "saveMoney": "Можно отложить {percentage}%",
         "saveMoneyAfterPercent": "Тогда останется",
         "remainingAfterEssentials": "Остаток после расходов",
         "dailySpendingAvailable": "Бюджет после расходов"

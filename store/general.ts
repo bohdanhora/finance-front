@@ -6,6 +6,7 @@ const useStore = create<StoreType>((set) => ({
     totalIncome: 0,
     totalSpend: 0,
     nextMonthTotalAmount: 0,
+    percentage: 25,
 
     defaultEssentialsArray: [],
     essentialsArray: [],
@@ -15,6 +16,10 @@ const useStore = create<StoreType>((set) => ({
     setTotalAmount: (totalAmount) =>
         set(() => ({
             totalAmount: totalAmount,
+        })),
+    setPercentage: (percentage) =>
+        set(() => ({
+            percentage: percentage,
         })),
     setTotalIncome: (totalIncome) =>
         set(() => ({
@@ -51,6 +56,7 @@ const useStore = create<StoreType>((set) => ({
             totalIncome: 0,
             totalSpend: 0,
             nextMonthTotalAmount: 0,
+            percentage: 10,
 
             defaultEssentialsArray: [],
             essentialsArray: [],
