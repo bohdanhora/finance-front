@@ -100,7 +100,7 @@
             "title": "Set Savings Percentage",
             "subtitle": "Choose how much of your income you want to save",
             "label": "Savings Percentage",
-            "from": "From 1 to 100%"
+            "from": "From 0 to 100%"
         }
     },
     "categories": {

@@ -19,11 +19,12 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
-import { handleDecimalInputChange } from "lib/utils";
+import { handleFrom1To100InputChange } from "lib/utils";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { changeNextMonthFormSchema } from "schemas/other";
+import { setPercentageFormSchema } from "schemas/other";
 import { Edit2Icon } from "lucide-react";
+import { useSavePercent } from "api/main";
 
 export const Percentage = () => {
     const store = useStore();
@@ -33,16 +34,19 @@ export const Percentage = () => {
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs");
 
-    const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
-        resolver: zodResolver(changeNextMonthFormSchema),
+    const { mutateAsync: savePercent, isPending: percentPending } = useSavePercent();
+
+    const form = useForm<z.infer<typeof setPercentageFormSchema>>({
+        resolver: zodResolver(setPercentageFormSchema),
         defaultValues: {
             value: "",
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof changeNextMonthFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof setPercentageFormSchema>) => {
         try {
             store.setPercentage(Number(values.value));
+            await savePercent({ percent: Number(values.value) });
 
             form.reset();
             setOpen(false);
@@ -78,7 +82,7 @@ export const Percentage = () => {
                                         <Input
                                             placeholder={t("percent.from")}
                                             {...field}
-                                            onChange={handleDecimalInputChange(field.onChange)}
+                                            onChange={handleFrom1To100InputChange(field.onChange)}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -92,6 +96,7 @@ export const Percentage = () => {
                             <Button
                                 type="submit"
                                 className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
+                                disabled={percentPending}
                             >
                                 {t("submit")}
                             </Button>

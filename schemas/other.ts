@@ -16,6 +16,10 @@ export const changeNextMonthFormSchema = z.object({
     value: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
 });
 
+export const setPercentageFormSchema = z.object({
+    value: z.string().min(0).regex(amountRegex),
+});
+
 export const essentialSpendsFormSchema = z.object({
     amount: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
     title: z.string().min(1),

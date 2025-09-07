@@ -62,10 +62,6 @@ export const calculateDailyBudget = (totalAmount: number) => {
 };
 
 export const calculateSavings = (totalAmount: number, percentage: number) => {
-    if (percentage < 1 || percentage > 100) {
-        throw new Error("Percentage must be between 1 and 100");
-    }
-
     const percentageToSave = percentage / 100;
     const saved = Number((totalAmount * percentageToSave).toFixed(2));
     const remaining = Number((totalAmount - saved).toFixed(2));
@@ -123,6 +119,20 @@ export const handleDecimalInputChange =
         }
 
         if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
+
+        fieldOnChange(val);
+    };
+
+export const handleFrom1To100InputChange =
+    (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            fieldOnChange(val);
+            return;
+        }
+
+        if (!/^(100|[0-9]{1,2})$/.test(val)) return;
 
         fieldOnChange(val);
     };

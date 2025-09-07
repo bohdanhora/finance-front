@@ -156,6 +156,7 @@ export type AllTransactionsInfoResponse = {
     totalIncome: number;
     totalSpend: number;
     nextMonthTotalAmount: number;
+    savePercent: number;
 
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];
@@ -171,4 +172,13 @@ export type ClearDataResponseType = {
     message: string;
     clearedTransactions: boolean;
     clearedTotals: boolean;
+};
+
+export type SavePercentPayload = {
+    percent: number;
+};
+
+export type SavePercentResponseType = {
+    message: string;
+    percent: number;
 };
