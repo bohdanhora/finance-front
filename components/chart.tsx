@@ -65,47 +65,56 @@ export const CategoryChart = ({ transactions }: Props) => {
     }, [transactions]);
 
     return (
-        <ContentWrapper className="w-fit">
-            <Button onClick={() => setShowChart((prev) => !prev)}>{showChart ? t("hideChart") : t("openChart")}</Button>
+        <>
+            {chartInfo.categories.length >= 1 && (
+                <ContentWrapper className="w-fit">
+                    <Button onClick={() => setShowChart((prev) => !prev)}>
+                        {showChart ? t("hideChart") : t("openChart")}
+                    </Button>
 
-            {showChart && (
-                <div className="mt-6 flex flex-col md:flex-row gap-6 items-start justify-center">
-                    <div className="w-full">
-                        <Pie
-                            data={chartInfo.chartData}
-                            options={{
-                                plugins: {
-                                    legend: { display: false },
-                                },
-                            }}
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-3 w-full">
-                        {chartInfo.categories.map((cat) => (
-                            <div key={cat.name} className="space-y-2">
-                                <div className="flex items-center justify-between text-sm font-medium gap-x-10">
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                                        {tCat(cat.name)}
-                                    </div>
-                                    <span>{formatCurrency(cat.value)}</span>
-                                </div>
-                                <div className="w-full h-2 bg-muted rounded">
-                                    <div
-                                        className="h-2 rounded"
-                                        style={{
-                                            width: `${cat.percent}%`,
-                                            backgroundColor: cat.color,
-                                        }}
-                                    />
-                                </div>
+                    {showChart && (
+                        <div className="mt-6 flex flex-col md:flex-row gap-6 items-start justify-center">
+                            <div className="w-full">
+                                <Pie
+                                    data={chartInfo.chartData}
+                                    options={{
+                                        plugins: {
+                                            legend: { display: false },
+                                        },
+                                    }}
+                                />
                             </div>
-                        ))}
-                    </div>
-                </div>
+
+                            <div className="flex flex-col gap-3 w-full">
+                                {chartInfo.categories.map((cat) => (
+                                    <div key={cat.name} className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm font-medium gap-x-10">
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className="w-3 h-3 rounded-full"
+                                                    style={{ backgroundColor: cat.color }}
+                                                />
+                                                {tCat(cat.name)}
+                                            </div>
+                                            <span>{formatCurrency(cat.value)}</span>
+                                        </div>
+                                        <div className="w-full h-2 bg-muted rounded">
+                                            <div
+                                                className="h-2 rounded"
+                                                style={{
+                                                    width: `${cat.percent}%`,
+                                                    backgroundColor: cat.color,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </ContentWrapper>
             )}
-        </ContentWrapper>
+        </>
     );
 };
 
