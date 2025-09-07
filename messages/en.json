@@ -47,6 +47,8 @@
         "changeNextMonthIncome": "Change next month income",
         "changeNextMonthIncomeRequestError": "Error while updating next month's income:",
         "changeNextMonthIncomeError": "Failed to save expected income. Please try again.",
+        "setPercentRequestError": "Error while percentage:",
+        "setPercentError": "Failed to change your saving percent. Please try again.",
         "calculateNextMonthIncome": "Calculate by rate",
         "nextMonthIcomeChanged": "Next month's income updated: {amount}",
         "nextMonthIcomeFailed": "Failed to update next month's income",

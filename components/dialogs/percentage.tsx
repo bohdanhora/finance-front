@@ -53,8 +53,8 @@ export const Percentage = () => {
 
             toast.success(tGlobal("toasts.percentChanged"));
         } catch (error) {
-            console.error(t("changeNextMonthIncomeRequestError"), error);
-            toast.error(t("changeNextMonthIncomeError"));
+            console.error(t("setPercentRequestError"), error);
+            toast.error(t("setPercentError"));
         }
     };
 
