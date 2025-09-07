@@ -39,7 +39,8 @@
         "addedExpense": "Spent {amount} ₴",
         "noFunds": "Unfortunately, you can’t spend money when your balance is zero.",
         "nextMonthIcomeChanged": "{amount} ₴ will come in next month.",
-        "errorOccurred": "Error occurred"
+        "errorOccurred": "Error occurred",
+        "percentChanged": "Saving percent updated."
     },
     "dialogs": {
         "change": "Change",
@@ -94,6 +95,12 @@
             "addError": "Failed to add the standard payment. Please try again.",
             "removeErrorRequest": "Error while removing a standard payment:",
             "removeError": "Failed to remove the payment. Please try again."
+        },
+        "percent": {
+            "title": "Set Savings Percentage",
+            "subtitle": "Choose how much of your income you want to save",
+            "label": "Savings Percentage",
+            "from": "From 0 to 100%"
         }
     },
     "categories": {
@@ -114,7 +121,7 @@
         "dailyBudget": "Daily budget",
         "daysLeft": "Days remaining",
         "totalMoneyIncome": "Total expected income",
-        "saveMoney": "You can save 10%",
+        "saveMoney": "You can save {percentage}%",
         "saveMoneyAfterPercent": "Then you'll have left",
         "remainingAfterEssentials": "Remaining after essentials",
         "dailySpendingAvailable": "Daily budget after essentials"

@@ -11,6 +11,7 @@ import { CURRENCY } from "constants/index";
 import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
 import { NextMonthIncomeCalculate } from "./dialogs/next-month-income-calculate";
+import { Percentage } from "./dialogs/percentage";
 
 export const NextMonthIncome = () => {
     const store = useStore();
@@ -18,6 +19,8 @@ export const NextMonthIncome = () => {
     const t = useTranslations("possible");
 
     const currency = bankStore.currency as CURRENCY;
+    const percent = store.percentage;
+
     const rates = {
         [CURRENCY.EUR]: bankStore.eur?.rateBuy || 0,
         [CURRENCY.USD]: bankStore.usd?.rateBuy || 0,
@@ -31,7 +34,7 @@ export const NextMonthIncome = () => {
 
         const total = store.nextMonthTotalAmount;
         const remaining = total - totalEssentials;
-        const { saved, remaining: savedAfter } = calculateSavings(remaining);
+        const { saved, remaining: savedAfter } = calculateSavings(remaining, percent);
 
         return {
             totalIncome: convertToAllCurrencies(total, rates),
@@ -41,13 +44,17 @@ export const NextMonthIncome = () => {
         };
     }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, rates]);
 
-    const renderCard = (title: string, valueUAH: number, valueCurrency: number) => (
+    const renderCard = (title: string, valueUAH: number, valueCurrency: number, percentage: boolean = false) => (
         <ContentWrapper className="w-full sm:w-2xs">
             <span className="text-xl font-semibold">{formatCurrency(valueUAH)} ₴</span>
             <span className="text-sm">
                 {formatCurrency(valueCurrency)} {getCurrencySymbol(currency)}
             </span>
-            <p className="text-base font-bold text-center mt-1">{title}</p>
+
+            <div className="relative">
+                <p className="text-base font-bold text-center mt-1">{title}</p>
+                {percentage && <Percentage />}
+            </div>
         </ContentWrapper>
     );
 
@@ -61,7 +68,7 @@ export const NextMonthIncome = () => {
             <div className="flex gap-4 flex-wrap w-full justify-between">
                 {renderCard(t("totalMoneyIncome"), totalIncome.default, totalIncome[currency])}
                 {renderCard(t("remainingAfterEssentials"), remainingIncome.default, remainingIncome[currency])}
-                {renderCard(t("saveMoney"), savedMoney.default, savedMoney[currency])}
+                {renderCard(t("saveMoney", { percentage: percent }), savedMoney.default, savedMoney[currency], true)}
                 {renderCard(t("saveMoneyAfterPercent"), savedMoneyRemaining.default, savedMoneyRemaining[currency])}
             </div>
         </section>

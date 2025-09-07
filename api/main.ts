@@ -17,6 +17,8 @@ import {
     NextMonthTotalAmountResponseType,
     RemoveEssentialPayload,
     RemoveEssentialResponseType,
+    SavePercentPayload,
+    SavePercentResponseType,
     TotalAmountPayload,
     TotalAmountResponseType,
 } from "types/transactions";
@@ -160,6 +162,19 @@ export const useClearData = () => {
     return useMutation({
         mutationKey: ["clear-data"],
         mutationFn: clearData,
+        onError: showAxiosError,
+    });
+};
+
+const savePercent = async (payload: SavePercentPayload): Promise<SavePercentResponseType> => {
+    const res = await transactionsAxios.post("percent", payload);
+    return res.data;
+};
+
+export const useSavePercent = () => {
+    return useMutation({
+        mutationKey: ["save-percent"],
+        mutationFn: savePercent,
         onError: showAxiosError,
     });
 };

@@ -61,8 +61,8 @@ export const calculateDailyBudget = (totalAmount: number) => {
     return result;
 };
 
-export const calculateSavings = (totalAmount: number) => {
-    const percentageToSave = 0.1;
+export const calculateSavings = (totalAmount: number, percentage: number) => {
+    const percentageToSave = percentage / 100;
     const saved = Number((totalAmount * percentageToSave).toFixed(2));
     const remaining = Number((totalAmount - saved).toFixed(2));
 
@@ -119,6 +119,20 @@ export const handleDecimalInputChange =
         }
 
         if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
+
+        fieldOnChange(val);
+    };
+
+export const handleFrom1To100InputChange =
+    (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            fieldOnChange(val);
+            return;
+        }
+
+        if (!/^(100|[0-9]{1,2})$/.test(val)) return;
 
         fieldOnChange(val);
     };
