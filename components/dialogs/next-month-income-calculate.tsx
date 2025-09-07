@@ -22,7 +22,7 @@ import { twMerge } from "tailwind-merge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import useBankStore from "store/bank";
 import { toast } from "react-toastify";
-import { formatCurrency } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { useState } from "react";
 import { nextMonthIncomeFormSchema } from "schemas/other";
@@ -108,18 +108,7 @@ export const NextMonthIncomeCalculate = () => {
                                             <Input
                                                 placeholder={t("ratePlaceholder")}
                                                 {...field}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-
-                                                    if (val === "") {
-                                                        field.onChange(val);
-                                                        return;
-                                                    }
-
-                                                    if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
-
-                                                    field.onChange(val);
-                                                }}
+                                                onChange={handleDecimalInputChange(field.onChange)}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -168,18 +157,7 @@ export const NextMonthIncomeCalculate = () => {
                                                 placeholder={t("additionalAmountPlaceholder")}
                                                 className="w-full"
                                                 {...field}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-
-                                                    if (val === "") {
-                                                        field.onChange(val);
-                                                        return;
-                                                    }
-
-                                                    if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
-
-                                                    field.onChange(val);
-                                                }}
+                                                onChange={handleDecimalInputChange(field.onChange)}
                                             />
                                         </FormControl>
                                         <FormMessage />

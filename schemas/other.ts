@@ -14,6 +14,7 @@ export const changeDefaultFormSchema = z.object({
 
 export const changeNextMonthFormSchema = z.object({
     value: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
+    currency: z.string().optional(),
 });
 
 export const setPercentageFormSchema = z.object({
@@ -34,7 +35,10 @@ export const incomeFormSchema = z.object({
 export const nextMonthIncomeFormSchema = z.object({
     rate: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
     hours: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
-    customValue: z.string().optional().refine(amountMorethanZero),
+    customValue: z
+        .string()
+        .optional()
+        .refine((val) => !val || amountMorethanZero(val)),
     currency: z.string().optional(),
 });
 

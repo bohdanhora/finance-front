@@ -17,6 +17,8 @@ import { Input } from "ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
+
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { useSetNextMonthTotalAmount } from "api/main";
@@ -24,9 +26,13 @@ import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { changeNextMonthFormSchema } from "schemas/other";
+import { currencyArray } from "constants/index";
+import useBankStore from "store/bank";
 
 export const ChangeNextMonthIncome = () => {
     const store = useStore();
+    const bankStore = useBankStore();
+
     const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
 
@@ -37,15 +43,33 @@ export const ChangeNextMonthIncome = () => {
         resolver: zodResolver(changeNextMonthFormSchema),
         defaultValues: {
             value: "",
+            currency: currencyArray[0],
         },
     });
 
     const onSubmit = async (values: z.infer<typeof changeNextMonthFormSchema>) => {
+        const usdRate = bankStore.usd?.rateBuy ?? 0;
+        const eurRate = bankStore.eur?.rateBuy ?? 0;
+
+        const convertToUah = (value: number, currency: string): number => {
+            switch (currency) {
+                case "$":
+                    return value * usdRate;
+                case "€":
+                    return value * eurRate;
+                case "₴":
+                default:
+                    return value;
+            }
+        };
+
+        const valueInUah = convertToUah(Number(values.value), values.currency || currencyArray[0]);
+
         try {
-            store.setNextMonthTotalAmount(Number(values.value));
+            store.setNextMonthTotalAmount(valueInUah);
 
             await setNextMonthAmountAsync({
-                nextMonthTotalAmount: Number(values.value),
+                nextMonthTotalAmount: valueInUah,
             });
 
             form.reset();
@@ -53,7 +77,7 @@ export const ChangeNextMonthIncome = () => {
 
             toast.success(
                 tGlobal("toasts.nextMonthIcomeChanged", {
-                    amount: formatCurrency(Number(values.value)),
+                    amount: formatCurrency(valueInUah),
                 }),
             );
         } catch (error) {
@@ -73,23 +97,54 @@ export const ChangeNextMonthIncome = () => {
                             <DialogTitle>{t("expectedIncome")}</DialogTitle>
                             <DialogDescription>{t("planNextMonth")}</DialogDescription>
                         </DialogHeader>
-                        <FormField
-                            control={form.control}
-                            name="value"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("inputIncome")}</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder={t("inputIncome")}
-                                            {...field}
-                                            onChange={handleDecimalInputChange(field.onChange)}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="flex items-center w-full gap-x-10">
+                            <FormField
+                                control={form.control}
+                                name="value"
+                                render={({ field }) => (
+                                    <FormItem className="w-3/4">
+                                        <FormLabel>{t("inputIncome")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder={t("inputIncome")}
+                                                className="w-full"
+                                                {...field}
+                                                onChange={handleDecimalInputChange(field.onChange)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="currency"
+                                render={({ field }) => (
+                                    <FormItem className="w-1/4">
+                                        <FormLabel>{t("currency")}</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder={t("currencyPlaceholder")} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {currencyArray.map((item) => (
+                                                    <SelectItem
+                                                        value={item}
+                                                        key={item}
+                                                        className="flex items-center justify-between gap-x-7"
+                                                    >
+                                                        {item}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button variant="destructive">{t("cancel")}</Button>

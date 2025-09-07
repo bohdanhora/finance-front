@@ -47,6 +47,8 @@
         "changeNextMonthIncome": "Изменить доход следующего месяца",
         "changeNextMonthIncomeRequestError": "Ошибка при изменении дохода на следующий месяц:",
         "changeNextMonthIncomeError": "Не удалось сохранить ожидаемый доход. Попробуйте ещё раз.",
+        "setPercentRequestError": "Ошибка при расчёте процента.",
+        "setPercentError": "Не удалось изменить процент сбережений. Пожалуйста, попробуйте ещё раз.",
         "calculateNextMonthIncome": "Рассчитать по рейту",
         "nextMonthIcomeChanged": "Доход на следующий месяц обновлён: {amount}",
         "nextMonthIcomeFailed": "Не удалось обновить доход на следующий месяц",
