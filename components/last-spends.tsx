@@ -219,18 +219,35 @@ export const LastSpends = () => {
                         <TableRow
                             key={tx.id}
                             className={twMerge(
-                                "border-b-0",
+                                "group relative border-b-0 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
                                 tx.transactionType === TransactionEnum.INCOME ? "bg-green-500/20" : "bg-red-500/20",
                             )}
                         >
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium relative">
                                 {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"} {formatCurrency(tx.value)}
+                                <button
+                                    onClick={() => console.log("edit", tx.id)}
+                                    className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 hover:text-blue-700"
+                                >
+                                    ✏️
+                                </button>
                             </TableCell>
+
                             <TableCell>{tx.description}</TableCell>
                             <TableCell>{createDateString(new Date(tx.date))}</TableCell>
-                            <TableCell className="flex items-center gap-2 ">
+
+                            <TableCell className="flex items-center gap-2">
                                 {categoriesIcons(tx.categorie)}
                                 <span className="uppercase text-xs">{tCategory(tx.categorie)}</span>
+                            </TableCell>
+
+                            <TableCell className="text-right">
+                                <button
+                                    onClick={() => console.log("delete", tx.id)}
+                                    className="opacity-0 text-xs group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
+                                >
+                                    ❌
+                                </button>
                             </TableCell>
                         </TableRow>
                     ))}
