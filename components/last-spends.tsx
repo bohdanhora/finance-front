@@ -30,7 +30,7 @@ import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useClearData, useExportPdf } from "api/main";
+import { useClearData, useDeleteTransaction, useExportPdf } from "api/main";
 import { toast } from "react-toastify";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
@@ -71,6 +71,7 @@ export const LastSpends = () => {
 
     const { mutateAsync: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
     const { mutateAsync: clearDataMutation } = useClearData();
+    const { mutateAsync: deleteTransaction } = useDeleteTransaction();
 
     const ITEMS_PER_PAGE = 10;
 
@@ -139,6 +140,23 @@ export const LastSpends = () => {
         const end = start + ITEMS_PER_PAGE;
         return filteredTransactions.slice(start, end);
     }, [filteredTransactions, currentPage]);
+
+    const handleDeleteTransaction = async (transactionId: string) => {
+        const res = await deleteTransaction({ transactionId: transactionId });
+        if (res.updatedItems) {
+            store.setTransactions(res.updatedItems);
+        }
+
+        if (res.updatedTotals) {
+            store.setTotalAmount(res.updatedTotals.totalAmount);
+            store.setTotalIncome(res.updatedTotals.totalIncome);
+            store.setTotalSpend(res.updatedTotals.totalSpend);
+        }
+
+        if (res.message) {
+            toast.success(res.message);
+        }
+    };
 
     if (!store.transactions.length) {
         return <ContentWrapper>{t("noSpends")}</ContentWrapper>;
@@ -243,7 +261,7 @@ export const LastSpends = () => {
 
                             <TableCell className="text-right">
                                 <button
-                                    onClick={() => console.log("delete", tx.id)}
+                                    onClick={() => handleDeleteTransaction(tx.id)}
                                     className="opacity-0 text-xs group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
                                 >
                                     ❌

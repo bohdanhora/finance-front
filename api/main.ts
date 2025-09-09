@@ -7,6 +7,8 @@ import {
     CheckedEssentialResponseType,
     ClearDataPayload,
     ClearDataResponseType,
+    DeleteTransactionPayload,
+    DeleteTransactionResponseType,
     EssentialPaymentsPayload,
     EssentialPaymentsResponseType,
     NewEssentialPayload,
@@ -175,6 +177,19 @@ export const useSavePercent = () => {
     return useMutation({
         mutationKey: ["save-percent"],
         mutationFn: savePercent,
+        onError: showAxiosError,
+    });
+};
+
+const deleteTransaction = async (payload: DeleteTransactionPayload): Promise<DeleteTransactionResponseType> => {
+    const res = await transactionsAxios.post("delete-transaction", payload);
+    return res.data;
+};
+
+export const useDeleteTransaction = () => {
+    return useMutation({
+        mutationKey: ["delete-transaction"],
+        mutationFn: deleteTransaction,
         onError: showAxiosError,
     });
 };

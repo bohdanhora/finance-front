@@ -182,3 +182,18 @@ export type SavePercentResponseType = {
     message: string;
     percent: number;
 };
+
+export type DeleteTransactionPayload = {
+    transactionId: string;
+};
+
+export type DeleteTransactionResponseType = {
+    message: string;
+    deletedTransactionId: string;
+    updatedTotals: {
+        totalAmount: number;
+        totalIncome: number;
+        totalSpend: number;
+    };
+    updatedItems: TransactionType[];
+};
