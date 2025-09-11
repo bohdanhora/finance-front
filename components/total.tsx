@@ -37,7 +37,7 @@ export const Total = () => {
         <header className="flex flex-col items-center justify-center gap-10 bg-white/80 dark:bg-black/80 rounded-xl py-5 px-10">
             <div className="text-center">
                 <h1 className="md:text-xl text-sm mb-10 font-medium ">{t("currentBalance")}</h1>
-                <h2 className="md:text-9xl text-4xl font-medium">
+                <h2 className="md:text-9xl relative text-4xl font-medium">
                     {formatCurrency(store.totalAmount)} ₴
                     <SetTotalDialog />
                 </h2>

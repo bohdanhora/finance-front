@@ -62,7 +62,7 @@ export const SetTotalDialog = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="ghost">
+                    <Button variant="ghost" className="md:relative md:right-auto md:top-auto absolute -right-10 top-1">
                         <Pencil className="w-6 h-6 text-gray-500 hover:text-black dark:hover:text-white" />
                     </Button>
                 </DialogTrigger>
