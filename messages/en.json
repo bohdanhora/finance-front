@@ -103,6 +103,14 @@
             "subtitle": "Choose how much of your income you want to save",
             "label": "Savings Percentage",
             "from": "From 0 to 100%"
+        },
+        "setTotal": {
+            "title": "Change Total Balance",
+            "subtitle": "Set a new total amount for your account",
+            "label": "New total amount",
+            "placeholder": "Enter amount",
+            "cancel": "Cancel",
+            "save": "Save"
         }
     },
     "categories": {
