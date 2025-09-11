@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import { IncomeDialogComponent } from "./dialogs/income";
 import { ExpenseDialogComponent } from "./dialogs/expense";
 import { SetTotalDialog } from "./dialogs/set-new-total";
-import { useSetTotalAmount } from "api/main";
 
 export const Total = () => {
     const t = useTranslations("total");
