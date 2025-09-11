@@ -22,7 +22,6 @@ import {
     DialogTrigger,
 } from "ui/dialog";
 
-import { format } from "date-fns";
 import {
     ShoppingBasketIcon,
     CalendarIcon,

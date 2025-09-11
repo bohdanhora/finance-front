@@ -7,6 +7,8 @@ import {
     CheckedEssentialResponseType,
     ClearDataPayload,
     ClearDataResponseType,
+    DeleteTransactionPayload,
+    DeleteTransactionResponseType,
     EssentialPaymentsPayload,
     EssentialPaymentsResponseType,
     NewEssentialPayload,
@@ -21,6 +23,8 @@ import {
     SavePercentResponseType,
     TotalAmountPayload,
     TotalAmountResponseType,
+    UpdateTransactionPayload,
+    UpdateTransactionResponseType,
 } from "types/transactions";
 
 const allTransactionInfo = async (): Promise<AllTransactionsInfoResponse> => {
@@ -175,6 +179,32 @@ export const useSavePercent = () => {
     return useMutation({
         mutationKey: ["save-percent"],
         mutationFn: savePercent,
+        onError: showAxiosError,
+    });
+};
+
+const deleteTransaction = async (payload: DeleteTransactionPayload): Promise<DeleteTransactionResponseType> => {
+    const res = await transactionsAxios.post("delete-transaction", payload);
+    return res.data;
+};
+
+export const useDeleteTransaction = () => {
+    return useMutation({
+        mutationKey: ["delete-transaction"],
+        mutationFn: deleteTransaction,
+        onError: showAxiosError,
+    });
+};
+
+const updateTransaction = async (payload: UpdateTransactionPayload): Promise<UpdateTransactionResponseType> => {
+    const res = await transactionsAxios.put("update-transaction", payload);
+    return res.data;
+};
+
+export const useUpdateTransaction = () => {
+    return useMutation({
+        mutationKey: ["update-transaction"],
+        mutationFn: updateTransaction,
         onError: showAxiosError,
     });
 };

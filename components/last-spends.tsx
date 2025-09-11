@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, JSX, useEffect } from "react";
+import { useState, useMemo, JSX } from "react";
 
-import { TransactionType } from "types/transactions";
+import { TransactionType, UpdateTransactionPayload } from "types/transactions";
 import { createDateString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
 import useStore from "store/general";
@@ -30,12 +30,13 @@ import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useClearData, useExportPdf } from "api/main";
+import { useClearData, useDeleteTransaction, useExportPdf, useUpdateTransaction } from "api/main";
 import { toast } from "react-toastify";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
+import { EditTransactionDialog } from "./dialogs/edit-transaction";
 
 const categoriesIcons = (category: string) => {
     const map: Record<string, JSX.Element> = {
@@ -69,8 +70,13 @@ export const LastSpends = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [clearTotalsChck, setClearTotalsChck] = useState<CheckedState>(false);
 
+    const [editingTx, setEditingTx] = useState<TransactionType | null>(null);
+    const [editOpen, setEditOpen] = useState(false);
+
     const { mutateAsync: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
     const { mutateAsync: clearDataMutation } = useClearData();
+    const { mutateAsync: deleteTransaction } = useDeleteTransaction();
+    const { mutateAsync: updateTransaction } = useUpdateTransaction();
 
     const ITEMS_PER_PAGE = 10;
 
@@ -139,6 +145,23 @@ export const LastSpends = () => {
         const end = start + ITEMS_PER_PAGE;
         return filteredTransactions.slice(start, end);
     }, [filteredTransactions, currentPage]);
+
+    const handleDeleteTransaction = async (transactionId: string) => {
+        const res = await deleteTransaction({ transactionId: transactionId });
+        if (res.updatedItems) {
+            store.setTransactions(res.updatedItems);
+        }
+
+        if (res.updatedTotals) {
+            store.setTotalAmount(res.updatedTotals.totalAmount);
+            store.setTotalIncome(res.updatedTotals.totalIncome);
+            store.setTotalSpend(res.updatedTotals.totalSpend);
+        }
+
+        if (res.message) {
+            toast.success(res.message);
+        }
+    };
 
     if (!store.transactions.length) {
         return <ContentWrapper>{t("noSpends")}</ContentWrapper>;
@@ -219,18 +242,38 @@ export const LastSpends = () => {
                         <TableRow
                             key={tx.id}
                             className={twMerge(
-                                "border-b-0",
+                                "group relative border-b-0 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
                                 tx.transactionType === TransactionEnum.INCOME ? "bg-green-500/20" : "bg-red-500/20",
                             )}
                         >
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium relative">
                                 {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"} {formatCurrency(tx.value)}
+                                <button
+                                    onClick={() => {
+                                        setEditingTx(tx);
+                                        setEditOpen(true);
+                                    }}
+                                    className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 hover:text-blue-700"
+                                >
+                                    ✏️
+                                </button>
                             </TableCell>
+
                             <TableCell>{tx.description}</TableCell>
                             <TableCell>{createDateString(new Date(tx.date))}</TableCell>
-                            <TableCell className="flex items-center gap-2 ">
+
+                            <TableCell className="flex items-center gap-2">
                                 {categoriesIcons(tx.categorie)}
                                 <span className="uppercase text-xs">{tCategory(tx.categorie)}</span>
+                            </TableCell>
+
+                            <TableCell className="text-right">
+                                <button
+                                    onClick={() => handleDeleteTransaction(tx.id)}
+                                    className="opacity-0 text-xs group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
+                                >
+                                    ❌
+                                </button>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -256,6 +299,34 @@ export const LastSpends = () => {
                     </PaginationContent>
                 </Pagination>
             )}
+            <EditTransactionDialog
+                transaction={editingTx}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                onSubmit={async (data) => {
+                    if (!editingTx) return;
+
+                    const payload: UpdateTransactionPayload = {
+                        transactionId: editingTx.id,
+                        value: Number(data.value),
+                        categorie: data.categories,
+                        date: data.date.toISOString(),
+                        description: data.description || "",
+                        transactionType: editingTx.transactionType,
+                    };
+
+                    const res = await updateTransaction(payload);
+
+                    store.setTransactions(res.updatedItems);
+                    store.setTotalAmount(res.updatedTotals.totalAmount);
+                    store.setTotalIncome(res.updatedTotals.totalIncome);
+                    store.setTotalSpend(res.updatedTotals.totalSpend);
+
+                    toast.success(res.message);
+
+                    setEditOpen(false);
+                }}
+            />
         </ContentWrapper>
     );
 };

@@ -59,3 +59,9 @@ export const getIncomeFormSchema = (totalAmount: number) => {
         date: z.date(),
     });
 };
+
+export const transactionFormSchema = z.object({
+    value: z.string().min(1),
+    description: z.string().optional(),
+    categorie: z.string().min(1),
+});

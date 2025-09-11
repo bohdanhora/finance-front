@@ -21,7 +21,6 @@ import { Textarea } from "ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { Calendar } from "ui/calendar";
-import { format } from "date-fns";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
