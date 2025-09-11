@@ -197,3 +197,23 @@ export type DeleteTransactionResponseType = {
     };
     updatedItems: TransactionType[];
 };
+
+export type UpdateTransactionPayload = {
+    transactionId: string;
+    value: number;
+    transactionType?: TransactionEnum;
+    categorie?: string;
+    date?: string;
+    description?: string;
+};
+
+export type UpdateTransactionResponseType = {
+    message: string;
+    updatedTransaction: TransactionType;
+    updatedTotals: {
+        totalAmount: number;
+        totalIncome: number;
+        totalSpend: number;
+    };
+    updatedItems: TransactionType[];
+};
