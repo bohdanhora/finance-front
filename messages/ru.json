@@ -206,6 +206,8 @@
         "clearDataTitle": "Очистить данные",
         "clearDataConfirmation": "Вы уверены?",
         "clearDataWarning": "Это действие невозможно отменить. Все данные будут удалены безвозвратно. Если отметить флажок, также будут очищены тоталы.",
-        "clearTotalsLabel": "Очистить тоталы?"
+        "clearTotalsLabel": "Очистить тоталы?",
+        "editTransactionTitle": "Редактировать транзакцию",
+        "editTransactionSubtitle": "Обновите данные вашей транзакции"
     }
 }

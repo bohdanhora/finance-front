@@ -88,8 +88,8 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                 <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                         <DialogHeader>
-                            <DialogTitle>edit</DialogTitle>
-                            <DialogDescription>hint</DialogDescription>
+                            <DialogTitle>{t("transactions.editTransactionTitle")}</DialogTitle>
+                            <DialogDescription>{t("transactions.editTransactionSubtitle")}</DialogDescription>
                         </DialogHeader>
 
                         <FormField
@@ -106,7 +106,6 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             )}
                         />
 
-                        {/* Категория */}
                         <FormField
                             control={form.control}
                             name="categories"
@@ -132,7 +131,6 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             )}
                         />
 
-                        {/* Дата */}
                         <FormField
                             control={form.control}
                             name="date"
@@ -164,7 +162,6 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             )}
                         />
 
-                        {/* Описание */}
                         <FormField
                             control={form.control}
                             name="description"
@@ -183,7 +180,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             <DialogClose asChild>
                                 <Button variant="destructive">{t("dialogs.cancel")}</Button>
                             </DialogClose>
-                            <Button type="submit">save</Button>
+                            <Button type="submit">{t("dialogs.setTotal.save")}</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
