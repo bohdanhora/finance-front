@@ -182,7 +182,7 @@ export const LastSpends = () => {
                 )}
                 <div className="flex flex-col items-center gap-2 w-full justify-end md:flex-row">
                     <Dialog>
-                        <DialogTrigger className="border w-full md:w-fit cursor-pointer border-gray-500 px-4 h-9 text-gray-800 bg-transparent rounded-lg hover:bg-gray-500 hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-400 dark:hover:text-black">
+                        <DialogTrigger className="border w-full md:w-fit cursor-pointer border-gray-500 px-4 h-9 text-gray-800 bg-transparent rounded-lg hover:bg-gray-500 hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-400 dark:hover:text-black text-nowrap">
                             {t("clearDataTitle")}
                         </DialogTrigger>
                         <DialogContent>
