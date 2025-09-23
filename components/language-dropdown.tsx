@@ -52,6 +52,7 @@ export const LangugaeDropdown = () => {
                 <DropdownMenuRadioGroup value={language} onValueChange={changeLanguage}>
                     <DropdownMenuRadioItem value="ru">{t("ru")}</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="en">{t("en")}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="ua">{t("ua")}</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
             </DropdownMenuContent>
         </DropdownMenu>
