@@ -6,7 +6,7 @@ export const loginSetTokens = ({ accessToken, refreshToken, userId }: LoginRespo
     if (rememberMe === true) {
         Cookies.set("accessToken", accessToken, { expires: 3 });
         Cookies.set("refreshToken", refreshToken, { expires: 3 });
-        Cookies.set("userId", userId, { expires: 3 });
+        Cookies.set("userId", userId);
     } else {
         Cookies.set("accessToken", accessToken);
         Cookies.set("refreshToken", refreshToken);
