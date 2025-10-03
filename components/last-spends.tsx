@@ -135,6 +135,7 @@ export const LastSpends = () => {
             store.setTotalAmount(0);
             store.setTotalIncome(0);
             store.setTotalSpend(0);
+            store.setNextMonthTotalAmount(0);
         }
 
         if (res.message) {

@@ -34,7 +34,7 @@ export const ChangeNextMonthIncome = () => {
     const store = useStore();
     const bankStore = useBankStore();
 
-    const userCurrency = store.userCurrency;
+    const userCurrency = useStore((state) => state.userCurrency);
 
     const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
@@ -44,7 +44,7 @@ export const ChangeNextMonthIncome = () => {
 
     const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
         resolver: zodResolver(changeNextMonthFormSchema),
-        defaultValues: {
+        values: {
             value: "",
             currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
         },
@@ -61,6 +61,7 @@ export const ChangeNextMonthIncome = () => {
                 case "€":
                     return value * eurRate;
                 case "₴":
+                    return value;
                 default:
                     return value;
             }

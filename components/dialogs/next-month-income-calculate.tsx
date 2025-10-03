@@ -33,7 +33,7 @@ export const NextMonthIncomeCalculate = () => {
     const store = useStore();
     const bankStore = useBankStore();
 
-    const userCurrency = store.userCurrency;
+    const userCurrency = useStore((state) => state.userCurrency);
 
     const { mutateAsync: setNextMonthAmountAsync, isPending: nextMonthAmountPending } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
@@ -43,7 +43,7 @@ export const NextMonthIncomeCalculate = () => {
 
     const form = useForm<z.infer<typeof nextMonthIncomeFormSchema>>({
         resolver: zodResolver(nextMonthIncomeFormSchema),
-        defaultValues: {
+        values: {
             rate: "",
             hours: "",
             customValue: "",
@@ -65,6 +65,7 @@ export const NextMonthIncomeCalculate = () => {
                 case "€":
                     return value * eurRate;
                 case "₴":
+                    return value;
                 default:
                     return value;
             }
