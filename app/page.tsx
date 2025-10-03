@@ -15,6 +15,7 @@ import { TotalAmounts } from "components/total-amounts";
 import { CategoryChart } from "components/chart";
 import useStore from "store/general";
 import { FillForm } from "components/fill-form";
+import { ChoooseCurrency } from "components/dialogs/choose-currency";
 
 const Home = () => {
     const t = useTranslations();
@@ -36,6 +37,7 @@ const Home = () => {
                         <CategoryChart transactions={store.transactions} />
                     </div>
                     <FillForm />
+                    <ChoooseCurrency />
                 </div>
             </PrivateProvider>
         </GetDataProvider>

@@ -10,6 +10,8 @@ export const getCurrencySymbol = (currency: CURRENCY): string => {
             return "$";
         case CURRENCY.EUR:
             return "€";
+        case CURRENCY.UAH:
+            return "₴";
         default:
             return "";
     }
@@ -23,5 +25,6 @@ export const convertToAllCurrencies = (
         default: value,
         [CURRENCY.EUR]: convertCurrency(value, rates[CURRENCY.EUR] || 0),
         [CURRENCY.USD]: convertCurrency(value, rates[CURRENCY.USD] || 0),
+        [CURRENCY.UAH]: convertCurrency(value, rates[CURRENCY.UAH] || 0),
     };
 };

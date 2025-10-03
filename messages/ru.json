@@ -36,10 +36,10 @@
     },
     "toasts": {
         "noMoney": "Вы не можете потратить больше, чем у вас есть :(",
-        "addedIncome": "Добавлено {amount} ₴",
-        "addedExpense": "Потрачено {amount} ₴",
+        "addedIncome": "Добавлено {amount} {currency}",
+        "addedExpense": "Потрачено {amount} {currency}",
         "noFunds": "Нельзя тратить деньги, когда баланс равен нулю.",
-        "nextMonthIcomeChanged": "В следующем месяце поступит {amount} ₴",
+        "nextMonthIcomeChanged": "В следующем месяце поступит {amount} {currency}",
         "errorOccurred": "Произошла ошибка",
         "percentChanged": "Процент сбережений обновлён."
     },

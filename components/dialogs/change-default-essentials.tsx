@@ -28,9 +28,11 @@ import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { handleDecimalInputChange } from "lib/utils";
 import { changeDefaultFormSchema } from "schemas/other";
+import { getCurrencySymbol } from "lib/currency";
 
 export const ChangeDefaultEssentials = () => {
     const store = useStore();
+    const userCurrency = store.userCurrency;
 
     const arrayEssentials = store.defaultEssentialsArray;
 
@@ -99,7 +101,7 @@ export const ChangeDefaultEssentials = () => {
                                 return (
                                     <li className="flex items-center gap-3" key={id}>
                                         <Label htmlFor={id} className="relative">
-                                            {title} = {`${amount} ₴`}
+                                            {title} = {`${amount} ${getCurrencySymbol(userCurrency)}`}
                                             <Button
                                                 type="button"
                                                 disabled={pendings}

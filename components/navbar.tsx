@@ -32,6 +32,8 @@ export const Navbar = () => {
     const store = useBankStore();
     const generalStore = useStore();
 
+    const userCurrency = generalStore.userCurrency;
+
     const { mutateAsync: logoutAsync, isPending: logoutPending } = useLogoutMutation();
 
     const logout = async () => {
@@ -82,8 +84,11 @@ export const Navbar = () => {
             <nav className="w-full border-b border-black/50 dark:border-white/50 bg-white/80 dark:bg-black/80 py-4 px-6 flex justify-between items-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} />
                 <div className="flex items-center gap-x-3">
-                    <p>{`1 ${store.currency === CURRENCY.USD ? "$" : "€"} = ${buy} ₴`}</p>
-                    <CurrencyDropdown />
+                    {userCurrency === CURRENCY.UAH && (
+                        <p>{`1 ${store.currency === CURRENCY.USD ? "$" : "€"} = ${buy} ₴`}</p>
+                    )}
+                    {userCurrency === CURRENCY.UAH && <CurrencyDropdown />}
+
                     <LangugaeDropdown />
                     <ThemeSwitch />
                     <Button disabled={logoutPending} variant="ghost" onClick={logout}>

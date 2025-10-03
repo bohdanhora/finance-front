@@ -26,11 +26,14 @@ import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { useState } from "react";
 import { nextMonthIncomeFormSchema } from "schemas/other";
-import { currencyArray } from "constants/index";
+import { CURRENCY, currencyArray } from "constants/index";
+import { getCurrencySymbol } from "lib/currency";
 
 export const NextMonthIncomeCalculate = () => {
     const store = useStore();
     const bankStore = useBankStore();
+
+    const userCurrency = store.userCurrency;
 
     const { mutateAsync: setNextMonthAmountAsync, isPending: nextMonthAmountPending } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
@@ -44,7 +47,7 @@ export const NextMonthIncomeCalculate = () => {
             rate: "",
             hours: "",
             customValue: "",
-            currency: currencyArray[0],
+            currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
         },
     });
 
@@ -68,15 +71,22 @@ export const NextMonthIncomeCalculate = () => {
         };
 
         const rateInUah = rateMultiplyHours * usdRate;
+        const totalRate = userCurrency === CURRENCY.UAH ? rateInUah : rateMultiplyHours;
+
         const customInUah = customValue ? convertToUah(Number(customValue), currency || currencyArray[0]) : 0;
 
-        const result = rateInUah + customInUah;
+        const result = totalRate + customInUah;
 
         try {
             store.setNextMonthTotalAmount(result);
             await setNextMonthAmountAsync({ nextMonthTotalAmount: result });
 
-            toast.success(tToast("nextMonthIcomeChanged", { amount: formatCurrency(result) }));
+            toast.success(
+                tToast("nextMonthIcomeChanged", {
+                    amount: formatCurrency(result),
+                    currency: getCurrencySymbol(userCurrency),
+                }),
+            );
             form.reset();
             setOpen(false);
         } catch (error) {
@@ -150,7 +160,7 @@ export const NextMonthIncomeCalculate = () => {
                                 control={form.control}
                                 name="customValue"
                                 render={({ field }) => (
-                                    <FormItem className="w-3/4">
+                                    <FormItem className={twMerge(userCurrency === CURRENCY.UAH ? "w-3/4" : "w-full")}>
                                         <FormLabel>{t("additionalAmount")}</FormLabel>
                                         <FormControl>
                                             <Input
@@ -164,34 +174,36 @@ export const NextMonthIncomeCalculate = () => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="currency"
-                                render={({ field }) => (
-                                    <FormItem className="w-1/4">
-                                        <FormLabel>{t("currency")}</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder={t("currencyPlaceholder")} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {currencyArray.map((item) => (
-                                                    <SelectItem
-                                                        value={item}
-                                                        key={item}
-                                                        className="flex items-center justify-between gap-x-7"
-                                                    >
-                                                        {item}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {userCurrency === CURRENCY.UAH && (
+                                <FormField
+                                    control={form.control}
+                                    name="currency"
+                                    render={({ field }) => (
+                                        <FormItem className="w-1/4">
+                                            <FormLabel>{t("currency")}</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder={t("currencyPlaceholder")} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {currencyArray.map((item) => (
+                                                        <SelectItem
+                                                            value={item}
+                                                            key={item}
+                                                            className="flex items-center justify-between gap-x-7"
+                                                        >
+                                                            {item}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                         </div>
 
                         <DialogFooter>

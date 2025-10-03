@@ -36,10 +36,10 @@
     },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
-        "addedIncome": "Successfully added {amount} ₴",
-        "addedExpense": "Spent {amount} ₴",
+        "addedIncome": "Successfully added {amount} {currency}",
+        "addedExpense": "Spent {amount} {currency}",
         "noFunds": "You can’t spend money when your balance is zero.",
-        "nextMonthIcomeChanged": "You will receive {amount} ₴ next month.",
+        "nextMonthIcomeChanged": "You will receive {amount} {currency} next month.",
         "errorOccurred": "An error occurred",
         "percentChanged": "Savings percentage updated."
     },

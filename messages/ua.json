@@ -36,10 +36,10 @@
     },
     "toasts": {
         "noMoney": "Ви не можете витратити більше, ніж у вас є :(",
-        "addedIncome": "Успішно додано {amount} ₴",
-        "addedExpense": "Витрачено {amount} ₴",
+        "addedIncome": "Успішно додано {amount} {currency}",
+        "addedExpense": "Витрачено {amount} {currency}",
         "noFunds": "На жаль, ви не можете витрачати гроші, коли ваш баланс дорівнює нулю.",
-        "nextMonthIcomeChanged": "У наступному місяці прийде {amount} ₴",
+        "nextMonthIcomeChanged": "У наступному місяці прийде {amount} {currency}",
         "errorOccurred": "Сталася помилка",
         "percentChanged": "Відсоток заощаджень оновлено."
     },

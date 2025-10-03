@@ -29,6 +29,7 @@ import { useNewEssential, useRemoveEssential, useSetCheckedEssential, useSetEsse
 import { v4 as uuidv4 } from "uuid";
 import { handleDecimalInputChange } from "lib/utils";
 import { essentialSpendsFormSchema } from "schemas/other";
+import { getCurrencySymbol } from "lib/currency";
 
 type Props = {
     nextMonth?: boolean;
@@ -36,6 +37,7 @@ type Props = {
 
 export const EssentialSpends = ({ nextMonth }: Props) => {
     const store = useStore();
+    const userCurrency = store.userCurrency;
 
     const t = useTranslations();
 
@@ -182,7 +184,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                                         onCheckedChange={(val) => checkedFunc(id, Boolean(val))}
                                     />
                                     <Label htmlFor={id} className={twMerge("relative", checked && "line-through")}>
-                                        {title} = {`${amount} ₴`}
+                                        {title} = {`${amount} ${getCurrencySymbol(userCurrency)}`}
                                         <Button
                                             disabled={apiPendings}
                                             onClick={() => removeEssential(id)}

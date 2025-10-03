@@ -16,6 +16,8 @@ export const PossibleRemaining = () => {
     const store = useStore();
     const bankStore = useBankStore();
 
+    const userCurrency = store.userCurrency;
+
     const eurRate = bankStore.eur?.rateBuy || 0;
     const usdRate = bankStore.usd?.rateBuy || 0;
     const rates = { [CURRENCY.EUR]: eurRate, [CURRENCY.USD]: usdRate };
@@ -54,10 +56,15 @@ export const PossibleRemaining = () => {
 
     const renderCard = (title: string, valueUAH: number, valueCurrency: number, currencySymbol: string) => (
         <ContentWrapper className="w-full sm:w-2xs">
-            <span className="text-xl font-semibold">{formatCurrency(valueUAH)} ₴</span>
-            <span className="text-sm">
-                {formatCurrency(valueCurrency)} {currencySymbol}
+            <span className="text-xl font-semibold">
+                {formatCurrency(valueUAH)} {getCurrencySymbol(userCurrency)}
             </span>
+            {userCurrency === CURRENCY.UAH && (
+                <span className="text-sm">
+                    {formatCurrency(valueCurrency)} {currencySymbol}
+                </span>
+            )}
+
             <p className="text-base font-bold text-center mt-1">{title}</p>
         </ContentWrapper>
     );

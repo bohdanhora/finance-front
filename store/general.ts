@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { StoreType } from "types/stores";
+import { CURRENCY } from "constants/index";
 
 const useStore = create<StoreType>((set) => ({
     totalAmount: 0,
@@ -7,6 +8,7 @@ const useStore = create<StoreType>((set) => ({
     totalSpend: 0,
     nextMonthTotalAmount: 0,
     percentage: 0,
+    userCurrency: CURRENCY.UAH,
 
     defaultEssentialsArray: [],
     essentialsArray: [],
@@ -28,6 +30,10 @@ const useStore = create<StoreType>((set) => ({
     setTotalSpend: (totalSpend) =>
         set(() => ({
             totalSpend: totalSpend,
+        })),
+    setUserCurrency: (userCurrency) =>
+        set(() => ({
+            userCurrency: userCurrency,
         })),
     setNextMonthTotalAmount: (nextMonthTotalAmount) =>
         set(() => ({

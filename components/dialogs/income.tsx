@@ -31,9 +31,12 @@ import { TransactionEnum } from "constants/index";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { incomeFormSchema } from "schemas/other";
+import { getCurrencySymbol } from "lib/currency";
 
 export const IncomeDialogComponent = () => {
     const store = useStore();
+    const userCurrency = store.userCurrency;
+
     const t = useTranslations();
 
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
@@ -70,6 +73,7 @@ export const IncomeDialogComponent = () => {
             toast.success(
                 t("toasts.addedIncome", {
                     amount: formatCurrency(Number(values.value)),
+                    currency: getCurrencySymbol(userCurrency),
                 }),
             );
 
