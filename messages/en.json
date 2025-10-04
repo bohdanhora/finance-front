@@ -112,6 +112,12 @@
             "placeholder": "Enter amount",
             "cancel": "Cancel",
             "save": "Save"
+        },
+        "currencySelection": {
+            "title": "Currency Selection",
+            "description": "Choose the currency you’d like to use. If you select UAH, you’ll also see its value compared to USD and EUR. If you select another currency, all amounts will be shown only in that currency.",
+            "important": "Important: Once you choose a currency, it can only be changed by resetting all your saved information.",
+            "choose": "Choose currency"
         }
     },
     "categories": {

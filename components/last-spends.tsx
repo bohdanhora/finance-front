@@ -138,6 +138,10 @@ export const LastSpends = () => {
             store.setNextMonthTotalAmount(0);
         }
 
+        if (clearTotalsChck) {
+            localStorage.removeItem("currency");
+        }
+
         if (res.message) {
             toast.success(res.message);
         }
