@@ -7,6 +7,7 @@ export enum ISO4217Codes {
 export enum CURRENCY {
     USD = "usd",
     EUR = "eur",
+    UAH = "uah",
 }
 
 export enum EssentialsType {

@@ -20,6 +20,7 @@ export const NextMonthIncome = () => {
 
     const currency = bankStore.currency as CURRENCY;
     const percent = store.percentage;
+    const userCurrency = store.userCurrency;
 
     const rates = {
         [CURRENCY.EUR]: bankStore.eur?.rateBuy || 0,
@@ -46,10 +47,14 @@ export const NextMonthIncome = () => {
 
     const renderCard = (title: string, valueUAH: number, valueCurrency: number, percentage: boolean = false) => (
         <ContentWrapper className="w-full sm:w-2xs">
-            <span className="text-xl font-semibold">{formatCurrency(valueUAH)} ₴</span>
-            <span className="text-sm">
-                {formatCurrency(valueCurrency)} {getCurrencySymbol(currency)}
+            <span className="text-xl font-semibold">
+                {formatCurrency(valueUAH)} {getCurrencySymbol(userCurrency)}
             </span>
+            {userCurrency === CURRENCY.UAH && (
+                <span className="text-sm">
+                    {formatCurrency(valueCurrency)} {getCurrencySymbol(currency)}
+                </span>
+            )}
 
             <div className="relative">
                 <p className="text-base font-bold text-center mt-1">{title}</p>

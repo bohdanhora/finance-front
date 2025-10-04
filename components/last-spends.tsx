@@ -37,6 +37,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
+import { getCurrencySymbol } from "lib/currency";
 
 const categoriesIcons = (category: string) => {
     const map: Record<string, JSX.Element> = {
@@ -58,6 +59,7 @@ const categoriesIcons = (category: string) => {
 
 export const LastSpends = () => {
     const store = useStore();
+    const userCurrency = store.userCurrency;
 
     const userId = Cookies.get("userId") || "";
 
@@ -133,6 +135,11 @@ export const LastSpends = () => {
             store.setTotalAmount(0);
             store.setTotalIncome(0);
             store.setTotalSpend(0);
+            store.setNextMonthTotalAmount(0);
+        }
+
+        if (clearTotalsChck) {
+            localStorage.removeItem("currency");
         }
 
         if (res.message) {
@@ -177,7 +184,7 @@ export const LastSpends = () => {
                             {selectedCategory === tCategory("income") ? "+" : "-"}
                             {formatCurrency(totalForCategory)}
                         </span>
-                        <span>₴</span>
+                        <span>{getCurrencySymbol(userCurrency)}</span>
                     </p>
                 )}
                 <div className="flex flex-col items-center gap-2 w-full justify-end md:flex-row">

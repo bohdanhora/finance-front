@@ -26,12 +26,15 @@ import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { changeNextMonthFormSchema } from "schemas/other";
-import { currencyArray } from "constants/index";
+import { CURRENCY, currencyArray } from "constants/index";
 import useBankStore from "store/bank";
+import { getCurrencySymbol } from "lib/currency";
 
 export const ChangeNextMonthIncome = () => {
     const store = useStore();
     const bankStore = useBankStore();
+
+    const userCurrency = useStore((state) => state.userCurrency);
 
     const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
@@ -41,9 +44,9 @@ export const ChangeNextMonthIncome = () => {
 
     const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
         resolver: zodResolver(changeNextMonthFormSchema),
-        defaultValues: {
+        values: {
             value: "",
-            currency: currencyArray[0],
+            currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
         },
     });
 
@@ -58,6 +61,7 @@ export const ChangeNextMonthIncome = () => {
                 case "€":
                     return value * eurRate;
                 case "₴":
+                    return value;
                 default:
                     return value;
             }
@@ -78,6 +82,7 @@ export const ChangeNextMonthIncome = () => {
             toast.success(
                 tGlobal("toasts.nextMonthIcomeChanged", {
                     amount: formatCurrency(valueInUah),
+                    currency: getCurrencySymbol(userCurrency),
                 }),
             );
         } catch (error) {
@@ -102,7 +107,7 @@ export const ChangeNextMonthIncome = () => {
                                 control={form.control}
                                 name="value"
                                 render={({ field }) => (
-                                    <FormItem className="w-3/4">
+                                    <FormItem className={twMerge(userCurrency === CURRENCY.UAH ? "w-3/4" : "w-full")}>
                                         <FormLabel>{t("inputIncome")}</FormLabel>
                                         <FormControl>
                                             <Input
@@ -116,34 +121,36 @@ export const ChangeNextMonthIncome = () => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="currency"
-                                render={({ field }) => (
-                                    <FormItem className="w-1/4">
-                                        <FormLabel>{t("currency")}</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder={t("currencyPlaceholder")} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {currencyArray.map((item) => (
-                                                    <SelectItem
-                                                        value={item}
-                                                        key={item}
-                                                        className="flex items-center justify-between gap-x-7"
-                                                    >
-                                                        {item}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {userCurrency === CURRENCY.UAH && (
+                                <FormField
+                                    control={form.control}
+                                    name="currency"
+                                    render={({ field }) => (
+                                        <FormItem className="w-1/4">
+                                            <FormLabel>{t("currency")}</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder={t("currencyPlaceholder")} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {currencyArray.map((item) => (
+                                                        <SelectItem
+                                                            value={item}
+                                                            key={item}
+                                                            className="flex items-center justify-between gap-x-7"
+                                                        >
+                                                            {item}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                         </div>
                         <DialogFooter>
                             <DialogClose asChild>

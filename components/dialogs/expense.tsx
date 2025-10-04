@@ -49,6 +49,7 @@ import { TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import { getIncomeFormSchema } from "schemas/other";
+import { getCurrencySymbol } from "lib/currency";
 
 const categoryKeys = [
     "groceries",
@@ -66,6 +67,8 @@ const categoryKeys = [
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
+    const userCurrency = store.userCurrency;
+
     const t = useTranslations();
 
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
@@ -134,6 +137,7 @@ export const ExpenseDialogComponent = () => {
             toast.success(
                 t("toasts.addedExpense", {
                     amount: formatCurrency(Number(values.value)),
+                    currency: getCurrencySymbol(userCurrency),
                 }),
             );
 

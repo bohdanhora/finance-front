@@ -1,3 +1,4 @@
+import { CURRENCY } from "constants/index";
 import { MonobankCurrency } from "./auth";
 import { EssentialType, TransactionType } from "types/transactions";
 
@@ -7,6 +8,7 @@ export type StoreType = {
     totalSpend: number;
     nextMonthTotalAmount: number;
     percentage: number;
+    userCurrency: CURRENCY;
 
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];
@@ -18,6 +20,7 @@ export type StoreType = {
     setTotalSpend: (totalSpend: number) => void;
     setNextMonthTotalAmount: (nextMonthTotalAmount: number) => void;
     setPercentage: (percentage: number) => void;
+    setUserCurrency: (userCurrency: CURRENCY) => void;
 
     setDefaultEssentialsArray: (defaultEssentialsArray: EssentialType[] | []) => void;
     setEssentialsArray: (essentialsArray: EssentialType[] | []) => void;

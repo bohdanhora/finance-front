@@ -36,10 +36,10 @@
     },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
-        "addedIncome": "Successfully added {amount} ₴",
-        "addedExpense": "Spent {amount} ₴",
+        "addedIncome": "Successfully added {amount} {currency}",
+        "addedExpense": "Spent {amount} {currency}",
         "noFunds": "You can’t spend money when your balance is zero.",
-        "nextMonthIcomeChanged": "You will receive {amount} ₴ next month.",
+        "nextMonthIcomeChanged": "You will receive {amount} {currency} next month.",
         "errorOccurred": "An error occurred",
         "percentChanged": "Savings percentage updated."
     },
@@ -112,6 +112,12 @@
             "placeholder": "Enter amount",
             "cancel": "Cancel",
             "save": "Save"
+        },
+        "currencySelection": {
+            "title": "Currency Selection",
+            "description": "Choose the currency you’d like to use. If you select UAH, you’ll also see its value compared to USD and EUR. If you select another currency, all amounts will be shown only in that currency.",
+            "important": "Important: Once you choose a currency, it can only be changed by resetting all your saved information.",
+            "choose": "Choose currency"
         }
     },
     "categories": {
