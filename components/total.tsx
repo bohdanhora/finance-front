@@ -36,23 +36,33 @@ export const Total = () => {
     }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy]);
 
     return (
-        <header className="flex flex-col items-center justify-center gap-10 bg-white/80 dark:bg-black/80 rounded-xl py-5 px-10">
-            <div className="text-center">
-                <h1 className="md:text-xl text-sm mb-10 font-medium ">{t("currentBalance")}</h1>
-                <h2 className="md:text-9xl relative text-4xl font-medium">
-                    {formatCurrency(store.totalAmount)} {getCurrencySymbol(userCurrency)}
-                    <SetTotalDialog />
-                </h2>
-                {userCurrency === "uah" && (
-                    <>
-                        <p className="md:text-lg text-sm font-medium">≈</p>
-                        <p className="md:text-lg text-sm font-medium">{converted}</p>
-                    </>
-                )}
-            </div>
-            <div className="flex items-center justify-center gap-x-20">
-                <IncomeDialogComponent />
-                <ExpenseDialogComponent />
+        <header
+            data-tour="balance"
+            className="border-border bg-card w-full scroll-mt-24 rounded-3xl border p-6 shadow-sm sm:p-8"
+        >
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                    <p className="text-muted-foreground text-[0.7rem] font-medium tracking-[0.14em] uppercase">
+                        {t("currentBalance")}
+                    </p>
+
+                    <div className="mt-2 flex items-center gap-1">
+                        <h1 className="text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl md:text-6xl">
+                            {formatCurrency(store.totalAmount)}{" "}
+                            <span className="text-muted-foreground font-normal">{getCurrencySymbol(userCurrency)}</span>
+                        </h1>
+                        <SetTotalDialog />
+                    </div>
+
+                    {userCurrency === CURRENCY.UAH && (
+                        <p className="text-muted-foreground mt-2 text-sm tabular-nums">{`≈ ${converted}`}</p>
+                    )}
+                </div>
+
+                <div className="flex flex-wrap gap-2" data-tour="actions">
+                    <IncomeDialogComponent />
+                    <ExpenseDialogComponent />
+                </div>
             </div>
         </header>
     );

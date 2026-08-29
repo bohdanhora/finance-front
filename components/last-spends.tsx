@@ -20,13 +20,14 @@ import {
     ShirtIcon,
     HandshakeIcon,
     BanknoteArrowUp,
+    Pencil,
+    X,
 } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
 import { twMerge } from "tailwind-merge";
-import { ContentWrapper } from "./wrappers/container";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
@@ -171,12 +172,17 @@ export const LastSpends = () => {
     };
 
     if (!store.transactions.length) {
-        return <ContentWrapper>{t("noSpends")}</ContentWrapper>;
+        return (
+            <div className="border-border bg-card w-full rounded-2xl border p-8 text-center shadow-sm">
+                <p className="text-sm font-medium">{t("noSpends")}</p>
+                <p className="text-muted-foreground mt-1.5 text-sm">{t("noTransactionsHint")}</p>
+            </div>
+        );
     }
 
     return (
-        <ContentWrapper className="w-full">
-            <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div className="border-border bg-card w-full rounded-2xl border p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 {totalForCategory !== null && (
                     <p className="text-base">
                         {t("total")}:
@@ -189,7 +195,7 @@ export const LastSpends = () => {
                 )}
                 <div className="flex flex-col items-center gap-2 w-full justify-end md:flex-row">
                     <Dialog>
-                        <DialogTrigger className="border w-full md:w-fit cursor-pointer border-gray-500 px-4 h-9 text-gray-800 bg-transparent rounded-lg hover:bg-gray-500 hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-400 dark:hover:text-black text-nowrap">
+                        <DialogTrigger className="border-border text-muted-foreground hover:text-foreground h-9 w-full cursor-pointer rounded-lg border px-4 text-sm text-nowrap transition-colors hover:bg-black/[0.04] md:w-fit dark:hover:bg-white/[0.06]">
                             {t("clearDataTitle")}
                         </DialogTrigger>
                         <DialogContent>
@@ -210,7 +216,7 @@ export const LastSpends = () => {
                             <Button onClick={clearDataHandle}>{t("clearDataTitle")}</Button>
                         </DialogContent>
                     </Dialog>
-                    <Button onClick={exportPdfHandle} className="w-full md:w-fit">
+                    <Button variant="secondary" onClick={exportPdfHandle} className="w-full md:w-fit">
                         {exportPdfPending ? t("exporting") : t("exportPdf")}
                     </Button>
                     <Input
@@ -235,7 +241,7 @@ export const LastSpends = () => {
                 </div>
             </div>
 
-            <Table className="w-full border-separate border-spacing-y-1">
+            <Table className="w-full border-separate border-spacing-y-1.5">
                 <TableHeader>
                     <TableRow>
                         <TableHead>{t("amount")}</TableHead>
@@ -249,20 +255,34 @@ export const LastSpends = () => {
                         <TableRow
                             key={tx.id}
                             className={twMerge(
-                                "group relative border-b-0 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
-                                tx.transactionType === TransactionEnum.INCOME ? "bg-green-500/20" : "bg-red-500/20",
+                                "group relative border-b-0 transition-colors",
+                                "[&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg",
+                                tx.transactionType === TransactionEnum.INCOME
+                                    ? "bg-emerald-500/[0.08] hover:bg-emerald-500/[0.16]"
+                                    : "bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]",
                             )}
                         >
-                            <TableCell className="font-medium relative">
-                                {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"} {formatCurrency(tx.value)}
+                            <TableCell className="relative font-medium">
+                                <span
+                                    className={twMerge(
+                                        "tabular-nums",
+                                        tx.transactionType === TransactionEnum.INCOME
+                                            ? "text-emerald-600 dark:text-emerald-400"
+                                            : "text-rose-600 dark:text-rose-400",
+                                    )}
+                                >
+                                    {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
+                                    {formatCurrency(tx.value)}
+                                </span>
                                 <button
                                     onClick={() => {
                                         setEditingTx(tx);
                                         setEditOpen(true);
                                     }}
-                                    className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 hover:text-blue-700"
+                                    aria-label={t("edit")}
+                                    className="ml-2 inline-flex size-6 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 opacity-0 transition-all hover:bg-black/5 hover:text-indigo-600 group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
                                 >
-                                    ✏️
+                                    <Pencil size={13} />
                                 </button>
                             </TableCell>
 
@@ -277,9 +297,10 @@ export const LastSpends = () => {
                             <TableCell className="text-right">
                                 <button
                                     onClick={() => handleDeleteTransaction(tx.id)}
-                                    className="opacity-0 text-xs group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
+                                    aria-label={t("delete")}
+                                    className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-black/40 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-600 group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
                                 >
-                                    ❌
+                                    <X size={14} />
                                 </button>
                             </TableCell>
                         </TableRow>
@@ -334,6 +355,6 @@ export const LastSpends = () => {
                     setEditOpen(false);
                 }}
             />
-        </ContentWrapper>
+        </div>
     );
 };

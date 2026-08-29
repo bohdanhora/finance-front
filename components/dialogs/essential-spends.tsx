@@ -165,7 +165,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className="h-fit">
+                    <Button variant="secondary" className="h-fit">
                         {nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title")}
                     </Button>
                 </DialogTrigger>
@@ -240,7 +240,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("dialogs.cancel")}</Button>
+                                <Button variant="secondary">{t("dialogs.cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={apiPendings}

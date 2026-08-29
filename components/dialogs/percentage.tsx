@@ -62,7 +62,10 @@ export const Percentage = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button className="absolute -top-2 -right-6 rounded-full cursor-pointer w-6 h-6 p-0">
+                    <Button
+                        variant="ghost"
+                        className="text-muted-foreground hover:text-foreground size-7 shrink-0 rounded-lg p-0"
+                    >
                         <Edit2Icon className="size-3" />
                     </Button>
                 </DialogTrigger>
@@ -91,7 +94,7 @@ export const Percentage = () => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("cancel")}</Button>
+                                <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
                             <Button
                                 type="submit"

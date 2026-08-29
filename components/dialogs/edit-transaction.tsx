@@ -178,7 +178,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
 
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("dialogs.cancel")}</Button>
+                                <Button variant="secondary">{t("dialogs.cancel")}</Button>
                             </DialogClose>
                             <Button type="submit">{t("dialogs.setTotal.save")}</Button>
                         </DialogFooter>

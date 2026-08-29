@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { ContentWrapper } from "./wrappers/container";
 import { formatCurrency, calculateSavings } from "lib/utils";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
@@ -12,11 +11,15 @@ import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
 import { NextMonthIncomeCalculate } from "./dialogs/next-month-income-calculate";
 import { Percentage } from "./dialogs/percentage";
+import { Section, StatGrid } from "./wrappers/section";
+import { StatCard } from "./stat-card";
+import { EssentialsChecklist } from "./essentials-checklist";
 
 export const NextMonthIncome = () => {
     const store = useStore();
     const bankStore = useBankStore();
     const t = useTranslations("possible");
+    const tHints = useTranslations("hints");
 
     const currency = bankStore.currency as CURRENCY;
     const percent = store.percentage;
@@ -45,37 +48,57 @@ export const NextMonthIncome = () => {
         };
     }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, rates]);
 
-    const renderCard = (title: string, valueUAH: number, valueCurrency: number, percentage: boolean = false) => (
-        <ContentWrapper className="w-full sm:w-2xs">
-            <span className="text-xl font-semibold">
-                {formatCurrency(valueUAH)} {getCurrencySymbol(userCurrency)}
-            </span>
-            {userCurrency === CURRENCY.UAH && (
-                <span className="text-sm">
-                    {formatCurrency(valueCurrency)} {getCurrencySymbol(currency)}
-                </span>
-            )}
+    const userSymbol = getCurrencySymbol(userCurrency);
+    const altSymbol = getCurrencySymbol(currency);
 
-            <div className="relative">
-                <p className="text-base font-bold text-center mt-1">{title}</p>
-                {percentage && <Percentage />}
-            </div>
-        </ContentWrapper>
-    );
+    const money = (value: number) => `${formatCurrency(value)} ${userSymbol}`;
+    const alt = (value: number) =>
+        userCurrency === CURRENCY.UAH ? `${formatCurrency(value)} ${altSymbol}` : undefined;
 
     return (
-        <section className="w-full flex flex-col items-center gap-10">
-            <div className="flex flex-col mt-2 gap-5 justify-center flex-wrap md:flex-row">
-                <EssentialSpends nextMonth />
-                <ChangeNextMonthIncome />
-                <NextMonthIncomeCalculate />
+        <Section
+            anchor="nextMonth"
+            className="scroll-mt-24"
+            title={t("nextMonth")}
+            actions={
+                <>
+                    <EssentialSpends nextMonth />
+                    <ChangeNextMonthIncome />
+                    <NextMonthIncomeCalculate />
+                </>
+            }
+        >
+            <StatGrid>
+                <StatCard
+                    label={t("totalMoneyIncome")}
+                    hint={tHints("totalMoneyIncome")}
+                    value={money(totalIncome.default)}
+                    secondary={alt(totalIncome[currency])}
+                />
+                <StatCard
+                    label={t("remainingAfterEssentials")}
+                    hint={tHints("nextRemainingAfterEssentials")}
+                    value={money(remainingIncome.default)}
+                    secondary={alt(remainingIncome[currency])}
+                />
+                <StatCard
+                    label={t("saveMoney", { percentage: percent })}
+                    hint={tHints("saveMoney")}
+                    value={money(savedMoney.default)}
+                    secondary={alt(savedMoney[currency])}
+                    action={<Percentage />}
+                />
+                <StatCard
+                    label={t("saveMoneyAfterPercent")}
+                    hint={tHints("saveMoneyAfterPercent")}
+                    value={money(savedMoneyRemaining.default)}
+                    secondary={alt(savedMoneyRemaining[currency])}
+                />
+            </StatGrid>
+
+            <div className="mt-3">
+                <EssentialsChecklist nextMonth />
             </div>
-            <div className="flex gap-4 flex-wrap w-full justify-between">
-                {renderCard(t("totalMoneyIncome"), totalIncome.default, totalIncome[currency])}
-                {renderCard(t("remainingAfterEssentials"), remainingIncome.default, remainingIncome[currency])}
-                {renderCard(t("saveMoney", { percentage: percent }), savedMoney.default, savedMoney[currency], true)}
-                {renderCard(t("saveMoneyAfterPercent"), savedMoneyRemaining.default, savedMoneyRemaining[currency])}
-            </div>
-        </section>
+        </Section>
     );
 };

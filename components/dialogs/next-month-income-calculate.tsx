@@ -100,7 +100,7 @@ export const NextMonthIncomeCalculate = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default">{t("calculateNextMonthIncome")}</Button>
+                    <Button variant="secondary">{t("calculateNextMonthIncome")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -209,7 +209,7 @@ export const NextMonthIncomeCalculate = () => {
 
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("cancel")}</Button>
+                                <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={nextMonthAmountPending}

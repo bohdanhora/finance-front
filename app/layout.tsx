@@ -10,7 +10,6 @@ import { ProviderTheme } from "providers/theme";
 import { ToastProvider } from "providers/toast";
 
 import "./globals.css";
-import VantaBackground from "components/animated-background";
 import { ReactQueryProvider } from "providers/react-query";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
@@ -37,14 +36,13 @@ const RootLayout = async ({
         <html lang={locale} suppressHydrationWarning>
             <body
                 className={twMerge(
-                    "bg-white dark:bg-black text-black dark:text-white text-base font-normal",
+                    "bg-background text-foreground text-base font-normal antialiased",
                     `${manrope.variable} ${poppins.variable} font-manrope`,
                 )}
             >
                 <NextIntlClientProvider messages={messages}>
                     <ReactQueryProvider>
                         <ProviderTheme>
-                            <VantaBackground />
                             <main>{children}</main>
                             <ToastProvider />
                         </ProviderTheme>

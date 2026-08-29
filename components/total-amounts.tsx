@@ -4,10 +4,11 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { ContentWrapper } from "./wrappers/container";
 import { formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
+import { Section } from "./wrappers/section";
+import { StatCard } from "./stat-card";
 
 export const TotalAmounts = () => {
     const store = useStore();
@@ -32,27 +33,27 @@ export const TotalAmounts = () => {
         };
     }, [store.totalIncome, store.totalSpend, eurRate, usdRate]);
 
-    const renderCard = (title: string, valueUAH: number, valueCurrency: number) => (
-        <ContentWrapper className="w-full sm:w-2xs">
-            <span className="text-xl font-semibold">
-                {formatCurrency(valueUAH)} {getCurrencySymbol(userCurrency)}
-            </span>
-            {userCurrency === CURRENCY.UAH && (
-                <span className="text-sm">
-                    {formatCurrency(valueCurrency)} {getCurrencySymbol(currency)}
-                </span>
-            )}
+    const userSymbol = getCurrencySymbol(userCurrency);
+    const altSymbol = getCurrencySymbol(currency);
 
-            <p className="text-base font-bold text-center mt-1">{title}</p>
-        </ContentWrapper>
-    );
+    const money = (value: number) => `${formatCurrency(value)} ${userSymbol}`;
+    const alt = (value: number) =>
+        userCurrency === CURRENCY.UAH ? `${formatCurrency(value)} ${altSymbol}` : undefined;
 
     return (
-        <section className="w-full flex flex-col items-center gap-10">
-            <div className="flex gap-4 flex-wrap w-full justify-around">
-                {renderCard(t("totalIncome"), totalIncome.default, totalIncome[currency])}
-                {renderCard(t("totalSpend"), totalSpend.default, totalSpend[currency])}
+        <Section title={t("summary")}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <StatCard
+                    label={t("totalIncome")}
+                    value={money(totalIncome.default)}
+                    secondary={alt(totalIncome[currency])}
+                />
+                <StatCard
+                    label={t("totalSpend")}
+                    value={money(totalSpend.default)}
+                    secondary={alt(totalSpend[currency])}
+                />
             </div>
-        </section>
+        </Section>
     );
 };

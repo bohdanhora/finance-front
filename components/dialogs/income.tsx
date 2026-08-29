@@ -89,7 +89,10 @@ export const IncomeDialogComponent = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className="hover:bg-green-500 dark:hover:bg-green-600">
+                    <Button
+                        variant="secondary"
+                        className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-400 dark:hover:bg-emerald-400/20"
+                    >
                         <PlusIcon />
                         {t("expenses.income")}
                     </Button>
@@ -175,7 +178,7 @@ export const IncomeDialogComponent = () => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("dialogs.cancel")}</Button>
+                                <Button variant="secondary">{t("dialogs.cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={setNewTransactionPending}

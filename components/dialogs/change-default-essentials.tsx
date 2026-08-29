@@ -88,7 +88,7 @@ export const ChangeDefaultEssentials = () => {
         <Dialog>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default">{t("essentials.standardPaymentsTitle")}</Button>
+                    <Button variant="secondary">{t("essentials.standardPaymentsTitle")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -152,7 +152,7 @@ export const ChangeDefaultEssentials = () => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("cancel")}</Button>
+                                <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={pendings}

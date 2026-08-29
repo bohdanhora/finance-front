@@ -62,7 +62,11 @@ export const SetTotalDialog = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="ghost" className="md:relative md:right-auto md:top-auto absolute -right-10 top-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-foreground shrink-0"
+                    >
                         <Pencil className="w-6 h-6 text-gray-500 hover:text-black dark:hover:text-white" />
                     </Button>
                 </DialogTrigger>
@@ -91,7 +95,7 @@ export const SetTotalDialog = () => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("cancel")}</Button>
+                                <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
                             <Button
                                 type="submit"

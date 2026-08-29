@@ -161,7 +161,10 @@ export const ExpenseDialogComponent = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className="hover:bg-red-500 dark:hover:bg-red-500">
+                    <Button
+                        variant="secondary"
+                        className="border-rose-500/30 bg-rose-500/10 text-rose-700 hover:bg-rose-500/20 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-400 dark:hover:bg-rose-400/20"
+                    >
                         <MinusIcon />
                         {t("expenses.expense")}
                     </Button>
@@ -277,7 +280,7 @@ export const ExpenseDialogComponent = () => {
                         />
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="destructive">{t("dialogs.cancel")}</Button>
+                                <Button variant="secondary">{t("dialogs.cancel")}</Button>
                             </DialogClose>
                             <Button
                                 disabled={setNewTransactionPending}

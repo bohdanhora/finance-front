@@ -7,19 +7,19 @@ import { GetDataProvider } from "providers/get-data";
 
 import { useLoginToast } from "hooks/use-login-toast";
 import { Navbar } from "components/navbar";
+import { OnboardingTour } from "components/onboarding/tour";
 import { Total } from "components/total";
 import { PossibleRemaining } from "components/possible-remaining-balance";
 import { NextMonthIncome } from "components/next-month-income";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
-import { CategoryChart } from "components/chart";
-import useStore from "store/general";
 import { FillForm } from "components/fill-form";
 import { ChoooseCurrency } from "components/dialogs/choose-currency";
+import { Section } from "components/wrappers/section";
 
 const Home = () => {
     const t = useTranslations();
-    const store = useStore();
+    const tTx = useTranslations("transactions");
 
     useLoginToast(t);
 
@@ -27,18 +27,24 @@ const Home = () => {
         <GetDataProvider>
             <PrivateProvider>
                 <Navbar />
-                <div className="relative w-full flex justify-center my-10">
-                    <div className="max-w-7xl w-full flex flex-col gap-10 items-center px-3">
+                <OnboardingTour />
+
+                <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24 sm:px-6">
+                    <div className="rise-stagger flex w-full flex-col gap-10">
                         <Total />
                         <PossibleRemaining />
                         <NextMonthIncome />
-                        <LastSpends />
+
+                        <Section title={tTx("history")}>
+                            <LastSpends />
+                        </Section>
+
                         <TotalAmounts />
-                        <CategoryChart transactions={store.transactions} />
                     </div>
-                    <FillForm />
-                    <ChoooseCurrency />
                 </div>
+
+                <FillForm />
+                <ChoooseCurrency />
             </PrivateProvider>
         </GetDataProvider>
     );
