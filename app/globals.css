@@ -1,8 +1,255 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
-    --font-manrope: 'var(--font-manrope)';
-    --font-poppins: 'var(--font-poppins)';
+    --font-manrope: "var(--font-manrope)";
+    --font-poppins: "var(--font-poppins)";
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   The ui/* primitives reference bg-background, text-muted-foreground,
+   bg-popover and friends. Nothing defined them, so those utilities emitted
+   nothing and dialogs/selects/calendar rendered unstyled. Defined here as
+   monochrome surfaces with indigo as the single accent.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+}
+
+:root {
+    --background: #fafafa;
+    --foreground: #0a0a0a;
+    --card: #ffffff;
+    --card-foreground: #0a0a0a;
+    --popover: #ffffff;
+    --popover-foreground: #0a0a0a;
+    --primary: #4f46e5;
+    --primary-foreground: #ffffff;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #18181b;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #f4f4f5;
+    --accent-foreground: #18181b;
+    --destructive: #e11d48;
+    --border: rgb(0 0 0 / 0.1);
+    --input: rgb(0 0 0 / 0.12);
+    --ring: #6366f1;
+}
+
+.dark {
+    --background: #09090b;
+    --foreground: #fafafa;
+    --card: #121215;
+    --card-foreground: #fafafa;
+    --popover: #141417;
+    --popover-foreground: #fafafa;
+    --primary: #6366f1;
+    --primary-foreground: #ffffff;
+    --secondary: #1c1c20;
+    --secondary-foreground: #fafafa;
+    --muted: #1c1c20;
+    --muted-foreground: #a1a1aa;
+    --accent: #1c1c20;
+    --accent-foreground: #fafafa;
+    --destructive: #fb7185;
+    --border: rgb(255 255 255 / 0.12);
+    --input: rgb(255 255 255 / 0.15);
+    --ring: #818cf8;
+}
+
+/* A single calm canvas with one soft indigo bloom, replacing the animated
+   cells backdrop. */
+body {
+    background-color: var(--background);
+    background-image: radial-gradient(1100px 520px at 50% -15%, rgb(99 102 241 / 0.12), transparent 70%);
+    background-attachment: fixed;
+}
+
+/* ---------------------------------------------------------------------------
+   Auth screens
+   The Vanta "cells" backdrop is a busy monochrome pattern, so the auth card
+   leans on heavy blur and a near-opaque base to stay readable, with indigo as
+   the single accent (same accent the app buttons use).
+--------------------------------------------------------------------------- */
+
+/* Full height that survives mobile browser chrome, plus notch-safe padding. */
+.auth-shell {
+    min-height: 100vh; /* fallback for browsers without svh */
+    min-height: 100svh;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* Soft indigo halo sitting behind the card. */
+.auth-halo {
+    position: absolute;
+    /* no horizontal bleed: a negative inline inset widens the page and adds a
+       horizontal scrollbar on narrow screens. The blur still spreads the glow. */
+    inset: -20% 0 auto 0;
+    height: 60%;
+    background: radial-gradient(60% 60% at 50% 40%, rgb(99 102 241 / 0.35), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    animation: auth-breathe 9s ease-in-out infinite;
+}
+
+@keyframes auth-breathe {
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: translateY(-6px) scale(1.05);
+    }
+}
+
+@keyframes auth-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes auth-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.auth-card {
+    animation: auth-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Children fade in one after another so the form assembles itself. */
+.auth-stagger > * {
+    animation: auth-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.auth-stagger > *:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.auth-stagger > *:nth-child(2) {
+    animation-delay: 0.16s;
+}
+.auth-stagger > *:nth-child(3) {
+    animation-delay: 0.22s;
+}
+.auth-stagger > *:nth-child(4) {
+    animation-delay: 0.28s;
+}
+.auth-stagger > *:nth-child(5) {
+    animation-delay: 0.34s;
+}
+.auth-stagger > *:nth-child(6) {
+    animation-delay: 0.4s;
+}
+
+.auth-delayed {
+    animation: auth-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 0.46s;
+}
+
+/* Dashboard entrance. Same easing as the auth screens so the whole app moves
+   with one rhythm. */
+.rise-in {
+    animation: auth-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rise-stagger > * {
+    animation: auth-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise-stagger > *:nth-child(1) {
+    animation-delay: 0.05s;
+}
+.rise-stagger > *:nth-child(2) {
+    animation-delay: 0.12s;
+}
+.rise-stagger > *:nth-child(3) {
+    animation-delay: 0.19s;
+}
+.rise-stagger > *:nth-child(4) {
+    animation-delay: 0.26s;
+}
+.rise-stagger > *:nth-child(5) {
+    animation-delay: 0.33s;
+}
+.rise-stagger > *:nth-child(6) {
+    animation-delay: 0.4s;
+}
+
+/* Dialogs. The markup carried tailwindcss-animate classes (animate-in,
+   zoom-in-95, ...) but that plugin is not installed, so they did nothing.
+   Real keyframes instead. */
+@keyframes overlay-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes dialog-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+[data-slot="dialog-overlay"][data-state="open"] {
+    animation: overlay-in 0.2s ease-out both;
+}
+
+[data-slot="dialog-content"][data-state="open"] {
+    animation: dialog-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-halo,
+    .auth-card,
+    .auth-stagger > *,
+    .auth-delayed,
+    .rise-in,
+    .rise-stagger > *,
+    [data-slot="dialog-overlay"][data-state="open"],
+    [data-slot="dialog-content"][data-state="open"] {
+        animation: none;
+    }
+}
