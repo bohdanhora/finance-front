@@ -1,47 +1,39 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 import { z } from "zod";
 
+import { useResetPassword } from "api/auth";
+import { Routes } from "constants/routes";
+import { RenderPassword } from "components/form-fields/password";
+import { BackToLogin } from "components/back-to-login";
+import { authPrimaryButtonClass } from "components/form-fields/styles";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
 import { PublicProvider } from "providers/auth";
-import { useTranslations } from "next-intl";
-import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section";
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "react-toastify";
-import { useResetPassword } from "api/auth";
-import { RenderPassword } from "components/form-fields/password";
-import { BackToLogin } from "components/back-to-login";
 import { useResetPasswordForm } from "./use-reset-password-form";
 import { resetPasswordSchema } from "schemas/auth";
-import { useToggle } from "hooks/use-toggle";
 
 type ResetPasswordData = z.infer<ReturnType<typeof resetPasswordSchema>>;
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
     const tAuth = useTranslations("auth");
     const searchParams = useSearchParams();
     const router = useRouter();
 
     const token = searchParams.get("token");
 
-    const { mutateAsync: resetPasswordAsync, isPending: resetPasswordPending } = useResetPassword();
-
-    const [showPassword, toggleShowPassword] = useToggle(false);
-    const [showConfirmPassword, toggleShowConfirmPassword] = useToggle(false);
+    const { mutateAsync: resetPasswordAsync, isPending } = useResetPassword();
 
     const form = useResetPasswordForm(tAuth);
 
     const onSubmit = async (values: ResetPasswordData) => {
         try {
-            const body = {
-                resetToken: token,
-                newPassword: values.password,
-            };
-
-            await resetPasswordAsync(body);
+            await resetPasswordAsync({ resetToken: token, newPassword: values.password });
             router.replace(Routes.LOGIN);
         } catch (error) {
             console.error(tAuth("resetPasswordRequestError"), error);
@@ -58,37 +50,24 @@ const ForgotPassword = () => {
 
     return (
         <PublicProvider>
-            <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper title={tAuth("resetPassword")} subtitle={tAuth("resetPasswordSubtitle")}>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <RenderPassword
-                                form={form}
-                                name="password"
-                                label="password"
-                                error={!!form.formState.errors.password}
-                                showPassword={showPassword}
-                                toggleShowPassword={toggleShowPassword}
-                            />
-                            <RenderPassword
-                                form={form}
-                                name="confirmPassword"
-                                label="confirmPassword"
-                                error={!!form.formState.errors.confirmPassword}
-                                showPassword={showConfirmPassword}
-                                toggleShowPassword={toggleShowConfirmPassword}
-                            />
+            <AuthSectionWrapper title={tAuth("resetPassword")} subtitle={tAuth("resetPasswordSubtitle")}>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
+                        <RenderPassword form={form} name="password" label="password" />
+                        <RenderPassword form={form} name="confirmPassword" label="confirmPassword" />
 
-                            <Button disabled={resetPasswordPending} type="submit" className="w-full mb-5 py-4">
-                                {tAuth("resetBtn")}
-                            </Button>
-                            <BackToLogin />
-                        </form>
-                    </Form>
-                </AuthSectionWrapper>
-            </section>
+                        <Button disabled={isPending} type="submit" className={authPrimaryButtonClass}>
+                            {tAuth("resetBtn")}
+                        </Button>
+                    </form>
+                </Form>
+
+                <div className="auth-delayed mt-7">
+                    <BackToLogin />
+                </div>
+            </AuthSectionWrapper>
         </PublicProvider>
     );
 };
 
-export default ForgotPassword;
+export default ResetPassword;

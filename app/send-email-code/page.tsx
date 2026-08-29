@@ -1,22 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { z } from "zod";
 
+import { useRequestEmailCode } from "api/auth";
+import { Routes } from "constants/routes";
+import { RenderEmailField } from "components/form-fields/email";
+import { BackToLogin } from "components/back-to-login";
+import { authPrimaryButtonClass, authSecondaryButtonClass } from "components/form-fields/styles";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
+import { useResendTimer } from "hooks/use-resend-timer";
+import useOtherStore from "store/other";
 import { Button } from "ui/button";
 import { Form } from "ui/form";
 import { PublicProvider } from "providers/auth";
-import { useTranslations } from "next-intl";
-import { Routes } from "constants/routes";
-import { AuthSectionWrapper } from "components/wrappers/auth-section";
-import { useRouter } from "next/navigation";
-import { useRequestEmailCode } from "api/auth";
-import { toast } from "react-toastify";
-import useOtherStore from "store/other";
-import { RenderEmailField } from "components/form-fields/email";
-import { BackToLogin } from "components/back-to-login";
 import { useSendEmailForm } from "./use-send-email-form";
 import { sendEmailSchema } from "schemas/auth";
-import { useResendTimer } from "hooks/use-resend-timer";
 
 type SendEmailData = z.infer<ReturnType<typeof sendEmailSchema>>;
 
@@ -25,7 +26,7 @@ const SendEmailCodePage = () => {
     const tAuth = useTranslations("auth");
     const router = useRouter();
 
-    const { mutateAsync: requestEmailCode, isPending: requestEmailPending } = useRequestEmailCode();
+    const { mutateAsync: requestEmailCode, isPending } = useRequestEmailCode();
 
     const { resendTimer, codeSent, startTimer } = useResendTimer();
 
@@ -50,56 +51,53 @@ const SendEmailCodePage = () => {
     };
 
     const handleResend = async () => {
-        if (email) {
-            await requestEmailCode({ email });
-            startTimer();
-        }
+        if (!email) return;
+        await requestEmailCode({ email });
+        startTimer();
     };
 
     return (
         <PublicProvider>
-            <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper
-                    title={tAuth("emailVerificationTitle")}
-                    subtitle={tAuth("emailVerificationSubtitle")}
-                >
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <RenderEmailField form={form} name="email" />
+            <AuthSectionWrapper title={tAuth("emailVerificationTitle")} subtitle={tAuth("emailVerificationSubtitle")}>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
+                        <RenderEmailField form={form} name="email" />
 
-                            {codeSent ? (
-                                <Button
-                                    variant="secondary"
-                                    type="button"
-                                    onClick={handleResend}
-                                    disabled={resendTimer > 0}
-                                    className="w-full mb-5 py-4"
-                                >
-                                    {resendTimer > 0 ? `${tAuth("resendCode")} (${resendTimer})` : tAuth("resendCode")}
-                                </Button>
-                            ) : (
-                                <Button
-                                    disabled={requestEmailPending || !email || !form.formState.isValid}
-                                    type="submit"
-                                    className="w-full mb-5 py-4"
-                                >
-                                    {tAuth("sendCode")}
-                                </Button>
-                            )}
-
+                        {codeSent ? (
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 type="button"
-                                onClick={proceedToRegistration}
-                                className="w-full mb-5 py-4"
+                                onClick={handleResend}
+                                disabled={resendTimer > 0}
+                                className={authSecondaryButtonClass}
                             >
-                                {tAuth("iReceivedCode")}
+                                {resendTimer > 0 ? `${tAuth("resendCode")} (${resendTimer})` : tAuth("resendCode")}
                             </Button>
-                            <BackToLogin />
-                        </form>
-                    </Form>
-                </AuthSectionWrapper>
-            </section>
+                        ) : (
+                            <Button
+                                disabled={isPending || !form.formState.isValid}
+                                type="submit"
+                                className={authPrimaryButtonClass}
+                            >
+                                {tAuth("sendCode")}
+                            </Button>
+                        )}
+
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={proceedToRegistration}
+                            className={authSecondaryButtonClass}
+                        >
+                            {tAuth("iReceivedCode")}
+                        </Button>
+                    </form>
+                </Form>
+
+                <div className="auth-delayed mt-7">
+                    <BackToLogin />
+                </div>
+            </AuthSectionWrapper>
         </PublicProvider>
     );
 };

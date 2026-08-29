@@ -5,14 +5,7 @@ export interface RenderFieldProps<T extends FieldValues> {
     name: Path<T>;
 }
 
-export interface RenderPasswordFieldProps<T extends FieldValues> extends RenderFieldProps<T> {
-    label: string;
-    error: boolean;
-    showPassword: boolean;
-    toggleShowPassword: () => void;
-}
-
-export interface RenderInpitFieldProps<T extends FieldValues> extends RenderFieldProps<T> {
+export interface RenderInputFieldProps<T extends FieldValues> extends RenderFieldProps<T> {
     label: string;
 }
 

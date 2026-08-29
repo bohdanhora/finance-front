@@ -2,9 +2,10 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "compon
 import { Input } from "components/ui/input";
 import { useTranslations } from "next-intl";
 import { FieldValues } from "react-hook-form";
-import { RenderInpitFieldProps } from "types/other";
+import { RenderInputFieldProps } from "types/other";
+import { authInputClass, authLabelClass } from "./styles";
 
-export const RenderInputField = <T extends FieldValues>({ form, name, label }: RenderInpitFieldProps<T>) => {
+export const RenderInputField = <T extends FieldValues>({ form, name, label }: RenderInputFieldProps<T>) => {
     const tAuth = useTranslations("auth");
     const labelFrom = tAuth(label);
 
@@ -14,9 +15,9 @@ export const RenderInputField = <T extends FieldValues>({ form, name, label }: R
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>{labelFrom}</FormLabel>
+                    <FormLabel className={authLabelClass}>{labelFrom}</FormLabel>
                     <FormControl>
-                        <Input className="px-5 py-6" placeholder={labelFrom} {...field} />
+                        <Input className={authInputClass} placeholder={labelFrom} {...field} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

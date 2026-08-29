@@ -3,6 +3,7 @@ import { Input } from "components/ui/input";
 import { useTranslations } from "next-intl";
 import { FieldValues } from "react-hook-form";
 import { RenderFieldProps } from "types/other";
+import { authInputClass, authLabelClass } from "./styles";
 
 export const RenderEmailField = <T extends FieldValues>({ form, name }: RenderFieldProps<T>) => {
     const tAuth = useTranslations("auth");
@@ -14,9 +15,16 @@ export const RenderEmailField = <T extends FieldValues>({ form, name }: RenderFi
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>{emailLabel}</FormLabel>
+                    <FormLabel className={authLabelClass}>{emailLabel}</FormLabel>
                     <FormControl>
-                        <Input className="px-5 py-6" placeholder={emailLabel} type="email" {...field} />
+                        <Input
+                            className={authInputClass}
+                            placeholder={emailLabel}
+                            type="email"
+                            autoComplete="email"
+                            inputMode="email"
+                            {...field}
+                        />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

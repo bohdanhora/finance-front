@@ -6,11 +6,14 @@ export const BackToLogin = () => {
     const tAuth = useTranslations("auth");
 
     return (
-        <div className="flex justify-center gap-1">
-            <span className="text-sm opacity-60">{tAuth("backToLoginFromForgot")}</span>
-            <Link href={Routes.LOGIN} className="text-sm font-medium hover:opacity-70 transition-all">
+        <p className="text-center text-sm text-black/55 dark:text-white/55">
+            {tAuth("backToLoginFromForgot")}{" "}
+            <Link
+                href={Routes.LOGIN}
+                className="font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
                 {tAuth("login")}
             </Link>
-        </div>
+        </p>
     );
 };

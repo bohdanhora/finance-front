@@ -1,28 +1,29 @@
 "use client";
 
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { z } from "zod";
 
 import { useForgotPassword } from "api/auth";
-import { PublicProvider } from "providers/auth";
 import { Routes } from "constants/routes";
-import { Button } from "ui/button";
-import { Form } from "ui/form";
-import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { RenderEmailField } from "components/form-fields/email";
 import { BackToLogin } from "components/back-to-login";
+import { authPrimaryButtonClass } from "components/form-fields/styles";
+import { AuthSectionWrapper } from "components/wrappers/auth-section";
+import { Button } from "ui/button";
+import { Form } from "ui/form";
+import { PublicProvider } from "providers/auth";
 import { useForgotPasswordForm } from "./use-forgot-password-form";
 import { forgotPasswordSchema } from "schemas/auth";
-import { toast } from "react-toastify";
 
 type ForgotPasswordFormData = z.infer<ReturnType<typeof forgotPasswordSchema>>;
 
-const ResetPassword = () => {
+const ForgotPassword = () => {
     const tAuth = useTranslations("auth");
     const router = useRouter();
 
-    const { mutateAsync: forgotPasswordAsync, isPending: forgotPasswordPending } = useForgotPassword();
+    const { mutateAsync: forgotPasswordAsync, isPending } = useForgotPassword();
 
     const form = useForgotPasswordForm(tAuth);
 
@@ -32,31 +33,33 @@ const ResetPassword = () => {
             router.replace(Routes.LOGIN);
         } catch (error) {
             console.error(tAuth("forgotPasswordRequestError"), error);
-            toast.error(tAuth("loginError"));
+            toast.error(tAuth("forgotPasswordError"));
         }
     };
 
     return (
         <PublicProvider>
-            <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper title={tAuth("forgotPasswordTitle")} subtitle={tAuth("forgotPasswordSubtitle")}>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <RenderEmailField form={form} name="email" />
-                            <Button
-                                disabled={forgotPasswordPending || !form.watch("email") || !form.formState.isValid}
-                                type="submit"
-                                className="w-full mb-5 py-4"
-                            >
-                                {tAuth("sendEmail")}
-                            </Button>
-                            <BackToLogin />
-                        </form>
-                    </Form>
-                </AuthSectionWrapper>
-            </section>
+            <AuthSectionWrapper title={tAuth("forgotPasswordTitle")} subtitle={tAuth("forgotPasswordSubtitle")}>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
+                        <RenderEmailField form={form} name="email" />
+
+                        <Button
+                            disabled={isPending || !form.formState.isValid}
+                            type="submit"
+                            className={authPrimaryButtonClass}
+                        >
+                            {tAuth("sendEmail")}
+                        </Button>
+                    </form>
+                </Form>
+
+                <div className="auth-delayed mt-7">
+                    <BackToLogin />
+                </div>
+            </AuthSectionWrapper>
         </PublicProvider>
     );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

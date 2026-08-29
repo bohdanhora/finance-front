@@ -4,15 +4,16 @@ import { CheckedState } from "@radix-ui/react-checkbox";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { useLoginMutation } from "api/auth";
 import { Routes } from "constants/routes";
 import { loginSetTokens } from "lib/auth-helper";
 import { extractTokensFromParams, showSessionToasts } from "lib/utils";
-import { Loader } from "components/loader";
 import { RenderEmailField } from "components/form-fields/email";
-import { LoginPassword } from "components/form-fields/login-password";
+import { RenderPassword } from "components/form-fields/password";
+import { authPrimaryButtonClass } from "components/form-fields/styles";
 import { LoginOptions } from "components/login-options";
 import { GoogleAuth } from "components/google-auth";
 import { RegistrationWay } from "components/way-to-registration";
@@ -22,7 +23,6 @@ import { Form } from "ui/form";
 import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
 import { loginSchema } from "schemas/auth";
-import { toast } from "react-toastify";
 
 type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
 
@@ -33,49 +33,29 @@ const Login = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const [isRedirecting, setIsRedirecting] = useState(false);
     const [rememberMe, setRememberMe] = useState<CheckedState>(false);
 
-    const { mutateAsync: loginAsync, isPending: LoginPending } = useLoginMutation(rememberMe);
-
-    const isLoading = isRedirecting || LoginPending;
+    const { mutateAsync: loginAsync, isPending } = useLoginMutation(rememberMe);
 
     const form = useLoginForm(tAuth);
 
     const onSubmit = async (values: LoginFormData) => {
         try {
-            setIsRedirecting(true);
             await loginAsync(values);
             router.replace(Routes.HOME);
         } catch (error) {
             console.error(tAuth("loginRequestError"), error);
             toast.error(tAuth("loginError"));
-        } finally {
-            setIsRedirecting(false);
         }
     };
 
     useEffect(() => {
-        const toastMap = [
-            {
-                key: "showRegistrationToast",
-                message: tApi("successRegistration"),
-            },
-            {
-                key: "showForgotPasswordToast",
-                message: tApi("forgotPasswordSuccess"),
-            },
-            {
-                key: "showLogoutToast",
-                message: tApi("logout"),
-            },
-            {
-                key: "showResetPasswordToast",
-                message: tApi("resetPasswordSuccess"),
-            },
-        ];
-
-        showSessionToasts(toastMap);
+        showSessionToasts([
+            { key: "showRegistrationToast", message: tApi("successRegistration") },
+            { key: "showForgotPasswordToast", message: tApi("forgotPasswordSuccess") },
+            { key: "showLogoutToast", message: tApi("logout") },
+            { key: "showResetPasswordToast", message: tApi("resetPasswordSuccess") },
+        ]);
 
         const tokens = extractTokensFromParams(searchParams);
         if (tokens) {
@@ -84,28 +64,36 @@ const Login = () => {
         }
     }, []);
 
-    if (isLoading) {
-        return <Loader />;
-    }
-
     return (
         <PublicProvider>
-            <section className="w-full min-h-screen flex justify-center items-center p-3">
-                <AuthSectionWrapper title={tAuth("login")} subtitle={tAuth("loginSubTitle")}>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <RenderEmailField form={form} name="email" />
-                            <LoginPassword form={form} name="password" />
-                            <LoginOptions setRememberMe={setRememberMe} />
-                            <Button type="submit" className="w-full py-4 mb-0">
-                                {tAuth("login")}
-                            </Button>
-                            <GoogleAuth />
-                            <RegistrationWay />
-                        </form>
-                    </Form>
-                </AuthSectionWrapper>
-            </section>
+            <AuthSectionWrapper title={tAuth("login")} subtitle={tAuth("loginSubTitle")}>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
+                        <RenderEmailField form={form} name="email" />
+                        <RenderPassword form={form} name="password" label="password" autoComplete="current-password" />
+                        <LoginOptions setRememberMe={setRememberMe} />
+                        <Button type="submit" disabled={isPending} className={authPrimaryButtonClass}>
+                            {isPending ? tAuth("signingIn") : tAuth("login")}
+                        </Button>
+                    </form>
+                </Form>
+
+                <div className="auth-delayed">
+                    <div className="my-6 flex items-center gap-4">
+                        <span className="h-px flex-1 bg-black/10 dark:bg-white/15" />
+                        <span className="text-[0.7rem] tracking-[0.15em] uppercase text-black/40 dark:text-white/40">
+                            {tAuth("or")}
+                        </span>
+                        <span className="h-px flex-1 bg-black/10 dark:bg-white/15" />
+                    </div>
+
+                    <GoogleAuth />
+
+                    <div className="mt-7">
+                        <RegistrationWay />
+                    </div>
+                </div>
+            </AuthSectionWrapper>
         </PublicProvider>
     );
 };
