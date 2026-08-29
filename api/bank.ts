@@ -13,5 +13,12 @@ export const useGetCurrencyQuery = (): UseQueryResult<MonobankCurrency[], Error>
     return useQuery<MonobankCurrency[], Error>({
         queryKey: ["currency"],
         queryFn: getCurrency,
+        // Monobank allows roughly one request per minute per IP and answers 429
+        // beyond that, so hold on to a fetched rate instead of refetching.
+        staleTime: 5 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        retry: 1,
     });
 };
