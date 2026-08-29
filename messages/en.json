@@ -11,7 +11,9 @@
         "ua": "Ukrainian",
         "eur": "Euro",
         "usd": "US Dollar",
-        "uah": "Hryvnia"
+        "uah": "Hryvnia",
+        "dashboard": "Dashboard",
+        "statistics": "Statistics"
     },
     "api": {
         "successLogin": "Logged in successfully",
@@ -103,7 +105,7 @@
             "title": "Set Savings Percentage",
             "subtitle": "Choose how much of your income to save",
             "label": "Savings Percentage",
-            "from": "Range: 0–100%"
+            "from": "Range: 0-100%"
         },
         "setTotal": {
             "title": "Change Total Balance",
@@ -141,10 +143,15 @@
         "saveMoney": "You can save {percentage}%",
         "saveMoneyAfterPercent": "Remaining after savings",
         "remainingAfterEssentials": "Remaining after essentials",
-        "dailySpendingAvailable": "Daily budget after essentials"
+        "dailySpendingAvailable": "Daily budget after essentials",
+        "thisMonth": "This month",
+        "nextMonth": "Next month",
+        "essentialsProgress": "Essentials {paid} of {total} paid",
+        "stillToPay": "Still to pay",
+        "allPaid": "All paid",
+        "noEssentials": "No bills yet. Add your recurring payments so the figures above know what you still owe."
     },
     "auth": {
-        "welcome": "Welcome!",
         "login": "Login",
         "loginSubTitle": "Keep your budget under control",
         "loginRequestError": "Login error:",
@@ -182,13 +189,19 @@
         "sendEmailError": "Failed to send the email. Please try again.",
         "iReceivedCode": "I received the code, continue registration",
         "verificationCode": "Verification Code",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "continueWithGoogle": "Continue with Google",
+        "signingIn": "Signing in...",
         "errors": {
             "email": "Invalid email address.",
             "password": "Password must be at least 2 characters long.",
             "name": "Name must be at least 2 characters long.",
             "confirmPassword": "Please confirm your password.",
             "matchPasswords": "Passwords do not match.",
-            "verificationCode": "Please enter a valid verification code."
+            "verificationCode": "Please enter a valid verification code.",
+            "passwordMin": "Password must be at least 6 characters long.",
+            "passwordNumber": "Password must contain at least one number."
         }
     },
     "transactions": {
@@ -215,6 +228,73 @@
         "clearDataWarning": "This action cannot be undone. It will permanently delete your data. You can also clear totals by checking the box.",
         "clearTotalsLabel": "Clear totals?",
         "editTransactionTitle": "Edit Transaction",
-        "editTransactionSubtitle": "Update your transaction details"
+        "editTransactionSubtitle": "Update your transaction details",
+        "edit": "Edit transaction",
+        "delete": "Delete transaction",
+        "history": "Transactions",
+        "summary": "Summary",
+        "noTransactionsHint": "Record your first income or expense to start seeing statistics."
+    },
+    "statistics": {
+        "title": "Statistics",
+        "subtitle": "Where your money actually goes",
+        "back": "Dashboard",
+        "income": "Income",
+        "expense": "Expenses",
+        "net": "Net",
+        "transactions": "Transactions",
+        "averageExpense": "Average expense",
+        "largestExpense": "Largest expense",
+        "noExpenses": "No expenses this month yet",
+        "noData": "Nothing recorded for this month",
+        "netFlow": "Net flow",
+        "viewCategories": "Categories",
+        "viewDaily": "By day",
+        "viewMonths": "By month",
+        "viewTrend": "Trend",
+        "topExpenses": "Biggest expenses",
+        "thisMonth": "This month",
+        "savingsRate": "Saved from income"
+    },
+    "tour": {
+        "title": "Quick tour",
+        "step": "Step {current} of {total}",
+        "next": "Next",
+        "back": "Back",
+        "done": "Got it",
+        "skip": "Skip",
+        "replay": "Show the tour again",
+        "steps": {
+            "balance": {
+                "title": "Your balance",
+                "body": "This is your live balance. Income adds to it, expenses subtract from it. You can also correct it by hand with the pencil."
+            },
+            "actions": {
+                "title": "Record money moving",
+                "body": "Add income or an expense here. Every entry updates the balance and shows up in your statistics."
+            },
+            "essentials": {
+                "title": "Your monthly bills",
+                "body": "Tick a bill once you have paid it. Only unticked bills count as money you still owe, and every figure named “after essentials” is based on them."
+            },
+            "nextMonth": {
+                "title": "Planning ahead",
+                "body": "Enter what you expect to earn next month, subtract the bills you already know about, and set the share you want to save."
+            },
+            "statistics": {
+                "title": "See the whole picture",
+                "body": "Statistics breaks any month down by category, by day and against previous months."
+            }
+        }
+    },
+    "hints": {
+        "daysLeft": "Days remaining until the end of the current month.",
+        "dailyBudget": "Your balance divided by the days left in the month.",
+        "remainingAfterEssentials": "Your balance minus the bills you have not ticked off yet.",
+        "dailySpendingAvailable": "What is left after unpaid bills, divided by the days remaining.",
+        "totalMoneyIncome": "What you expect to earn next month.",
+        "nextRemainingAfterEssentials": "Next month expected income minus the bills you have already listed for it.",
+        "saveMoney": "The share of next month remainder you have chosen to put aside.",
+        "saveMoneyAfterPercent": "What you can spend next month once your savings are set aside."
     }
 }
