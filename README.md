@@ -1,7 +1,7 @@
-# 💸 Finance App — Frontend
+# 💸 Finance App - Frontend
 
-This is the **frontend** of the Finance App — a personal finance tracker built as a **pet project** by [**Bohdan Hora**](https://github.com/bohdanhora).  
-It allows users to manage budgets, visualize expenses, and export data — all from a modern, responsive interface.
+This is the **frontend** of the Finance App - a personal finance tracker built as a **pet project** by [**Bohdan Hora**](https://github.com/bohdanhora).  
+It allows users to manage budgets, visualize expenses, and export data - all from a modern, responsive interface.
 
 ## 🌍 Live Demo
 

@@ -4,4 +4,5 @@ export enum Routes {
     REGISTRATION = "/registration",
     FORGOT_PASSWORD = "/forgot-password",
     SEND_EMAIL_CODE = "/send-email-code",
+    STATISTICS = "/statistics",
 }

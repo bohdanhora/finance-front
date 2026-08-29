@@ -1,8 +1,7 @@
-const createNextIntlPlugin = require("next-intl/plugin");
+import createNextIntlPlugin from "next-intl/plugin";
+import type { NextConfig } from "next";
 
 const withNextIntl = createNextIntlPlugin();
-
-import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {};
 
