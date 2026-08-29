@@ -13,7 +13,8 @@
         "usd": "US Dollar",
         "uah": "Hryvnia",
         "dashboard": "Dashboard",
-        "statistics": "Statistics"
+        "statistics": "Statistics",
+        "logout": "Log out"
     },
     "api": {
         "successLogin": "Logged in successfully",

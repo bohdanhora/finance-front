@@ -22,7 +22,11 @@ export const ViewSwitcher = <T extends string>({
     return (
         <div
             role="tablist"
-            className={twMerge("border-border bg-muted/60 inline-flex gap-1 rounded-xl border p-1", className)}
+            className={twMerge(
+                "border-border bg-muted/60 flex max-w-full gap-1 overflow-x-auto rounded-xl border p-1",
+                "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:inline-flex sm:overflow-visible",
+                className,
+            )}
         >
             {options.map((option) => {
                 const active = option.value === value;
@@ -35,7 +39,7 @@ export const ViewSwitcher = <T extends string>({
                         aria-selected={active}
                         onClick={() => onChange(option.value)}
                         className={twMerge(
-                            "cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-200",
+                            "min-h-9 shrink-0 cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-200",
                             active
                                 ? "bg-card text-foreground shadow-sm"
                                 : "text-muted-foreground hover:text-foreground",

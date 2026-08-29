@@ -78,12 +78,40 @@
     --ring: #818cf8;
 }
 
+/* ---------------------------------------------------------------------------
+   Mobile basics
+   No iOS font inflation in landscape, no 300ms wait and no grey flash on a tap.
+--------------------------------------------------------------------------- */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+button,
+a,
+label,
+[role="button"],
+[role="tab"],
+summary {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
 /* A single calm canvas with one soft indigo bloom, replacing the animated
-   cells backdrop. */
+   cells backdrop. `background-attachment: fixed` is what iOS Safari repaints
+   badly on every scroll, so the bloom lives on its own fixed layer instead. */
 body {
     background-color: var(--background);
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-image: radial-gradient(1100px 520px at 50% -15%, rgb(99 102 241 / 0.12), transparent 70%);
-    background-attachment: fixed;
 }
 
 /* ---------------------------------------------------------------------------
@@ -222,14 +250,19 @@ body {
     }
 }
 
+/* Only `scale` and `opacity`. Tailwind v4 centres the dialog with the standalone
+   `translate` property, and a keyframe that also set `transform: translate(-50%,
+   -50%)` composed with it instead of replacing it, so every dialog opened half
+   its own width to the left and half its height too high. `scale` is a
+   standalone property as well, so it composes with the centring cleanly. */
 @keyframes dialog-in {
     from {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.96);
+        scale: 0.96;
     }
     to {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        scale: 1;
     }
 }
 

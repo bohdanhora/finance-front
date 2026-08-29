@@ -1,11 +1,14 @@
-import { LANG_COOKIES_NAME } from "constants/index";
+import { LANG_COOKIES_NAME, normalizeLocale } from "constants/index";
 import { getRequestConfig } from "next-intl/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export default getRequestConfig(async () => {
-    const cookiesLang = (await cookies()).get(LANG_COOKIES_NAME)?.value || "en";
+    const cookiesLang = (await cookies()).get(LANG_COOKIES_NAME)?.value;
+    const acceptLanguage = (await headers()).get("accept-language")?.split(",")[0];
 
-    const locale = cookiesLang;
+    // A phone whose language is Ukrainian sends `uk-UA`, and there is no
+    // `uk.json`, so the raw value must never reach the import below.
+    const locale = normalizeLocale(cookiesLang || acceptLanguage);
 
     return {
         locale,

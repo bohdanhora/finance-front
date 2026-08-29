@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Cookies from "js-cookie";
 
 import { Button } from "components/ui/button";
 import {
@@ -16,6 +17,9 @@ import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { DollarSign, EuroIcon } from "lucide-react";
 
+/** Same reasoning as the language cookie: root path, and it has to outlive the tab. */
+const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
+
 export const CurrencyDropdown = () => {
     const store = useBankStore();
     const [currency, setCurrency] = React.useState("");
@@ -23,10 +27,7 @@ export const CurrencyDropdown = () => {
     const t = useTranslations("navbar");
 
     React.useEffect(() => {
-        const cookieCurrency = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith(`${CURRENCY_COOKIES_NAME}=`))
-            ?.split("=")[1];
+        const cookieCurrency = Cookies.get(CURRENCY_COOKIES_NAME);
 
         if (cookieCurrency) {
             store.setCurrency(cookieCurrency);
@@ -34,7 +35,7 @@ export const CurrencyDropdown = () => {
         } else {
             store.setCurrency(CURRENCY.USD);
             setCurrency(CURRENCY.USD);
-            document.cookie = `${CURRENCY_COOKIES_NAME}=${CURRENCY.USD};`;
+            Cookies.set(CURRENCY_COOKIES_NAME, CURRENCY.USD, COOKIE_OPTIONS);
             router.refresh();
         }
     }, [router]);
@@ -43,15 +44,18 @@ export const CurrencyDropdown = () => {
         store.setCurrency(newCurrency);
         setCurrency(newCurrency);
 
-        document.cookie = `${CURRENCY_COOKIES_NAME}=${newCurrency};`;
+        Cookies.set(CURRENCY_COOKIES_NAME, newCurrency, COOKIE_OPTIONS);
         router.refresh();
     };
+
     return (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost">{store.currency === CURRENCY.USD ? <DollarSign /> : <EuroIcon />}</Button>
+                <Button variant="ghost" size="icon" aria-label={t("currency")}>
+                    {store.currency === CURRENCY.USD ? <DollarSign /> : <EuroIcon />}
+                </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-fit">
+            <DropdownMenuContent align="end" className="w-fit">
                 <DropdownMenuRadioGroup value={currency} onValueChange={changeCurrency}>
                     <DropdownMenuRadioItem value={CURRENCY.USD}>{t("usd")}</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value={CURRENCY.EUR}>{t("eur")}</DropdownMenuRadioItem>

@@ -45,7 +45,7 @@ function DialogContent({
             <DialogPrimitive.Content
                 data-slot="dialog-content"
                 className={twMerge(
-                    "bg-card text-card-foreground fixed top-[50%] left-[50%] z-50 grid max-h-[90vh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-2xl border border-black/10 p-6 shadow-2xl shadow-black/30 sm:max-w-lg dark:border-white/10",
+                    "bg-card text-card-foreground fixed top-[50%] left-[50%] z-50 grid max-h-[85dvh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-2xl border border-black/10 p-6 shadow-2xl shadow-black/30 sm:max-w-lg dark:border-white/10",
                     className,
                 )}
                 {...props}
@@ -54,7 +54,7 @@ function DialogContent({
                 {showCloseButton && (
                     <DialogPrimitive.Close
                         data-slot="dialog-close"
-                        className="absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none cursor-pointer"
+                        className="absolute top-2.5 right-2.5 flex size-10 cursor-pointer items-center justify-center rounded-lg opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none"
                     >
                         <XIcon />
                         <span className="sr-only">Close</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Cookies from "js-cookie";
 
 import { Button } from "components/ui/button";
 import {
@@ -11,44 +12,50 @@ import {
     DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { LANG_COOKIES_NAME } from "constants/index";
+import { DEFAULT_LOCALE, LANG_COOKIES_NAME, normalizeLocale } from "constants/index";
 import { useTranslations } from "next-intl";
 import { LanguagesIcon } from "lucide-react";
 
+/**
+ * A year, so the choice survives closing the browser on a phone, and an
+ * explicit root path: written from /statistics the cookie used to be scoped to
+ * that page, so the dashboard kept rendering the old language.
+ */
+const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
+
 export const LangugaeDropdown = () => {
-    const [language, setLanguage] = React.useState("");
+    const [language, setLanguage] = React.useState(DEFAULT_LOCALE);
     const router = useRouter();
     const t = useTranslations("navbar");
 
     React.useEffect(() => {
-        const cookieLocale = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith(`${LANG_COOKIES_NAME}=`))
-            ?.split("=")[1];
+        const cookieLocale = Cookies.get(LANG_COOKIES_NAME);
 
-        if (cookieLocale) {
+        if (cookieLocale && normalizeLocale(cookieLocale) === cookieLocale) {
             setLanguage(cookieLocale);
-        } else {
-            const browserLocale = navigator.language.slice(0, 2);
-            setLanguage(browserLocale);
-            document.cookie = `${LANG_COOKIES_NAME}=${browserLocale};`;
-            router.refresh();
+            return;
         }
+
+        const locale = normalizeLocale(cookieLocale || navigator.language);
+        setLanguage(locale);
+        Cookies.set(LANG_COOKIES_NAME, locale, COOKIE_OPTIONS);
+        router.refresh();
     }, [router]);
 
     const changeLanguage = (newLanguage: string) => {
         setLanguage(newLanguage);
-        document.cookie = `${LANG_COOKIES_NAME}=${newLanguage};`;
+        Cookies.set(LANG_COOKIES_NAME, newLanguage, COOKIE_OPTIONS);
         router.refresh();
     };
+
     return (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
+                <Button variant="ghost" size="icon" aria-label={t("lang")}>
                     <LanguagesIcon />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-fit">
+            <DropdownMenuContent align="end" className="w-fit">
                 <DropdownMenuRadioGroup value={language} onValueChange={changeLanguage}>
                     <DropdownMenuRadioItem value="ru">{t("ru")}</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="en">{t("en")}</DropdownMenuRadioItem>

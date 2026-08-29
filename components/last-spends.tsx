@@ -280,7 +280,7 @@ export const LastSpends = () => {
                                         setEditOpen(true);
                                     }}
                                     aria-label={t("edit")}
-                                    className="ml-2 inline-flex size-6 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 opacity-0 transition-all hover:bg-black/5 hover:text-indigo-600 group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
+                                    className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
                                 >
                                     <Pencil size={13} />
                                 </button>
@@ -298,7 +298,7 @@ export const LastSpends = () => {
                                 <button
                                     onClick={() => handleDeleteTransaction(tx.id)}
                                     aria-label={t("delete")}
-                                    className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-black/40 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-600 group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
+                                    className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
                                 >
                                     <X size={14} />
                                 </button>

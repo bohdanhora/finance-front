@@ -13,7 +13,8 @@
         "usd": "Доллар",
         "uah": "Гривна",
         "dashboard": "Дашборд",
-        "statistics": "Статистика"
+        "statistics": "Статистика",
+        "logout": "Выйти"
     },
     "api": {
         "successLogin": "Вход выполнен успешно",
