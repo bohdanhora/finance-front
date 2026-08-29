@@ -25,12 +25,6 @@ export type TotalAmountResponseType = {
     totalAmount: number;
 };
 
-export type TotalAmountErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
-};
-
 export type NextMonthTotalAmountPayload = {
     nextMonthTotalAmount: number;
 };
@@ -38,12 +32,6 @@ export type NextMonthTotalAmountPayload = {
 export type NextMonthTotalAmountResponseType = {
     message: string;
     nextMonthTotalAmount: number;
-};
-
-export type NextMonthTotalAmountErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
 };
 
 export type EssentialPaymentsPayload = {
@@ -54,12 +42,6 @@ export type EssentialPaymentsPayload = {
 export type EssentialPaymentsResponseType = {
     message: string;
     updatedItems: EssentialType[] | [];
-};
-
-export type EssentialPaymentsErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
 };
 
 export type NewTransactionPaymentsPayload = {
@@ -81,12 +63,6 @@ export type NewTransactionResponseType = {
     updatedItems: TransactionType[] | [];
 };
 
-export type NewTransactionErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
-};
-
 export type CheckedEssentialItemType = {
     id: string;
     checked: boolean;
@@ -102,12 +78,6 @@ export type CheckedEssentialResponseType = {
     updatedItems: EssentialType[] | [];
 };
 
-export type CheckedEssentialErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
-};
-
 export type RemoveEssentialPayload = {
     type: EssentialsType;
     id: string;
@@ -117,12 +87,6 @@ export type RemoveEssentialResponseType = {
     message: string;
     removedId: string;
     updatedItems: EssentialType[] | [];
-};
-
-export type RemoveEssentialErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
 };
 
 export type NewEssentialPayload = {
@@ -142,12 +106,6 @@ export type RequestEmailCodePayload = {
 
 export type RequestEmailCodeResponseType = {
     message: string;
-};
-
-export type NewEssentialErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
 };
 
 export type AllTransactionsInfoResponse = {

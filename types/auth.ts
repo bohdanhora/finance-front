@@ -6,12 +6,6 @@ export type MonobankCurrency = {
     rateSell: number;
 };
 
-export type ErrorResponse = {
-    error: string;
-    message: string;
-    statusCode: number;
-};
-
 export type LoginPayload = {
     email: string;
     password: string;
@@ -58,14 +52,4 @@ export type LogoutPayload = {
 
 export type LogoutResponseType = {
     message: string;
-};
-
-export type RefreshPayload = {
-    refreshToken: string;
-};
-
-export type RefreshResponseType = {
-    accessToken: string;
-    refreshToken: string;
-    userId: string;
 };

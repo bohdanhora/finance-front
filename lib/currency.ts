@@ -1,6 +1,6 @@
 import { CURRENCY } from "constants/index";
 
-export const convertCurrency = (value: number, rate: number): number => {
+const convertCurrency = (value: number, rate: number): number => {
     return rate ? value / rate : 0;
 };
 
