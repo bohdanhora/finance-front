@@ -22,6 +22,7 @@ const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
 
 export const CurrencyDropdown = () => {
     const store = useBankStore();
+    const setStoreCurrency = useBankStore((state) => state.setCurrency);
     const [currency, setCurrency] = React.useState("");
     const router = useRouter();
     const t = useTranslations("navbar");
@@ -30,18 +31,18 @@ export const CurrencyDropdown = () => {
         const cookieCurrency = Cookies.get(CURRENCY_COOKIES_NAME);
 
         if (cookieCurrency) {
-            store.setCurrency(cookieCurrency);
+            setStoreCurrency(cookieCurrency);
             setCurrency(cookieCurrency);
         } else {
-            store.setCurrency(CURRENCY.USD);
+            setStoreCurrency(CURRENCY.USD);
             setCurrency(CURRENCY.USD);
             Cookies.set(CURRENCY_COOKIES_NAME, CURRENCY.USD, COOKIE_OPTIONS);
             router.refresh();
         }
-    }, [router]);
+    }, [router, setStoreCurrency]);
 
     const changeCurrency = (newCurrency: string) => {
-        store.setCurrency(newCurrency);
+        setStoreCurrency(newCurrency);
         setCurrency(newCurrency);
 
         Cookies.set(CURRENCY_COOKIES_NAME, newCurrency, COOKIE_OPTIONS);

@@ -62,7 +62,7 @@ const Login = () => {
             loginSetTokens(tokens, false);
             router.replace(Routes.HOME);
         }
-    }, []);
+    }, [router, searchParams, tApi]);
 
     return (
         <PublicProvider>

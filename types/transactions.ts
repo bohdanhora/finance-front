@@ -115,6 +115,7 @@ export type AllTransactionsInfoResponse = {
     totalSpend: number;
     nextMonthTotalAmount: number;
     savePercent: number;
+    lastProcessedMonth: string;
 
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];

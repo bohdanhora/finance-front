@@ -35,6 +35,8 @@ export const Navbar = () => {
     const [buy, setBuy] = useState(0);
 
     const store = useBankStore();
+    const setUsd = useBankStore((state) => state.setUsd);
+    const setEur = useBankStore((state) => state.setEur);
     const generalStore = useStore();
     const tNav = useTranslations("navbar");
     const tTour = useTranslations("tour");
@@ -65,9 +67,9 @@ export const Navbar = () => {
         const usdObj = findCurrency(currency, ISO4217Codes.USD) || null;
         const eurObj = findCurrency(currency, ISO4217Codes.EUR) || null;
 
-        store.setUsd(usdObj);
-        store.setEur(eurObj);
-    }, [currency]);
+        setUsd(usdObj);
+        setEur(eurObj);
+    }, [currency, setEur, setUsd]);
 
     useEffect(() => {
         if (store.currency === CURRENCY.EUR) {

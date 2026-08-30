@@ -23,14 +23,14 @@ const readStoredCurrency = () => {
 export const ChoooseCurrency = () => {
     const t = useTranslations("dialogs");
 
-    const store = useStore();
+    const setUserCurrency = useStore((state) => state.setUserCurrency);
 
     const [currency, setCurrency] = useState<CURRENCY | null>(null);
     const [open, setOpen] = useState(false);
 
     const handleChange = (currency: CURRENCY) => {
         setCurrency(currency);
-        store.setUserCurrency(currency);
+        setUserCurrency(currency);
         setOpen(false);
 
         try {
@@ -54,8 +54,8 @@ export const ChoooseCurrency = () => {
         }
 
         setCurrency(stored);
-        store.setUserCurrency(stored);
-    }, []);
+        setUserCurrency(stored);
+    }, [setUserCurrency]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

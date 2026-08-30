@@ -18,7 +18,7 @@ export const PrivateProvider = ({ children }: { children: ReactNode }) => {
         } else {
             setIsAuthenticated(true);
         }
-    }, []);
+    }, [router]);
 
     if (isAuthenticated === null || !isAuthenticated) {
         return null;

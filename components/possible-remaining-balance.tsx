@@ -23,7 +23,7 @@ export const PossibleRemaining = () => {
 
     const eurRate = bankStore.eur?.rateBuy || 0;
     const usdRate = bankStore.usd?.rateBuy || 0;
-    const rates = { [CURRENCY.EUR]: eurRate, [CURRENCY.USD]: usdRate };
+    const rates = useMemo(() => ({ [CURRENCY.EUR]: eurRate, [CURRENCY.USD]: usdRate }), [eurRate, usdRate]);
 
     const {
         totalEssentials,
@@ -52,7 +52,7 @@ export const PossibleRemaining = () => {
             essentialsConverted: convertToAllCurrencies(remainingAfterEssentials, rates),
             essentialsDailyConverted: convertToAllCurrencies(dailyAfterEssentials, rates),
         };
-    }, [store.totalAmount, store.essentialsArray, eurRate, usdRate]);
+    }, [store.totalAmount, store.essentialsArray, rates]);
 
     const currency = bankStore.currency as CURRENCY;
     const currencySymbol = getCurrencySymbol(currency);

@@ -25,10 +25,13 @@ export const NextMonthIncome = () => {
     const percent = store.percentage;
     const userCurrency = store.userCurrency;
 
-    const rates = {
-        [CURRENCY.EUR]: bankStore.eur?.rateBuy || 0,
-        [CURRENCY.USD]: bankStore.usd?.rateBuy || 0,
-    };
+    const rates = useMemo(
+        () => ({
+            [CURRENCY.EUR]: bankStore.eur?.rateBuy || 0,
+            [CURRENCY.USD]: bankStore.usd?.rateBuy || 0,
+        }),
+        [bankStore.eur?.rateBuy, bankStore.usd?.rateBuy],
+    );
 
     const { totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
         const totalEssentials = store.nextMonthEssentialsArray.reduce(
@@ -46,7 +49,7 @@ export const NextMonthIncome = () => {
             savedMoney: convertToAllCurrencies(saved, rates),
             savedMoneyRemaining: convertToAllCurrencies(savedAfter, rates),
         };
-    }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, rates]);
+    }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, percent, rates]);
 
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);

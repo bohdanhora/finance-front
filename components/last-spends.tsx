@@ -89,7 +89,7 @@ export const LastSpends = () => {
             const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [searchTerm, selectedCategory, store.transactions]);
+    }, [searchTerm, selectedCategory, store.transactions, tCategory]);
 
     const uniqueCategories = [...new Set(store.transactions.map((tx) => tCategory(tx.categorie)))];
 
@@ -99,7 +99,7 @@ export const LastSpends = () => {
         return store.transactions
             .filter((tx) => tCategory(tx.categorie) === selectedCategory)
             .reduce((acc, tx) => acc + tx.value, 0);
-    }, [selectedCategory, store.transactions]);
+    }, [selectedCategory, store.transactions, tCategory]);
 
     const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
 

@@ -46,7 +46,7 @@ const ResetPassword = () => {
             router.replace(Routes.LOGIN);
             toast.error(tAuth("missingToken"));
         }
-    }, []);
+    }, [router, tAuth, token]);
 
     return (
         <PublicProvider>

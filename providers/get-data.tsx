@@ -10,7 +10,6 @@ import { clearCookies } from "lib/logout";
 import { AxiosError } from "axios";
 
 export const GetDataProvider = ({ children }: { children: ReactNode }) => {
-    const store = useStore();
     const router = useRouter();
 
     const { data: allTransactionsData, isPending, error } = useAllTransactionInfo();
@@ -30,16 +29,17 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (!allTransactionsData) return;
 
-        store.setTotalAmount(allTransactionsData.totalAmount || 0);
-        store.setTotalIncome(allTransactionsData.totalIncome || 0);
-        store.setTotalSpend(allTransactionsData.totalSpend || 0);
-        store.setNextMonthTotalAmount(allTransactionsData.nextMonthTotalAmount || 0);
-        store.setPercentage(allTransactionsData.savePercent || 0);
-
-        store.setDefaultEssentialsArray(allTransactionsData.defaultEssentialsArray || []);
-        store.setEssentialsArray(allTransactionsData.essentialsArray || []);
-        store.setNextMonthEssentialsArray(allTransactionsData.nextMonthEssentialsArray || []);
-        store.setTransactions(allTransactionsData.transactions || []);
+        useStore.setState({
+            totalAmount: allTransactionsData.totalAmount || 0,
+            totalIncome: allTransactionsData.totalIncome || 0,
+            totalSpend: allTransactionsData.totalSpend || 0,
+            nextMonthTotalAmount: allTransactionsData.nextMonthTotalAmount || 0,
+            percentage: allTransactionsData.savePercent || 0,
+            defaultEssentialsArray: allTransactionsData.defaultEssentialsArray || [],
+            essentialsArray: allTransactionsData.essentialsArray || [],
+            nextMonthEssentialsArray: allTransactionsData.nextMonthEssentialsArray || [],
+            transactions: allTransactionsData.transactions || [],
+        });
     }, [allTransactionsData]);
 
     if (isPending) {

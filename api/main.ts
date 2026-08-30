@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { transactionsAxios } from "config/axios.instances";
 import { showAxiosError } from "lib/utils";
@@ -27,15 +28,32 @@ import {
     UpdateTransactionResponseType,
 } from "types/transactions";
 
-const allTransactionInfo = async (): Promise<AllTransactionsInfoResponse> => {
-    const res = await transactionsAxios.get("all-info");
+const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const allTransactionInfo = async (currentMonth: string): Promise<AllTransactionsInfoResponse> => {
+    const res = await transactionsAxios.get("all-info", {
+        params: { currentMonth },
+    });
     return res.data;
 };
 
 export const useAllTransactionInfo = () => {
+    const [currentMonth, setCurrentMonth] = useState(getCurrentMonth);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            setCurrentMonth(getCurrentMonth());
+        }, 60_000);
+
+        return () => window.clearInterval(interval);
+    }, []);
+
     return useQuery({
-        queryKey: ["all-info"],
-        queryFn: allTransactionInfo,
+        queryKey: ["all-info", currentMonth],
+        queryFn: () => allTransactionInfo(currentMonth),
     });
 };
 
