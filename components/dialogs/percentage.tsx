@@ -43,12 +43,19 @@ export const Percentage = () => {
         },
     });
 
+    const resetForm = () => form.reset({ value: "" });
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) resetForm();
+        setOpen(nextOpen);
+    };
+
     const onSubmit = async (values: z.infer<typeof setPercentageFormSchema>) => {
         try {
             store.setPercentage(Number(values.value));
             await savePercent({ percent: Number(values.value) });
 
-            form.reset();
+            resetForm();
             setOpen(false);
 
             toast.success(tGlobal("toasts.percentChanged"));
@@ -59,7 +66,7 @@ export const Percentage = () => {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button
@@ -69,8 +76,8 @@ export const Percentage = () => {
                         <Edit2Icon className="size-3" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("percent.title")}</DialogTitle>
                             <DialogDescription>{t("percent.subtitle")}</DialogDescription>

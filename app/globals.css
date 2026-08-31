@@ -286,3 +286,48 @@ body::before {
         animation: none;
     }
 }
+
+/* Compact, low-distraction notifications. */
+.Toastify__toast-container {
+    width: min(20rem, calc(100vw - 2rem));
+    padding: 0;
+}
+
+.finance-toast {
+    min-height: 0;
+    margin-bottom: 0.5rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    color: var(--card-foreground);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+    font-family: var(--font-manrope), sans-serif;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    backdrop-filter: blur(12px);
+}
+
+.finance-toast .Toastify__toast-body {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.finance-toast .Toastify__toast-icon {
+    width: 1rem;
+    margin-inline-end: 0.55rem;
+}
+
+@media (max-width: 480px) {
+    .Toastify__toast-container {
+        right: 1rem;
+        bottom: 1rem;
+        left: 1rem;
+        width: auto;
+    }
+
+    .finance-toast {
+        margin-bottom: 0.4rem;
+    }
+}

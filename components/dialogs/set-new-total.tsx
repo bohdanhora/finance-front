@@ -43,12 +43,19 @@ export const SetTotalDialog = () => {
         },
     });
 
+    const resetForm = () => form.reset({ value: "" });
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) resetForm();
+        setOpen(nextOpen);
+    };
+
     const onSubmit = async (values: z.infer<typeof setPercentageFormSchema>) => {
         try {
             await setTotalAsync({ totalAmount: Number(values.value) });
             store.setTotalAmount(Number(values.value));
 
-            form.reset();
+            resetForm();
             setOpen(false);
 
             toast.success(tGlobal("toasts.percentChanged"));
@@ -59,7 +66,7 @@ export const SetTotalDialog = () => {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button
@@ -70,8 +77,8 @@ export const SetTotalDialog = () => {
                         <Pencil className="w-6 h-6 text-gray-500 hover:text-black dark:hover:text-white" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("title")}</DialogTitle>
                             <DialogDescription>{t("subtitle")}</DialogDescription>

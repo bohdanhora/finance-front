@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { formatCurrency } from "lib/utils";
 import useStore from "store/general";
 import useBankStore from "store/bank";
@@ -14,52 +13,46 @@ import { getCurrencySymbol } from "lib/currency";
 export const Total = () => {
     const t = useTranslations("total");
 
-    const [toDollar, setToDollar] = useState(0);
-    const [toEuro, setToEuro] = useState(0);
-
     const store = useStore();
     const bankStore = useBankStore();
 
     const userCurrency = store.userCurrency;
-
-    const converted =
-        bankStore.currency === CURRENCY.USD ? `${formatCurrency(toDollar)} $` : `${formatCurrency(toEuro)} €`;
-
-    useEffect(() => {
-        if (bankStore.usd?.rateBuy) {
-            setToDollar(store.totalAmount / bankStore.usd.rateBuy);
-        }
-
-        if (bankStore.eur?.rateBuy) {
-            setToEuro(store.totalAmount / bankStore.eur.rateBuy);
-        }
-    }, [store.totalAmount, bankStore.usd?.rateBuy, bankStore.eur?.rateBuy]);
+    const conversionCurrency = bankStore.currency === CURRENCY.EUR ? CURRENCY.EUR : CURRENCY.USD;
+    const conversionRate =
+        conversionCurrency === CURRENCY.EUR ? bankStore.eur?.rateBuy : bankStore.usd?.rateBuy;
+    const converted = conversionRate ? store.totalAmount / conversionRate : null;
 
     return (
         <header
             data-tour="balance"
-            className="border-border bg-card w-full scroll-mt-24 rounded-3xl border p-6 shadow-sm sm:p-8"
+            className="border-border bg-card relative w-full scroll-mt-24 overflow-hidden rounded-2xl border p-5 shadow-sm sm:p-6"
         >
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                <div className="min-w-0">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-20 -left-16 size-48 rounded-full bg-indigo-500/[0.07] blur-3xl"
+            />
+            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
                     <p className="text-muted-foreground text-[0.7rem] font-medium tracking-[0.14em] uppercase">
                         {t("currentBalance")}
                     </p>
 
-                    <div className="mt-2 flex items-center gap-1">
-                        <h1 className="text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl md:text-6xl">
+                    <div className="mt-1.5 flex items-center gap-1">
+                        <h1 className="text-[2.5rem] leading-none font-semibold tracking-tight tabular-nums sm:text-5xl">
                             {formatCurrency(store.totalAmount)}{" "}
                             <span className="text-muted-foreground font-normal">{getCurrencySymbol(userCurrency)}</span>
                         </h1>
                         <SetTotalDialog />
                     </div>
 
-                    {userCurrency === CURRENCY.UAH && (
-                        <p className="text-muted-foreground mt-2 text-sm tabular-nums">{`≈ ${converted}`}</p>
+                    {userCurrency === CURRENCY.UAH && converted !== null && (
+                        <p className="text-muted-foreground mt-2 text-sm tabular-nums">
+                            ≈ {formatCurrency(converted)} {getCurrencySymbol(conversionCurrency)}
+                        </p>
                     )}
                 </div>
 
-                <div className="flex flex-wrap gap-2" data-tour="actions">
+                <div className="flex shrink-0 flex-wrap gap-2" data-tour="actions">
                     <IncomeDialogComponent />
                     <ExpenseDialogComponent />
                 </div>

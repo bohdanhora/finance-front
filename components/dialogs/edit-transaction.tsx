@@ -7,6 +7,7 @@ import { CalendarIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
+import { useEffect } from "react";
 
 import { TransactionType } from "types/transactions";
 import {
@@ -55,38 +56,53 @@ const categoryKeys = [
     "income",
 ];
 
+const getEmptyTransactionValues = () => ({
+    value: "",
+    categories: "",
+    date: new Date(),
+    description: "",
+});
+
 export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmit }: Props) => {
     const t = useTranslations();
 
     const form = useForm<z.infer<typeof editTransactionSchema>>({
         resolver: zodResolver(editTransactionSchema),
-        defaultValues: {
-            value: transaction ? String(transaction.value) : "",
-            categories: transaction?.categorie ?? "",
-            date: transaction ? new Date(transaction.date) : new Date(),
-            description: transaction?.description ?? "",
-        },
-        values: transaction
-            ? {
-                  value: String(transaction.value),
-                  categories: transaction.categorie,
-                  date: new Date(transaction.date),
-                  description: transaction.description,
-              }
-            : undefined,
+        defaultValues: getEmptyTransactionValues(),
     });
+
+    useEffect(() => {
+        if (!open) return;
+
+        form.reset(
+            transaction
+                ? {
+                      value: String(transaction.value),
+                      categories: transaction.categorie,
+                      date: new Date(transaction.date),
+                      description: transaction.description ?? "",
+                  }
+                : getEmptyTransactionValues(),
+            { keepDefaultValues: true },
+        );
+    }, [form, open, transaction]);
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) form.reset(getEmptyTransactionValues());
+        onOpenChange(nextOpen);
+    };
 
     const handleSubmit = async (data: z.infer<typeof editTransactionSchema>) => {
         await onSubmit(data);
-        form.reset();
+        form.reset(getEmptyTransactionValues());
         onOpenChange(false);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("transactions.editTransactionTitle")}</DialogTitle>
                             <DialogDescription>{t("transactions.editTransactionSubtitle")}</DialogDescription>
@@ -144,7 +160,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                                     variant="popover"
                                                     type="button"
                                                     className={twMerge(
-                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        "w-full pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}
                                                 >
@@ -169,7 +185,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                 <FormItem>
                                     <FormLabel>{t("dialogs.description")}</FormLabel>
                                     <FormControl>
-                                        <Textarea {...field} className="resize-none" />
+                                        <Textarea {...field} className="min-h-20 resize-none" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

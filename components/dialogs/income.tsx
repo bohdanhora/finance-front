@@ -52,6 +52,15 @@ export const IncomeDialogComponent = () => {
         },
     });
 
+    const resetForm = () => {
+        form.reset({ value: "", description: "", date: new Date() });
+    };
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) resetForm();
+        setOpen(nextOpen);
+    };
+
     const onSubmit = async (values: z.infer<typeof incomeFormSchema>) => {
         const createTransaction = {
             transactionType: TransactionEnum.INCOME,
@@ -77,7 +86,7 @@ export const IncomeDialogComponent = () => {
                 }),
             );
 
-            form.reset();
+            resetForm();
             setOpen(false);
         } catch (error) {
             console.error(error);
@@ -86,7 +95,7 @@ export const IncomeDialogComponent = () => {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button
@@ -97,8 +106,8 @@ export const IncomeDialogComponent = () => {
                         {t("expenses.income")}
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("dialogs.enterIncome")}</DialogTitle>
                             <DialogDescription>{t("dialogs.incomeReceived")}</DialogDescription>
@@ -129,7 +138,7 @@ export const IncomeDialogComponent = () => {
                                     <FormControl>
                                         <Textarea
                                             placeholder={t("dialogs.description")}
-                                            className="resize-none"
+                                            className="min-h-20 resize-none"
                                             {...field}
                                         />
                                     </FormControl>
@@ -149,7 +158,7 @@ export const IncomeDialogComponent = () => {
                                                 <Button
                                                     variant="popover"
                                                     className={twMerge(
-                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        "w-full pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}
                                                     type="button"

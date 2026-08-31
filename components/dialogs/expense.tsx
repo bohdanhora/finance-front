@@ -87,6 +87,10 @@ export const ExpenseDialogComponent = () => {
         },
     });
 
+    const resetForm = () => {
+        form.reset({ value: "", description: "", categories: "", date: new Date() });
+    };
+
     const categoriesIcons = (category: string) => {
         switch (category) {
             case "groceries":
@@ -141,7 +145,7 @@ export const ExpenseDialogComponent = () => {
                 }),
             );
 
-            form.reset();
+            resetForm();
             setOpen(false);
         } catch (error) {
             console.error(error);
@@ -154,6 +158,7 @@ export const ExpenseDialogComponent = () => {
             toast.warning(t("toasts.noFunds"));
             return;
         }
+        if (!isOpen) resetForm();
         setOpen(isOpen);
     };
 
@@ -170,8 +175,8 @@ export const ExpenseDialogComponent = () => {
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("dialogs.enterExpense")}</DialogTitle>
                             <DialogDescription>{t("dialogs.expenseHint")}</DialogDescription>
@@ -235,7 +240,7 @@ export const ExpenseDialogComponent = () => {
                                                     variant="popover"
                                                     type="button"
                                                     className={twMerge(
-                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        "w-full pl-3 text-left font-normal",
                                                         !field.value && "text-muted-foreground",
                                                     )}
                                                 >
@@ -270,7 +275,7 @@ export const ExpenseDialogComponent = () => {
                                     <FormControl>
                                         <Textarea
                                             placeholder={t("dialogs.description")}
-                                            className="resize-none"
+                                            className="min-h-20 resize-none"
                                             {...field}
                                         />
                                     </FormControl>

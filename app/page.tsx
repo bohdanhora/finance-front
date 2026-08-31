@@ -14,7 +14,6 @@ import { NextMonthIncome } from "components/next-month-income";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
 import { FillForm } from "components/fill-form";
-import { ChoooseCurrency } from "components/dialogs/choose-currency";
 import { Section } from "components/wrappers/section";
 
 const Home = () => {
@@ -29,8 +28,8 @@ const Home = () => {
                 <Navbar />
                 <OnboardingTour />
 
-                <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24 sm:px-6">
-                    <div className="rise-stagger flex w-full flex-col gap-10">
+                <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-24 sm:px-6">
+                    <div className="rise-stagger flex w-full flex-col gap-8">
                         <Total />
                         <PossibleRemaining />
                         <NextMonthIncome />
@@ -44,7 +43,6 @@ const Home = () => {
                 </div>
 
                 <FillForm />
-                <ChoooseCurrency />
             </PrivateProvider>
         </GetDataProvider>
     );

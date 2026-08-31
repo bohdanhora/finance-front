@@ -25,7 +25,7 @@ function Calendar({
         <DayPicker
             showOutsideDays={showOutsideDays}
             className={twMerge(
-                "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+                "bg-transparent text-foreground group/calendar p-3 [--cell-size:--spacing(9)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
                 String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
                 String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
                 className,
@@ -37,64 +37,64 @@ function Calendar({
             }}
             classNames={{
                 root: twMerge("w-fit", defaultClassNames.root),
-                months: twMerge("flex gap-4 flex-col md:flex-row relative", defaultClassNames.months),
-                month: twMerge("flex flex-col w-full gap-4", defaultClassNames.month),
+                months: twMerge("relative flex flex-col gap-4 md:flex-row", defaultClassNames.months),
+                month: twMerge("flex w-full flex-col gap-3", defaultClassNames.month),
                 nav: twMerge(
-                    "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between hidden",
+                    "absolute inset-x-0 top-0 z-10 flex w-full items-center justify-between gap-1",
                     defaultClassNames.nav,
                 ),
                 button_previous: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+                    "size-(--cell-size) rounded-xl p-0 select-none aria-disabled:opacity-40",
                     defaultClassNames.button_previous,
                 ),
                 button_next: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+                    "size-(--cell-size) rounded-xl p-0 select-none aria-disabled:opacity-40",
                     defaultClassNames.button_next,
                 ),
                 month_caption: twMerge(
-                    "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size) hidden",
+                    "flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)",
                     defaultClassNames.month_caption,
                 ),
                 dropdowns: twMerge(
-                    "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
+                    "flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-semibold",
                     defaultClassNames.dropdowns,
                 ),
                 dropdown_root: twMerge(
-                    "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
+                    "border-border bg-muted/40 relative rounded-lg border shadow-none has-focus:border-indigo-500 has-focus:ring-2 has-focus:ring-indigo-500/20",
                     defaultClassNames.dropdown_root,
                 ),
                 dropdown: twMerge("absolute inset-0 opacity-0", defaultClassNames.dropdown),
                 caption_label: twMerge(
-                    "select-none font-medium",
+                    "select-none font-semibold",
                     captionLayout === "label"
-                        ? "text-sm"
-                        : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+                        ? "text-sm capitalize"
+                        : "flex h-8 items-center gap-1 rounded-lg pr-1 pl-2 text-sm capitalize [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
                     defaultClassNames.caption_label,
                 ),
                 table: "w-full border-collapse",
-                weekdays: twMerge("flex", defaultClassNames.weekdays),
+                weekdays: twMerge("mt-1 flex", defaultClassNames.weekdays),
                 weekday: twMerge(
-                    "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",
+                    "text-muted-foreground flex-1 select-none rounded-md text-center text-[0.72rem] font-medium uppercase",
                     defaultClassNames.weekday,
                 ),
-                week: twMerge("flex w-full mt-2", defaultClassNames.week),
+                week: twMerge("mt-1 flex w-full", defaultClassNames.week),
                 week_number_header: twMerge("select-none w-(--cell-size)", defaultClassNames.week_number_header),
                 week_number: twMerge("text-[0.8rem] select-none text-muted-foreground", defaultClassNames.week_number),
                 day: twMerge(
-                    "relative w-full h-full p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
+                    "group/day relative aspect-square h-full w-full select-none p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
                     defaultClassNames.day,
                 ),
-                range_start: twMerge("rounded-l-md bg-accent", defaultClassNames.range_start),
+                range_start: twMerge("rounded-l-lg bg-accent", defaultClassNames.range_start),
                 range_middle: twMerge("rounded-none", defaultClassNames.range_middle),
-                range_end: twMerge("rounded-r-md bg-accent", defaultClassNames.range_end),
+                range_end: twMerge("rounded-r-lg bg-accent", defaultClassNames.range_end),
                 today: twMerge(
-                    "bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
+                    "rounded-lg text-indigo-600 ring-1 ring-inset ring-indigo-500/35 dark:text-indigo-300 data-[selected=true]:rounded-lg data-[selected=true]:text-white",
                     defaultClassNames.today,
                 ),
                 outside: twMerge(
-                    "text-muted-foreground aria-selected:text-muted-foreground",
+                    "text-muted-foreground opacity-35 aria-selected:text-muted-foreground",
                     defaultClassNames.outside,
                 ),
                 disabled: twMerge("text-muted-foreground opacity-50", defaultClassNames.disabled),
@@ -154,7 +154,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
             data-range-end={modifiers.range_end}
             data-range-middle={modifiers.range_middle}
             className={twMerge(
-                "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
+                "data-[selected-single=true]:bg-indigo-600 data-[selected-single=true]:text-white data-[selected-single=true]:shadow-md data-[selected-single=true]:shadow-indigo-500/20 data-[range-middle=true]:bg-indigo-500/10 data-[range-middle=true]:text-foreground data-[range-start=true]:bg-indigo-600 data-[range-start=true]:text-white data-[range-end=true]:bg-indigo-600 data-[range-end=true]:text-white group-data-[focused=true]/day:ring-indigo-500/35 dark:hover:text-white flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-lg leading-none font-medium transition-colors hover:bg-indigo-500/10 group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-2 data-[range-end=true]:rounded-lg data-[range-end=true]:rounded-r-lg data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-lg data-[range-start=true]:rounded-l-lg [&>span]:text-xs [&>span]:opacity-70",
                 defaultClassNames.day,
                 className,
             )}

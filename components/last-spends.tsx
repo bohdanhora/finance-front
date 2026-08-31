@@ -33,7 +33,16 @@ import { Button } from "./ui/button";
 import Cookies from "js-cookie";
 import { useClearData, useDeleteTransaction, useExportPdf, useUpdateTransaction } from "api/main";
 import { toast } from "react-toastify";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
@@ -72,12 +81,13 @@ export const LastSpends = () => {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
     const [clearTotalsChck, setClearTotalsChck] = useState<CheckedState>(false);
+    const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
     const [editingTx, setEditingTx] = useState<TransactionType | null>(null);
     const [editOpen, setEditOpen] = useState(false);
 
     const { mutateAsync: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
-    const { mutateAsync: clearDataMutation } = useClearData();
+    const { mutateAsync: clearDataMutation, isPending: clearDataPending } = useClearData();
     const { mutateAsync: deleteTransaction } = useDeleteTransaction();
     const { mutateAsync: updateTransaction } = useUpdateTransaction();
 
@@ -146,6 +156,9 @@ export const LastSpends = () => {
         if (res.message) {
             toast.success(res.message);
         }
+
+        setClearTotalsChck(false);
+        setClearDialogOpen(false);
     };
 
     const paginatedTransactions = useMemo(() => {
@@ -194,7 +207,13 @@ export const LastSpends = () => {
                     </p>
                 )}
                 <div className="flex flex-col items-center gap-2 w-full justify-end md:flex-row">
-                    <Dialog>
+                    <Dialog
+                        open={clearDialogOpen}
+                        onOpenChange={(nextOpen) => {
+                            if (!nextOpen) setClearTotalsChck(false);
+                            setClearDialogOpen(nextOpen);
+                        }}
+                    >
                         <DialogTrigger className="border-border text-muted-foreground hover:text-foreground h-9 w-full cursor-pointer rounded-lg border px-4 text-sm text-nowrap transition-colors hover:bg-black/[0.04] md:w-fit dark:hover:bg-white/[0.06]">
                             {t("clearDataTitle")}
                         </DialogTrigger>
@@ -203,17 +222,25 @@ export const LastSpends = () => {
                                 <DialogTitle> {t("clearDataConfirmation")}</DialogTitle>
                                 <DialogDescription>{t("clearDataWarning")}</DialogDescription>
                             </DialogHeader>
-                            <div className="flex items-center gap-2">
+                            <div className="border-border/70 bg-muted/25 flex items-start gap-3 rounded-xl border p-3">
                                 <Checkbox
                                     id="clearTotals"
-                                    className="cursor-pointer"
+                                    checked={clearTotalsChck}
+                                    className="mt-0.5 cursor-pointer"
                                     onCheckedChange={(checked) => setClearTotalsChck(checked)}
                                 />
-                                <Label htmlFor="clearTotals" className="text-sm cursor-pointer">
+                                <Label htmlFor="clearTotals" className="cursor-pointer text-sm leading-relaxed">
                                     {t("clearTotalsLabel")}
                                 </Label>
                             </div>
-                            <Button onClick={clearDataHandle}>{t("clearDataTitle")}</Button>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="secondary">{t("cancel")}</Button>
+                                </DialogClose>
+                                <Button variant="destructive" disabled={clearDataPending} onClick={clearDataHandle}>
+                                    {t("clearDataTitle")}
+                                </Button>
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
                     <Button variant="secondary" onClick={exportPdfHandle} className="w-full md:w-fit">

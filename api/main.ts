@@ -24,8 +24,13 @@ import {
     SavePercentResponseType,
     TotalAmountPayload,
     TotalAmountResponseType,
+    UpdateEssentialPayload,
+    UpdateEssentialResponseType,
     UpdateTransactionPayload,
     UpdateTransactionResponseType,
+    SavingsGoalPayload,
+    SavingsOperationPayload,
+    SavingsMutationResponse,
 } from "types/transactions";
 
 const getCurrentMonth = () => {
@@ -150,6 +155,19 @@ export const useNewEssential = () => {
     });
 };
 
+const updateEssential = async (payload: UpdateEssentialPayload): Promise<UpdateEssentialResponseType> => {
+    const res = await transactionsAxios.put("update-essential", payload);
+    return res.data;
+};
+
+export const useUpdateEssential = () => {
+    return useMutation({
+        mutationKey: ["update-essential"],
+        mutationFn: updateEssential,
+        onError: showAxiosError,
+    });
+};
+
 const exportPdf = async (userId: string): Promise<Blob> => {
     const res = await transactionsAxios.get(userId, {
         responseType: "blob",
@@ -226,3 +244,63 @@ export const useUpdateTransaction = () => {
         onError: showAxiosError,
     });
 };
+
+const addSavingsGoal = async (payload: SavingsGoalPayload): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.post("savings/goals", payload);
+    return res.data;
+};
+
+export const useAddSavingsGoal = () =>
+    useMutation({
+        mutationKey: ["savings-goal", "add"],
+        mutationFn: addSavingsGoal,
+        onError: showAxiosError,
+    });
+
+const updateSavingsGoal = async (payload: SavingsGoalPayload): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.put("savings/goals", payload);
+    return res.data;
+};
+
+export const useUpdateSavingsGoal = () =>
+    useMutation({
+        mutationKey: ["savings-goal", "update"],
+        mutationFn: updateSavingsGoal,
+        onError: showAxiosError,
+    });
+
+const deleteSavingsGoal = async (id: string): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.delete(`savings/goals/${encodeURIComponent(id)}`);
+    return res.data;
+};
+
+export const useDeleteSavingsGoal = () =>
+    useMutation({
+        mutationKey: ["savings-goal", "delete"],
+        mutationFn: deleteSavingsGoal,
+        onError: showAxiosError,
+    });
+
+const addSavingsOperation = async (payload: SavingsOperationPayload): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.post("savings/operations", payload);
+    return res.data;
+};
+
+export const useAddSavingsOperation = () =>
+    useMutation({
+        mutationKey: ["savings-operation", "add"],
+        mutationFn: addSavingsOperation,
+        onError: showAxiosError,
+    });
+
+const deleteSavingsOperation = async (id: string): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.delete(`savings/operations/${encodeURIComponent(id)}`);
+    return res.data;
+};
+
+export const useDeleteSavingsOperation = () =>
+    useMutation({
+        mutationKey: ["savings-operation", "delete"],
+        mutationFn: deleteSavingsOperation,
+        onError: showAxiosError,
+    });

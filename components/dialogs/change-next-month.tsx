@@ -44,11 +44,24 @@ export const ChangeNextMonthIncome = () => {
 
     const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
         resolver: zodResolver(changeNextMonthFormSchema),
-        values: {
+        defaultValues: {
             value: "",
             currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
         },
     });
+
+    const resetForm = () => {
+        form.reset({
+            value: "",
+            currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
+        });
+    };
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) resetForm();
+        if (nextOpen) resetForm();
+        setOpen(nextOpen);
+    };
 
     const onSubmit = async (values: z.infer<typeof changeNextMonthFormSchema>) => {
         const usdRate = bankStore.usd?.rateBuy ?? 0;
@@ -76,7 +89,7 @@ export const ChangeNextMonthIncome = () => {
                 nextMonthTotalAmount: valueInUah,
             });
 
-            form.reset();
+            resetForm();
             setOpen(false);
 
             toast.success(
@@ -91,23 +104,23 @@ export const ChangeNextMonthIncome = () => {
         }
     };
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="secondary">{t("changeNextMonthIncome")}</Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <DialogContent className="sm:max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("expectedIncome")}</DialogTitle>
                             <DialogDescription>{t("planNextMonth")}</DialogDescription>
                         </DialogHeader>
-                        <div className="flex items-center w-full gap-x-10">
+                        <div className="grid w-full grid-cols-[minmax(0,1fr)_5.5rem] items-end gap-3">
                             <FormField
                                 control={form.control}
                                 name="value"
                                 render={({ field }) => (
-                                    <FormItem className={twMerge(userCurrency === CURRENCY.UAH ? "w-3/4" : "w-full")}>
+                                    <FormItem className={twMerge(userCurrency !== CURRENCY.UAH && "col-span-2")}>
                                         <FormLabel>{t("inputIncome")}</FormLabel>
                                         <FormControl>
                                             <Input
@@ -126,7 +139,7 @@ export const ChangeNextMonthIncome = () => {
                                     control={form.control}
                                     name="currency"
                                     render={({ field }) => (
-                                        <FormItem className="w-1/4">
+                                        <FormItem>
                                             <FormLabel>{t("currency")}</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>

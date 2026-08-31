@@ -1,4 +1,52 @@
 import { EssentialsType, TransactionEnum } from "constants/index";
+import { CURRENCY } from "constants/index";
+
+export enum SavingsStorage {
+    CASH = "cash",
+    CARD = "card",
+}
+
+export enum SavingsOperationType {
+    DEPOSIT = "deposit",
+    WITHDRAWAL = "withdrawal",
+    TRANSFER = "transfer",
+}
+
+export type SavingsGoal = {
+    id: string;
+    name: string;
+    targetAmount: number;
+    currency: CURRENCY;
+    monthlyContribution: number;
+    targetDate?: string;
+    createdAt: string;
+};
+
+export type SavingsOperation = {
+    id: string;
+    goalId: string;
+    type: SavingsOperationType;
+    storage: SavingsStorage;
+    destinationStorage?: SavingsStorage;
+    amount: number;
+    currency: CURRENCY;
+    date: string;
+    note?: string;
+};
+
+export type SavingsGoalPayload = {
+    item: SavingsGoal;
+};
+
+export type SavingsOperationPayload = {
+    item: SavingsOperation;
+};
+
+export type SavingsMutationResponse = {
+    message: string;
+    updatedGoals: SavingsGoal[];
+    updatedOperations: SavingsOperation[];
+};
 
 export type TransactionType = {
     transactionType: TransactionEnum;
@@ -100,6 +148,17 @@ export type NewEssentialResponseType = {
     updatedItems: EssentialType[] | [];
 };
 
+export type UpdateEssentialPayload = {
+    type: EssentialsType;
+    item: EssentialType;
+};
+
+export type UpdateEssentialResponseType = {
+    message: string;
+    updatedItem: EssentialType;
+    updatedItems: EssentialType[] | [];
+};
+
 export type RequestEmailCodePayload = {
     email: string;
 };
@@ -121,6 +180,8 @@ export type AllTransactionsInfoResponse = {
     essentialsArray: EssentialType[] | [];
     nextMonthEssentialsArray: EssentialType[] | [];
     transactions: TransactionType[] | [];
+    savingsGoals: SavingsGoal[] | [];
+    savingsOperations: SavingsOperation[] | [];
 };
 
 export type ClearDataPayload = {

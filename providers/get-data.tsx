@@ -39,6 +39,8 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
             essentialsArray: allTransactionsData.essentialsArray || [],
             nextMonthEssentialsArray: allTransactionsData.nextMonthEssentialsArray || [],
             transactions: allTransactionsData.transactions || [],
+            savingsGoals: allTransactionsData.savingsGoals || [],
+            savingsOperations: allTransactionsData.savingsOperations || [],
         });
     }, [allTransactionsData]);
 
