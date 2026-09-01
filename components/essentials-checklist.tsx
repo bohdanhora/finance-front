@@ -1,14 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
 
-import { useSetCheckedEssential } from "api/main";
 import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency } from "lib/utils";
 import useStore from "store/general";
+import { EssentialType } from "types/transactions";
+import { EssentialPaymentDialog } from "./dialogs/essential-payment";
 import { Checkbox } from "./ui/checkbox";
 
 /**
@@ -18,10 +19,8 @@ import { Checkbox } from "./ui/checkbox";
  */
 export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean }) => {
     const t = useTranslations("possible");
-    const tDialogs = useTranslations("dialogs");
     const store = useStore();
-
-    const { mutateAsync: checkedEssentialAsync, isPending } = useSetCheckedEssential();
+    const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
 
     const items = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -38,21 +37,7 @@ export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean
     const outstanding = items.reduce((sum, item) => (item.checked ? sum : sum + item.amount), 0);
     const progress = Math.round((paidCount / items.length) * 100);
 
-    const toggle = async (id: string, checked: boolean) => {
-        try {
-            const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
-            const res = await checkedEssentialAsync({ type, item: { id, checked } });
-
-            if (nextMonth) {
-                store.setNextMonthEssentialsArray(res.updatedItems);
-            } else {
-                store.setEssentialsArray(res.updatedItems);
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error(tDialogs("occurred"));
-        }
-    };
+    const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
 
     return (
         <div className="border-border bg-card rounded-2xl border p-5 shadow-sm">
@@ -89,8 +74,7 @@ export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean
                         >
                             <Checkbox
                                 checked={item.checked}
-                                disabled={isPending}
-                                onCheckedChange={(checked) => toggle(item.id, checked === true)}
+                                onCheckedChange={() => setSelectedEssential(item)}
                                 className="size-4 shrink-0 rounded-[5px] data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
                             />
                             <span
@@ -101,18 +85,37 @@ export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean
                             >
                                 {item.title}
                             </span>
-                            <span
-                                className={twMerge(
-                                    "shrink-0 text-sm tabular-nums transition-colors",
-                                    item.checked ? "text-muted-foreground line-through" : "font-medium",
+                            <span className="shrink-0 text-right">
+                                <span
+                                    className={twMerge(
+                                        "block text-sm tabular-nums transition-colors",
+                                        item.checked ? "text-muted-foreground" : "font-medium",
+                                    )}
+                                >
+                                    {formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}{" "}
+                                    {symbol}
+                                </span>
+                                {item.checked && item.paidAmount !== undefined && item.paidAmount !== item.amount && (
+                                    <span className="text-muted-foreground block text-[0.68rem] tabular-nums">
+                                        {t("plannedAmount", {
+                                            amount: formatCurrency(item.amount),
+                                            currency: symbol,
+                                        })}
+                                    </span>
                                 )}
-                            >
-                                {formatCurrency(item.amount)} {symbol}
                             </span>
                         </label>
                     </li>
                 ))}
             </ul>
+            <EssentialPaymentDialog
+                essential={selectedEssential}
+                type={type}
+                open={Boolean(selectedEssential)}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedEssential(null);
+                }}
+            />
         </div>
     );
 };

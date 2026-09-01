@@ -62,6 +62,9 @@ export type EssentialType = {
     amount: number;
     title: string;
     checked: boolean;
+    paidAmount?: number;
+    paidAt?: string;
+    paymentTransactionId?: string;
 };
 
 export type TotalAmountPayload = {
@@ -114,6 +117,7 @@ export type NewTransactionResponseType = {
 export type CheckedEssentialItemType = {
     id: string;
     checked: boolean;
+    actualAmount?: number;
 };
 
 export type CheckedEssentialPayload = {
@@ -124,6 +128,12 @@ export type CheckedEssentialPayload = {
 export type CheckedEssentialResponseType = {
     message: string;
     updatedItems: EssentialType[] | [];
+    updatedTotals: {
+        totalAmount: number;
+        totalIncome: number;
+        totalSpend: number;
+    };
+    updatedTransactions: TransactionType[] | [];
 };
 
 export type RemoveEssentialPayload = {
@@ -192,6 +202,8 @@ export type ClearDataResponseType = {
     message: string;
     clearedTransactions: boolean;
     clearedTotals: boolean;
+    essentialsArray?: EssentialType[];
+    nextMonthEssentialsArray?: EssentialType[];
 };
 
 export type SavePercentPayload = {

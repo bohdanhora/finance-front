@@ -101,7 +101,29 @@
             "addErrorRequest": "Error adding a standard payment:",
             "addError": "Failed to add the standard payment. Please try again.",
             "removeErrorRequest": "Error removing a standard payment:",
-            "removeError": "Failed to remove the payment. Please try again."
+            "removeError": "Failed to remove the payment. Please try again.",
+            "payment": {
+                "title": "Pay {title}",
+                "description": "Is this bill fully settled? Enter the amount you actually paid and only that amount will be deducted.",
+                "planned": "Planned",
+                "actualAmount": "Actually paid",
+                "usePlanned": "Full amount",
+                "saved": "{amount} {currency} stays in your balance",
+                "overPlan": "{amount} {currency} over plan",
+                "matchesPlan": "The amount matches your plan",
+                "balanceAfter": "Balance after payment: {amount} {currency}",
+                "invalidAmount": "Enter an amount greater than zero.",
+                "notEnoughFunds": "There are not enough funds in your main balance.",
+                "cancel": "Cancel",
+                "confirm": "Confirm payment",
+                "saving": "Saving…",
+                "success": "Paid {amount} {currency}",
+                "undoTitle": "Undo this payment?",
+                "undoDescription": "The expense will be removed and {amount} {currency} will return to your main balance.",
+                "returnToBalance": "Returns to balance",
+                "undoConfirm": "Undo payment",
+                "undoSuccess": "{amount} {currency} returned to your balance"
+            }
         },
         "percent": {
             "title": "Set Savings Percentage",
@@ -153,7 +175,8 @@
         "essentialsProgress": "Essentials {paid} of {total} paid",
         "stillToPay": "Still to pay",
         "allPaid": "All paid",
-        "noEssentials": "No bills yet. Add your recurring payments so the figures above know what you still owe."
+        "noEssentials": "No bills yet. Add your recurring payments so the figures above know what you still owe.",
+        "plannedAmount": "Plan: {amount} {currency}"
     },
     "auth": {
         "login": "Login",

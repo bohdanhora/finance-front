@@ -102,6 +102,15 @@ export const LastSpends = () => {
     }, [searchTerm, selectedCategory, store.transactions, tCategory]);
 
     const uniqueCategories = [...new Set(store.transactions.map((tx) => tCategory(tx.categorie)))];
+    const essentialPaymentTransactionIds = useMemo(
+        () =>
+            new Set(
+                [...store.essentialsArray, ...store.nextMonthEssentialsArray]
+                    .map((item) => item.paymentTransactionId)
+                    .filter((id): id is string => Boolean(id)),
+            ),
+        [store.essentialsArray, store.nextMonthEssentialsArray],
+    );
 
     const totalForCategory = useMemo(() => {
         if (selectedCategory === "all") return null;
@@ -147,6 +156,8 @@ export const LastSpends = () => {
             store.setTotalIncome(0);
             store.setTotalSpend(0);
             store.setNextMonthTotalAmount(0);
+            if (res.essentialsArray) store.setEssentialsArray(res.essentialsArray);
+            if (res.nextMonthEssentialsArray) store.setNextMonthEssentialsArray(res.nextMonthEssentialsArray);
         }
 
         if (clearTotalsChck) {
@@ -301,16 +312,18 @@ export const LastSpends = () => {
                                     {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
                                     {formatCurrency(tx.value)}
                                 </span>
-                                <button
-                                    onClick={() => {
-                                        setEditingTx(tx);
-                                        setEditOpen(true);
-                                    }}
-                                    aria-label={t("edit")}
-                                    className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
-                                >
-                                    <Pencil size={13} />
-                                </button>
+                                {!essentialPaymentTransactionIds.has(tx.id) && (
+                                    <button
+                                        onClick={() => {
+                                            setEditingTx(tx);
+                                            setEditOpen(true);
+                                        }}
+                                        aria-label={t("edit")}
+                                        className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
+                                    >
+                                        <Pencil size={13} />
+                                    </button>
+                                )}
                             </TableCell>
 
                             <TableCell>{tx.description}</TableCell>
@@ -322,13 +335,15 @@ export const LastSpends = () => {
                             </TableCell>
 
                             <TableCell className="text-right">
-                                <button
-                                    onClick={() => handleDeleteTransaction(tx.id)}
-                                    aria-label={t("delete")}
-                                    className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
-                                >
-                                    <X size={14} />
-                                </button>
+                                {!essentialPaymentTransactionIds.has(tx.id) && (
+                                    <button
+                                        onClick={() => handleDeleteTransaction(tx.id)}
+                                        aria-label={t("delete")}
+                                        className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </TableCell>
                         </TableRow>
                     ))}
