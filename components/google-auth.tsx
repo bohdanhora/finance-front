@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { GOOGLE_AUTH_REMEMBER_ME_KEY } from "lib/auth-helper";
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="shrink-0">
@@ -18,7 +19,7 @@ const GoogleIcon = () => (
     </svg>
 );
 
-export const GoogleAuth = () => {
+export const GoogleAuth = ({ rememberMe }: { rememberMe: boolean }) => {
     const tAuth = useTranslations("auth");
 
     const handleClickGoogleAuth = () => {
@@ -29,6 +30,7 @@ export const GoogleAuth = () => {
             return;
         }
 
+        sessionStorage.setItem(GOOGLE_AUTH_REMEMBER_ME_KEY, String(rememberMe));
         window.location.href = oauthUrl;
     };
 

@@ -3,13 +3,13 @@
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { useLoginMutation } from "api/auth";
 import { Routes } from "constants/routes";
-import { loginSetTokens } from "lib/auth-helper";
+import { GOOGLE_AUTH_REMEMBER_ME_KEY, loginSetTokens } from "lib/auth-helper";
 import { extractTokensFromParams, showSessionToasts } from "lib/utils";
 import { RenderEmailField } from "components/form-fields/email";
 import { RenderPassword } from "components/form-fields/password";
@@ -32,6 +32,7 @@ const Login = () => {
 
     const searchParams = useSearchParams();
     const router = useRouter();
+    const handledGoogleCallback = useRef(false);
 
     const [rememberMe, setRememberMe] = useState<CheckedState>(false);
 
@@ -58,8 +59,13 @@ const Login = () => {
         ]);
 
         const tokens = extractTokensFromParams(searchParams);
-        if (tokens) {
-            loginSetTokens(tokens, false);
+        if (tokens && !handledGoogleCallback.current) {
+            handledGoogleCallback.current = true;
+
+            const rememberGoogleLogin = sessionStorage.getItem(GOOGLE_AUTH_REMEMBER_ME_KEY) === "true";
+            sessionStorage.removeItem(GOOGLE_AUTH_REMEMBER_ME_KEY);
+
+            loginSetTokens(tokens, rememberGoogleLogin);
             router.replace(Routes.HOME);
         }
     }, [router, searchParams, tApi]);
@@ -87,7 +93,7 @@ const Login = () => {
                         <span className="h-px flex-1 bg-black/10 dark:bg-white/15" />
                     </div>
 
-                    <GoogleAuth />
+                    <GoogleAuth rememberMe={rememberMe === true} />
 
                     <div className="mt-7">
                         <RegistrationWay />

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Routes } from "constants/routes";
 import Cookies from "js-cookie";
+import { getAuthCookieOptions, isRememberedSession } from "lib/auth-helper";
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 
@@ -63,15 +64,10 @@ transactionsAxios.interceptors.response.use(
                     .then((res) => {
                         const newToken = res.data.accessToken;
                         const newRefreshToken = res.data.refreshToken;
+                        const cookieOptions = getAuthCookieOptions(isRememberedSession());
 
-                        Cookies.set("accessToken", newToken, {
-                            secure: true,
-                            expires: 3,
-                        });
-                        Cookies.set("refreshToken", newRefreshToken, {
-                            secure: true,
-                            expires: 3,
-                        });
+                        Cookies.set("accessToken", newToken, cookieOptions);
+                        Cookies.set("refreshToken", newRefreshToken, cookieOptions);
 
                         isRefreshing = false;
 
