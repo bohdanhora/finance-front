@@ -226,6 +226,33 @@ export type AllTransactionsInfoResponse = {
     transactions: TransactionType[] | [];
     savingsGoals: SavingsGoal[] | [];
     savingsOperations: SavingsOperation[] | [];
+    streak?: StreakRecord;
+};
+
+/** The daily visit streak, owned by the server so it follows the account. */
+export type StreakRecord = {
+    /** Calendar day of the last recorded visit, `YYYY-MM-DD`. */
+    lastVisit: string;
+    /** Days in a row up to and including `lastVisit`. */
+    current: number;
+    /** The longest run this account has ever put together. */
+    best: number;
+    /** Recorded days, oldest first, trimmed to the last month. */
+    history: string[];
+    /** Milestones already announced, so a toast never repeats. */
+    celebrated: number[];
+};
+
+export type StreakVisitPayload = {
+    /** The visitor's own calendar day, in their timezone. */
+    day: string;
+};
+
+export type StreakVisitResponse = {
+    message: string;
+    streak: StreakRecord;
+    /** The milestone this visit reached, when it deserves a toast. */
+    reached: number | null;
 };
 
 export type ChangeCurrencyPayload = {

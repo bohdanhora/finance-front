@@ -4,15 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Check, Lock, Trophy } from "lucide-react";
 
 import { getIntlLocale } from "lib/date-locale";
-import {
-    STREAK_HISTORY_LENGTH,
-    STREAK_TIERS,
-    StreakRecord,
-    getRecentDays,
-    getStreakGoal,
-    getStreakTier,
-    toDayKey,
-} from "lib/streak";
+import { STREAK_HISTORY_LENGTH, STREAK_TIERS, getRecentDays, getStreakGoal, getStreakTier, toDayKey } from "lib/streak";
+import { StreakRecord } from "types/transactions";
 import { DialogDescription, DialogHeader, DialogTitle } from "ui/dialog";
 
 import { StreakFlame, TIER_PALETTE } from "./flame";

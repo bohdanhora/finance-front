@@ -1,6 +1,6 @@
 import { CURRENCY } from "constants/index";
 import { MonobankCurrency } from "./auth";
-import { EssentialType, SavingsGoal, SavingsOperation, TransactionType } from "types/transactions";
+import { EssentialType, SavingsGoal, SavingsOperation, StreakRecord, TransactionType } from "types/transactions";
 
 export type StoreType = {
     totalAmount: number;
@@ -17,6 +17,7 @@ export type StoreType = {
     transactions: TransactionType[] | [];
     savingsGoals: SavingsGoal[] | [];
     savingsOperations: SavingsOperation[] | [];
+    streak: StreakRecord | null;
 
     setTotalAmount: (totalAmount: number) => void;
     setTotalIncome: (totalIncome: number) => void;
@@ -32,6 +33,7 @@ export type StoreType = {
     setTransactions: (transactions: TransactionType[] | []) => void;
     setSavingsGoals: (savingsGoals: SavingsGoal[] | []) => void;
     setSavingsOperations: (savingsOperations: SavingsOperation[] | []) => void;
+    setStreak: (streak: StreakRecord | null) => void;
     setAllToDefaults: () => void;
 };
 

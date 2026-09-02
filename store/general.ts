@@ -17,6 +17,7 @@ const useStore = create<StoreType>((set) => ({
     transactions: [],
     savingsGoals: [],
     savingsOperations: [],
+    streak: null,
 
     setTotalAmount: (totalAmount) =>
         set(() => ({
@@ -71,6 +72,10 @@ const useStore = create<StoreType>((set) => ({
         set(() => ({
             savingsOperations,
         })),
+    setStreak: (streak) =>
+        set(() => ({
+            streak,
+        })),
     setAllToDefaults: () =>
         set(() => ({
             totalAmount: 0,
@@ -87,6 +92,7 @@ const useStore = create<StoreType>((set) => ({
             transactions: [],
             savingsGoals: [],
             savingsOperations: [],
+            streak: null,
         })),
 }));
 export default useStore;

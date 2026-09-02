@@ -34,6 +34,8 @@ import {
     ChangeCurrencyPayload,
     ChangeCurrencyResponse,
     DeleteSavingsGoalRequest,
+    StreakVisitPayload,
+    StreakVisitResponse,
 } from "types/transactions";
 
 const getCurrentMonth = () => {
@@ -195,6 +197,18 @@ export const useClearData = () => {
         onError: showAxiosError,
     });
 };
+
+const recordStreakVisit = async (payload: StreakVisitPayload): Promise<StreakVisitResponse> => {
+    const res = await transactionsAxios.post("streak/visit", payload);
+    return res.data;
+};
+
+/** Idempotent per day: every device can call it on load without double counting. */
+export const useRecordStreakVisit = () =>
+    useMutation({
+        mutationKey: ["streak-visit"],
+        mutationFn: recordStreakVisit,
+    });
 
 const savePercent = async (payload: SavePercentPayload): Promise<SavePercentResponseType> => {
     const res = await transactionsAxios.post("percent", payload);

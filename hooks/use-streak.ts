@@ -1,52 +1,52 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { StreakRecord, parseStreak, registerVisit, toDayKey } from "lib/streak";
-
-/** One record per account, so two people on one browser keep their own flame. */
-const storageKey = () => `financeStreak:${Cookies.get("userId") || "local"}`;
+import { useRecordStreakVisit } from "api/main";
+import { toDayKey } from "lib/streak";
+import useStore from "store/general";
 
 /**
  * Records that the app has been opened today and hands back the streak.
  *
- * The visit is written on mount and re-checked whenever the tab comes back to
- * the front, which is what rolls the number over for a tab left open overnight.
+ * The record lives on the server, so the same run continues on a phone and a
+ * laptop. `all-info` already carries it, which is what the badge draws first;
+ * this only reports the visit and swaps in the answer. The call is idempotent
+ * per day, and is repeated when the tab comes back to the front so a tab left
+ * open overnight rolls over.
  */
 export const useStreak = () => {
-    const [record, setRecord] = useState<StreakRecord | null>(null);
+    const streak = useStore((state) => state.streak);
+    const setStreak = useStore((state) => state.setStreak);
+
     const [reached, setReached] = useState<number | null>(null);
+    const { mutateAsync: recordVisit } = useRecordStreakVisit();
 
-    const sync = useCallback(() => {
-        const key = storageKey();
+    // One request per day per tab. Without it every return to the tab would
+    // send another one, and React's strict mode would double the first.
+    const reportedDay = useRef<string | null>(null);
 
-        let stored: StreakRecord | null = null;
+    const sync = useCallback(async () => {
+        const day = toDayKey();
+        if (reportedDay.current === day) return;
+        reportedDay.current = day;
+
         try {
-            stored = parseStreak(localStorage.getItem(key));
+            const result = await recordVisit({ day });
+            setStreak(result.streak);
+            if (result.reached) setReached(result.reached);
         } catch {
-            // Private mode or blocked storage: the streak simply starts again.
+            // Offline or a failed request: the badge keeps showing whatever
+            // `all-info` brought, and the visit is reported on the next load.
+            reportedDay.current = null;
         }
-
-        const visit = registerVisit(stored, toDayKey());
-        setRecord(visit.record);
-
-        if (visit.reached) setReached(visit.reached);
-
-        if (visit.isNewDay) {
-            try {
-                localStorage.setItem(key, JSON.stringify(visit.record));
-            } catch {
-                // Nothing to do; the badge still shows the run for this session.
-            }
-        }
-    }, []);
+    }, [recordVisit, setStreak]);
 
     useEffect(() => {
-        sync();
+        void sync();
 
         const onVisible = () => {
-            if (document.visibilityState === "visible") sync();
+            if (document.visibilityState === "visible") void sync();
         };
 
         document.addEventListener("visibilitychange", onVisible);
@@ -55,5 +55,5 @@ export const useStreak = () => {
 
     const clearMilestone = useCallback(() => setReached(null), []);
 
-    return { record, reached, clearMilestone };
+    return { record: streak, reached, clearMilestone };
 };

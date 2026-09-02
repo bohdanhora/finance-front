@@ -42,6 +42,7 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
             transactions: allTransactionsData.transactions || [],
             savingsGoals: allTransactionsData.savingsGoals || [],
             savingsOperations: allTransactionsData.savingsOperations || [],
+            streak: allTransactionsData.streak || null,
             ...(allTransactionsData.currency ? { userCurrency: allTransactionsData.currency } : {}),
             currencyInitialized: Boolean(allTransactionsData.currency),
         });
