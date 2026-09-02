@@ -5,10 +5,9 @@ import {
     ArrowDownToLine,
     ArrowLeftRight,
     ArrowUpFromLine,
-    Banknote,
     CalendarClock,
     CalendarDays,
-    CreditCard,
+    CheckCircle2,
     Pencil,
     PiggyBank,
     Plus,
@@ -35,10 +34,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from "components/ui/dialog";
-import { Section, StatGrid } from "components/wrappers/section";
+import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
-import { calculateSavingsPace, convertSavingsCurrency, getGoalSaved, getStorageBalance } from "lib/savings";
+import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
 import { PrivateProvider } from "providers/auth";
@@ -62,75 +61,25 @@ const SavingsPage = () => {
     const [goalDialogOpen, setGoalDialogOpen] = useState(false);
     const [operationDialogOpen, setOperationDialogOpen] = useState(false);
     const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
-    const [operationGoalId, setOperationGoalId] = useState<string>();
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 
     const usdToUah = bank.usd?.rateBuy ?? 0;
     const eurToUah = bank.eur?.rateBuy ?? 0;
+    const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
 
     const summary = useMemo(() => {
-        const convertPairs = (pairs: Array<{ amount: number; currency: CURRENCY }>) => {
-            const converted = pairs.map(({ amount, currency }) =>
-                convertSavingsCurrency(amount, currency, store.userCurrency, {
-                    usdToUah,
-                    eurToUah,
-                }),
-            );
-            return converted.some((value) => value === null)
-                ? null
-                : (converted as number[]).reduce((total, value) => total + value, 0);
-        };
-
-        const saved = store.savingsGoals.map((goal) => ({
-            amount: getGoalSaved(store.savingsOperations, goal.id),
-            currency: goal.currency,
-        }));
-        const target = store.savingsGoals.map((goal) => ({
-            amount: goal.targetAmount,
-            currency: goal.currency,
-        }));
-        const remaining = store.savingsGoals.map((goal) => ({
-            amount: Math.max(goal.targetAmount - getGoalSaved(store.savingsOperations, goal.id), 0),
-            currency: goal.currency,
-        }));
-        const monthly = store.savingsGoals.map((goal) => {
-            const savedAmount = getGoalSaved(store.savingsOperations, goal.id);
-            const pace = calculateSavingsPace(
-                Math.max(goal.targetAmount - savedAmount, 0),
-                goal.targetDate,
-            );
-
-            return {
-                amount: pace && !pace.isOverdue ? pace.monthlyAmount : goal.monthlyContribution,
-                currency: goal.currency,
-            };
-        });
-        const cash = store.savingsGoals.map((goal) => ({
-            amount: getStorageBalance(store.savingsOperations, SavingsStorage.CASH, goal.id),
-            currency: goal.currency,
-        }));
-        const card = store.savingsGoals.map((goal) => ({
-            amount: getStorageBalance(store.savingsOperations, SavingsStorage.CARD, goal.id),
-            currency: goal.currency,
-        }));
-
         return {
-            saved: convertPairs(saved),
-            target: convertPairs(target),
-            remaining: convertPairs(remaining),
-            monthly: convertPairs(monthly),
-            cash: convertPairs(cash),
-            card: convertPairs(card),
+            saved: getSavingsBalance(store.savingsOperations, store.userCurrency, rates),
+            cash: getSavingsBalance(store.savingsOperations, store.userCurrency, rates, SavingsStorage.CASH),
+            card: getSavingsBalance(store.savingsOperations, store.userCurrency, rates, SavingsStorage.CARD),
         };
-    }, [eurToUah, store.savingsGoals, store.savingsOperations, store.userCurrency, usdToUah]);
+    }, [rates, store.savingsOperations, store.userCurrency]);
 
     const displayMoney = (value: number | null) =>
         value === null ? t("ratesUnavailable") : `${formatCurrency(value)} ${getCurrencySymbol(store.userCurrency)}`;
     const nativeMoney = (value: number, currency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
 
-    const storageTotal = (summary.cash ?? 0) + (summary.card ?? 0);
-    const cashShare = storageTotal > 0 && summary.cash !== null ? (summary.cash / storageTotal) * 100 : 0;
     const recentOperations = [...store.savingsOperations]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 10);
@@ -145,10 +94,7 @@ const SavingsPage = () => {
         setGoalDialogOpen(true);
     };
 
-    const openOperation = (goalId?: string) => {
-        setOperationGoalId(goalId);
-        setOperationDialogOpen(true);
-    };
+    const openOperation = () => setOperationDialogOpen(true);
 
     const confirmDelete = async () => {
         if (!deleteTarget) return;
@@ -189,11 +135,7 @@ const SavingsPage = () => {
                             </div>
 
                             <div className="flex flex-wrap gap-2">
-                                <Button
-                                    variant="secondary"
-                                    disabled={store.savingsGoals.length === 0}
-                                    onClick={() => openOperation()}
-                                >
+                                <Button variant="secondary" onClick={() => openOperation()}>
                                     <ArrowDownToLine />
                                     {t("addOperation")}
                                 </Button>
@@ -204,63 +146,15 @@ const SavingsPage = () => {
                             </div>
                         </header>
 
-                        <StatGrid>
-                            <StatCard label={t("saved")} value={displayMoney(summary.saved)} />
-                            <StatCard label={t("target")} value={displayMoney(summary.target)} />
-                            <StatCard label={t("remaining")} value={displayMoney(summary.remaining)} />
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <StatCard
-                                label={t("monthlyPlan")}
-                                value={displayMoney(summary.monthly)}
-                                secondary={
-                                    store.savingsGoals.length > 0
-                                        ? t("goalsCount", { count: store.savingsGoals.length })
-                                        : undefined
-                                }
+                                label={t("saved")}
+                                value={displayMoney(summary.saved)}
+                                secondary={t("sharedPoolHint")}
                             />
-                        </StatGrid>
-
-                        <Section title={t("whereStored")}>
-                            <div className="border-border bg-card grid gap-5 rounded-2xl border p-5 shadow-sm sm:grid-cols-2 sm:p-6">
-                                <div className="flex items-center gap-4">
-                                    <span className="flex size-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
-                                        <Banknote className="size-5" />
-                                    </span>
-                                    <div>
-                                        <p className="text-muted-foreground text-xs font-medium uppercase">
-                                            {t("cash")}
-                                        </p>
-                                        <p className="mt-0.5 text-xl font-semibold tabular-nums">
-                                            {displayMoney(summary.cash)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <span className="flex size-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
-                                        <CreditCard className="size-5" />
-                                    </span>
-                                    <div>
-                                        <p className="text-muted-foreground text-xs font-medium uppercase">
-                                            {t("card")}
-                                        </p>
-                                        <p className="mt-0.5 text-xl font-semibold tabular-nums">
-                                            {displayMoney(summary.card)}
-                                        </p>
-                                    </div>
-                                </div>
-                                {storageTotal > 0 && summary.cash !== null && summary.card !== null && (
-                                    <div className="sm:col-span-2">
-                                        <div className="bg-muted flex h-2 overflow-hidden rounded-full">
-                                            <span className="bg-emerald-500" style={{ width: `${cashShare}%` }} />
-                                            <span className="bg-indigo-500" style={{ width: `${100 - cashShare}%` }} />
-                                        </div>
-                                        <div className="text-muted-foreground mt-2 flex justify-between text-xs">
-                                            <span>{t("cashShare", { value: Math.round(cashShare) })}</span>
-                                            <span>{t("cardShare", { value: Math.round(100 - cashShare) })}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </Section>
+                            <StatCard label={t("card")} value={displayMoney(summary.card)} secondary={t("bankHint")} />
+                            <StatCard label={t("cash")} value={displayMoney(summary.cash)} secondary={t("cashHint")} />
+                        </div>
 
                         <Section
                             title={t("goals")}
@@ -284,21 +178,36 @@ const SavingsPage = () => {
                             ) : (
                                 <div className="grid gap-3 md:grid-cols-2">
                                     {store.savingsGoals.map((goal) => {
-                                        const saved = getGoalSaved(store.savingsOperations, goal.id);
-                                        const savingsPace = calculateSavingsPace(
-                                            Math.max(goal.targetAmount - saved, 0),
-                                            goal.targetDate,
+                                        const sharedSavings = getSavingsBalance(
+                                            store.savingsOperations,
+                                            goal.currency,
+                                            rates,
                                         );
+                                        const saved = Math.max(sharedSavings ?? 0, 0);
+                                        const covered = Math.min(saved, goal.targetAmount);
+                                        const missing = Math.max(goal.targetAmount - saved, 0);
+                                        const afterPurchase = Math.max(saved - goal.targetAmount, 0);
+                                        const canAfford = sharedSavings !== null && saved >= goal.targetAmount;
+                                        const savingsPace = calculateSavingsPace(missing, goal.targetDate);
                                         const monthlyContribution =
                                             savingsPace && !savingsPace.isOverdue
                                                 ? savingsPace.monthlyAmount
                                                 : goal.monthlyContribution;
                                         const progress =
                                             goal.targetAmount > 0
-                                                ? Math.min((saved / goal.targetAmount) * 100, 100)
+                                                ? Math.min((covered / goal.targetAmount) * 100, 100)
                                                 : 0;
-                                        const hasOperations = store.savingsOperations.some(
-                                            (operation) => operation.goalId === goal.id,
+                                        const comparisonCurrency =
+                                            goal.currency === CURRENCY.UAH
+                                                ? bank.currency === CURRENCY.UAH
+                                                    ? CURRENCY.USD
+                                                    : (bank.currency as CURRENCY)
+                                                : CURRENCY.UAH;
+                                        const convertedTarget = convertSavingsCurrency(
+                                            goal.targetAmount,
+                                            goal.currency,
+                                            comparisonCurrency,
+                                            rates,
                                         );
 
                                         return (
@@ -309,12 +218,14 @@ const SavingsPage = () => {
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0">
                                                         <h3 className="truncate font-semibold">{goal.name}</h3>
-                                                        <p className="text-muted-foreground mt-1 text-xs">
-                                                            {t("savedOf", {
-                                                                saved: nativeMoney(saved, goal.currency),
-                                                                target: nativeMoney(goal.targetAmount, goal.currency),
-                                                            })}
+                                                        <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums">
+                                                            {nativeMoney(goal.targetAmount, goal.currency)}
                                                         </p>
+                                                        {convertedTarget !== null && (
+                                                            <p className="text-muted-foreground mt-0.5 text-xs tabular-nums">
+                                                                ≈ {nativeMoney(convertedTarget, comparisonCurrency)}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <div className="flex shrink-0 items-center gap-1">
                                                         <Button
@@ -340,6 +251,50 @@ const SavingsPage = () => {
                                                         >
                                                             <Trash2 className="size-4" />
                                                         </Button>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    className={twMerge(
+                                                        "mt-4 flex items-start gap-3 rounded-xl border p-3.5",
+                                                        canAfford
+                                                            ? "border-emerald-500/20 bg-emerald-500/[0.07]"
+                                                            : "border-indigo-500/20 bg-indigo-500/[0.06]",
+                                                    )}
+                                                >
+                                                    <CheckCircle2
+                                                        className={twMerge(
+                                                            "mt-0.5 size-4 shrink-0",
+                                                            canAfford
+                                                                ? "text-emerald-600 dark:text-emerald-300"
+                                                                : "text-indigo-600 dark:text-indigo-300",
+                                                        )}
+                                                    />
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-medium">
+                                                            {sharedSavings === null
+                                                                ? t("ratesUnavailable")
+                                                                : canAfford
+                                                                  ? t("canAfford")
+                                                                  : t("savingsCover", {
+                                                                        amount: nativeMoney(covered, goal.currency),
+                                                                        percent: Math.round(progress),
+                                                                    })}
+                                                        </p>
+                                                        {sharedSavings !== null && (
+                                                            <p className="text-muted-foreground mt-0.5 text-xs">
+                                                                {canAfford
+                                                                    ? t("afterPurchase", {
+                                                                          amount: nativeMoney(
+                                                                              afterPurchase,
+                                                                              goal.currency,
+                                                                          ),
+                                                                      })
+                                                                    : t("stillNeeded", {
+                                                                          amount: nativeMoney(missing, goal.currency),
+                                                                      })}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
 
@@ -382,10 +337,7 @@ const SavingsPage = () => {
                                                     <span className="flex items-center gap-2">
                                                         <ArrowDownToLine className="size-3.5" />
                                                         {t("perMonth", {
-                                                            amount: nativeMoney(
-                                                                monthlyContribution,
-                                                                goal.currency,
-                                                            ),
+                                                            amount: nativeMoney(monthlyContribution, goal.currency),
                                                         })}
                                                     </span>
                                                     <span className="flex items-center gap-2 sm:justify-end">
@@ -395,22 +347,6 @@ const SavingsPage = () => {
                                                             : t("noDeadline")}
                                                     </span>
                                                 </div>
-
-                                                <Button
-                                                    variant="secondary"
-                                                    className="mt-4 w-full"
-                                                    onClick={() => openOperation(goal.id)}
-                                                >
-                                                    <Plus />
-                                                    {t("addMoneyMovement")}
-                                                </Button>
-
-                                                <SavingsGoalDialog
-                                                    open={goalDialogOpen && editingGoal?.id === goal.id}
-                                                    goal={editingGoal}
-                                                    currencyLocked={hasOperations}
-                                                    onOpenChange={setGoalDialogOpen}
-                                                />
                                             </article>
                                         );
                                     })}
@@ -427,7 +363,6 @@ const SavingsPage = () => {
                             ) : (
                                 <ul className="border-border bg-card divide-border divide-y rounded-2xl border shadow-sm">
                                     {recentOperations.map((operation) => {
-                                        const goal = store.savingsGoals.find(({ id }) => id === operation.goalId);
                                         const isDeposit = operation.type === SavingsOperationType.DEPOSIT;
                                         const isWithdrawal = operation.type === SavingsOperationType.WITHDRAWAL;
                                         const Icon = isDeposit
@@ -460,7 +395,7 @@ const SavingsPage = () => {
                                                         {operation.note || t(operation.type)}
                                                     </p>
                                                     <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                                                        {goal?.name ?? t("deletedGoal")} · {t(operation.storage)}
+                                                        {t("sharedSavings")} · {t(operation.storage)}
                                                         {operation.destinationStorage
                                                             ? ` → ${t(operation.destinationStorage)}`
                                                             : ""}{" "}
@@ -501,18 +436,8 @@ const SavingsPage = () => {
                     </div>
                 </main>
 
-                <SavingsGoalDialog
-                    open={goalDialogOpen && editingGoal === null}
-                    goal={null}
-                    currencyLocked={false}
-                    onOpenChange={setGoalDialogOpen}
-                />
-                <SavingsOperationDialog
-                    open={operationDialogOpen}
-                    goals={store.savingsGoals}
-                    initialGoalId={operationGoalId}
-                    onOpenChange={setOperationDialogOpen}
-                />
+                <SavingsGoalDialog open={goalDialogOpen} goal={editingGoal} onOpenChange={setGoalDialogOpen} />
+                <SavingsOperationDialog open={operationDialogOpen} onOpenChange={setOperationDialogOpen} />
 
                 <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
                     <DialogContent className="sm:max-w-sm">

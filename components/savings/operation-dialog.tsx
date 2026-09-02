@@ -10,8 +10,9 @@ import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
 import { useAddSavingsOperation } from "api/main";
+import { CURRENCY } from "constants/index";
 import useStore from "store/general";
-import { SavingsGoal, SavingsOperation, SavingsOperationType, SavingsStorage } from "types/transactions";
+import { SavingsOperation, SavingsOperationType, SavingsStorage } from "types/transactions";
 import { Button } from "components/ui/button";
 import {
     Dialog,
@@ -30,11 +31,11 @@ import { Textarea } from "components/ui/textarea";
 
 const operationSchema = z
     .object({
-        goalId: z.string().min(1),
         type: z.nativeEnum(SavingsOperationType),
         storage: z.nativeEnum(SavingsStorage),
         destinationStorage: z.nativeEnum(SavingsStorage),
         amount: z.string().refine((value) => Number(value) > 0),
+        currency: z.nativeEnum(CURRENCY),
         date: z.string().min(1),
         note: z.string().max(160),
     })
@@ -44,25 +45,25 @@ const operationSchema = z
 
 type OperationFormValues = z.infer<typeof operationSchema>;
 
-const getEmptyValues = (goalId = ""): OperationFormValues => ({
-    goalId,
+const getEmptyValues = (currency: CURRENCY): OperationFormValues => ({
     type: SavingsOperationType.DEPOSIT,
     storage: SavingsStorage.CARD,
     destinationStorage: SavingsStorage.CASH,
     amount: "",
+    currency,
     date: dayjs().format("YYYY-MM-DD"),
     note: "",
 });
 
 type Props = {
     open: boolean;
-    goals: SavingsGoal[];
-    initialGoalId?: string;
     onOpenChange: (open: boolean) => void;
 };
 
-export const SavingsOperationDialog = ({ open, goals, initialGoalId, onOpenChange }: Props) => {
+export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const t = useTranslations("savings");
+    const tNav = useTranslations("navbar");
+    const userCurrency = useStore((state) => state.userCurrency);
     const setSavingsGoals = useStore((state) => state.setSavingsGoals);
     const setSavingsOperations = useStore((state) => state.setSavingsOperations);
     const { mutateAsync: addOperation, isPending } = useAddSavingsOperation();
@@ -70,13 +71,13 @@ export const SavingsOperationDialog = ({ open, goals, initialGoalId, onOpenChang
     const form = useForm<OperationFormValues>({
         resolver: zodResolver(operationSchema),
         mode: "onChange",
-        defaultValues: getEmptyValues(),
+        defaultValues: getEmptyValues(userCurrency),
     });
 
     useEffect(() => {
         if (!open) return;
-        form.reset(getEmptyValues(initialGoalId || goals[0]?.id || ""));
-    }, [form, goals, initialGoalId, open]);
+        form.reset(getEmptyValues(userCurrency));
+    }, [form, open, userCurrency]);
 
     const type = form.watch("type");
     const storage = form.watch("storage");
@@ -93,22 +94,18 @@ export const SavingsOperationDialog = ({ open, goals, initialGoalId, onOpenChang
     }, [destinationStorage, form, storage, type]);
 
     const handleOpenChange = (nextOpen: boolean) => {
-        if (!nextOpen) form.reset(getEmptyValues());
+        if (!nextOpen) form.reset(getEmptyValues(userCurrency));
         onOpenChange(nextOpen);
     };
 
     const onSubmit = async (values: OperationFormValues) => {
-        const goal = goals.find(({ id }) => id === values.goalId);
-        if (!goal) return;
-
         const item: SavingsOperation = {
             id: uuidv4(),
-            goalId: values.goalId,
             type: values.type,
             storage: values.storage,
             destinationStorage: values.type === SavingsOperationType.TRANSFER ? values.destinationStorage : undefined,
             amount: Number(values.amount),
-            currency: goal.currency,
+            currency: values.currency,
             date: new Date(`${values.date}T12:00:00.000Z`).toISOString(),
             note: values.note.trim() || undefined,
         };
@@ -133,31 +130,6 @@ export const SavingsOperationDialog = ({ open, goals, initialGoalId, onOpenChang
                             <DialogTitle>{t("newOperation")}</DialogTitle>
                             <DialogDescription>{t("operationDialogHint")}</DialogDescription>
                         </DialogHeader>
-
-                        <FormField
-                            control={form.control}
-                            name="goalId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("goal")}</FormLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder={t("selectGoal")} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {goals.map((goal) => (
-                                                <SelectItem key={goal.id} value={goal.id}>
-                                                    {goal.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
                         <FormField
                             control={form.control}
@@ -281,6 +253,31 @@ export const SavingsOperationDialog = ({ open, goals, initialGoalId, onOpenChang
                                     <FormControl>
                                         <Input inputMode="decimal" placeholder="0" {...field} />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="currency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("currency")}</FormLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {Object.values(CURRENCY).map((currency) => (
+                                                <SelectItem key={currency} value={currency}>
+                                                    {tNav(currency)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

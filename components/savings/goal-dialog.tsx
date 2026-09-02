@@ -11,6 +11,7 @@ import { Calculator, CalendarDays } from "lucide-react";
 
 import { useAddSavingsGoal, useUpdateSavingsGoal } from "api/main";
 import { CURRENCY } from "constants/index";
+import useBankStore from "store/bank";
 import useStore from "store/general";
 import { SavingsGoal } from "types/transactions";
 import { Button } from "components/ui/button";
@@ -27,7 +28,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { calculateSavingsPace, getGoalSaved } from "lib/savings";
+import { calculateSavingsPace, getSavingsBalance } from "lib/savings";
 import { formatCurrency } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -52,17 +53,18 @@ const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
 type Props = {
     open: boolean;
     goal: SavingsGoal | null;
-    currencyLocked: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
-export const SavingsGoalDialog = ({ open, goal, currencyLocked, onOpenChange }: Props) => {
+export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
     const t = useTranslations("savings");
     const tNav = useTranslations("navbar");
     const userCurrency = useStore((state) => state.userCurrency);
     const setSavingsGoals = useStore((state) => state.setSavingsGoals);
     const setSavingsOperations = useStore((state) => state.setSavingsOperations);
     const storeSavingsOperations = useStore((state) => state.savingsOperations);
+    const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
+    const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const { mutateAsync: addGoal, isPending: adding } = useAddSavingsGoal();
     const { mutateAsync: updateGoal, isPending: updating } = useUpdateSavingsGoal();
 
@@ -75,20 +77,20 @@ export const SavingsGoalDialog = ({ open, goal, currencyLocked, onOpenChange }: 
     const targetAmount = Number(form.watch("targetAmount")) || 0;
     const targetDate = form.watch("targetDate");
     const selectedCurrency = form.watch("currency");
-    const savedAmount = goal ? getGoalSaved(storeSavingsOperations, goal.id) : 0;
+    const sharedSavings = getSavingsBalance(storeSavingsOperations, selectedCurrency, {
+        usdToUah,
+        eurToUah,
+    });
+    const savedAmount = Math.max(sharedSavings ?? 0, 0);
     const remainingAmount = Math.max(targetAmount - savedAmount, 0);
-    const savingsPace = useMemo(
-        () => calculateSavingsPace(remainingAmount, targetDate),
-        [remainingAmount, targetDate],
-    );
+    const savingsPace = useMemo(() => calculateSavingsPace(remainingAmount, targetDate), [remainingAmount, targetDate]);
     const today = useMemo(() => {
         const date = new Date();
         date.setHours(0, 0, 0, 0);
         return date;
     }, []);
 
-    const planMoney = (value: number) =>
-        `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
+    const planMoney = (value: number) => `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
 
     useEffect(() => {
         if (!open || !savingsPace || savingsPace.isOverdue) return;
@@ -187,11 +189,7 @@ export const SavingsGoalDialog = ({ open, goal, currencyLocked, onOpenChange }: 
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t("currency")}</FormLabel>
-                                        <Select
-                                            disabled={currencyLocked}
-                                            value={field.value}
-                                            onValueChange={field.onChange}
-                                        >
+                                        <Select value={field.value} onValueChange={field.onChange}>
                                             <FormControl>
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue />
@@ -306,10 +304,6 @@ export const SavingsGoalDialog = ({ open, goal, currencyLocked, onOpenChange }: 
                                     </p>
                                 )}
                             </div>
-                        )}
-
-                        {currencyLocked && (
-                            <p className="text-muted-foreground text-xs leading-relaxed">{t("currencyLocked")}</p>
                         )}
 
                         <DialogFooter>

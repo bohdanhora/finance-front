@@ -49,26 +49,20 @@ export const calculateSavingsPace = (
     return { daysRemaining, dailyAmount, monthlyAmount, isOverdue: false };
 };
 
-export const getStorageBalance = (operations: SavingsOperation[], storage: SavingsStorage, goalId?: string) =>
-    operations
-        .filter((operation) => !goalId || operation.goalId === goalId)
-        .reduce((total, operation) => {
-            if (operation.type === SavingsOperationType.DEPOSIT) {
-                return operation.storage === storage ? total + operation.amount : total;
-            }
+const getOperationStorageAmount = (operation: SavingsOperation, storage?: SavingsStorage) => {
+    if (operation.type === SavingsOperationType.DEPOSIT) {
+        return !storage || operation.storage === storage ? operation.amount : 0;
+    }
 
-            if (operation.type === SavingsOperationType.WITHDRAWAL) {
-                return operation.storage === storage ? total - operation.amount : total;
-            }
+    if (operation.type === SavingsOperationType.WITHDRAWAL) {
+        return !storage || operation.storage === storage ? -operation.amount : 0;
+    }
 
-            if (operation.storage === storage) return total - operation.amount;
-            if (operation.destinationStorage === storage) return total + operation.amount;
-            return total;
-        }, 0);
-
-export const getGoalSaved = (operations: SavingsOperation[], goalId: string) =>
-    getStorageBalance(operations, SavingsStorage.CASH, goalId) +
-    getStorageBalance(operations, SavingsStorage.CARD, goalId);
+    if (!storage) return 0;
+    if (operation.storage === storage) return -operation.amount;
+    if (operation.destinationStorage === storage) return operation.amount;
+    return 0;
+};
 
 export const convertSavingsCurrency = (
     amount: number,
@@ -83,4 +77,24 @@ export const convertSavingsCurrency = (
 
     if (fromRate <= 0 || toRate <= 0) return null;
     return (amount * fromRate) / toRate;
+};
+
+/**
+ * Returns the shared savings balance in one currency. Transfers only change
+ * the selected storage balance and never change the overall savings total.
+ */
+export const getSavingsBalance = (
+    operations: SavingsOperation[],
+    currency: CURRENCY,
+    rates: ExchangeRates,
+    storage?: SavingsStorage,
+): number | null => {
+    const converted = operations.map((operation) => {
+        const amount = getOperationStorageAmount(operation, storage);
+        if (amount === 0) return 0;
+        return convertSavingsCurrency(amount, operation.currency, currency, rates);
+    });
+
+    if (converted.some((value) => value === null)) return null;
+    return (converted as number[]).reduce((total, value) => total + value, 0);
 };

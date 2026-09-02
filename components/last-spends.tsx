@@ -20,7 +20,10 @@ import {
     ShirtIcon,
     HandshakeIcon,
     BanknoteArrowUp,
+    Download,
     Pencil,
+    Search,
+    Trash2,
     X,
 } from "lucide-react";
 import { Input } from "./ui/input";
@@ -225,7 +228,8 @@ export const LastSpends = () => {
                             setClearDialogOpen(nextOpen);
                         }}
                     >
-                        <DialogTrigger className="border-border text-muted-foreground hover:text-foreground h-9 w-full cursor-pointer rounded-lg border px-4 text-sm text-nowrap transition-colors hover:bg-black/[0.04] md:w-fit dark:hover:bg-white/[0.06]">
+                        <DialogTrigger className="border-border text-muted-foreground hover:text-foreground inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-sm text-nowrap transition-colors hover:bg-black/[0.04] md:w-fit dark:hover:bg-white/[0.06]">
+                            <Trash2 className="size-4" />
                             {t("clearDataTitle")}
                         </DialogTrigger>
                         <DialogContent>
@@ -255,14 +259,18 @@ export const LastSpends = () => {
                         </DialogContent>
                     </Dialog>
                     <Button variant="secondary" onClick={exportPdfHandle} className="w-full md:w-fit">
+                        <Download className="size-4" />
                         {exportPdfPending ? t("exporting") : t("exportPdf")}
                     </Button>
-                    <Input
-                        placeholder={t("searchPlaceholder")}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="w-full md:w-fit"
-                    />
+                    <div className="relative w-full md:max-w-64">
+                        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                        <Input
+                            placeholder={t("searchPlaceholder")}
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            className="w-full pl-9"
+                        />
+                    </div>
                     <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-full md:w-fit">
                             <SelectValue placeholder={t("allCategories")} />
@@ -279,13 +287,16 @@ export const LastSpends = () => {
                 </div>
             </div>
 
-            <Table className="w-full border-separate border-spacing-y-1.5">
+            <Table className="w-full min-w-[720px] border-separate border-spacing-y-1.5">
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="text-muted-foreground hover:bg-transparent">
                         <TableHead>{t("amount")}</TableHead>
                         <TableHead>{t("description")}</TableHead>
                         <TableHead>{t("date")}</TableHead>
                         <TableHead>{t("category")}</TableHead>
+                        <TableHead>
+                            <span className="sr-only">{t("delete")}</span>
+                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -310,7 +321,7 @@ export const LastSpends = () => {
                                     )}
                                 >
                                     {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
-                                    {formatCurrency(tx.value)}
+                                    {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
                                 </span>
                                 {!essentialPaymentTransactionIds.has(tx.id) && (
                                     <button
@@ -326,12 +337,16 @@ export const LastSpends = () => {
                                 )}
                             </TableCell>
 
-                            <TableCell>{tx.description}</TableCell>
+                            <TableCell className="max-w-72 truncate">
+                                {tx.description || tCategory(tx.categorie)}
+                            </TableCell>
                             <TableCell>{createDateString(new Date(tx.date))}</TableCell>
 
-                            <TableCell className="flex items-center gap-2">
-                                {categoriesIcons(tx.categorie)}
-                                <span className="uppercase text-xs">{tCategory(tx.categorie)}</span>
+                            <TableCell>
+                                <span className="bg-muted inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5">
+                                    {categoriesIcons(tx.categorie)}
+                                    <span className="text-xs font-medium">{tCategory(tx.categorie)}</span>
+                                </span>
                             </TableCell>
 
                             <TableCell className="text-right">

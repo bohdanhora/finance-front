@@ -7,6 +7,7 @@ import useStore from "store/general";
 import { formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
+import { filterByMonth, monthTotals, toMonthKey } from "lib/statistics";
 import { Section } from "./wrappers/section";
 import { StatCard } from "./stat-card";
 
@@ -21,17 +22,25 @@ export const TotalAmounts = () => {
 
     const userCurrency = store.userCurrency;
 
-    const { totalIncome, totalSpend } = useMemo(() => {
+    const totals = useMemo(() => {
         const rates = {
             [CURRENCY.EUR]: eurRate,
             [CURRENCY.USD]: usdRate,
         };
+        const thisMonth = monthTotals(filterByMonth(store.transactions, toMonthKey(new Date())));
+        const allTime = monthTotals(store.transactions);
 
         return {
-            totalIncome: convertToAllCurrencies(store.totalIncome, rates),
-            totalSpend: convertToAllCurrencies(store.totalSpend, rates),
+            thisMonth: {
+                income: convertToAllCurrencies(thisMonth.income, rates),
+                spend: convertToAllCurrencies(thisMonth.expense, rates),
+            },
+            allTime: {
+                income: convertToAllCurrencies(allTime.income, rates),
+                spend: convertToAllCurrencies(allTime.expense, rates),
+            },
         };
-    }, [store.totalIncome, store.totalSpend, eurRate, usdRate]);
+    }, [eurRate, store.transactions, usdRate]);
 
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);
@@ -42,17 +51,31 @@ export const TotalAmounts = () => {
 
     return (
         <Section title={t("summary")}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <StatCard
-                    label={t("totalIncome")}
-                    value={money(totalIncome.default)}
-                    secondary={alt(totalIncome[currency])}
-                />
-                <StatCard
-                    label={t("totalSpend")}
-                    value={money(totalSpend.default)}
-                    secondary={alt(totalSpend[currency])}
-                />
+            <div className="space-y-6">
+                {(
+                    [
+                        { label: t("thisMonth"), values: totals.thisMonth },
+                        { label: t("allTime"), values: totals.allTime },
+                    ] as const
+                ).map(({ label, values }) => (
+                    <div key={label}>
+                        <p className="text-foreground mb-3 text-sm font-semibold">{label}</p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <StatCard
+                                className="min-h-[7.5rem]"
+                                label={t("totalIncome")}
+                                value={money(values.income.default)}
+                                secondary={alt(values.income[currency])}
+                            />
+                            <StatCard
+                                className="min-h-[7.5rem]"
+                                label={t("totalSpend")}
+                                value={money(values.spend.default)}
+                                secondary={alt(values.spend[currency])}
+                            />
+                        </div>
+                    </div>
+                ))}
             </div>
         </Section>
     );

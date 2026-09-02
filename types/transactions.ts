@@ -24,7 +24,8 @@ export type SavingsGoal = {
 
 export type SavingsOperation = {
     id: string;
-    goalId: string;
+    /** Legacy movements can still point at the goal they were created from. */
+    goalId?: string;
     type: SavingsOperationType;
     storage: SavingsStorage;
     destinationStorage?: SavingsStorage;
