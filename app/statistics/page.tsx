@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -17,11 +17,15 @@ import { Button } from "components/ui/button";
 import useStore from "store/general";
 import { formatCurrency, createDateString } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
+import { getCategoryLabel } from "constants/categories";
 import { filterByMonth, listMonths, monthTotals, toMonthKey } from "lib/statistics";
+import { TransactionEnum } from "constants/index";
+import { formatMonthKey } from "lib/date-locale";
 
 const StatisticsPage = () => {
     const t = useTranslations("statistics");
     const tCat = useTranslations("categories");
+    const locale = useLocale();
 
     const store = useStore();
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -32,6 +36,11 @@ const StatisticsPage = () => {
     const months = useMemo(() => listMonths(store.transactions), [store.transactions]);
     const inMonth = useMemo(() => filterByMonth(store.transactions, month), [store.transactions, month]);
     const totals = useMemo(() => monthTotals(inMonth), [inMonth]);
+    const previousMonth = dayjs(`${month}-01`).subtract(1, "month").format("YYYY-MM");
+    const previousTotals = useMemo(
+        () => monthTotals(filterByMonth(store.transactions, previousMonth)),
+        [previousMonth, store.transactions],
+    );
 
     const topExpenses = useMemo(
         () =>
@@ -47,8 +56,18 @@ const StatisticsPage = () => {
     const isCurrentMonth = month === toMonthKey(new Date());
     const oldest = months[months.length - 1];
     const money = (value: number) => `${formatCurrency(value)} ${symbol}`;
-
-    const savingsRate = totals.income > 0 ? Math.round((totals.net / totals.income) * 100) : 0;
+    const expenseCount = inMonth.filter((tx) => tx.transactionType === TransactionEnum.EXPENSE).length;
+    const daysInCalculation = isCurrentMonth ? dayjs().date() : dayjs(`${month}-01`).daysInMonth();
+    const dailyAverage = daysInCalculation > 0 ? totals.expense / daysInCalculation : 0;
+    const expenseDifference = totals.expense - previousTotals.expense;
+    const expenseChange = previousTotals.expense > 0 ? (expenseDifference / previousTotals.expense) * 100 : null;
+    const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
+    const viewDescription: Record<ChartView, string> = {
+        categories: t("categoriesDescription"),
+        daily: t("dailyDescription"),
+        months: t("monthsDescription"),
+        trend: t("trendDescription"),
+    };
 
     return (
         <GetDataProvider>
@@ -75,7 +94,7 @@ const StatisticsPage = () => {
                                     <ChevronLeft />
                                 </Button>
                                 <span className="min-w-[9.5rem] text-center text-sm font-medium">
-                                    {dayjs(`${month}-01`).format("MMMM YYYY")}
+                                    {formatMonthKey(month, locale)}
                                 </span>
                                 <Button
                                     variant="secondary"
@@ -93,29 +112,34 @@ const StatisticsPage = () => {
                             <StatCard label={t("income")} value={money(totals.income)} />
                             <StatCard label={t("expense")} value={money(totals.expense)} />
                             <StatCard
-                                label={t("net")}
+                                label={t("monthBalance")}
                                 value={`${totals.net >= 0 ? "+" : "-"}${money(Math.abs(totals.net))}`}
-                                secondary={totals.income > 0 ? `${t("savingsRate")}: ${savingsRate}%` : undefined}
+                                secondary={t("monthBalanceHint")}
                             />
-                            <StatCard label={t("transactions")} value={String(totals.count)} />
+                            <StatCard
+                                label={t("transactions")}
+                                value={String(totals.count)}
+                                secondary={t("expenseTransactions", { count: expenseCount })}
+                            />
                         </StatGrid>
 
                         <Section
-                            title={t("thisMonth")}
+                            title={t("analysisTitle")}
                             actions={
                                 <ViewSwitcher
                                     value={view}
                                     onChange={setView}
                                     options={[
-                                        { value: "categories", label: t("viewCategories") },
-                                        { value: "daily", label: t("viewDaily") },
-                                        { value: "months", label: t("viewMonths") },
-                                        { value: "trend", label: t("viewTrend") },
+                                        { value: "categories", label: t("whereSpent") },
+                                        { value: "daily", label: t("spendingByDay") },
+                                        { value: "months", label: t("compareMonths") },
+                                        { value: "trend", label: t("balanceByDay") },
                                     ]}
                                 />
                             }
                         >
                             <div className="border-border bg-card w-full rounded-2xl border p-5 shadow-sm sm:p-6">
+                                <p className="text-muted-foreground mb-6 max-w-2xl text-sm">{viewDescription[view]}</p>
                                 {inMonth.length === 0 && view !== "months" ? (
                                     <p className="text-muted-foreground py-16 text-center text-sm">{t("noData")}</p>
                                 ) : (
@@ -130,18 +154,50 @@ const StatisticsPage = () => {
                             </div>
                         </Section>
 
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <StatCard label={t("averageExpense")} value={money(totals.averageExpense)} />
-                            <StatCard
-                                label={t("largestExpense")}
-                                value={totals.largestExpense ? money(totals.largestExpense.value) : money(0)}
-                                secondary={
-                                    totals.largestExpense
-                                        ? totals.largestExpense.description || tCat(totals.largestExpense.categorie)
-                                        : undefined
-                                }
-                            />
-                        </div>
+                        <Section title={t("keyFigures")}>
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                <StatCard
+                                    label={t("averagePurchase")}
+                                    value={money(totals.averageExpense)}
+                                    secondary={t("averagePurchaseHint", { count: expenseCount })}
+                                    hint={t("averagePurchaseExplanation")}
+                                />
+                                <StatCard
+                                    label={t("averagePerDay")}
+                                    value={money(dailyAverage)}
+                                    secondary={t("averagePerDayHint", { count: daysInCalculation })}
+                                    hint={t("averagePerDayExplanation")}
+                                />
+                                <StatCard
+                                    label={t("versusPreviousMonth")}
+                                    value={
+                                        expenseChange === null
+                                            ? "—"
+                                            : `${expenseChange >= 0 ? "+" : ""}${Math.round(expenseChange)}%`
+                                    }
+                                    secondary={
+                                        expenseChange === null
+                                            ? t("noPreviousMonthData")
+                                            : expenseDifference > 0
+                                              ? t("spentMore", { amount: money(Math.abs(expenseDifference)) })
+                                              : expenseDifference < 0
+                                                ? t("spentLess", { amount: money(Math.abs(expenseDifference)) })
+                                                : t("spentSame")
+                                    }
+                                    hint={t("versusPreviousMonthExplanation")}
+                                />
+                                <StatCard
+                                    label={t("largestExpense")}
+                                    value={totals.largestExpense ? money(totals.largestExpense.value) : money(0)}
+                                    secondary={
+                                        totals.largestExpense
+                                            ? totals.largestExpense.description ||
+                                              categoryLabel(totals.largestExpense.categorie)
+                                            : undefined
+                                    }
+                                />
+                            </div>
+                        </Section>
 
                         {topExpenses.length > 0 && (
                             <Section title={t("topExpenses")}>
@@ -150,10 +206,11 @@ const StatisticsPage = () => {
                                         <li key={tx.id} className="flex items-center justify-between gap-4 px-5 py-3.5">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium">
-                                                    {tx.description || tCat(tx.categorie)}
+                                                    {tx.description || categoryLabel(tx.categorie)}
                                                 </p>
                                                 <p className="text-muted-foreground text-xs">
-                                                    {tCat(tx.categorie)} · {createDateString(new Date(tx.date))}
+                                                    {categoryLabel(tx.categorie)} ·{" "}
+                                                    {createDateString(new Date(tx.date))}
                                                 </p>
                                             </div>
                                             <span className="shrink-0 text-sm font-medium tabular-nums text-rose-600 dark:text-rose-400">

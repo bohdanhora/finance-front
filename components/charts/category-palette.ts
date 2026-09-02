@@ -15,6 +15,14 @@ export const CATEGORY_COLORS = [
     "#ec4899",
     "#0ea5e9",
     "#f97316",
+    "#8b5cf6",
+    "#22c55e",
+    "#e11d48",
+    "#06b6d4",
+    "#d97706",
+    "#7c3aed",
+    "#65a30d",
+    "#db2777",
 ];
 
 export const colorFor = (index: number) => CATEGORY_COLORS[index % CATEGORY_COLORS.length];

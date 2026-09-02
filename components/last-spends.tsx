@@ -1,31 +1,13 @@
 "use client";
 
-import { useState, useMemo, JSX } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import { TransactionType, UpdateTransactionPayload } from "types/transactions";
 import { createDateString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
 import useStore from "store/general";
 
-import {
-    ShoppingBasketIcon,
-    SparklesIcon,
-    HouseIcon,
-    UtensilsIcon,
-    SmilePlusIcon,
-    HamburgerIcon,
-    CarTaxiFrontIcon,
-    BanknoteIcon,
-    GiftIcon,
-    ShirtIcon,
-    HandshakeIcon,
-    BanknoteArrowUp,
-    Download,
-    Pencil,
-    Search,
-    Trash2,
-    X,
-} from "lucide-react";
+import { Download, Pencil, Search, Trash2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
@@ -51,24 +33,8 @@ import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
 import { getCurrencySymbol } from "lib/currency";
-
-const categoriesIcons = (category: string) => {
-    const map: Record<string, JSX.Element> = {
-        groceries: <ShoppingBasketIcon className="h-4 w-4" />,
-        cosmetics: <SparklesIcon className="h-4 w-4" />,
-        home: <HouseIcon className="h-4 w-4" />,
-        restaurant: <UtensilsIcon className="h-4 w-4" />,
-        entertainment: <SmilePlusIcon className="h-4 w-4" />,
-        delivery: <HamburgerIcon className="h-4 w-4" />,
-        transport: <CarTaxiFrontIcon className="h-4 w-4" />,
-        credit: <BanknoteIcon className="h-4 w-4" />,
-        gifts: <GiftIcon className="h-4 w-4" />,
-        clothing: <ShirtIcon className="h-4 w-4" />,
-        essentials: <HandshakeIcon className="h-4 w-4" />,
-        income: <BanknoteArrowUp className="h-4 w-4" />,
-    };
-    return map[category] ?? null;
-};
+import { CategoryIcon } from "components/categories/category-icon";
+import { getCategoryLabel } from "constants/categories";
 
 export const LastSpends = () => {
     const store = useStore();
@@ -79,6 +45,7 @@ export const LastSpends = () => {
     const t = useTranslations("transactions");
     const tCategory = useTranslations("categories");
     const tErr = useTranslations("errors");
+    const categoryLabel = useCallback((category: string) => getCategoryLabel(category, tCategory), [tCategory]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
@@ -98,13 +65,18 @@ export const LastSpends = () => {
 
     const filteredTransactions = useMemo(() => {
         return store.transactions.filter((tx: TransactionType) => {
-            const matchesCategory = selectedCategory === "all" || tCategory(tx.categorie) === selectedCategory;
-            const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCategory = selectedCategory === "all" || tx.categorie === selectedCategory;
+            const normalizedSearch = searchTerm.toLocaleLowerCase();
+            const matchesSearch =
+                tx.description.toLocaleLowerCase().includes(normalizedSearch) ||
+                categoryLabel(tx.categorie).toLocaleLowerCase().includes(normalizedSearch);
             return matchesCategory && matchesSearch;
         });
-    }, [searchTerm, selectedCategory, store.transactions, tCategory]);
+    }, [categoryLabel, searchTerm, selectedCategory, store.transactions]);
 
-    const uniqueCategories = [...new Set(store.transactions.map((tx) => tCategory(tx.categorie)))];
+    const uniqueCategories = [...new Set(store.transactions.map((tx) => tx.categorie))].sort((a, b) =>
+        categoryLabel(a).localeCompare(categoryLabel(b)),
+    );
     const essentialPaymentTransactionIds = useMemo(
         () =>
             new Set(
@@ -119,9 +91,9 @@ export const LastSpends = () => {
         if (selectedCategory === "all") return null;
 
         return store.transactions
-            .filter((tx) => tCategory(tx.categorie) === selectedCategory)
+            .filter((tx) => tx.categorie === selectedCategory)
             .reduce((acc, tx) => acc + tx.value, 0);
-    }, [selectedCategory, store.transactions, tCategory]);
+    }, [selectedCategory, store.transactions]);
 
     const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
 
@@ -214,7 +186,7 @@ export const LastSpends = () => {
                     <p className="text-base">
                         {t("total")}:
                         <span className="font-bold pl-1">
-                            {selectedCategory === tCategory("income") ? "+" : "-"}
+                            {selectedCategory === TransactionEnum.INCOME ? "+" : "-"}
                             {formatCurrency(totalForCategory)}
                         </span>
                         <span>{getCurrencySymbol(userCurrency)}</span>
@@ -279,7 +251,7 @@ export const LastSpends = () => {
                             <SelectItem value="all">{t("all")}</SelectItem>
                             {uniqueCategories.map((cat) => (
                                 <SelectItem key={cat} value={cat}>
-                                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                    {categoryLabel(cat)}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -338,15 +310,27 @@ export const LastSpends = () => {
                             </TableCell>
 
                             <TableCell className="max-w-72 truncate">
-                                {tx.description || tCategory(tx.categorie)}
+                                {tx.description || categoryLabel(tx.categorie)}
                             </TableCell>
                             <TableCell>{createDateString(new Date(tx.date))}</TableCell>
 
                             <TableCell>
-                                <span className="bg-muted inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5">
-                                    {categoriesIcons(tx.categorie)}
-                                    <span className="text-xs font-medium">{tCategory(tx.categorie)}</span>
-                                </span>
+                                <button
+                                    type="button"
+                                    disabled={essentialPaymentTransactionIds.has(tx.id)}
+                                    onClick={() => {
+                                        setEditingTx(tx);
+                                        setEditOpen(true);
+                                    }}
+                                    aria-label={t("edit")}
+                                    className="bg-muted enabled:hover:bg-indigo-500/10 enabled:hover:text-indigo-600 inline-flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors disabled:cursor-default dark:enabled:hover:text-indigo-300"
+                                >
+                                    <CategoryIcon category={tx.categorie} className="size-4" />
+                                    <span className="text-xs font-medium">{categoryLabel(tx.categorie)}</span>
+                                    {!essentialPaymentTransactionIds.has(tx.id) && (
+                                        <Pencil className="size-3 opacity-60" />
+                                    )}
+                                </button>
                             </TableCell>
 
                             <TableCell className="text-right">

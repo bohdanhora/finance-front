@@ -14,12 +14,14 @@ import {
     Filler,
     type TooltipItem,
 } from "chart.js";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { formatCurrency } from "lib/utils";
 import { byCategory, byDay, byMonth, cumulativeNet, type MonthKey } from "lib/statistics";
 import { TransactionType } from "types/transactions";
 import { CATEGORY_COLORS, colorFor, EXPENSE_COLOR, INCOME_COLOR } from "./category-palette";
+import { getCategoryLabel } from "constants/categories";
+import { formatMonthKey } from "lib/date-locale";
 
 ChartJS.register(ArcElement, Tooltip, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler);
 
@@ -55,7 +57,9 @@ type Props = {
 export const SpendingChart = ({ view, transactions, allTransactions, month, currencySymbol }: Props) => {
     const tCat = useTranslations("categories");
     const tStats = useTranslations("statistics");
+    const locale = useLocale();
     const axis = useAxisColors();
+    const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
 
     const categories = useMemo(() => byCategory(transactions), [transactions]);
     const days = useMemo(() => byDay(transactions, month), [transactions, month]);
@@ -78,10 +82,10 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
 
         return (
             <div className="flex flex-col items-center gap-8 lg:flex-row">
-                <div className="w-full max-w-[280px] shrink-0">
+                <div className="relative w-full max-w-[280px] shrink-0">
                     <Doughnut
                         data={{
-                            labels: categories.map((c) => tCat(c.name)),
+                            labels: categories.map((c) => categoryLabel(c.name)),
                             datasets: [
                                 {
                                     data: categories.map((c) => c.value),
@@ -96,6 +100,15 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
                             plugins: { legend: { display: false }, tooltip: moneyTooltip(currencySymbol) },
                         }}
                     />
+                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <span className="text-muted-foreground text-[0.65rem] font-medium tracking-wide uppercase">
+                            {tStats("expense")}
+                        </span>
+                        <span className="mt-1 text-lg font-semibold tabular-nums">
+                            {formatCurrency(categories.reduce((total, category) => total + category.value, 0))}{" "}
+                            {currencySymbol}
+                        </span>
+                    </div>
                 </div>
 
                 <ul className="flex w-full flex-col gap-3">
@@ -107,7 +120,7 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
                                         className="size-2.5 shrink-0 rounded-full"
                                         style={{ backgroundColor: colorFor(index) }}
                                     />
-                                    <span className="truncate">{tCat(cat.name)}</span>
+                                    <span className="truncate">{categoryLabel(cat.name)}</span>
                                 </span>
                                 <span className="text-muted-foreground shrink-0 tabular-nums">
                                     {formatCurrency(cat.value)} {currencySymbol}
@@ -165,7 +178,7 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
             <div className="h-[320px] w-full">
                 <Bar
                     data={{
-                        labels: months.map((m) => m.label),
+                        labels: months.map((month) => formatMonthKey(month.month, locale, "short")),
                         datasets: [
                             {
                                 label: tStats("income"),

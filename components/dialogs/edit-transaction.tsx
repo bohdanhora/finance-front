@@ -21,15 +21,16 @@ import {
 } from "components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import { Calendar } from "components/ui/calendar";
 import { Textarea } from "components/ui/textarea";
+import { CategoryCombobox } from "components/categories/category-combobox";
+import { TransactionEnum } from "constants/index";
 
 const editTransactionSchema = z.object({
     value: z.string().min(1),
-    categories: z.string().min(1),
+    categories: z.string().trim().min(1).max(40),
     date: z.date(),
     description: z.string().optional(),
 });
@@ -40,21 +41,6 @@ interface Props {
     onOpenChange: (open: boolean) => void;
     onSubmit: (data: z.infer<typeof editTransactionSchema>) => Promise<void>;
 }
-
-const categoryKeys = [
-    "groceries",
-    "cosmetics",
-    "home",
-    "restaurant",
-    "entertainment",
-    "delivery",
-    "transport",
-    "credit",
-    "gifts",
-    "clothing",
-    "essentials",
-    "income",
-];
 
 const getEmptyTransactionValues = () => ({
     value: "",
@@ -128,20 +114,11 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t("dialogs.category")}</FormLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={t("dialogs.chooseCategory")} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {categoryKeys.map((cat) => (
-                                                <SelectItem key={cat} value={cat}>
-                                                    {t(`categories.${cat}`)}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <CategoryCombobox
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        includeIncome={transaction?.transactionType === TransactionEnum.INCOME}
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}

@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
 import { Input } from "ui/input";
 import {
     Dialog,
@@ -22,21 +21,7 @@ import {
     DialogTrigger,
 } from "ui/dialog";
 
-import {
-    ShoppingBasketIcon,
-    CalendarIcon,
-    SparklesIcon,
-    HouseIcon,
-    SmilePlusIcon,
-    UtensilsIcon,
-    HamburgerIcon,
-    CarTaxiFrontIcon,
-    BanknoteIcon,
-    GiftIcon,
-    ShirtIcon,
-    HandshakeIcon,
-    MinusIcon,
-} from "lucide-react";
+import { CalendarIcon, MinusIcon } from "lucide-react";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { Calendar } from "ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
@@ -50,20 +35,7 @@ import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import { getIncomeFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
-
-const categoryKeys = [
-    "groceries",
-    "cosmetics",
-    "home",
-    "restaurant",
-    "entertainment",
-    "delivery",
-    "transport",
-    "credit",
-    "gifts",
-    "clothing",
-    "essentials",
-];
+import { CategoryCombobox } from "components/categories/category-combobox";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -89,35 +61,6 @@ export const ExpenseDialogComponent = () => {
 
     const resetForm = () => {
         form.reset({ value: "", description: "", categories: "", date: new Date() });
-    };
-
-    const categoriesIcons = (category: string) => {
-        switch (category) {
-            case "groceries":
-                return <ShoppingBasketIcon />;
-            case "cosmetics":
-                return <SparklesIcon />;
-            case "home":
-                return <HouseIcon />;
-            case "restaurant":
-                return <UtensilsIcon />;
-            case "entertainment":
-                return <SmilePlusIcon />;
-            case "delivery":
-                return <HamburgerIcon />;
-            case "transport":
-                return <CarTaxiFrontIcon />;
-            case "credit":
-                return <BanknoteIcon />;
-            case "gifts":
-                return <GiftIcon />;
-            case "clothing":
-                return <ShirtIcon />;
-            case "essentials":
-                return <HandshakeIcon />;
-            default:
-                return null;
-        }
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -204,25 +147,7 @@ export const ExpenseDialogComponent = () => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t("dialogs.category")}</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={t("dialogs.chooseCategory")} />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {categoryKeys.map((item) => (
-                                                <SelectItem
-                                                    value={item}
-                                                    key={item}
-                                                    className="flex items-center justify-between gap-x-7"
-                                                >
-                                                    {categoriesIcons(item)}
-                                                    {t(`categories.${item}`)}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <CategoryCombobox value={field.value} onChange={field.onChange} />
                                     <FormMessage />
                                 </FormItem>
                             )}

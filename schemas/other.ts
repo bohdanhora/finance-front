@@ -55,7 +55,7 @@ export const getIncomeFormSchema = (totalAmount: number) => {
             }),
 
         description: z.string().optional(),
-        categories: z.string().min(1),
+        categories: z.string().trim().min(1).max(40),
         date: z.date(),
     });
 };
