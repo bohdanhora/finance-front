@@ -8,7 +8,7 @@ import { CurrencyDropdown } from "./currency-dropdown";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
 import { Loader } from "./loader";
-import { BarChart3, HelpCircle, LayoutDashboard, LogOutIcon, PiggyBank } from "lucide-react";
+import { BarChart3, Calculator, HelpCircle, LayoutDashboard, LogOutIcon, PiggyBank } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
@@ -25,6 +25,7 @@ import { TOUR_START_EVENT } from "./onboarding/tour";
 import { twMerge } from "tailwind-merge";
 import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
+import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 
 export const Navbar = () => {
     const { data: currency } = useGetCurrencyQuery();
@@ -161,6 +162,17 @@ export const Navbar = () => {
                                 <CurrencyDropdown rate={buy} />
                             </div>
                         )}
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hidden lg:inline-flex"
+                            aria-label={tNav("calculator")}
+                            title={tNav("calculator")}
+                            onClick={() => window.dispatchEvent(new Event(CALCULATOR_TOGGLE_EVENT))}
+                        >
+                            <Calculator />
+                        </Button>
 
                         <Button
                             variant="ghost"

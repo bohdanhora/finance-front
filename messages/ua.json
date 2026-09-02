@@ -15,7 +15,12 @@
         "dashboard": "Дашборд",
         "statistics": "Статистика",
         "savings": "Заощадження",
-        "logout": "Вийти"
+        "logout": "Вийти",
+        "calculator": "Калькулятор"
+    },
+    "calculator": {
+        "title": "Калькулятор",
+        "close": "Закрити калькулятор"
     },
     "api": {
         "successLogin": "Вхід виконано успішно",

@@ -15,7 +15,12 @@
         "dashboard": "Dashboard",
         "statistics": "Statistics",
         "savings": "Savings",
-        "logout": "Log out"
+        "logout": "Log out",
+        "calculator": "Calculator"
+    },
+    "calculator": {
+        "title": "Calculator",
+        "close": "Close calculator"
     },
     "api": {
         "successLogin": "Logged in successfully",

@@ -3,10 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { CalendarIcon } from "lucide-react";
-import { twMerge } from "tailwind-merge";
 import { useTranslations } from "next-intl";
-import dayjs from "dayjs";
 import { useEffect } from "react";
 
 import { TransactionType } from "types/transactions";
@@ -21,9 +18,8 @@ import {
 } from "components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
-import { Calendar } from "components/ui/calendar";
+import { DateObjectPicker } from "components/ui/date-picker";
 import { Textarea } from "components/ui/textarea";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { TransactionEnum } from "constants/index";
@@ -130,26 +126,9 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>{t("dialogs.date")}</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="popover"
-                                                    type="button"
-                                                    className={twMerge(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground",
-                                                    )}
-                                                >
-                                                    {dayjs(field.value).format("DD MMMM YYYY")}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <FormControl>
+                                        <DateObjectPicker value={field.value} onChange={field.onChange} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

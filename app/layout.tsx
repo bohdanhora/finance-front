@@ -11,6 +11,7 @@ import { ToastProvider } from "providers/toast";
 
 import "./globals.css";
 import { ReactQueryProvider } from "providers/react-query";
+import { DesktopCalculator } from "components/calculator/desktop-calculator";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 const poppins = Poppins({
@@ -44,6 +45,7 @@ const RootLayout = async ({
                     <ReactQueryProvider>
                         <ProviderTheme>
                             <main>{children}</main>
+                            <DesktopCalculator />
                             <ToastProvider />
                         </ProviderTheme>
                     </ReactQueryProvider>

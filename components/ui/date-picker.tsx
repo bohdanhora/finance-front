@@ -49,19 +49,31 @@ type DatePickerProps = Omit<React.ComponentProps<typeof Button>, "value" | "onCh
     disabledDates?: React.ComponentProps<typeof Calendar>["disabled"];
 };
 
-const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
-    ({ value, onChange, disabledDates, className, disabled, ...triggerProps }, ref) => {
+type DateObjectPickerProps = Omit<React.ComponentProps<typeof Button>, "value" | "onChange"> & {
+    value?: Date;
+    onChange: (value: Date) => void;
+    disabledDates?: React.ComponentProps<typeof Calendar>["disabled"];
+};
+
+type DatePickerShellProps = Omit<React.ComponentProps<typeof Button>, "value" | "onChange"> & {
+    selectedDate?: Date;
+    onSelectDate: (value?: Date) => void;
+    disabledDates?: React.ComponentProps<typeof Calendar>["disabled"];
+    clearable?: boolean;
+};
+
+const DatePickerShell = React.forwardRef<HTMLButtonElement, DatePickerShellProps>(
+    ({ selectedDate, onSelectDate, disabledDates, clearable = false, className, disabled, ...triggerProps }, ref) => {
         const locale = useLocale() as keyof typeof copy;
         const currentCopy = copy[locale] ?? copy.en;
         const dateLocale = locale === "ru" ? ru : locale === "ua" ? uk : enUS;
         const intlLocale = locale === "ru" ? "ru-RU" : locale === "ua" ? "uk-UA" : "en-US";
-        const selectedDate = parseDateValue(value);
         const [open, setOpen] = React.useState(false);
         const today = React.useMemo(() => new Date(), []);
 
         const selectDate = (date?: Date) => {
             if (!date) return;
-            onChange(toDateValue(date));
+            onSelectDate(date);
             setOpen(false);
         };
 
@@ -74,7 +86,7 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
                         variant="popover"
                         disabled={disabled}
                         className={twMerge(
-                            "h-10 w-full justify-start rounded-xl px-3 text-left font-normal shadow-none",
+                            "h-10 w-full justify-start rounded-xl px-3 text-left font-normal shadow-none transition-colors hover:border-indigo-500/50 hover:bg-indigo-500/5",
                             !selectedDate && "text-muted-foreground",
                             className,
                         )}
@@ -95,7 +107,7 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
                 <PopoverContent
                     align="start"
                     sideOffset={8}
-                    className="border-border bg-popover text-popover-foreground w-auto rounded-2xl p-1 shadow-2xl"
+                    className="border-border/80 bg-popover text-popover-foreground w-auto overflow-hidden rounded-[22px] p-0 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.65)]"
                 >
                     <Calendar
                         mode="single"
@@ -109,19 +121,23 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
                         startMonth={new Date(1900, 0, 1)}
                         endMonth={new Date(today.getFullYear() + 30, 11, 31)}
                         footer={
-                            <div className="border-border mt-2 flex items-center justify-between border-t pt-2">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    disabled={!value}
-                                    onClick={() => {
-                                        onChange("");
-                                        setOpen(false);
-                                    }}
-                                >
-                                    {currentCopy.clear}
-                                </Button>
+                            <div className="border-border/70 mt-3 flex items-center justify-between border-t pt-3">
+                                {clearable ? (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={!selectedDate}
+                                        onClick={() => {
+                                            onSelectDate(undefined);
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        {currentCopy.clear}
+                                    </Button>
+                                ) : (
+                                    <span />
+                                )}
                                 <Button type="button" variant="secondary" size="sm" onClick={() => selectDate(today)}>
                                     {currentCopy.today}
                                 </Button>
@@ -134,6 +150,33 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     },
 );
 
+DatePickerShell.displayName = "DatePickerShell";
+
+const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(({ value, onChange, ...props }, ref) => (
+    <DatePickerShell
+        ref={ref}
+        selectedDate={parseDateValue(value)}
+        onSelectDate={(date) => onChange(date ? toDateValue(date) : "")}
+        clearable
+        {...props}
+    />
+));
+
 DatePicker.displayName = "DatePicker";
 
-export { DatePicker };
+const DateObjectPicker = React.forwardRef<HTMLButtonElement, DateObjectPickerProps>(
+    ({ value, onChange, ...props }, ref) => (
+        <DatePickerShell
+            ref={ref}
+            selectedDate={value}
+            onSelectDate={(date) => {
+                if (date) onChange(date);
+            }}
+            {...props}
+        />
+    ),
+);
+
+DateObjectPicker.displayName = "DateObjectPicker";
+
+export { DateObjectPicker, DatePicker };

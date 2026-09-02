@@ -21,10 +21,8 @@ import {
     DialogTrigger,
 } from "ui/dialog";
 
-import { CalendarIcon, MinusIcon } from "lucide-react";
+import { MinusIcon } from "lucide-react";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
-import { Calendar } from "ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "ui/popover";
 import { Textarea } from "ui/textarea";
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
@@ -36,6 +34,7 @@ import dayjs from "dayjs";
 import { getIncomeFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
 import { CategoryCombobox } from "components/categories/category-combobox";
+import { DateObjectPicker } from "components/ui/date-picker";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -158,35 +157,16 @@ export const ExpenseDialogComponent = () => {
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>{t("dialogs.date")}</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="popover"
-                                                    type="button"
-                                                    className={twMerge(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground",
-                                                    )}
-                                                >
-                                                    {dayjs(field.value).format("DD MMMM YYYY")}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                    dayjs(date).isAfter(dayjs(), "day") ||
-                                                    dayjs(date).isBefore(dayjs("1900-01-01"), "day")
-                                                }
-                                                captionLayout="dropdown"
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <FormControl>
+                                        <DateObjectPicker
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            disabledDates={(date) =>
+                                                dayjs(date).isAfter(dayjs(), "day") ||
+                                                dayjs(date).isBefore(dayjs("1900-01-01"), "day")
+                                            }
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
