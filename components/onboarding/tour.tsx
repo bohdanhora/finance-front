@@ -17,6 +17,7 @@ const STEPS = [
     { anchor: "essentials", key: "essentials" },
     { anchor: "nextMonth", key: "nextMonth" },
     { anchor: "statistics", key: "statistics" },
+    { anchor: "streak", key: "streak" },
 ] as const;
 
 type Rect = { top: number; left: number; width: number; height: number };

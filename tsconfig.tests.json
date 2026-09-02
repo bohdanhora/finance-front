@@ -17,8 +17,10 @@
         "lib/report/data.ts",
         "lib/report/types.ts",
         "lib/statistics.ts",
+        "lib/streak.ts",
         "tests/savings.test.ts",
         "tests/report.test.ts",
-        "tests/statistics.test.ts"
+        "tests/statistics.test.ts",
+        "tests/streak.test.ts"
     ]
 }

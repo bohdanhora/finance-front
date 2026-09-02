@@ -25,6 +25,7 @@ import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
 import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 import { NavbarActionsMenu } from "./navbar-actions-menu";
+import { StreakBadge } from "./streak/streak-badge";
 
 export const Navbar = () => {
     const { data: currency } = useGetCurrencyQuery();
@@ -92,30 +93,41 @@ export const Navbar = () => {
         <>
             {logoutPending && <Loader />}
             <header className="sticky top-0 z-40 w-full border-b border-black/8 bg-white/75 shadow-[0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-2xl dark:border-white/8 dark:bg-zinc-950/75 dark:shadow-none">
-                <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 sm:px-5 lg:px-6">
-                    <Link
-                        href={Routes.HOME}
-                        aria-label="Finance"
-                        className="flex w-fit shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                    >
-                        <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
-                            <svg
-                                width="19"
-                                height="19"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="white"
-                                strokeWidth="2.2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="M3 17.5 9 11l4 4 7.5-7.5" />
-                                <path d="M15 7h6v6" />
-                            </svg>
-                        </span>
-                        <span className="hidden text-sm font-bold tracking-[-0.02em] xl:inline">Finance</span>
-                    </Link>
+                <div // Phones size the three groups to their content and spread them: the
+                    // symmetric columns below only keep the nav centred while there is
+                    // room for it, and would otherwise let the right hand group slide
+                    // under the nav.
+                    className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_auto_auto] items-center justify-between gap-1 px-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2 sm:px-5 lg:px-6"
+                >
+                    <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                        <Link
+                            href={Routes.HOME}
+                            aria-label="Finance"
+                            className="flex w-fit shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                        >
+                            <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
+                                <svg
+                                    width="19"
+                                    height="19"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="white"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M3 17.5 9 11l4 4 7.5-7.5" />
+                                    <path d="M15 7h6v6" />
+                                </svg>
+                            </span>
+                            <span className="hidden text-sm font-bold tracking-[-0.02em] xl:inline">Finance</span>
+                        </Link>
+
+                        {/* The streak sits next to the logo: the right hand cluster is
+                            already full on a phone, and this side has the room. */}
+                        <StreakBadge />
+                    </div>
 
                     <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
                         {[
@@ -132,7 +144,7 @@ export const Navbar = () => {
                                     aria-current={active ? "page" : undefined}
                                     data-tour={href === Routes.STATISTICS ? "statistics" : undefined}
                                     className={twMerge(
-                                        "relative flex h-9 items-center gap-2 rounded-xl px-2.5 text-sm font-medium transition-all duration-200 sm:px-3",
+                                        "relative flex h-9 items-center gap-2 rounded-xl px-2 text-sm font-medium transition-all duration-200 sm:px-3",
                                         active
                                             ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
                                             : "text-muted-foreground hover:bg-background/70 hover:text-foreground",

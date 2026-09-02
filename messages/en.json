@@ -495,6 +495,47 @@
             "statistics": {
                 "title": "See the whole picture",
                 "body": "Statistics breaks any month down by category, by day and against previous months."
+            },
+            "streak": {
+                "title": "Your streak",
+                "body": "The flame counts the days in a row you have opened the app. It changes colour at ten, fifty and a hundred days."
+            }
+        }
+    },
+    "streak": {
+        "title": "Your streak",
+        "subtitle": "Open the app every day and the flame keeps burning. Miss a day and the count starts over.",
+        "badgeLabel": "Streak: {days, plural, one {# day} other {# days}}",
+        "daysInARow": "{days, plural, one {# day} other {# days}} in a row",
+        "daysShort": "{days, plural, one {# day} other {# days}}",
+        "daysLeft": "{days, plural, one {# day left} other {# days left}}",
+        "nextTier": "Next flame at {days} days",
+        "topTier": "The brightest flame is already yours",
+        "fromDays": "{days, plural, one {from # day} other {from # days}}",
+        "lastWeek": "Last 7 days",
+        "best": "Best run",
+        "tracked": "Visited in {window} days",
+        "milestoneToast": "{days} days in a row. The flame has changed!",
+        "tiers": {
+            "dormant": {
+                "name": "Cold",
+                "body": "The flame has gone out. Open the app to light it again."
+            },
+            "spark": {
+                "name": "Spark",
+                "body": "The habit is catching. Come back tomorrow and the flame grows."
+            },
+            "flame": {
+                "name": "Flame",
+                "body": "Ten days of keeping an eye on your money."
+            },
+            "blaze": {
+                "name": "Blaze",
+                "body": "Fifty days without a miss. This is a real habit now."
+            },
+            "vault": {
+                "name": "Gold",
+                "body": "A hundred days in a row. The coin in the flame is solid gold."
             }
         }
     },

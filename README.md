@@ -23,6 +23,7 @@ It allows users to manage budgets, visualize expenses, and export data - all fro
 - 📄 Export income/expense lists to **PDF**
 - 📈 Track spending with dynamic **charts**
 - 💱 Convert UAH to **USD/EUR** using **Monobank exchange rates**
+- 🔥 Daily **streak counter** with a flame that changes at 10, 50 and 100 days
 - 🌗 Support for **dark** and **light** themes
 - 🌍 Available in **English** and **Russian**
 

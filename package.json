@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsc -p tsconfig.tests.json && node --test .test-dist/tests/savings.test.js .test-dist/tests/report.test.js .test-dist/tests/statistics.test.js",
+    "test": "tsc -p tsconfig.tests.json && node --test .test-dist/tests/savings.test.js .test-dist/tests/report.test.js .test-dist/tests/statistics.test.js .test-dist/tests/streak.test.js",
     "prettier": "npx prettier '**/*.{js,ts,json,tsx}' --write"
   },
   "dependencies": {

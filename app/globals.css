@@ -274,6 +274,129 @@ body::before {
     animation: dialog-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ---------------------------------------------------------------------------
+   Streak flame
+   One flame, five tiers. The colour and the pace come from the component as
+   custom properties, and everything that actually moves lives here so reduced
+   motion can switch the whole thing off in one place.
+--------------------------------------------------------------------------- */
+
+.streak-flame {
+    --flame-speed: 0s;
+    --flame-glow: 245 158 11;
+}
+
+.streak-glow {
+    position: absolute;
+    inset: -32%;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgb(var(--flame-glow) / 0.45), transparent 68%);
+    animation: streak-glow-pulse calc(var(--flame-speed) * 1.6) ease-in-out infinite;
+}
+
+/* A cold streak is a still picture: nothing burning, nothing to celebrate. */
+.streak-flame[data-tier="dormant"] .streak-glow {
+    opacity: 0.45;
+}
+
+.streak-outer,
+.streak-core {
+    transform-box: fill-box;
+    transform-origin: 50% 95%;
+}
+
+.streak-outer {
+    animation: streak-outer-flicker var(--flame-speed) ease-in-out infinite;
+}
+
+.streak-core {
+    animation: streak-core-flicker calc(var(--flame-speed) * 0.72) ease-in-out infinite;
+}
+
+/* Coins thrown off by the hotter tiers, each one drifting its own way. */
+.streak-coin {
+    position: absolute;
+    bottom: 22%;
+    left: 50%;
+    border-radius: 9999px;
+    background: rgb(var(--flame-glow) / 0.95);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6);
+    opacity: 0;
+    animation: streak-coin-rise calc(var(--flame-speed) * 2.2) ease-out infinite;
+}
+
+.streak-shine {
+    animation: streak-shine-sweep calc(var(--flame-speed) * 2.6) ease-in-out infinite;
+}
+
+@keyframes streak-glow-pulse {
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.14);
+    }
+}
+
+@keyframes streak-outer-flicker {
+    0%,
+    100% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(0.965, 1.045);
+    }
+    50% {
+        transform: scale(1.035, 0.97);
+    }
+    75% {
+        transform: scale(0.985, 1.02);
+    }
+}
+
+@keyframes streak-core-flicker {
+    0%,
+    100% {
+        transform: scale(1, 1);
+        opacity: 0.92;
+    }
+    35% {
+        transform: scale(1.08, 0.92);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(0.9, 1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes streak-coin-rise {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--coin-drift, 0%)), -190%) scale(1);
+    }
+}
+
+@keyframes streak-shine-sweep {
+    0% {
+        transform: translateX(0);
+    }
+    60%,
+    100% {
+        transform: translateX(54px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .auth-halo,
     .auth-card,
@@ -282,7 +405,12 @@ body::before {
     .rise-in,
     .rise-stagger > *,
     [data-slot="dialog-overlay"][data-state="open"],
-    [data-slot="dialog-content"][data-state="open"] {
+    [data-slot="dialog-content"][data-state="open"],
+    .streak-glow,
+    .streak-outer,
+    .streak-core,
+    .streak-coin,
+    .streak-shine {
         animation: none;
     }
 }
