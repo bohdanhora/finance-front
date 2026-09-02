@@ -304,8 +304,6 @@
         "income": "Доходи",
         "expense": "Витрати",
         "net": "Разом",
-        "monthBalance": "Баланс місяця",
-        "monthBalanceHint": "Доходи мінус витрати за вибраний місяць",
         "transactions": "Транзакцій",
         "expenseTransactions": "З них витрат: {count}",
         "averageExpense": "Середня витрата",
@@ -341,7 +339,17 @@
         "spentSame": "Витрати не змінилися",
         "topExpenses": "Найбільші витрати",
         "thisMonth": "Поточний місяць",
-        "savingsRate": "Відкладено з доходу"
+        "forecast": "Прогноз витрат",
+        "forecastPace": "За темпом {amount} на день",
+        "forecastDays": "Минуло {elapsed} з {total} днів",
+        "forecastTooEarly": "Минуло лише {elapsed} з {total} днів, оцінка груба",
+        "lastMonthResult": "Підсумок минулого місяця",
+        "lastMonthResultExplanation": "Показується, поки в поточному місяці замало днів для прогнозу: замість нього в картці щойно закритий місяць.",
+        "forecastExplanation": "Витрати за минулі дні, поділені на кількість цих днів і помножені на довжину місяця. На початку місяця оцінка груба.",
+        "versusUsual": "Проти звичайного місяця",
+        "versusUsualHint": "{actual} проти {average} у середньому за {count, plural, one {# місяць} few {# місяці} many {# місяців} other {# місяця}}",
+        "versusUsualExplanation": "Наскільки витрати цього місяця відрізняються від середнього за попередні місяці з даними.",
+        "noComparisonData": "Немає попередніх місяців для порівняння"
     },
     "savings": {
         "eyebrow": "Простір заощаджень",

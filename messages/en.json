@@ -304,8 +304,6 @@
         "income": "Income",
         "expense": "Expenses",
         "net": "Net",
-        "monthBalance": "Monthly balance",
-        "monthBalanceHint": "Income minus expenses for the selected month",
         "transactions": "Transactions",
         "expenseTransactions": "Expense transactions: {count}",
         "averageExpense": "Average expense",
@@ -341,7 +339,17 @@
         "spentSame": "Spending did not change",
         "topExpenses": "Biggest expenses",
         "thisMonth": "This month",
-        "savingsRate": "Saved from income"
+        "forecast": "Projected spending",
+        "forecastPace": "At {amount} per day",
+        "forecastDays": "{elapsed} of {total} days elapsed",
+        "forecastTooEarly": "Only {elapsed} of {total} days in, still a rough guess",
+        "lastMonthResult": "Last month's total",
+        "lastMonthResultExplanation": "Shown while the current month is too young for a forecast, so the slot carries the month you just finished.",
+        "forecastExplanation": "Spending so far divided by the days elapsed and multiplied by the length of the month. Early in the month the estimate is rough.",
+        "versusUsual": "Versus a usual month",
+        "versusUsualHint": "{actual} against {average} on average over {count, plural, one {# month} other {# months}}",
+        "versusUsualExplanation": "How this month's spending compares with the average of the earlier months that have data.",
+        "noComparisonData": "No earlier months to compare with"
     },
     "savings": {
         "eyebrow": "Savings workspace",

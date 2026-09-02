@@ -304,8 +304,6 @@
         "income": "Доходы",
         "expense": "Расходы",
         "net": "Итого",
-        "monthBalance": "Баланс месяца",
-        "monthBalanceHint": "Доходы минус расходы за выбранный месяц",
         "transactions": "Транзакций",
         "expenseTransactions": "Из них расходов: {count}",
         "averageExpense": "Средний расход",
@@ -341,7 +339,17 @@
         "spentSame": "Расходы не изменились",
         "topExpenses": "Крупнейшие расходы",
         "thisMonth": "Текущий месяц",
-        "savingsRate": "Отложено от дохода"
+        "forecast": "Прогноз расходов",
+        "forecastPace": "При темпе {amount} в день",
+        "forecastDays": "Прошло {elapsed} из {total} дней",
+        "forecastTooEarly": "Прошло всего {elapsed} из {total} дней, оценка грубая",
+        "lastMonthResult": "Итог прошлого месяца",
+        "lastMonthResultExplanation": "Показывается, пока в текущем месяце слишком мало дней для прогноза: вместо него в карточке только что закрытый месяц.",
+        "forecastExplanation": "Расходы за прошедшие дни, делённые на число этих дней и умноженные на длину месяца. В начале месяца оценка грубая.",
+        "versusUsual": "Против обычного месяца",
+        "versusUsualHint": "{actual} против {average} в среднем за {count, plural, one {# месяц} few {# месяца} many {# месяцев} other {# месяца}}",
+        "versusUsualExplanation": "Насколько расходы этого месяца отличаются от среднего по предыдущим месяцам с данными.",
+        "noComparisonData": "Нет предыдущих месяцев для сравнения"
     },
     "savings": {
         "eyebrow": "Пространство накоплений",

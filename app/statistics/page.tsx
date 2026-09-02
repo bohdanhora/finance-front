@@ -18,7 +18,16 @@ import useStore from "store/general";
 import { formatCurrency, createDateString } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 import { getCategoryLabel } from "constants/categories";
-import { filterByMonth, listMonths, monthTotals, toMonthKey } from "lib/statistics";
+import {
+    averageMonthlyExpense,
+    filterByMonth,
+    listMonths,
+    monthTotals,
+    pickHeadlineMode,
+    projectMonthSpend,
+    toMonthKey,
+    versusBaseline,
+} from "lib/statistics";
 import { TransactionEnum } from "constants/index";
 import { formatMonthKey } from "lib/date-locale";
 
@@ -61,6 +70,16 @@ const StatisticsPage = () => {
     const dailyAverage = daysInCalculation > 0 ? totals.expense / daysInCalculation : 0;
     const expenseDifference = totals.expense - previousTotals.expense;
     const expenseChange = previousTotals.expense > 0 ? (expenseDifference / previousTotals.expense) * 100 : null;
+
+    const daysInMonth = dayjs(`${month}-01`).daysInMonth();
+    const pace = projectMonthSpend(totals.expense, daysInCalculation, daysInMonth);
+    const baseline = useMemo(() => averageMonthlyExpense(store.transactions, month), [month, store.transactions]);
+    const previousBaseline = useMemo(
+        () => averageMonthlyExpense(store.transactions, previousMonth),
+        [previousMonth, store.transactions],
+    );
+    const headlineMode = pickHeadlineMode(isCurrentMonth, pace, previousTotals.count);
+
     const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
     const viewDescription: Record<ChartView, string> = {
         categories: t("categoriesDescription"),
@@ -68,6 +87,65 @@ const StatisticsPage = () => {
         months: t("monthsDescription"),
         trend: t("trendDescription"),
     };
+
+    /** Compares one month against the months before it, in words. */
+    const comparisonLine = (expense: number, monthBaseline: ReturnType<typeof averageMonthlyExpense>) => {
+        const change = versusBaseline(expense, monthBaseline);
+
+        return change === null
+            ? t("noComparisonData")
+            : t("versusUsualHint", {
+                  actual: money(expense),
+                  average: money(monthBaseline.average),
+                  count: monthBaseline.months,
+              });
+    };
+
+    const headline =
+        headlineMode === "forecast" ? (
+            <StatCard
+                label={t("forecast")}
+                value={pace && totals.expense > 0 ? money(pace.projected) : "-"}
+                secondary={
+                    pace && totals.expense > 0 ? (
+                        <>
+                            <span className="block">{t("forecastPace", { amount: money(pace.dailyAverage) })}</span>
+                            <span className="block">
+                                {t(pace.reliable ? "forecastDays" : "forecastTooEarly", {
+                                    elapsed: pace.daysElapsed,
+                                    total: pace.daysInMonth,
+                                })}
+                            </span>
+                        </>
+                    ) : (
+                        t("noExpenses")
+                    )
+                }
+                hint={t("forecastExplanation")}
+            />
+        ) : headlineMode === "lastMonthResult" ? (
+            <StatCard
+                label={t("lastMonthResult")}
+                value={money(previousTotals.expense)}
+                secondary={
+                    <>
+                        <span className="block">{formatMonthKey(previousMonth, locale)}</span>
+                        <span className="block">{comparisonLine(previousTotals.expense, previousBaseline)}</span>
+                    </>
+                }
+                hint={t("lastMonthResultExplanation")}
+            />
+        ) : (
+            <StatCard
+                label={t("versusUsual")}
+                value={(() => {
+                    const change = versusBaseline(totals.expense, baseline);
+                    return change === null ? "-" : `${change >= 0 ? "+" : ""}${Math.round(change)}%`;
+                })()}
+                secondary={comparisonLine(totals.expense, baseline)}
+                hint={t("versusUsualExplanation")}
+            />
+        );
 
     return (
         <GetDataProvider>
@@ -111,11 +189,7 @@ const StatisticsPage = () => {
                         <StatGrid>
                             <StatCard label={t("income")} value={money(totals.income)} />
                             <StatCard label={t("expense")} value={money(totals.expense)} />
-                            <StatCard
-                                label={t("monthBalance")}
-                                value={`${totals.net >= 0 ? "+" : "-"}${money(Math.abs(totals.net))}`}
-                                secondary={t("monthBalanceHint")}
-                            />
+                            {headline}
                             <StatCard
                                 label={t("transactions")}
                                 value={String(totals.count)}
@@ -172,7 +246,7 @@ const StatisticsPage = () => {
                                     label={t("versusPreviousMonth")}
                                     value={
                                         expenseChange === null
-                                            ? "—"
+                                            ? "-"
                                             : `${expenseChange >= 0 ? "+" : ""}${Math.round(expenseChange)}%`
                                     }
                                     secondary={

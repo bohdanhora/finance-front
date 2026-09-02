@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
-import { TransactionEnum } from "constants/index";
-import { TransactionType } from "types/transactions";
+import { TransactionEnum } from "../constants/index";
+import { TransactionType } from "../types/transactions";
 
 export type MonthKey = string; // "YYYY-MM"
 
@@ -144,3 +144,69 @@ export const cumulativeNet = (points: DayPoint[]): number[] => {
         return running;
     });
 };
+
+/** Below this many days the pace is still noise, so the estimate is flagged as rough. */
+export const MIN_DAYS_FOR_FORECAST = 5;
+
+export type SpendingPace = {
+    daysElapsed: number;
+    daysInMonth: number;
+    dailyAverage: number;
+    /** What the month lands on if the current pace holds to the last day. */
+    projected: number;
+    /** False while too few days have passed for the pace to mean anything. */
+    reliable: boolean;
+};
+
+export const projectMonthSpend = (expense: number, daysElapsed: number, daysInMonth: number): SpendingPace | null => {
+    if (daysElapsed <= 0 || daysInMonth <= 0) return null;
+
+    const cappedDays = Math.min(daysElapsed, daysInMonth);
+    const dailyAverage = expense / cappedDays;
+
+    return {
+        daysElapsed: cappedDays,
+        daysInMonth,
+        dailyAverage,
+        projected: dailyAverage * daysInMonth,
+        reliable: cappedDays >= Math.min(MIN_DAYS_FOR_FORECAST, daysInMonth),
+    };
+};
+
+export type ExpenseBaseline = {
+    average: number;
+    /** How many earlier months actually had activity, so the average can be trusted. */
+    months: number;
+};
+
+/** Mean monthly spending over the months with activity that came before `month`. */
+export const averageMonthlyExpense = (transactions: TransactionType[], month: MonthKey, count = 6): ExpenseBaseline => {
+    const previous = dayjs(`${month}-01`).subtract(1, "month").format("YYYY-MM");
+    const active = byMonth(transactions, previous, count).filter((row) => row.income > 0 || row.expense > 0);
+
+    if (!active.length) return { average: 0, months: 0 };
+
+    const total = active.reduce((sum, row) => sum + row.expense, 0);
+    return { average: total / active.length, months: active.length };
+};
+
+export type HeadlineMode = "forecast" | "lastMonthResult" | "versusUsual";
+
+/**
+ * Which figure deserves the headline slot. A month in progress is worth a
+ * forecast, but only once enough days have passed for the pace to mean
+ * anything; before that the freshly closed month is the more useful number.
+ */
+export const pickHeadlineMode = (
+    isCurrentMonth: boolean,
+    pace: SpendingPace | null,
+    previousMonthTransactions: number,
+): HeadlineMode => {
+    if (!isCurrentMonth) return "versusUsual";
+    if (pace?.reliable) return "forecast";
+    return previousMonthTransactions > 0 ? "lastMonthResult" : "forecast";
+};
+
+/** How far a month's spending sits from its baseline, in percent. */
+export const versusBaseline = (expense: number, baseline: ExpenseBaseline): number | null =>
+    baseline.average > 0 ? ((expense - baseline.average) / baseline.average) * 100 : null;

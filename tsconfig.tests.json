@@ -16,7 +16,9 @@
         "lib/savings.ts",
         "lib/report/data.ts",
         "lib/report/types.ts",
+        "lib/statistics.ts",
         "tests/savings.test.ts",
-        "tests/report.test.ts"
+        "tests/report.test.ts",
+        "tests/statistics.test.ts"
     ]
 }
