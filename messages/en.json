@@ -499,5 +499,95 @@
         "nextRemainingAfterEssentials": "Next month expected income minus the bills you have already listed for it.",
         "saveMoney": "The share of next month remainder you have chosen to put aside.",
         "saveMoneyAfterPercent": "What you can spend next month once your savings are set aside."
+    },
+    "report": {
+        "title": "Financial report",
+        "dialogTitle": "Export report",
+        "dialogDescription": "Choose the period and the sections that go into the PDF.",
+        "periodTitle": "Period",
+        "sectionsTitle": "Sections",
+        "transactionsFilterTitle": "Transactions to include",
+        "download": "Download PDF",
+        "exporting": "Preparing...",
+        "cancel": "Cancel",
+        "pickAtLeastOne": "Pick at least one section.",
+        "failed": "Could not build the report. Please try again.",
+        "itemsCount": "{count, plural, =0 {no entries} one {# entry} other {# entries}}",
+        "empty": "no data",
+        "generatedAt": "Generated",
+        "amountsIn": "Amounts in",
+        "page": "Page",
+        "of": "of",
+        "nothingHere": "No data for this period.",
+        "periods": {
+            "currentMonth": "Current month",
+            "previousMonth": "Previous month",
+            "last3Months": "Last 3 months",
+            "last6Months": "Last 6 months",
+            "year": "This year",
+            "all": "All time"
+        },
+        "filters": {
+            "all": "Income and expenses",
+            "expense": "Expenses only",
+            "income": "Income only"
+        },
+        "sections": {
+            "summary": "Summary",
+            "categories": "Expenses by category",
+            "dynamics": "Month by month",
+            "essentials": "Essential payments",
+            "savings": "Savings",
+            "transactions": "Transactions"
+        },
+        "summary": {
+            "balance": "Current balance",
+            "income": "Income",
+            "expense": "Expenses",
+            "net": "Net",
+            "savings": "Savings",
+            "essentialsRemaining": "Essentials left to pay",
+            "transactionCount": "Transactions",
+            "averageExpense": "Average expense",
+            "largestExpense": "Largest expense",
+            "rateMissing": "rate unavailable"
+        },
+        "categories": {
+            "category": "Category",
+            "amount": "Amount",
+            "share": "Share",
+            "other": "Other categories"
+        },
+        "dynamics": {
+            "income": "Income",
+            "expense": "Expenses",
+            "net": "Net"
+        },
+        "essentials": {
+            "subheading": "Obligations of the current month",
+            "payment": "Payment",
+            "plan": "Planned",
+            "paid": "Paid",
+            "planned": "Planned total",
+            "remaining": "Left to pay",
+            "no": "not paid"
+        },
+        "savings": {
+            "total": "Total savings",
+            "cash": "Cash",
+            "card": "Bank",
+            "breakdown": "Currency",
+            "goals": "Goals",
+            "saved": "Saved",
+            "monthly": "Monthly",
+            "deadline": "Deadline",
+            "daysLeft": "days left"
+        },
+        "transactions": {
+            "date": "Date",
+            "category": "Category",
+            "description": "Description",
+            "amount": "Amount"
+        }
     }
 }

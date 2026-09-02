@@ -183,31 +183,6 @@ export const useUpdateEssential = () => {
     });
 };
 
-const exportPdf = async (userId: string): Promise<Blob> => {
-    const res = await transactionsAxios.get(userId, {
-        responseType: "blob",
-    });
-    return res.data;
-};
-
-export const useExportPdf = () => {
-    return useMutation({
-        mutationKey: ["export-pdf"],
-        mutationFn: (userId: string) => exportPdf(userId),
-        onSuccess: (blob) => {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", "report.pdf");
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
-        },
-        onError: showAxiosError,
-    });
-};
-
 const clearData = async (payload: ClearDataPayload): Promise<ClearDataResponseType> => {
     const res = await transactionsAxios.post("clear-all", payload);
     return res.data;

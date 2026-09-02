@@ -10,5 +10,13 @@
         "rootDir": ".",
         "plugins": []
     },
-    "include": ["constants/index.ts", "lib/savings.ts", "types/transactions.ts", "tests/savings.test.ts"]
+    "include": [
+        "constants/index.ts",
+        "types/transactions.ts",
+        "lib/savings.ts",
+        "lib/report/data.ts",
+        "lib/report/types.ts",
+        "tests/savings.test.ts",
+        "tests/report.test.ts"
+    ]
 }

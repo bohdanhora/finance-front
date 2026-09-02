@@ -499,5 +499,95 @@
         "nextRemainingAfterEssentials": "Ожидаемый доход следующего месяца минус уже внесённые платежи.",
         "saveMoney": "Доля от остатка следующего месяца, которую вы решили отложить.",
         "saveMoneyAfterPercent": "Сколько можно потратить в следующем месяце после откладывания."
+    },
+    "report": {
+        "title": "Финансовый отчёт",
+        "dialogTitle": "Экспорт отчёта",
+        "dialogDescription": "Выберите период и разделы, которые попадут в PDF.",
+        "periodTitle": "Период",
+        "sectionsTitle": "Разделы",
+        "transactionsFilterTitle": "Какие операции включить",
+        "download": "Скачать PDF",
+        "exporting": "Готовим...",
+        "cancel": "Отмена",
+        "pickAtLeastOne": "Выберите хотя бы один раздел.",
+        "failed": "Не удалось собрать отчёт. Попробуйте ещё раз.",
+        "itemsCount": "{count, plural, =0 {нет записей} one {# запись} few {# записи} many {# записей} other {# записи}}",
+        "empty": "нет данных",
+        "generatedAt": "Сформирован",
+        "amountsIn": "Суммы в",
+        "page": "Страница",
+        "of": "из",
+        "nothingHere": "За этот период данных нет.",
+        "periods": {
+            "currentMonth": "Текущий месяц",
+            "previousMonth": "Прошлый месяц",
+            "last3Months": "Последние 3 месяца",
+            "last6Months": "Последние 6 месяцев",
+            "year": "Текущий год",
+            "all": "Всё время"
+        },
+        "filters": {
+            "all": "Доходы и расходы",
+            "expense": "Только расходы",
+            "income": "Только доходы"
+        },
+        "sections": {
+            "summary": "Сводка",
+            "categories": "Расходы по категориям",
+            "dynamics": "Динамика по месяцам",
+            "essentials": "Обязательные платежи",
+            "savings": "Накопления",
+            "transactions": "Операции"
+        },
+        "summary": {
+            "balance": "Текущий баланс",
+            "income": "Доходы",
+            "expense": "Расходы",
+            "net": "Итог",
+            "savings": "Накопления",
+            "essentialsRemaining": "Осталось оплатить",
+            "transactionCount": "Операций",
+            "averageExpense": "Средний расход",
+            "largestExpense": "Крупнейший расход",
+            "rateMissing": "нет курса"
+        },
+        "categories": {
+            "category": "Категория",
+            "amount": "Сумма",
+            "share": "Доля",
+            "other": "Прочие категории"
+        },
+        "dynamics": {
+            "income": "Доходы",
+            "expense": "Расходы",
+            "net": "Итог"
+        },
+        "essentials": {
+            "subheading": "Обязательства текущего месяца",
+            "payment": "Платёж",
+            "plan": "План",
+            "paid": "Оплачено",
+            "planned": "Запланировано",
+            "remaining": "Осталось оплатить",
+            "no": "не оплачен"
+        },
+        "savings": {
+            "total": "Всего накоплено",
+            "cash": "Наличные",
+            "card": "В банке",
+            "breakdown": "Валюта",
+            "goals": "Цели",
+            "saved": "Накоплено",
+            "monthly": "В месяц",
+            "deadline": "Срок",
+            "daysLeft": "дн."
+        },
+        "transactions": {
+            "date": "Дата",
+            "category": "Категория",
+            "description": "Описание",
+            "amount": "Сумма"
+        }
     }
 }

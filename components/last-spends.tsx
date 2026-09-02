@@ -16,7 +16,7 @@ import { twMerge } from "tailwind-merge";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
-import { useClearData, useDeleteTransaction, useExportPdf, useUpdateTransaction } from "api/main";
+import { useClearData, useDeleteTransaction, useUpdateTransaction } from "api/main";
 import { toast } from "react-toastify";
 import {
     Dialog,
@@ -32,6 +32,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
+import { ExportReportDialog } from "./dialogs/export-report";
 import { getCurrencySymbol } from "lib/currency";
 import { CategoryIcon } from "components/categories/category-icon";
 import { getCategoryLabel } from "constants/categories";
@@ -52,11 +53,11 @@ export const LastSpends = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [clearTotalsChck, setClearTotalsChck] = useState<CheckedState>(false);
     const [clearDialogOpen, setClearDialogOpen] = useState(false);
+    const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
     const [editingTx, setEditingTx] = useState<TransactionType | null>(null);
     const [editOpen, setEditOpen] = useState(false);
 
-    const { mutateAsync: exportPdfMutation, isPending: exportPdfPending } = useExportPdf();
     const { mutateAsync: clearDataMutation, isPending: clearDataPending } = useClearData();
     const { mutateAsync: deleteTransaction } = useDeleteTransaction();
     const { mutateAsync: updateTransaction } = useUpdateTransaction();
@@ -105,14 +106,6 @@ export const LastSpends = () => {
     const handleCategoryChange = (val: string) => {
         setSelectedCategory(val);
         setCurrentPage(1);
-    };
-
-    const exportPdfHandle = () => {
-        if (!userId) {
-            toast.error(tErr("noUserId"));
-            return;
-        }
-        exportPdfMutation(userId);
     };
 
     const clearDataHandle = async () => {
@@ -234,10 +227,11 @@ export const LastSpends = () => {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-                    <Button variant="secondary" onClick={exportPdfHandle} className="w-full md:w-fit">
+                    <Button variant="secondary" onClick={() => setReportDialogOpen(true)} className="w-full md:w-fit">
                         <Download className="size-4" />
-                        {exportPdfPending ? t("exporting") : t("exportPdf")}
+                        {t("exportPdf")}
                     </Button>
+                    <ExportReportDialog open={reportDialogOpen} onOpenChange={setReportDialogOpen} />
                     <div className="relative w-full md:max-w-64">
                         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                         <Input
