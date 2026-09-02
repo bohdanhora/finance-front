@@ -9,6 +9,7 @@ const useStore = create<StoreType>((set) => ({
     nextMonthTotalAmount: 0,
     percentage: 0,
     userCurrency: CURRENCY.UAH,
+    currencyInitialized: false,
 
     defaultEssentialsArray: [],
     essentialsArray: [],
@@ -36,6 +37,10 @@ const useStore = create<StoreType>((set) => ({
     setUserCurrency: (userCurrency) =>
         set(() => ({
             userCurrency: userCurrency,
+        })),
+    setCurrencyInitialized: (currencyInitialized) =>
+        set(() => ({
+            currencyInitialized,
         })),
     setNextMonthTotalAmount: (nextMonthTotalAmount) =>
         set(() => ({
@@ -73,6 +78,8 @@ const useStore = create<StoreType>((set) => ({
             totalSpend: 0,
             nextMonthTotalAmount: 0,
             percentage: 0,
+            userCurrency: CURRENCY.UAH,
+            currencyInitialized: false,
 
             defaultEssentialsArray: [],
             essentialsArray: [],

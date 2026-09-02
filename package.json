@@ -10,6 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "npm run test:savings",
+    "test:savings": "tsc -p tsconfig.savings-test.json && node --test .test-dist/tests/savings.test.js",
     "prettier": "npx prettier '**/*.{js,ts,json,tsx}' --write"
   },
   "dependencies": {

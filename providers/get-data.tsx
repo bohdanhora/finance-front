@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useAllTransactionInfo } from "api/main";
 import useStore from "store/general";
 import { Loader } from "components/loader";
@@ -11,6 +11,7 @@ import { AxiosError } from "axios";
 
 export const GetDataProvider = ({ children }: { children: ReactNode }) => {
     const router = useRouter();
+    const [dataHydrated, setDataHydrated] = useState(false);
 
     const { data: allTransactionsData, isPending, error } = useAllTransactionInfo();
 
@@ -41,10 +42,13 @@ export const GetDataProvider = ({ children }: { children: ReactNode }) => {
             transactions: allTransactionsData.transactions || [],
             savingsGoals: allTransactionsData.savingsGoals || [],
             savingsOperations: allTransactionsData.savingsOperations || [],
+            ...(allTransactionsData.currency ? { userCurrency: allTransactionsData.currency } : {}),
+            currencyInitialized: Boolean(allTransactionsData.currency),
         });
+        setDataHydrated(true);
     }, [allTransactionsData]);
 
-    if (isPending) {
+    if (isPending || (allTransactionsData && !dataHydrated)) {
         return <Loader />;
     }
 

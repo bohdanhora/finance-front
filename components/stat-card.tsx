@@ -16,7 +16,7 @@ export const StatCard = ({
 }: {
     label: string;
     value: string;
-    secondary?: string;
+    secondary?: React.ReactNode;
     action?: React.ReactNode;
     hint?: string;
     className?: string;
@@ -38,7 +38,7 @@ export const StatCard = ({
                 {action}
             </div>
             <p className="text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
-            {secondary && <p className="text-muted-foreground text-sm tabular-nums">{secondary}</p>}
+            {secondary && <div className="text-muted-foreground text-sm tabular-nums">{secondary}</div>}
         </div>
     );
 };

@@ -13,6 +13,7 @@ import {
     Plus,
     Target,
     Trash2,
+    X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,6 +26,9 @@ import { SavingsGoalDialog } from "components/savings/goal-dialog";
 import { SavingsOperationDialog } from "components/savings/operation-dialog";
 import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
+import { Input } from "components/ui/input";
+import { Label } from "components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import {
     Dialog,
     DialogClose,
@@ -37,7 +41,7 @@ import {
 import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
-import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance } from "lib/savings";
+import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
 import { PrivateProvider } from "providers/auth";
@@ -45,11 +49,32 @@ import useBankStore from "store/bank";
 import useStore from "store/general";
 import { SavingsGoal, SavingsOperationType, SavingsStorage } from "types/transactions";
 
-type DeleteTarget = {
-    kind: "goal" | "operation";
+type DeleteTarget =
+    | {
+          kind: "goal";
+          id: string;
+          label: string;
+          currency: CURRENCY;
+          targetAmount: number;
+      }
+    | {
+          kind: "operation";
+          id: string;
+          label: string;
+          linkedToBalance?: boolean;
+      }
+    | null;
+
+type GoalDeletionMode = "delete-only" | "purchased";
+
+type PurchaseDeductionDraft = {
     id: string;
-    label: string;
-} | null;
+    storage: SavingsStorage;
+    currency: CURRENCY;
+    amount: string;
+};
+
+const SAVINGS_CURRENCIES = [CURRENCY.UAH, CURRENCY.USD, CURRENCY.EUR] as const;
 
 const SavingsPage = () => {
     const t = useTranslations("savings");
@@ -62,6 +87,8 @@ const SavingsPage = () => {
     const [operationDialogOpen, setOperationDialogOpen] = useState(false);
     const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+    const [goalDeletionMode, setGoalDeletionMode] = useState<GoalDeletionMode>("delete-only");
+    const [purchaseDeductions, setPurchaseDeductions] = useState<PurchaseDeductionDraft[]>([]);
 
     const usdToUah = bank.usd?.rateBuy ?? 0;
     const eurToUah = bank.eur?.rateBuy ?? 0;
@@ -75,10 +102,63 @@ const SavingsPage = () => {
         };
     }, [rates, store.savingsOperations, store.userCurrency]);
 
+    const nativeSummary = useMemo(() => {
+        const byStorage = (storage?: SavingsStorage) =>
+            Object.fromEntries(
+                SAVINGS_CURRENCIES.map((currency) => [
+                    currency,
+                    getSavingsNativeBalance(store.savingsOperations, currency, storage),
+                ]),
+            ) as Record<CURRENCY, number>;
+
+        return {
+            saved: byStorage(),
+            card: byStorage(SavingsStorage.CARD),
+            cash: byStorage(SavingsStorage.CASH),
+        };
+    }, [store.savingsOperations]);
+
     const displayMoney = (value: number | null) =>
         value === null ? t("ratesUnavailable") : `${formatCurrency(value)} ${getCurrencySymbol(store.userCurrency)}`;
     const nativeMoney = (value: number, currency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
+    const currencyBreakdown = (balances: Record<CURRENCY, number>) => (
+        <div className="mt-3 border-t border-border/60 pt-2.5">
+            <p className="mb-1.5 text-[0.62rem] font-semibold tracking-[0.08em] uppercase">{t("actualByCurrency")}</p>
+            <div className="grid grid-cols-3 gap-1.5">
+                {SAVINGS_CURRENCIES.map((currency) => {
+                    const amount = Math.max(balances[currency], 0);
+
+                    return (
+                        <div
+                            key={currency}
+                            title={nativeMoney(amount, currency)}
+                            className="bg-muted/55 min-w-0 rounded-lg px-2 py-1.5"
+                        >
+                            <p className="text-[0.62rem] font-semibold tracking-wide uppercase">{currency}</p>
+                            <p className="text-foreground truncate text-xs font-semibold">
+                                {nativeMoney(amount, currency)}
+                            </p>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+    const hasConvertedCurrencies = (balances: Record<CURRENCY, number>) =>
+        SAVINGS_CURRENCIES.some(
+            (currency) => currency !== store.userCurrency && Math.abs(balances[currency]) > Number.EPSILON,
+        );
+    const summaryValue = (value: number | null, balances: Record<CURRENCY, number>) => {
+        const formatted = displayMoney(value);
+        return value !== null && hasConvertedCurrencies(balances) ? `≈ ${formatted}` : formatted;
+    };
+    const summaryDetails = (hint: string, balances: Record<CURRENCY, number>) => (
+        <>
+            <p>{hint}</p>
+            {currencyBreakdown(balances)}
+        </>
+    );
 
     const recentOperations = [...store.savingsOperations]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -96,13 +176,104 @@ const SavingsPage = () => {
 
     const openOperation = () => setOperationDialogOpen(true);
 
+    const openGoalDelete = (goal: SavingsGoal) => {
+        const preferredStorage =
+            nativeSummary.card[goal.currency] >= goal.targetAmount ||
+            nativeSummary.card[goal.currency] >= nativeSummary.cash[goal.currency]
+                ? SavingsStorage.CARD
+                : SavingsStorage.CASH;
+        setGoalDeletionMode("delete-only");
+        setPurchaseDeductions([
+            {
+                id: crypto.randomUUID(),
+                storage: preferredStorage,
+                currency: goal.currency,
+                amount: String(goal.targetAmount),
+            },
+        ]);
+        setDeleteTarget({
+            kind: "goal",
+            id: goal.id,
+            label: goal.name,
+            currency: goal.currency,
+            targetAmount: goal.targetAmount,
+        });
+    };
+
+    const closeDeleteDialog = () => {
+        setDeleteTarget(null);
+        setGoalDeletionMode("delete-only");
+        setPurchaseDeductions([]);
+    };
+
+    const getPurchaseBalance = (deduction: Pick<PurchaseDeductionDraft, "storage" | "currency">) =>
+        nativeSummary[deduction.storage === SavingsStorage.CARD ? "card" : "cash"][deduction.currency];
+    const getDeductionTotal = (deduction: PurchaseDeductionDraft) =>
+        purchaseDeductions
+            .filter((item) => item.storage === deduction.storage && item.currency === deduction.currency)
+            .reduce((total, item) => total + (Number(item.amount) || 0), 0);
+    const isDeductionInvalid = (deduction: PurchaseDeductionDraft) => {
+        const amount = Number(deduction.amount);
+        return !Number.isFinite(amount) || amount <= 0 || getDeductionTotal(deduction) > getPurchaseBalance(deduction);
+    };
+    const hasInvalidDeductionAmount = (deduction: PurchaseDeductionDraft) => {
+        const amount = Number(deduction.amount);
+        return !Number.isFinite(amount) || amount <= 0;
+    };
+    const invalidPurchase =
+        goalDeletionMode === "purchased" &&
+        (purchaseDeductions.length === 0 || purchaseDeductions.some(isDeductionInvalid));
+
+    const updateDeduction = (id: string, update: Partial<PurchaseDeductionDraft>) => {
+        setPurchaseDeductions((current) =>
+            current.map((deduction) => (deduction.id === id ? { ...deduction, ...update } : deduction)),
+        );
+    };
+
+    const addPurchaseSource = () => {
+        const combinations = [SavingsStorage.CARD, SavingsStorage.CASH].flatMap((storage) =>
+            SAVINGS_CURRENCIES.map((currency) => ({ storage, currency })),
+        );
+        const unused = combinations.find(
+            (combination) =>
+                !purchaseDeductions.some(
+                    (item) => item.storage === combination.storage && item.currency === combination.currency,
+                ),
+        );
+        const fallbackCurrency = deleteTarget?.kind === "goal" ? deleteTarget.currency : CURRENCY.UAH;
+
+        setPurchaseDeductions((current) => [
+            ...current,
+            {
+                id: crypto.randomUUID(),
+                storage: unused?.storage ?? SavingsStorage.CASH,
+                currency: unused?.currency ?? fallbackCurrency,
+                amount: "",
+            },
+        ]);
+    };
+
     const confirmDelete = async () => {
         if (!deleteTarget) return;
 
         try {
             const response =
                 deleteTarget.kind === "goal"
-                    ? await deleteGoal(deleteTarget.id)
+                    ? await deleteGoal({
+                          id: deleteTarget.id,
+                          data:
+                              goalDeletionMode === "purchased"
+                                  ? {
+                                        purchasedWithSavings: true,
+                                        deductions: purchaseDeductions.map((deduction) => ({
+                                            storage: deduction.storage,
+                                            currency: deduction.currency,
+                                            amount: Number(deduction.amount),
+                                        })),
+                                        date: new Date().toISOString(),
+                                    }
+                                  : { purchasedWithSavings: false },
+                      })
                     : await deleteOperation(deleteTarget.id);
             store.setSavingsGoals(response.updatedGoals);
             store.setSavingsOperations(response.updatedOperations);
@@ -112,8 +283,14 @@ const SavingsPage = () => {
                 store.setTotalIncome(response.updatedTotals.totalIncome);
                 store.setTotalSpend(response.updatedTotals.totalSpend);
             }
-            toast.success(deleteTarget.kind === "goal" ? t("goalDeleted") : t("operationDeleted"));
-            setDeleteTarget(null);
+            toast.success(
+                deleteTarget.kind === "goal" && goalDeletionMode === "purchased"
+                    ? t("goalPurchased")
+                    : deleteTarget.kind === "goal"
+                      ? t("goalDeleted")
+                      : t("operationDeleted"),
+            );
+            closeDeleteDialog();
         } catch {
             // The shared API error handler already shows the server message.
         }
@@ -155,11 +332,20 @@ const SavingsPage = () => {
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <StatCard
                                 label={t("saved")}
-                                value={displayMoney(summary.saved)}
-                                secondary={t("sharedPoolHint")}
+                                value={summaryValue(summary.saved, nativeSummary.saved)}
+                                secondary={summaryDetails(t("sharedPoolHint"), nativeSummary.saved)}
+                                hint={t("equivalentIn", { currency: store.userCurrency.toUpperCase() })}
                             />
-                            <StatCard label={t("card")} value={displayMoney(summary.card)} secondary={t("bankHint")} />
-                            <StatCard label={t("cash")} value={displayMoney(summary.cash)} secondary={t("cashHint")} />
+                            <StatCard
+                                label={t("card")}
+                                value={summaryValue(summary.card, nativeSummary.card)}
+                                secondary={summaryDetails(t("bankHint"), nativeSummary.card)}
+                            />
+                            <StatCard
+                                label={t("cash")}
+                                value={summaryValue(summary.cash, nativeSummary.cash)}
+                                secondary={summaryDetails(t("cashHint"), nativeSummary.cash)}
+                            />
                         </div>
 
                         <Section
@@ -247,13 +433,7 @@ const SavingsPage = () => {
                                                             size="icon"
                                                             aria-label={t("delete")}
                                                             className="hover:bg-rose-500/10 hover:text-rose-500"
-                                                            onClick={() =>
-                                                                setDeleteTarget({
-                                                                    kind: "goal",
-                                                                    id: goal.id,
-                                                                    label: goal.name,
-                                                                })
-                                                            }
+                                                            onClick={() => openGoalDelete(goal)}
                                                         >
                                                             <Trash2 className="size-4" />
                                                         </Button>
@@ -405,6 +585,13 @@ const SavingsPage = () => {
                                                         {operation.destinationStorage
                                                             ? ` → ${t(operation.destinationStorage)}`
                                                             : ""}{" "}
+                                                        {operation.type !== SavingsOperationType.TRANSFER
+                                                            ? ` · ${t(
+                                                                  operation.linkedTransactionId
+                                                                      ? "mainBalanceLinked"
+                                                                      : "outsideBalanceLinked",
+                                                              )}`
+                                                            : ""}{" "}
                                                         · {dayjs(operation.date).format("DD.MM.YYYY")}
                                                     </p>
                                                 </div>
@@ -428,6 +615,7 @@ const SavingsPage = () => {
                                                             kind: "operation",
                                                             id: operation.id,
                                                             label: operation.note || t(operation.type),
+                                                            linkedToBalance: Boolean(operation.linkedTransactionId),
                                                         })
                                                     }
                                                 >
@@ -445,22 +633,224 @@ const SavingsPage = () => {
                 <SavingsGoalDialog open={goalDialogOpen} goal={editingGoal} onOpenChange={setGoalDialogOpen} />
                 <SavingsOperationDialog open={operationDialogOpen} onOpenChange={setOperationDialogOpen} />
 
-                <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-                    <DialogContent className="sm:max-w-sm">
+                <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && closeDeleteDialog()}>
+                    <DialogContent className="sm:max-w-2xl">
                         <DialogHeader>
                             <DialogTitle>{t("deleteTitle")}</DialogTitle>
                             <DialogDescription>
                                 {deleteTarget?.kind === "goal"
                                     ? t("deleteGoalWarning", { name: deleteTarget.label })
-                                    : t("deleteOperationWarning")}
+                                    : t(
+                                          deleteTarget?.linkedToBalance
+                                              ? "deleteOperationWarning"
+                                              : "deleteExternalOperationWarning",
+                                      )}
                             </DialogDescription>
                         </DialogHeader>
+                        {deleteTarget?.kind === "goal" && (
+                            <div className="space-y-4">
+                                <div className="grid gap-2 sm:grid-cols-2" role="radiogroup">
+                                    {(["delete-only", "purchased"] as const).map((mode) => (
+                                        <button
+                                            key={mode}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={goalDeletionMode === mode}
+                                            onClick={() => setGoalDeletionMode(mode)}
+                                            className={twMerge(
+                                                "rounded-xl border p-3 text-left transition-colors",
+                                                goalDeletionMode === mode
+                                                    ? "border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/10"
+                                                    : "border-border hover:bg-muted/60",
+                                            )}
+                                        >
+                                            <span className="block text-sm font-semibold">
+                                                {t(mode === "purchased" ? "purchasedWithSavings" : "deleteOnly")}
+                                            </span>
+                                            <span className="text-muted-foreground mt-1 block text-xs">
+                                                {t(
+                                                    mode === "purchased"
+                                                        ? "purchasedWithSavingsHint"
+                                                        : "deleteOnlyHint",
+                                                )}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {goalDeletionMode === "purchased" && (
+                                    <div className="bg-muted/45 space-y-3 rounded-xl border p-3.5">
+                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm font-semibold">{t("purchaseBreakdown")}</p>
+                                                <p className="text-muted-foreground mt-0.5 text-xs">
+                                                    {t("purchaseGoalAmount", {
+                                                        amount: nativeMoney(
+                                                            deleteTarget.targetAmount,
+                                                            deleteTarget.currency,
+                                                        ),
+                                                    })}
+                                                </p>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                className="whitespace-nowrap"
+                                                onClick={addPurchaseSource}
+                                            >
+                                                <Plus />
+                                                {t("addPurchaseSource")}
+                                            </Button>
+                                        </div>
+
+                                        <div className="space-y-2.5">
+                                            {purchaseDeductions.map((deduction, index) => {
+                                                const deductionInvalid = isDeductionInvalid(deduction);
+                                                const available = Math.max(getPurchaseBalance(deduction), 0);
+
+                                                return (
+                                                    <div
+                                                        key={deduction.id}
+                                                        className="bg-background/70 rounded-xl border p-3"
+                                                    >
+                                                        <div className="grid items-end gap-2 sm:grid-cols-[1fr_0.8fr_1fr_auto]">
+                                                            <div className="space-y-1.5">
+                                                                <Label>{t("purchaseSource")}</Label>
+                                                                <Select
+                                                                    value={deduction.storage}
+                                                                    onValueChange={(value: SavingsStorage) =>
+                                                                        updateDeduction(deduction.id, {
+                                                                            storage: value,
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    <SelectTrigger className="w-full">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value={SavingsStorage.CARD}>
+                                                                            {t("card")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value={SavingsStorage.CASH}>
+                                                                            {t("cash")}
+                                                                        </SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                <Label>{t("purchaseCurrency")}</Label>
+                                                                <Select
+                                                                    value={deduction.currency}
+                                                                    onValueChange={(value: CURRENCY) =>
+                                                                        updateDeduction(deduction.id, {
+                                                                            currency: value,
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    <SelectTrigger className="w-full uppercase">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {SAVINGS_CURRENCIES.map((currency) => (
+                                                                            <SelectItem key={currency} value={currency}>
+                                                                                {currency.toUpperCase()}
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                <Label htmlFor={`goal-purchase-amount-${deduction.id}`}>
+                                                                    {t("purchaseAmount")}
+                                                                </Label>
+                                                                <Input
+                                                                    id={`goal-purchase-amount-${deduction.id}`}
+                                                                    inputMode="decimal"
+                                                                    value={deduction.amount}
+                                                                    aria-invalid={deductionInvalid}
+                                                                    onChange={(event) => {
+                                                                        const value = event.target.value.replace(
+                                                                            ",",
+                                                                            ".",
+                                                                        );
+                                                                        if (
+                                                                            value === "" ||
+                                                                            /^(0|[1-9]\d*)(\.\d{0,2})?$/.test(value)
+                                                                        ) {
+                                                                            updateDeduction(deduction.id, {
+                                                                                amount: value,
+                                                                            });
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            {purchaseDeductions.length > 1 && (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    aria-label={t("removePurchaseSource")}
+                                                                    className="text-muted-foreground hover:text-rose-500"
+                                                                    onClick={() =>
+                                                                        setPurchaseDeductions((current) =>
+                                                                            current.filter(
+                                                                                (item) => item.id !== deduction.id,
+                                                                            ),
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <X />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                        <p
+                                                            className={twMerge(
+                                                                "mt-2 text-xs",
+                                                                deductionInvalid
+                                                                    ? "text-rose-500"
+                                                                    : "text-muted-foreground",
+                                                            )}
+                                                        >
+                                                            {hasInvalidDeductionAmount(deduction)
+                                                                ? t("enterPurchaseAmount")
+                                                                : deductionInvalid
+                                                                  ? t("notEnoughForPurchase", {
+                                                                        amount: nativeMoney(
+                                                                            available,
+                                                                            deduction.currency,
+                                                                        ),
+                                                                    })
+                                                                  : t("availableForPurchase", {
+                                                                        amount: nativeMoney(
+                                                                            available,
+                                                                            deduction.currency,
+                                                                        ),
+                                                                    })}
+                                                        </p>
+                                                        <span className="sr-only">
+                                                            {t("purchaseSourceNumber", { number: index + 1 })}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
-                            <Button variant="destructive" disabled={deletePending} onClick={confirmDelete}>
-                                {t("delete")}
+                            <Button
+                                variant="destructive"
+                                disabled={deletePending || invalidPurchase}
+                                onClick={confirmDelete}
+                            >
+                                {deleteTarget?.kind === "goal" && goalDeletionMode === "purchased"
+                                    ? t("deleteAndDeduct")
+                                    : t("delete")}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

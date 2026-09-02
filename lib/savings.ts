@@ -1,5 +1,5 @@
-import { CURRENCY } from "constants/index";
-import { SavingsOperation, SavingsOperationType, SavingsStorage } from "types/transactions";
+import { CURRENCY } from "../constants/index";
+import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
 
 type ExchangeRates = {
     usdToUah: number;
@@ -64,7 +64,7 @@ const getOperationStorageAmount = (operation: SavingsOperation, storage?: Saving
     return 0;
 };
 
-export const getSavingsNativeBalance = (operations: SavingsOperation[], currency: CURRENCY, storage: SavingsStorage) =>
+export const getSavingsNativeBalance = (operations: SavingsOperation[], currency: CURRENCY, storage?: SavingsStorage) =>
     operations
         .filter((operation) => operation.currency === currency)
         .reduce((total, operation) => total + getOperationStorageAmount(operation, storage), 0);

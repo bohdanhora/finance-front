@@ -31,6 +31,9 @@ import {
     SavingsGoalPayload,
     SavingsOperationPayload,
     SavingsMutationResponse,
+    ChangeCurrencyPayload,
+    ChangeCurrencyResponse,
+    DeleteSavingsGoalRequest,
 } from "types/transactions";
 
 const getCurrentMonth = () => {
@@ -61,6 +64,18 @@ export const useAllTransactionInfo = () => {
         queryFn: () => allTransactionInfo(currentMonth),
     });
 };
+
+const changeCurrency = async (payload: ChangeCurrencyPayload): Promise<ChangeCurrencyResponse> => {
+    const res = await transactionsAxios.put("currency", payload);
+    return res.data;
+};
+
+export const useChangeCurrency = () =>
+    useMutation({
+        mutationKey: ["change-currency"],
+        mutationFn: changeCurrency,
+        onError: showAxiosError,
+    });
 
 const setTotalAmount = async (payload: TotalAmountPayload): Promise<TotalAmountResponseType> => {
     const res = await transactionsAxios.post("set-total", payload);
@@ -269,8 +284,8 @@ export const useUpdateSavingsGoal = () =>
         onError: showAxiosError,
     });
 
-const deleteSavingsGoal = async (id: string): Promise<SavingsMutationResponse> => {
-    const res = await transactionsAxios.delete(`savings/goals/${encodeURIComponent(id)}`);
+const deleteSavingsGoal = async ({ id, data }: DeleteSavingsGoalRequest): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.delete(`savings/goals/${encodeURIComponent(id)}`, { data });
     return res.data;
 };
 

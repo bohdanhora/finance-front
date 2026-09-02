@@ -9,6 +9,7 @@ export type StoreType = {
     nextMonthTotalAmount: number;
     percentage: number;
     userCurrency: CURRENCY;
+    currencyInitialized: boolean;
 
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];
@@ -23,6 +24,7 @@ export type StoreType = {
     setNextMonthTotalAmount: (nextMonthTotalAmount: number) => void;
     setPercentage: (percentage: number) => void;
     setUserCurrency: (userCurrency: CURRENCY) => void;
+    setCurrencyInitialized: (currencyInitialized: boolean) => void;
 
     setDefaultEssentialsArray: (defaultEssentialsArray: EssentialType[] | []) => void;
     setEssentialsArray: (essentialsArray: EssentialType[] | []) => void;

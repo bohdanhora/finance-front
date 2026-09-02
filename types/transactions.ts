@@ -1,5 +1,4 @@
-import { EssentialsType, TransactionEnum } from "constants/index";
-import { CURRENCY } from "constants/index";
+import { CURRENCY, EssentialsType, TransactionEnum } from "../constants/index";
 
 export enum SavingsStorage {
     CASH = "cash",
@@ -41,8 +40,24 @@ export type SavingsGoalPayload = {
     item: SavingsGoal;
 };
 
+export type DeleteSavingsGoalPayload = {
+    purchasedWithSavings: boolean;
+    deductions?: Array<{
+        storage: SavingsStorage;
+        currency: CURRENCY;
+        amount: number;
+    }>;
+    date?: string;
+};
+
+export type DeleteSavingsGoalRequest = {
+    id: string;
+    data: DeleteSavingsGoalPayload;
+};
+
 export type SavingsOperationPayload = {
     item: SavingsOperation;
+    affectsMainBalance?: boolean;
     balanceAmount?: number;
 };
 
@@ -197,6 +212,7 @@ export type RequestEmailCodeResponseType = {
 
 export type AllTransactionsInfoResponse = {
     userId: string;
+    currency?: CURRENCY;
     totalAmount: number;
     totalIncome: number;
     totalSpend: number;
@@ -210,6 +226,17 @@ export type AllTransactionsInfoResponse = {
     transactions: TransactionType[] | [];
     savingsGoals: SavingsGoal[] | [];
     savingsOperations: SavingsOperation[] | [];
+};
+
+export type ChangeCurrencyPayload = {
+    fromCurrency?: CURRENCY;
+    toCurrency: CURRENCY;
+    conversionRate?: number;
+};
+
+export type ChangeCurrencyResponse = {
+    message: string;
+    updatedInfo: AllTransactionsInfoResponse;
 };
 
 export type ClearDataPayload = {

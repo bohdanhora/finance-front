@@ -40,6 +40,7 @@ const operationSchema = z
         destinationStorage: z.nativeEnum(SavingsStorage),
         amount: z.string().refine((value) => Number(value) > 0),
         currency: z.nativeEnum(CURRENCY),
+        affectsMainBalance: z.boolean(),
         date: z.string().min(1),
         note: z.string().max(160),
     })
@@ -55,6 +56,7 @@ const getEmptyValues = (currency: CURRENCY): OperationFormValues => ({
     destinationStorage: SavingsStorage.CASH,
     amount: "",
     currency,
+    affectsMainBalance: true,
     date: dayjs().format("YYYY-MM-DD"),
     note: "",
 });
@@ -91,18 +93,22 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const destinationStorage = form.watch("destinationStorage");
     const amount = Number(form.watch("amount")) || 0;
     const currency = form.watch("currency");
+    const affectsMainBalance = form.watch("affectsMainBalance");
     const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
-    const convertedBalanceAmount =
-        type === SavingsOperationType.TRANSFER ? amount : convertSavingsCurrency(amount, currency, userCurrency, rates);
+    const shouldAffectMainBalance = type !== SavingsOperationType.TRANSFER && affectsMainBalance;
+    const convertedBalanceAmount = shouldAffectMainBalance
+        ? convertSavingsCurrency(amount, currency, userCurrency, rates)
+        : null;
     const balanceAmount = convertedBalanceAmount === null ? null : Math.round(convertedBalanceAmount * 100) / 100;
     const availableInStorage = getSavingsNativeBalance(store.savingsOperations, currency, storage);
     const exceedsStorage =
         type !== SavingsOperationType.DEPOSIT && amount > 0 && availableInStorage + Number.EPSILON < amount;
     const exceedsMainBalance =
         type === SavingsOperationType.DEPOSIT &&
+        shouldAffectMainBalance &&
         balanceAmount !== null &&
         balanceAmount > store.totalAmount + Number.EPSILON;
-    const conversionUnavailable = type !== SavingsOperationType.TRANSFER && amount > 0 && balanceAmount === null;
+    const conversionUnavailable = shouldAffectMainBalance && amount > 0 && balanceAmount === null;
 
     const displayMoney = (value: number, selectedCurrency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
@@ -117,6 +123,11 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
         }
     }, [destinationStorage, form, storage, type]);
 
+    useEffect(() => {
+        if (type === SavingsOperationType.TRANSFER) return;
+        form.setValue("affectsMainBalance", storage === SavingsStorage.CARD, { shouldValidate: true });
+    }, [form, storage, type]);
+
     const handleOpenChange = (nextOpen: boolean) => {
         if (!nextOpen) form.reset(getEmptyValues(userCurrency));
         onOpenChange(nextOpen);
@@ -124,17 +135,17 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
 
     const onSubmit = async (values: OperationFormValues) => {
         const nativeAvailable = getSavingsNativeBalance(store.savingsOperations, values.currency, values.storage);
-        const convertedAmount =
-            values.type === SavingsOperationType.TRANSFER
-                ? Number(values.amount)
-                : convertSavingsCurrency(Number(values.amount), values.currency, userCurrency, rates);
+        const shouldSyncBalance = values.type !== SavingsOperationType.TRANSFER && values.affectsMainBalance;
+        const convertedAmount = shouldSyncBalance
+            ? convertSavingsCurrency(Number(values.amount), values.currency, userCurrency, rates)
+            : null;
 
-        if (values.type !== SavingsOperationType.TRANSFER && convertedAmount === null) {
+        if (shouldSyncBalance && convertedAmount === null) {
             form.setError("amount", { message: t("conversionUnavailable") });
             return;
         }
 
-        if (values.type === SavingsOperationType.DEPOSIT && convertedAmount! > store.totalAmount) {
+        if (values.type === SavingsOperationType.DEPOSIT && shouldSyncBalance && convertedAmount! > store.totalAmount) {
             form.setError("amount", { message: t("notEnoughOnBalance") });
             return;
         }
@@ -158,10 +169,9 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
         try {
             const response = await addOperation({
                 item,
-                balanceAmount:
-                    values.type === SavingsOperationType.TRANSFER
-                        ? undefined
-                        : Math.round(convertedAmount! * 100) / 100,
+                affectsMainBalance:
+                    values.type === SavingsOperationType.TRANSFER ? undefined : values.affectsMainBalance,
+                balanceAmount: shouldSyncBalance ? Math.round(convertedAmount! * 100) / 100 : undefined,
             });
             setSavingsGoals(response.updatedGoals);
             setSavingsOperations(response.updatedOperations);
@@ -340,6 +350,37 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                             )}
                         />
 
+                        {type !== SavingsOperationType.TRANSFER && (
+                            <FormField
+                                control={form.control}
+                                name="affectsMainBalance"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {type === SavingsOperationType.DEPOSIT
+                                                ? t("depositSource")
+                                                : t("withdrawalDestination")}
+                                        </FormLabel>
+                                        <Select
+                                            value={field.value ? "main" : "external"}
+                                            onValueChange={(value) => field.onChange(value === "main")}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="main">{t("mainBalanceCard")}</SelectItem>
+                                                <SelectItem value="external">{t("outsideMainBalance")}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+
                         {amount > 0 && (
                             <div
                                 className={
@@ -355,8 +396,18 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                         })}
                                     </p>
                                 )}
-                                {conversionUnavailable ? (
+                                {exceedsStorage ? (
+                                    <p className="text-rose-600 dark:text-rose-400">{t("notEnoughInStorage")}</p>
+                                ) : conversionUnavailable ? (
                                     <p className="text-rose-600 dark:text-rose-400">{t("conversionUnavailable")}</p>
+                                ) : type !== SavingsOperationType.TRANSFER && !shouldAffectMainBalance ? (
+                                    <p>
+                                        {t(
+                                            type === SavingsOperationType.DEPOSIT
+                                                ? "externalDepositImpact"
+                                                : "externalWithdrawalImpact",
+                                        )}
+                                    </p>
                                 ) : type === SavingsOperationType.DEPOSIT ? (
                                     <p className={exceedsMainBalance ? "text-rose-600 dark:text-rose-400" : ""}>
                                         {exceedsMainBalance
@@ -366,18 +417,12 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                               })}
                                     </p>
                                 ) : type === SavingsOperationType.WITHDRAWAL ? (
-                                    <p className={exceedsStorage ? "text-rose-600 dark:text-rose-400" : ""}>
-                                        {exceedsStorage
-                                            ? t("notEnoughInStorage")
-                                            : t("withdrawalBalanceImpact", {
-                                                  amount: displayMoney(balanceAmount ?? 0, userCurrency),
-                                              })}
+                                    <p>
+                                        {t("withdrawalBalanceImpact", {
+                                            amount: displayMoney(balanceAmount ?? 0, userCurrency),
+                                        })}
                                     </p>
-                                ) : (
-                                    exceedsStorage && (
-                                        <p className="text-rose-600 dark:text-rose-400">{t("notEnoughInStorage")}</p>
-                                    )
-                                )}
+                                ) : null}
                             </div>
                         )}
 

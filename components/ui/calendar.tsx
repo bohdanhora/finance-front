@@ -2,10 +2,55 @@
 
 import * as React from "react";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { DayButton, DayPicker, getDefaultClassNames, type DropdownProps } from "react-day-picker";
 
 import { Button, buttonVariants } from "components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { twMerge } from "tailwind-merge";
+
+function CalendarDropdown({ options, value, onChange, disabled, "aria-label": ariaLabel }: DropdownProps) {
+    const selectedValue = String(value ?? "");
+    const isMonthDropdown = options?.every((option) => option.value >= 0 && option.value <= 11) ?? false;
+
+    return (
+        <Select
+            value={selectedValue}
+            disabled={disabled}
+            onValueChange={(nextValue) =>
+                onChange?.({ target: { value: nextValue } } as React.ChangeEvent<HTMLSelectElement>)
+            }
+        >
+            <SelectTrigger
+                size="sm"
+                aria-label={ariaLabel}
+                className={twMerge(
+                    "border-border/70 bg-muted/40 hover:bg-indigo-500/10 hover:text-indigo-600 focus:ring-indigo-500/25 h-10 rounded-xl px-3 font-semibold shadow-none transition-colors focus:ring-2 dark:hover:text-indigo-300",
+                    isMonthDropdown ? "w-[6.75rem] capitalize sm:w-32" : "w-20 sm:w-24",
+                )}
+            >
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent
+                align="center"
+                className={twMerge(
+                    "border-border/80 bg-popover text-popover-foreground max-h-72 rounded-xl shadow-xl",
+                    isMonthDropdown ? "min-w-[9rem]" : "min-w-24",
+                )}
+            >
+                {options?.map((option) => (
+                    <SelectItem
+                        key={option.value}
+                        value={String(option.value)}
+                        disabled={option.disabled}
+                        className={isMonthDropdown ? "capitalize" : undefined}
+                    >
+                        {option.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    );
+}
 
 function Calendar({
     className,
@@ -25,7 +70,7 @@ function Calendar({
         <DayPicker
             showOutsideDays={showOutsideDays}
             className={twMerge(
-                "bg-transparent text-foreground group/calendar w-[20.5rem] max-w-[calc(100vw-1.5rem)] p-4 [--cell-size:--spacing(10)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+                "bg-transparent text-foreground group/calendar w-[20.5rem] max-w-[calc(100vw-1.5rem)] p-4 [--cell-size:--spacing(10)] sm:w-96 sm:p-5 sm:[--cell-size:--spacing(12)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
                 String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
                 String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
                 className,
@@ -37,17 +82,17 @@ function Calendar({
                 months: twMerge("relative flex flex-col gap-4 md:flex-row", defaultClassNames.months),
                 month: twMerge("flex w-full flex-col gap-3", defaultClassNames.month),
                 nav: twMerge(
-                    "absolute inset-x-0 top-0 z-10 flex w-full items-center justify-between gap-1 px-0.5",
+                    "pointer-events-none absolute inset-x-0 top-0 z-10 flex w-full items-center justify-between gap-1 px-0.5",
                     defaultClassNames.nav,
                 ),
                 button_previous: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-border/70 bg-muted/35 size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
+                    "border-border/70 bg-muted/35 pointer-events-auto size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
                     defaultClassNames.button_previous,
                 ),
                 button_next: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-border/70 bg-muted/35 size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
+                    "border-border/70 bg-muted/35 pointer-events-auto size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
                     defaultClassNames.button_next,
                 ),
                 month_caption: twMerge(
@@ -55,14 +100,11 @@ function Calendar({
                     defaultClassNames.month_caption,
                 ),
                 dropdowns: twMerge(
-                    "flex h-(--cell-size) w-full items-center justify-center gap-2 text-sm font-semibold",
+                    "flex h-(--cell-size) w-full flex-nowrap items-center justify-center gap-2 text-sm font-semibold",
                     defaultClassNames.dropdowns,
                 ),
-                dropdown_root: twMerge(
-                    "border-border/70 bg-muted/40 relative rounded-xl border shadow-none transition-colors has-focus:border-indigo-500 has-focus:ring-2 has-focus:ring-indigo-500/20",
-                    defaultClassNames.dropdown_root,
-                ),
-                dropdown: twMerge("absolute inset-0 opacity-0", defaultClassNames.dropdown),
+                dropdown_root: twMerge("relative", defaultClassNames.dropdown_root),
+                dropdown: twMerge(defaultClassNames.dropdown),
                 caption_label: twMerge(
                     "select-none font-semibold",
                     captionLayout === "label"
@@ -113,6 +155,7 @@ function Calendar({
 
                     return <ChevronDownIcon className={twMerge("size-4", className)} {...props} />;
                 },
+                Dropdown: CalendarDropdown,
                 DayButton: CalendarDayButton,
                 WeekNumber: ({ children, ...props }) => {
                     return (
