@@ -16,7 +16,8 @@
         "statistics": "Statistics",
         "savings": "Savings",
         "logout": "Log out",
-        "calculator": "Calculator"
+        "calculator": "Calculator",
+        "menu": "Menu"
     },
     "calculator": {
         "title": "Calculator",

@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useGetCurrencyQuery } from "api/bank";
 import useBankStore from "store/bank";
-import { LangugaeDropdown } from "./language-dropdown";
 import { CurrencyDropdown } from "./currency-dropdown";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
 import { Loader } from "./loader";
-import { BarChart3, Calculator, HelpCircle, LayoutDashboard, LogOutIcon, PiggyBank } from "lucide-react";
+import { BarChart3, Calculator, LayoutDashboard, PiggyBank } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
@@ -21,11 +20,11 @@ import { clearCookies } from "lib/logout";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeSwitch } from "./theme-switch";
-import { TOUR_START_EVENT } from "./onboarding/tour";
 import { twMerge } from "tailwind-merge";
 import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
 import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
+import { NavbarActionsMenu } from "./navbar-actions-menu";
 
 export const Navbar = () => {
     const { data: currency } = useGetCurrencyQuery();
@@ -42,7 +41,6 @@ export const Navbar = () => {
     const setEur = useBankStore((state) => state.setEur);
     const generalStore = useStore();
     const tNav = useTranslations("navbar");
-    const tTour = useTranslations("tour");
 
     const userCurrency = generalStore.userCurrency;
 
@@ -93,13 +91,14 @@ export const Navbar = () => {
     return (
         <>
             {logoutPending && <Loader />}
-            <header className="sticky top-0 z-40 w-full border-b border-black/10 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-black/75">
-                <div className="mx-auto grid min-h-14 w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6">
+            <header className="sticky top-0 z-40 w-full border-b border-black/8 bg-white/75 shadow-[0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-2xl dark:border-white/8 dark:bg-zinc-950/75 dark:shadow-none">
+                <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 sm:px-5 lg:px-6">
                     <Link
                         href={Routes.HOME}
+                        aria-label="Finance"
                         className="flex w-fit shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     >
-                        <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-md shadow-indigo-500/20">
+                        <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
                             <svg
                                 width="19"
                                 height="19"
@@ -115,10 +114,10 @@ export const Navbar = () => {
                                 <path d="M15 7h6v6" />
                             </svg>
                         </span>
-                        <span className="hidden text-sm font-semibold tracking-tight sm:inline">Finance</span>
+                        <span className="hidden text-sm font-bold tracking-[-0.02em] xl:inline">Finance</span>
                     </Link>
 
-                    <nav className="border-border bg-muted/40 col-start-2 flex min-w-0 items-center gap-0.5 justify-self-center rounded-xl border p-1 min-[1040px]:absolute min-[1040px]:left-1/2 min-[1040px]:-translate-x-1/2">
+                    <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
                         {[
                             { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
                             { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3 },
@@ -129,72 +128,60 @@ export const Navbar = () => {
                                 <Link
                                     key={href}
                                     href={href}
+                                    aria-label={label}
                                     aria-current={active ? "page" : undefined}
                                     data-tour={href === Routes.STATISTICS ? "statistics" : undefined}
                                     className={twMerge(
-                                        "flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium transition-colors lg:px-3",
+                                        "relative flex h-9 items-center gap-2 rounded-xl px-2.5 text-sm font-medium transition-all duration-200 sm:px-3",
                                         active
-                                            ? "bg-background text-indigo-600 shadow-sm dark:text-indigo-300"
+                                            ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
                                             : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
                                     )}
                                 >
-                                    <Icon size={15} />
-                                    <span className="hidden md:inline">{label}</span>
+                                    <Icon className="size-4" />
+                                    <span className="hidden lg:inline">{label}</span>
                                 </Link>
                             );
                         })}
                     </nav>
-                    <div className="col-start-3 flex min-w-0 shrink-0 items-center justify-self-end gap-0.5">
-                        <Button
-                            variant="ghost"
-                            className="h-9 gap-1.5 rounded-lg px-2"
-                            aria-label={tNav("currency")}
-                            title={tNav("currency")}
-                            onClick={() => window.dispatchEvent(new Event("finance:open-currency-selection"))}
-                        >
-                            <span className="flex size-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
-                                {getCurrencySymbol(userCurrency)}
-                            </span>
-                            <span className="hidden text-xs font-semibold uppercase sm:inline">{userCurrency}</span>
-                        </Button>
-                        {userCurrency === CURRENCY.UAH && (
-                            <div className="hidden sm:block">
-                                <CurrencyDropdown rate={buy} />
-                            </div>
-                        )}
+                    <div className="col-start-3 flex min-w-0 items-center justify-self-end gap-1.5">
+                        <div className="border-border/70 bg-card/65 flex items-center rounded-2xl border p-0.5 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
+                            <Button
+                                variant="ghost"
+                                className="h-9 gap-1.5 rounded-xl px-2"
+                                aria-label={tNav("currency")}
+                                title={tNav("currency")}
+                                onClick={() => window.dispatchEvent(new Event("finance:open-currency-selection"))}
+                            >
+                                <span className="flex size-6 items-center justify-center rounded-lg bg-indigo-500/10 text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                                    {getCurrencySymbol(userCurrency)}
+                                </span>
+                                <span className="hidden text-xs font-bold uppercase sm:inline">{userCurrency}</span>
+                            </Button>
+                            {userCurrency === CURRENCY.UAH && (
+                                <>
+                                    <span className="bg-border hidden h-5 w-px sm:block" aria-hidden="true" />
+                                    <div className="hidden sm:block">
+                                        <CurrencyDropdown rate={buy} />
+                                    </div>
+                                </>
+                            )}
+                        </div>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hidden lg:inline-flex"
-                            aria-label={tNav("calculator")}
-                            title={tNav("calculator")}
-                            onClick={() => window.dispatchEvent(new Event(CALCULATOR_TOGGLE_EVENT))}
-                        >
-                            <Calculator />
-                        </Button>
-
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hidden xl:inline-flex"
-                            aria-label={tTour("replay")}
-                            title={tTour("replay")}
-                            onClick={() => window.dispatchEvent(new Event(TOUR_START_EVENT))}
-                        >
-                            <HelpCircle />
-                        </Button>
-                        <LangugaeDropdown />
-                        <ThemeSwitch />
-                        <Button
-                            disabled={logoutPending}
-                            variant="ghost"
-                            size="icon"
-                            aria-label={tNav("logout")}
-                            onClick={logout}
-                        >
-                            <LogOutIcon />
-                        </Button>
+                        <div className="border-border/70 bg-card/65 flex items-center rounded-2xl border p-0.5 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="hidden rounded-xl lg:inline-flex"
+                                aria-label={tNav("calculator")}
+                                title={tNav("calculator")}
+                                onClick={() => window.dispatchEvent(new Event(CALCULATOR_TOGGLE_EVENT))}
+                            >
+                                <Calculator />
+                            </Button>
+                            <ThemeSwitch />
+                            <NavbarActionsMenu logoutPending={logoutPending} onLogout={logout} />
+                        </div>
                     </div>
                 </div>
             </header>

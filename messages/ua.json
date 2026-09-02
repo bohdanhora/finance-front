@@ -16,7 +16,8 @@
         "statistics": "Статистика",
         "savings": "Заощадження",
         "logout": "Вийти",
-        "calculator": "Калькулятор"
+        "calculator": "Калькулятор",
+        "menu": "Меню"
     },
     "calculator": {
         "title": "Калькулятор",

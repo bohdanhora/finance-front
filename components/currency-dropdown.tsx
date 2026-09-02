@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { CURRENCY, CURRENCY_COOKIES_NAME } from "constants/index";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
-import { DollarSign, EuroIcon } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { formatCurrency } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -61,19 +61,24 @@ export const CurrencyDropdown = ({ rate = 0 }: CurrencyDropdownProps) => {
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
-                    className="h-9 gap-1.5 rounded-lg px-2"
+                    className="h-9 gap-1.5 rounded-xl px-2 data-[state=open]:bg-indigo-500/10"
                     aria-label={t("currency")}
-                    title={t("currency")}
+                    title={
+                        rate > 0
+                            ? `1 ${getCurrencySymbol(selectedCurrency)} = ${formatCurrency(rate)} ${getCurrencySymbol(CURRENCY.UAH)}`
+                            : t("currency")
+                    }
                 >
-                    {selectedCurrency === CURRENCY.USD ? <DollarSign size={17} /> : <EuroIcon size={17} />}
+                    <span className="text-sm font-semibold">{getCurrencySymbol(selectedCurrency)}</span>
                     {rate > 0 && (
-                        <span className="hidden whitespace-nowrap text-xs tabular-nums xl:inline">
-                            1 {getCurrencySymbol(selectedCurrency)} = {formatCurrency(rate)} {getCurrencySymbol(CURRENCY.UAH)}
+                        <span className="hidden whitespace-nowrap text-xs font-medium tabular-nums min-[1280px]:inline">
+                            {formatCurrency(rate)}
                         </span>
                     )}
+                    <ChevronDown className="text-muted-foreground size-3" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit">
+            <DropdownMenuContent align="end" sideOffset={10} className="w-40 rounded-xl p-1.5">
                 <DropdownMenuRadioGroup value={currency} onValueChange={changeCurrency}>
                     <DropdownMenuRadioItem value={CURRENCY.USD}>{t("usd")}</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value={CURRENCY.EUR}>{t("eur")}</DropdownMenuRadioItem>
