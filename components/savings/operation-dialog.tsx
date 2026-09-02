@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
@@ -12,6 +12,7 @@ import { z } from "zod";
 import { useAddSavingsOperation } from "api/main";
 import { CURRENCY } from "constants/index";
 import useStore from "store/general";
+import useBankStore from "store/bank";
 import { SavingsOperation, SavingsOperationType, SavingsStorage } from "types/transactions";
 import { Button } from "components/ui/button";
 import {
@@ -28,6 +29,9 @@ import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Textarea } from "components/ui/textarea";
+import { convertSavingsCurrency, getSavingsNativeBalance } from "lib/savings";
+import { formatCurrency } from "lib/utils";
+import { getCurrencySymbol } from "lib/currency";
 
 const operationSchema = z
     .object({
@@ -66,6 +70,9 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const userCurrency = useStore((state) => state.userCurrency);
     const setSavingsGoals = useStore((state) => state.setSavingsGoals);
     const setSavingsOperations = useStore((state) => state.setSavingsOperations);
+    const store = useStore();
+    const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
+    const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const { mutateAsync: addOperation, isPending } = useAddSavingsOperation();
 
     const form = useForm<OperationFormValues>({
@@ -82,6 +89,23 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const type = form.watch("type");
     const storage = form.watch("storage");
     const destinationStorage = form.watch("destinationStorage");
+    const amount = Number(form.watch("amount")) || 0;
+    const currency = form.watch("currency");
+    const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
+    const convertedBalanceAmount =
+        type === SavingsOperationType.TRANSFER ? amount : convertSavingsCurrency(amount, currency, userCurrency, rates);
+    const balanceAmount = convertedBalanceAmount === null ? null : Math.round(convertedBalanceAmount * 100) / 100;
+    const availableInStorage = getSavingsNativeBalance(store.savingsOperations, currency, storage);
+    const exceedsStorage =
+        type !== SavingsOperationType.DEPOSIT && amount > 0 && availableInStorage + Number.EPSILON < amount;
+    const exceedsMainBalance =
+        type === SavingsOperationType.DEPOSIT &&
+        balanceAmount !== null &&
+        balanceAmount > store.totalAmount + Number.EPSILON;
+    const conversionUnavailable = type !== SavingsOperationType.TRANSFER && amount > 0 && balanceAmount === null;
+
+    const displayMoney = (value: number, selectedCurrency: CURRENCY) =>
+        `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
 
     useEffect(() => {
         if (type === SavingsOperationType.TRANSFER && destinationStorage === storage) {
@@ -99,6 +123,27 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     };
 
     const onSubmit = async (values: OperationFormValues) => {
+        const nativeAvailable = getSavingsNativeBalance(store.savingsOperations, values.currency, values.storage);
+        const convertedAmount =
+            values.type === SavingsOperationType.TRANSFER
+                ? Number(values.amount)
+                : convertSavingsCurrency(Number(values.amount), values.currency, userCurrency, rates);
+
+        if (values.type !== SavingsOperationType.TRANSFER && convertedAmount === null) {
+            form.setError("amount", { message: t("conversionUnavailable") });
+            return;
+        }
+
+        if (values.type === SavingsOperationType.DEPOSIT && convertedAmount! > store.totalAmount) {
+            form.setError("amount", { message: t("notEnoughOnBalance") });
+            return;
+        }
+
+        if (values.type !== SavingsOperationType.DEPOSIT && Number(values.amount) > nativeAvailable) {
+            form.setError("amount", { message: t("notEnoughInStorage") });
+            return;
+        }
+
         const item: SavingsOperation = {
             id: uuidv4(),
             type: values.type,
@@ -111,9 +156,21 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
         };
 
         try {
-            const response = await addOperation({ item });
+            const response = await addOperation({
+                item,
+                balanceAmount:
+                    values.type === SavingsOperationType.TRANSFER
+                        ? undefined
+                        : Math.round(convertedAmount! * 100) / 100,
+            });
             setSavingsGoals(response.updatedGoals);
             setSavingsOperations(response.updatedOperations);
+            if (response.updatedTransactions) store.setTransactions(response.updatedTransactions);
+            if (response.updatedTotals) {
+                store.setTotalAmount(response.updatedTotals.totalAmount);
+                store.setTotalIncome(response.updatedTotals.totalIncome);
+                store.setTotalSpend(response.updatedTotals.totalSpend);
+            }
             toast.success(t("operationSaved"));
             handleOpenChange(false);
         } catch {
@@ -283,6 +340,47 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                             )}
                         />
 
+                        {amount > 0 && (
+                            <div
+                                className={
+                                    exceedsStorage || exceedsMainBalance || conversionUnavailable
+                                        ? "rounded-2xl border border-rose-500/25 bg-rose-500/[0.07] p-3 text-sm"
+                                        : "rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-3 text-sm"
+                                }
+                            >
+                                {type !== SavingsOperationType.DEPOSIT && (
+                                    <p className="font-medium">
+                                        {t("availableInStorage", {
+                                            amount: displayMoney(availableInStorage, currency),
+                                        })}
+                                    </p>
+                                )}
+                                {conversionUnavailable ? (
+                                    <p className="text-rose-600 dark:text-rose-400">{t("conversionUnavailable")}</p>
+                                ) : type === SavingsOperationType.DEPOSIT ? (
+                                    <p className={exceedsMainBalance ? "text-rose-600 dark:text-rose-400" : ""}>
+                                        {exceedsMainBalance
+                                            ? t("notEnoughOnBalance")
+                                            : t("depositBalanceImpact", {
+                                                  amount: displayMoney(balanceAmount ?? 0, userCurrency),
+                                              })}
+                                    </p>
+                                ) : type === SavingsOperationType.WITHDRAWAL ? (
+                                    <p className={exceedsStorage ? "text-rose-600 dark:text-rose-400" : ""}>
+                                        {exceedsStorage
+                                            ? t("notEnoughInStorage")
+                                            : t("withdrawalBalanceImpact", {
+                                                  amount: displayMoney(balanceAmount ?? 0, userCurrency),
+                                              })}
+                                    </p>
+                                ) : (
+                                    exceedsStorage && (
+                                        <p className="text-rose-600 dark:text-rose-400">{t("notEnoughInStorage")}</p>
+                                    )
+                                )}
+                            </div>
+                        )}
+
                         <FormField
                             control={form.control}
                             name="note"
@@ -307,7 +405,16 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                     {t("cancel")}
                                 </Button>
                             </DialogClose>
-                            <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                            <Button
+                                type="submit"
+                                disabled={
+                                    isPending ||
+                                    !form.formState.isValid ||
+                                    exceedsStorage ||
+                                    exceedsMainBalance ||
+                                    conversionUnavailable
+                                }
+                            >
                                 {t("save")}
                             </Button>
                         </DialogFooter>

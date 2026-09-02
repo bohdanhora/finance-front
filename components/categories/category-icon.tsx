@@ -17,6 +17,7 @@ import {
     Lightbulb,
     PawPrint,
     Pill,
+    PiggyBank,
     Plane,
     ReceiptText,
     Repeat2,
@@ -59,6 +60,7 @@ const CATEGORY_ICONS: Record<CategoryKey, LucideIcon> = {
     repairs: Hammer,
     work: BriefcaseBusiness,
     essentials: BadgeDollarSign,
+    savings: PiggyBank,
     other: Shapes,
     income: BanknoteArrowUp,
 };

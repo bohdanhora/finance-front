@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
-import { TransactionType } from "types/transactions";
+import { SavingsStorage, TransactionType } from "types/transactions";
 import {
     Dialog,
     DialogClose,
@@ -23,10 +23,12 @@ import { DateObjectPicker } from "components/ui/date-picker";
 import { Textarea } from "components/ui/textarea";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { TransactionEnum } from "constants/index";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 
 const editTransactionSchema = z.object({
     value: z.string().min(1),
     categories: z.string().trim().min(1).max(40),
+    savingsStorage: z.nativeEnum(SavingsStorage),
     date: z.date(),
     description: z.string().optional(),
 });
@@ -41,6 +43,7 @@ interface Props {
 const getEmptyTransactionValues = () => ({
     value: "",
     categories: "",
+    savingsStorage: SavingsStorage.CARD,
     date: new Date(),
     description: "",
 });
@@ -52,6 +55,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
         resolver: zodResolver(editTransactionSchema),
         defaultValues: getEmptyTransactionValues(),
     });
+    const selectedCategory = form.watch("categories");
 
     useEffect(() => {
         if (!open) return;
@@ -61,6 +65,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                 ? {
                       value: String(transaction.value),
                       categories: transaction.categorie,
+                      savingsStorage: transaction.savingsStorage ?? SavingsStorage.CARD,
                       date: new Date(transaction.date),
                       description: transaction.description ?? "",
                   }
@@ -114,11 +119,41 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                         value={field.value}
                                         onChange={field.onChange}
                                         includeIncome={transaction?.transactionType === TransactionEnum.INCOME}
+                                        excludedKeys={
+                                            transaction?.transactionType === TransactionEnum.INCOME ? ["savings"] : []
+                                        }
                                     />
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
+                        {selectedCategory === "savings" && transaction?.transactionType === TransactionEnum.EXPENSE && (
+                            <FormField
+                                control={form.control}
+                                name="savingsStorage"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("savings.storage")}</FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Object.values(SavingsStorage).map((storage) => (
+                                                    <SelectItem key={storage} value={storage}>
+                                                        {t(`savings.${storage}`)}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
 
                         <FormField
                             control={form.control}

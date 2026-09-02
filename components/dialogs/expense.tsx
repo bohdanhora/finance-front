@@ -21,7 +21,7 @@ import {
     DialogTrigger,
 } from "ui/dialog";
 
-import { MinusIcon } from "lucide-react";
+import { MinusIcon, PiggyBank } from "lucide-react";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { Textarea } from "ui/textarea";
 import { useTranslations } from "next-intl";
@@ -35,6 +35,8 @@ import { getIncomeFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { DateObjectPicker } from "components/ui/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { SavingsStorage } from "types/transactions";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -54,12 +56,19 @@ export const ExpenseDialogComponent = () => {
             value: "",
             description: "",
             categories: "",
+            savingsStorage: SavingsStorage.CARD,
             date: new Date(),
         },
     });
 
     const resetForm = () => {
-        form.reset({ value: "", description: "", categories: "", date: new Date() });
+        form.reset({
+            value: "",
+            description: "",
+            categories: "",
+            savingsStorage: SavingsStorage.CARD,
+            date: new Date(),
+        });
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -70,6 +79,8 @@ export const ExpenseDialogComponent = () => {
             date: values.date,
             categorie: values.categories,
             description: values.description || "",
+            savingsStorage: values.categories === "savings" ? values.savingsStorage : undefined,
+            savingsCurrency: values.categories === "savings" ? userCurrency : undefined,
         };
 
         try {
@@ -79,9 +90,10 @@ export const ExpenseDialogComponent = () => {
             store.setTotalIncome(response.updatedTotals.totalIncome);
             store.setTotalSpend(response.updatedTotals.totalSpend);
             store.setTransactions(response.updatedItems);
+            store.setSavingsOperations(response.updatedSavingsOperations);
 
             toast.success(
-                t("toasts.addedExpense", {
+                t(values.categories === "savings" ? "toasts.movedToSavings" : "toasts.addedExpense", {
                     amount: formatCurrency(Number(values.value)),
                     currency: getCurrencySymbol(userCurrency),
                 }),
@@ -94,6 +106,8 @@ export const ExpenseDialogComponent = () => {
             toast.error(t("toasts.errorOccurred") || "Error occurred");
         }
     };
+
+    const selectedCategory = form.watch("categories");
 
     const handleOpenChange = (isOpen: boolean) => {
         if (store.totalAmount <= 0 && isOpen) {
@@ -151,6 +165,42 @@ export const ExpenseDialogComponent = () => {
                                 </FormItem>
                             )}
                         />
+                        {selectedCategory === "savings" && (
+                            <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4">
+                                <div className="flex items-start gap-3 text-sm">
+                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
+                                        <PiggyBank className="size-4" />
+                                    </span>
+                                    <p className="text-muted-foreground leading-relaxed">
+                                        {t("dialogs.savingsExpenseHint")}
+                                    </p>
+                                </div>
+                                <FormField
+                                    control={form.control}
+                                    name="savingsStorage"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t("savings.storage")}</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {Object.values(SavingsStorage).map((storage) => (
+                                                        <SelectItem key={storage} value={storage}>
+                                                            {t(`savings.${storage}`)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
                         <FormField
                             control={form.control}
                             name="date"

@@ -106,6 +106,12 @@ const SavingsPage = () => {
                     : await deleteOperation(deleteTarget.id);
             store.setSavingsGoals(response.updatedGoals);
             store.setSavingsOperations(response.updatedOperations);
+            if (response.updatedTransactions) store.setTransactions(response.updatedTransactions);
+            if (response.updatedTotals) {
+                store.setTotalAmount(response.updatedTotals.totalAmount);
+                store.setTotalIncome(response.updatedTotals.totalIncome);
+                store.setTotalSpend(response.updatedTotals.totalSpend);
+            }
             toast.success(deleteTarget.kind === "goal" ? t("goalDeleted") : t("operationDeleted"));
             setDeleteTarget(null);
         } catch {

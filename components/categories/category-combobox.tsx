@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { CATEGORY_KEYS, EXPENSE_CATEGORY_KEYS, getCategoryLabel } from "constants/categories";
+import { CATEGORY_KEYS, CategoryKey, EXPENSE_CATEGORY_KEYS, getCategoryLabel } from "constants/categories";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -16,15 +16,23 @@ type Props = {
     onChange: (value: string) => void;
     includeIncome?: boolean;
     allowCustom?: boolean;
+    excludedKeys?: CategoryKey[];
     className?: string;
 };
 
-export const CategoryCombobox = ({ value, onChange, includeIncome = false, allowCustom = true, className }: Props) => {
+export const CategoryCombobox = ({
+    value,
+    onChange,
+    includeIncome = false,
+    allowCustom = true,
+    excludedKeys = [],
+    className,
+}: Props) => {
     const tCategories = useTranslations("categories");
     const tDialogs = useTranslations("dialogs");
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const keys = includeIncome ? CATEGORY_KEYS : EXPENSE_CATEGORY_KEYS;
+    const keys = (includeIncome ? CATEGORY_KEYS : EXPENSE_CATEGORY_KEYS).filter((key) => !excludedKeys.includes(key));
 
     const options = useMemo(() => keys.map((key) => ({ key, label: tCategories(key) })), [keys, tCategories]);
     const normalizedQuery = query.trim().replace(/\s+/g, " ");

@@ -33,6 +33,8 @@ export type SavingsOperation = {
     currency: CURRENCY;
     date: string;
     note?: string;
+    linkedTransactionId?: string;
+    balanceAmount?: number;
 };
 
 export type SavingsGoalPayload = {
@@ -41,12 +43,21 @@ export type SavingsGoalPayload = {
 
 export type SavingsOperationPayload = {
     item: SavingsOperation;
+    balanceAmount?: number;
 };
 
 export type SavingsMutationResponse = {
     message: string;
     updatedGoals: SavingsGoal[];
     updatedOperations: SavingsOperation[];
+    updatedTransactions?: TransactionType[];
+    updatedTotals?: TransactionTotals;
+};
+
+export type TransactionTotals = {
+    totalAmount: number;
+    totalIncome: number;
+    totalSpend: number;
 };
 
 export type TransactionType = {
@@ -56,6 +67,9 @@ export type TransactionType = {
     date: string;
     categorie: string;
     id: string;
+    savingsStorage?: SavingsStorage;
+    savingsCurrency?: CURRENCY;
+    savingsOperationId?: string;
 };
 
 export type EssentialType = {
@@ -103,6 +117,8 @@ export type NewTransactionPaymentsPayload = {
     date: Date;
     categorie: string;
     description: string;
+    savingsStorage?: SavingsStorage;
+    savingsCurrency?: CURRENCY;
 };
 
 export type NewTransactionResponseType = {
@@ -113,6 +129,7 @@ export type NewTransactionResponseType = {
         totalSpend: number;
     };
     updatedItems: TransactionType[] | [];
+    updatedSavingsOperations: SavingsOperation[];
 };
 
 export type CheckedEssentialItemType = {
@@ -205,6 +222,7 @@ export type ClearDataResponseType = {
     clearedTotals: boolean;
     essentialsArray?: EssentialType[];
     nextMonthEssentialsArray?: EssentialType[];
+    updatedSavingsOperations?: SavingsOperation[];
 };
 
 export type SavePercentPayload = {
@@ -229,6 +247,7 @@ export type DeleteTransactionResponseType = {
         totalSpend: number;
     };
     updatedItems: TransactionType[];
+    updatedSavingsOperations: SavingsOperation[];
 };
 
 export type UpdateTransactionPayload = {
@@ -238,6 +257,8 @@ export type UpdateTransactionPayload = {
     categorie?: string;
     date?: string;
     description?: string;
+    savingsStorage?: SavingsStorage;
+    savingsCurrency?: CURRENCY;
 };
 
 export type UpdateTransactionResponseType = {
@@ -249,4 +270,5 @@ export type UpdateTransactionResponseType = {
         totalSpend: number;
     };
     updatedItems: TransactionType[];
+    updatedSavingsOperations: SavingsOperation[];
 };

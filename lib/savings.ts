@@ -64,6 +64,11 @@ const getOperationStorageAmount = (operation: SavingsOperation, storage?: Saving
     return 0;
 };
 
+export const getSavingsNativeBalance = (operations: SavingsOperation[], currency: CURRENCY, storage: SavingsStorage) =>
+    operations
+        .filter((operation) => operation.currency === currency)
+        .reduce((total, operation) => total + getOperationStorageAmount(operation, storage), 0);
+
 export const convertSavingsCurrency = (
     amount: number,
     from: CURRENCY,

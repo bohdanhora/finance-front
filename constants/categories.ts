@@ -26,6 +26,7 @@ export const EXPENSE_CATEGORY_KEYS = [
     "repairs",
     "work",
     "essentials",
+    "savings",
     "other",
 ] as const;
 

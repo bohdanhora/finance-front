@@ -1,4 +1,5 @@
 import z from "zod";
+import { SavingsStorage } from "types/transactions";
 
 const amountRegex = /^(0|[1-9]\d*)(\.\d{0,2})?$/;
 
@@ -56,6 +57,7 @@ export const getIncomeFormSchema = (totalAmount: number) => {
 
         description: z.string().optional(),
         categories: z.string().trim().min(1).max(40),
+        savingsStorage: z.nativeEnum(SavingsStorage),
         date: z.date(),
     });
 };

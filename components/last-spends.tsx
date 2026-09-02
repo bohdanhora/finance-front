@@ -134,6 +134,9 @@ export const LastSpends = () => {
             if (res.essentialsArray) store.setEssentialsArray(res.essentialsArray);
             if (res.nextMonthEssentialsArray) store.setNextMonthEssentialsArray(res.nextMonthEssentialsArray);
         }
+        if (res.updatedSavingsOperations) {
+            store.setSavingsOperations(res.updatedSavingsOperations);
+        }
 
         if (clearTotalsChck) {
             localStorage.removeItem("currency");
@@ -164,6 +167,7 @@ export const LastSpends = () => {
             store.setTotalIncome(res.updatedTotals.totalIncome);
             store.setTotalSpend(res.updatedTotals.totalSpend);
         }
+        store.setSavingsOperations(res.updatedSavingsOperations);
 
         if (res.message) {
             toast.success(res.message);
@@ -295,7 +299,7 @@ export const LastSpends = () => {
                                     {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
                                     {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
                                 </span>
-                                {!essentialPaymentTransactionIds.has(tx.id) && (
+                                {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
                                     <button
                                         onClick={() => {
                                             setEditingTx(tx);
@@ -317,7 +321,9 @@ export const LastSpends = () => {
                             <TableCell>
                                 <button
                                     type="button"
-                                    disabled={essentialPaymentTransactionIds.has(tx.id)}
+                                    disabled={
+                                        essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId)
+                                    }
                                     onClick={() => {
                                         setEditingTx(tx);
                                         setEditOpen(true);
@@ -327,7 +333,7 @@ export const LastSpends = () => {
                                 >
                                     <CategoryIcon category={tx.categorie} className="size-4" />
                                     <span className="text-xs font-medium">{categoryLabel(tx.categorie)}</span>
-                                    {!essentialPaymentTransactionIds.has(tx.id) && (
+                                    {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
                                         <Pencil className="size-3 opacity-60" />
                                     )}
                                 </button>
@@ -382,6 +388,8 @@ export const LastSpends = () => {
                         date: data.date.toISOString(),
                         description: data.description || "",
                         transactionType: editingTx.transactionType,
+                        savingsStorage: data.categories === "savings" ? data.savingsStorage : undefined,
+                        savingsCurrency: data.categories === "savings" ? userCurrency : undefined,
                     };
 
                     const res = await updateTransaction(payload);
@@ -390,6 +398,7 @@ export const LastSpends = () => {
                     store.setTotalAmount(res.updatedTotals.totalAmount);
                     store.setTotalIncome(res.updatedTotals.totalIncome);
                     store.setTotalSpend(res.updatedTotals.totalSpend);
+                    store.setSavingsOperations(res.updatedSavingsOperations);
 
                     toast.success(res.message);
 
