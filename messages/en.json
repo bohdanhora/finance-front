@@ -395,7 +395,7 @@
         "deposit": "Deposit",
         "withdrawal": "Withdrawal",
         "transfer": "Transfer",
-        "goalDialogHint": "Set an amount and date — shared savings and the required pace are included automatically.",
+        "goalDialogHint": "Set an amount and date - shared savings and the required pace are included automatically.",
         "goalName": "Goal name",
         "goalNamePlaceholder": "Emergency fund, vacation, car...",
         "targetAmount": "Target amount",
