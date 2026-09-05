@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency } from "lib/utils";
+import { AmountDelta, AnimatedMoney } from "./animated-number";
 import useStore from "store/general";
 import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
@@ -18,8 +18,7 @@ export const Total = () => {
 
     const userCurrency = store.userCurrency;
     const conversionCurrency = bankStore.currency === CURRENCY.EUR ? CURRENCY.EUR : CURRENCY.USD;
-    const conversionRate =
-        conversionCurrency === CURRENCY.EUR ? bankStore.eur?.rateBuy : bankStore.usd?.rateBuy;
+    const conversionRate = conversionCurrency === CURRENCY.EUR ? bankStore.eur?.rateBuy : bankStore.usd?.rateBuy;
     const converted = conversionRate ? store.totalAmount / conversionRate : null;
 
     return (
@@ -37,17 +36,26 @@ export const Total = () => {
                         {t("currentBalance")}
                     </p>
 
-                    <div className="mt-1.5 flex items-center gap-1">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <h1 className="text-[2.5rem] leading-none font-semibold tracking-tight tabular-nums sm:text-5xl">
-                            {formatCurrency(store.totalAmount)}{" "}
-                            <span className="text-muted-foreground font-normal">{getCurrencySymbol(userCurrency)}</span>
+                            <AnimatedMoney
+                                highlight
+                                value={store.totalAmount}
+                                symbol={getCurrencySymbol(userCurrency)}
+                                symbolClassName="text-muted-foreground font-normal"
+                            />
                         </h1>
                         <SetTotalDialog />
+                        <AmountDelta value={store.totalAmount} symbol={getCurrencySymbol(userCurrency)} />
                     </div>
 
                     {userCurrency === CURRENCY.UAH && converted !== null && (
                         <p className="text-muted-foreground mt-2 text-sm tabular-nums">
-                            ≈ {formatCurrency(converted)} {getCurrencySymbol(conversionCurrency)}
+                            <AnimatedMoney
+                                prefix="≈ "
+                                value={converted}
+                                symbol={getCurrencySymbol(conversionCurrency)}
+                            />
                         </p>
                     )}
                 </div>

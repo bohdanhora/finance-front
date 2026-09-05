@@ -11,6 +11,7 @@ import { Navbar } from "components/navbar";
 import { OnboardingTour } from "components/onboarding/tour";
 import { Section, StatGrid } from "components/wrappers/section";
 import { StatCard } from "components/stat-card";
+import { AnimatedMoney } from "components/animated-number";
 import { SpendingChart, type ChartView } from "components/charts/spending-charts";
 import { ViewSwitcher } from "components/charts/view-switcher";
 import { Button } from "components/ui/button";
@@ -65,6 +66,8 @@ const StatisticsPage = () => {
     const isCurrentMonth = month === toMonthKey(new Date());
     const oldest = months[months.length - 1];
     const money = (value: number) => `${formatCurrency(value)} ${symbol}`;
+    /** The same figure, but counting from the month shown before it. */
+    const animatedMoney = (value: number) => <AnimatedMoney value={value} symbol={symbol} />;
     const expenseCount = inMonth.filter((tx) => tx.transactionType === TransactionEnum.EXPENSE).length;
     const daysInCalculation = isCurrentMonth ? dayjs().date() : dayjs(`${month}-01`).daysInMonth();
     const dailyAverage = daysInCalculation > 0 ? totals.expense / daysInCalculation : 0;
@@ -105,7 +108,7 @@ const StatisticsPage = () => {
         headlineMode === "forecast" ? (
             <StatCard
                 label={t("forecast")}
-                value={pace && totals.expense > 0 ? money(pace.projected) : "-"}
+                value={pace && totals.expense > 0 ? animatedMoney(pace.projected) : "-"}
                 secondary={
                     pace && totals.expense > 0 ? (
                         <>
@@ -126,7 +129,7 @@ const StatisticsPage = () => {
         ) : headlineMode === "lastMonthResult" ? (
             <StatCard
                 label={t("lastMonthResult")}
-                value={money(previousTotals.expense)}
+                value={animatedMoney(previousTotals.expense)}
                 secondary={
                     <>
                         <span className="block">{formatMonthKey(previousMonth, locale)}</span>
@@ -187,8 +190,8 @@ const StatisticsPage = () => {
                         </header>
 
                         <StatGrid>
-                            <StatCard label={t("income")} value={money(totals.income)} />
-                            <StatCard label={t("expense")} value={money(totals.expense)} />
+                            <StatCard label={t("income")} value={animatedMoney(totals.income)} />
+                            <StatCard label={t("expense")} value={animatedMoney(totals.expense)} />
                             {headline}
                             <StatCard
                                 label={t("transactions")}
@@ -232,13 +235,13 @@ const StatisticsPage = () => {
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                 <StatCard
                                     label={t("averagePurchase")}
-                                    value={money(totals.averageExpense)}
+                                    value={animatedMoney(totals.averageExpense)}
                                     secondary={t("averagePurchaseHint", { count: expenseCount })}
                                     hint={t("averagePurchaseExplanation")}
                                 />
                                 <StatCard
                                     label={t("averagePerDay")}
-                                    value={money(dailyAverage)}
+                                    value={animatedMoney(dailyAverage)}
                                     secondary={t("averagePerDayHint", { count: daysInCalculation })}
                                     hint={t("averagePerDayExplanation")}
                                 />
@@ -262,7 +265,7 @@ const StatisticsPage = () => {
                                 />
                                 <StatCard
                                     label={t("largestExpense")}
-                                    value={totals.largestExpense ? money(totals.largestExpense.value) : money(0)}
+                                    value={animatedMoney(totals.largestExpense ? totals.largestExpense.value : 0)}
                                     secondary={
                                         totals.largestExpense
                                             ? totals.largestExpense.description ||

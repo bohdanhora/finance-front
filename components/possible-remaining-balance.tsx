@@ -2,7 +2,7 @@
 
 import useStore from "store/general";
 import { useMemo } from "react";
-import { calculateDailyBudget, formatCurrency } from "lib/utils";
+import { calculateDailyBudget } from "lib/utils";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
@@ -11,6 +11,7 @@ import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeDefaultEssentials } from "./dialogs/change-default-essentials";
 import { Section, StatGrid } from "./wrappers/section";
 import { StatCard } from "./stat-card";
+import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
 
 export const PossibleRemaining = () => {
@@ -58,9 +59,9 @@ export const PossibleRemaining = () => {
     const currencySymbol = getCurrencySymbol(currency);
     const userSymbol = getCurrencySymbol(userCurrency);
 
-    const money = (value: number) => `${formatCurrency(value)} ${userSymbol}`;
+    const money = (value: number) => <AnimatedMoney value={value} symbol={userSymbol} />;
     const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? `${formatCurrency(value)} ${currencySymbol}` : undefined;
+        userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={currencySymbol} /> : undefined;
 
     return (
         <Section

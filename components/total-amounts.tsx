@@ -4,12 +4,12 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { formatCurrency } from "lib/utils";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { filterByMonth, monthTotals, toMonthKey } from "lib/statistics";
 import { Section } from "./wrappers/section";
 import { StatCard } from "./stat-card";
+import { AnimatedMoney } from "./animated-number";
 
 export const TotalAmounts = () => {
     const store = useStore();
@@ -45,9 +45,9 @@ export const TotalAmounts = () => {
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);
 
-    const money = (value: number) => `${formatCurrency(value)} ${userSymbol}`;
+    const money = (value: number) => <AnimatedMoney value={value} symbol={userSymbol} />;
     const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? `${formatCurrency(value)} ${altSymbol}` : undefined;
+        userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={altSymbol} /> : undefined;
 
     return (
         <Section title={t("summary")}>

@@ -41,6 +41,7 @@ import {
 import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
+import { AnimatedMoney } from "components/animated-number";
 import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
@@ -118,8 +119,6 @@ const SavingsPage = () => {
         };
     }, [store.savingsOperations]);
 
-    const displayMoney = (value: number | null) =>
-        value === null ? t("ratesUnavailable") : `${formatCurrency(value)} ${getCurrencySymbol(store.userCurrency)}`;
     const nativeMoney = (value: number, currency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
     const currencyBreakdown = (balances: Record<CURRENCY, number>) => (
@@ -149,10 +148,16 @@ const SavingsPage = () => {
         SAVINGS_CURRENCIES.some(
             (currency) => currency !== store.userCurrency && Math.abs(balances[currency]) > Number.EPSILON,
         );
-    const summaryValue = (value: number | null, balances: Record<CURRENCY, number>) => {
-        const formatted = displayMoney(value);
-        return value !== null && hasConvertedCurrencies(balances) ? `≈ ${formatted}` : formatted;
-    };
+    const summaryValue = (value: number | null, balances: Record<CURRENCY, number>) =>
+        value === null ? (
+            t("ratesUnavailable")
+        ) : (
+            <AnimatedMoney
+                value={value}
+                symbol={getCurrencySymbol(store.userCurrency)}
+                prefix={hasConvertedCurrencies(balances) ? "≈ " : undefined}
+            />
+        );
     const summaryDetails = (hint: string, balances: Record<CURRENCY, number>) => (
         <>
             <p>{hint}</p>

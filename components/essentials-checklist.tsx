@@ -9,6 +9,7 @@ import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency } from "lib/utils";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
+import { AnimatedMoney } from "./animated-number";
 import { EssentialPaymentDialog } from "./dialogs/essential-payment";
 import { Checkbox } from "./ui/checkbox";
 
@@ -48,7 +49,7 @@ export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean
                 <p className="text-sm font-medium tabular-nums">
                     {outstanding > 0 ? (
                         <span className="text-rose-600 dark:text-rose-400">
-                            {t("stillToPay")}: {formatCurrency(outstanding)} {symbol}
+                            {t("stillToPay")}: <AnimatedMoney value={outstanding} symbol={symbol} />
                         </span>
                     ) : (
                         <span className="text-emerald-600 dark:text-emerald-400">{t("allPaid")}</span>

@@ -397,6 +397,31 @@ body::before {
     }
 }
 
+@keyframes amount-delta {
+    0% {
+        opacity: 0;
+        transform: translateY(0.35rem);
+    }
+    18% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-0.6rem);
+    }
+}
+
+/* The "+1,050.00" note that appears beside a balance right after it changes. */
+.amount-delta {
+    display: inline-block;
+    animation: amount-delta 1.8s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .auth-halo,
     .auth-card,
@@ -411,6 +436,10 @@ body::before {
     .streak-core,
     .streak-coin,
     .streak-shine {
+        animation: none;
+    }
+
+    .amount-delta {
         animation: none;
     }
 }

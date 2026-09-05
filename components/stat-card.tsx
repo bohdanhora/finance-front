@@ -15,7 +15,7 @@ export const StatCard = ({
     className,
 }: {
     label: string;
-    value: string;
+    value: React.ReactNode;
     secondary?: React.ReactNode;
     action?: React.ReactNode;
     hint?: string;

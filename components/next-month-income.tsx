@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { formatCurrency, calculateSavings } from "lib/utils";
+import { calculateSavings } from "lib/utils";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
 import { EssentialSpends } from "./dialogs/essential-spends";
@@ -13,6 +13,7 @@ import { NextMonthIncomeCalculate } from "./dialogs/next-month-income-calculate"
 import { Percentage } from "./dialogs/percentage";
 import { Section, StatGrid } from "./wrappers/section";
 import { StatCard } from "./stat-card";
+import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
 
 export const NextMonthIncome = () => {
@@ -54,9 +55,9 @@ export const NextMonthIncome = () => {
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);
 
-    const money = (value: number) => `${formatCurrency(value)} ${userSymbol}`;
+    const money = (value: number) => <AnimatedMoney value={value} symbol={userSymbol} />;
     const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? `${formatCurrency(value)} ${altSymbol}` : undefined;
+        userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={altSymbol} /> : undefined;
 
     return (
         <Section
