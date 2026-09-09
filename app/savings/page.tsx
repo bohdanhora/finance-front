@@ -8,6 +8,7 @@ import {
     CalendarClock,
     CalendarDays,
     CheckCircle2,
+    ExternalLink,
     Pencil,
     PiggyBank,
     Plus,
@@ -24,6 +25,7 @@ import { useDeleteSavingsGoal, useDeleteSavingsOperation } from "api/main";
 import { Navbar } from "components/navbar";
 import { SavingsGoalDialog } from "components/savings/goal-dialog";
 import { SavingsOperationDialog } from "components/savings/operation-dialog";
+import { SavingsPriceNote } from "components/savings/price-note";
 import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -42,7 +44,13 @@ import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
 import { AnimatedMoney } from "components/animated-number";
-import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
+import {
+    calculateSavingsPace,
+    convertSavingsCurrency,
+    getSavingsBalance,
+    getSavingsNativeBalance,
+    getUrlHost,
+} from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
 import { PrivateProvider } from "providers/auth";
@@ -415,6 +423,17 @@ const SavingsPage = () => {
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0">
                                                         <h3 className="truncate font-semibold">{goal.name}</h3>
+                                                        {goal.url && (
+                                                            <a
+                                                                href={goal.url}
+                                                                target="_blank"
+                                                                rel="noreferrer noopener"
+                                                                className="text-muted-foreground hover:text-foreground mt-0.5 flex max-w-full items-center gap-1 text-xs underline-offset-2 hover:underline"
+                                                            >
+                                                                <ExternalLink className="size-3 shrink-0" />
+                                                                <span className="truncate">{getUrlHost(goal.url)}</span>
+                                                            </a>
+                                                        )}
                                                         <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums">
                                                             {nativeMoney(goal.targetAmount, goal.currency)}
                                                         </p>
@@ -423,6 +442,7 @@ const SavingsPage = () => {
                                                                 ≈ {nativeMoney(convertedTarget, comparisonCurrency)}
                                                             </p>
                                                         )}
+                                                        <SavingsPriceNote goal={goal} rates={rates} />
                                                     </div>
                                                     <div className="flex shrink-0 items-center gap-1">
                                                         <Button

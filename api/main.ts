@@ -36,6 +36,7 @@ import {
     DeleteSavingsGoalRequest,
     StreakVisitPayload,
     StreakVisitResponse,
+    SavingsGoalPriceResponse,
 } from "types/transactions";
 
 const getCurrentMonth = () => {
@@ -283,6 +284,22 @@ export const useDeleteSavingsGoal = () =>
         mutationKey: ["savings-goal", "delete"],
         mutationFn: deleteSavingsGoal,
         onError: showAxiosError,
+    });
+
+const getSavingsGoalPrice = async (url: string): Promise<SavingsGoalPriceResponse> => {
+    const res = await transactionsAxios.get("savings/price", { params: { url } });
+    return res.data;
+};
+
+/** Re-reads the price from a goal link. A shop that hides it simply returns no price. */
+export const useSavingsGoalPrice = (url?: string) =>
+    useQuery({
+        queryKey: ["savings-goal-price", url],
+        queryFn: () => getSavingsGoalPrice(url as string),
+        enabled: Boolean(url),
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 
 const addSavingsOperation = async (payload: SavingsOperationPayload): Promise<SavingsMutationResponse> => {

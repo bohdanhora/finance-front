@@ -28,7 +28,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { calculateSavingsPace, getSavingsBalance } from "lib/savings";
+import { calculateSavingsPace, getSavingsBalance, normalizeGoalUrl } from "lib/savings";
 import { formatCurrency } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -38,6 +38,7 @@ const goalSchema = z.object({
     monthlyContribution: z.string().refine((value) => value === "" || Number(value) >= 0),
     currency: z.nativeEnum(CURRENCY),
     targetDate: z.string(),
+    url: z.string().refine((value) => value.trim() === "" || normalizeGoalUrl(value) !== null),
 });
 
 type GoalFormValues = z.infer<typeof goalSchema>;
@@ -48,6 +49,7 @@ const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
     monthlyContribution: "",
     currency,
     targetDate: "",
+    url: "",
 });
 
 type Props = {
@@ -111,6 +113,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                       monthlyContribution: goal.monthlyContribution ? String(goal.monthlyContribution) : "",
                       currency: goal.currency,
                       targetDate: goal.targetDate?.slice(0, 10) ?? "",
+                      url: goal.url ?? "",
                   }
                 : getEmptyValues(userCurrency),
         );
@@ -129,6 +132,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
             monthlyContribution: Number(values.monthlyContribution) || 0,
             currency: values.currency,
             targetDate: values.targetDate || undefined,
+            url: normalizeGoalUrl(values.url) ?? undefined,
             createdAt: goal?.createdAt ?? new Date().toISOString(),
         };
 
@@ -247,6 +251,26 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                 )}
                             />
                         </div>
+
+                        <FormField
+                            control={form.control}
+                            name="url"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("goalUrl")}</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            inputMode="url"
+                                            autoComplete="off"
+                                            placeholder={t("goalUrlPlaceholder")}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <p className="text-muted-foreground text-xs">{t("goalUrlHint")}</p>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         {savingsPace && (
                             <div

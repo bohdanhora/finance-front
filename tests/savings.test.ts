@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { CURRENCY } from "../constants/index";
-import { getSavingsBalance, getSavingsNativeBalance } from "../lib/savings";
+import { getSavingsBalance, getSavingsNativeBalance, getUrlHost, normalizeGoalUrl } from "../lib/savings";
 import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
 
 const rates = {
@@ -95,4 +95,17 @@ test("reports unavailable conversion rates only when conversion is actually need
 
     assert.equal(getSavingsBalance(baseOperations, CURRENCY.UAH, missingRates), null);
     assert.equal(getSavingsBalance(baseOperations, CURRENCY.UAH, missingRates, SavingsStorage.CARD), 800);
+});
+
+test("normalizes a goal link the way a person types it", () => {
+    assert.equal(normalizeGoalUrl("rozetka.com.ua/item"), "https://rozetka.com.ua/item");
+    assert.equal(normalizeGoalUrl("  https://shop.com/p/1?a=2  "), "https://shop.com/p/1?a=2");
+    assert.equal(normalizeGoalUrl(""), null);
+    assert.equal(normalizeGoalUrl("just a note"), null);
+    assert.equal(normalizeGoalUrl("localhost"), null);
+});
+
+test("shows the shop name for a goal link", () => {
+    assert.equal(getUrlHost("https://www.rozetka.com.ua/item/"), "rozetka.com.ua");
+    assert.equal(getUrlHost("not a link"), "not a link");
 });

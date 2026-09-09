@@ -18,7 +18,17 @@ export type SavingsGoal = {
     currency: CURRENCY;
     monthlyContribution: number;
     targetDate?: string;
+    /** Optional link to the thing being saved for, used to re-check its price. */
+    url?: string;
     createdAt: string;
+};
+
+export type SavingsGoalPriceResponse = {
+    url: string;
+    price: number | null;
+    currency?: string;
+    title?: string;
+    checkedAt: string;
 };
 
 export type SavingsOperation = {
