@@ -126,6 +126,7 @@ export const LastSpends = () => {
             store.setNextMonthTotalAmount(0);
             if (res.essentialsArray) store.setEssentialsArray(res.essentialsArray);
             if (res.nextMonthEssentialsArray) store.setNextMonthEssentialsArray(res.nextMonthEssentialsArray);
+            if (res.expectedIncomes) store.setExpectedIncomes(res.expectedIncomes);
         }
         if (res.updatedSavingsOperations) {
             store.setSavingsOperations(res.updatedSavingsOperations);

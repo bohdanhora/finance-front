@@ -37,6 +37,10 @@ import {
     StreakVisitPayload,
     StreakVisitResponse,
     SavingsGoalPriceResponse,
+    ExpectedIncomePayload,
+    ExpectedIncomeListResponse,
+    ExpectedIncomeReceivedPayload,
+    ExpectedIncomeReceivedResponse,
 } from "types/transactions";
 
 const getCurrentMonth = () => {
@@ -185,6 +189,56 @@ export const useUpdateEssential = () => {
         onError: showAxiosError,
     });
 };
+
+const addExpectedIncome = async (payload: ExpectedIncomePayload): Promise<ExpectedIncomeListResponse> => {
+    const res = await transactionsAxios.post("expected-incomes", payload);
+    return res.data;
+};
+
+export const useAddExpectedIncome = () =>
+    useMutation({
+        mutationKey: ["expected-income", "add"],
+        mutationFn: addExpectedIncome,
+        onError: showAxiosError,
+    });
+
+const updateExpectedIncome = async (payload: ExpectedIncomePayload): Promise<ExpectedIncomeListResponse> => {
+    const res = await transactionsAxios.put("expected-incomes", payload);
+    return res.data;
+};
+
+export const useUpdateExpectedIncome = () =>
+    useMutation({
+        mutationKey: ["expected-income", "update"],
+        mutationFn: updateExpectedIncome,
+        onError: showAxiosError,
+    });
+
+const removeExpectedIncome = async (id: string): Promise<ExpectedIncomeListResponse> => {
+    const res = await transactionsAxios.delete(`expected-incomes/${encodeURIComponent(id)}`);
+    return res.data;
+};
+
+export const useRemoveExpectedIncome = () =>
+    useMutation({
+        mutationKey: ["expected-income", "remove"],
+        mutationFn: removeExpectedIncome,
+        onError: showAxiosError,
+    });
+
+const setExpectedIncomeReceived = async (
+    payload: ExpectedIncomeReceivedPayload,
+): Promise<ExpectedIncomeReceivedResponse> => {
+    const res = await transactionsAxios.put("expected-incomes/received", payload);
+    return res.data;
+};
+
+export const useSetExpectedIncomeReceived = () =>
+    useMutation({
+        mutationKey: ["expected-income", "received"],
+        mutationFn: setExpectedIncomeReceived,
+        onError: showAxiosError,
+    });
 
 const clearData = async (payload: ClearDataPayload): Promise<ClearDataResponseType> => {
     const res = await transactionsAxios.post("clear-all", payload);

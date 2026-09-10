@@ -22,10 +22,11 @@ The interface is responsive, theme-aware, and localized for English, Russian, an
 ## Highlights
 
 - **Monthly budget cockpit** - current balance, income, spending, remaining budget, next-month forecast, and configurable savings percentage.
+- **Expected income** - list the salaries and other money due later in the month so the budget counts them before they arrive, then mark what actually came in.
 - **Transaction management** - add, edit, remove, categorize, search, and filter income and expenses.
-- **Essential payments** - maintain reusable required payments, mark actual paid amounts, and prepare the next month in advance.
+- **Essential payments** - maintain reusable required payments, mark actual paid amounts, and prepare the next month in advance. Unpaid bills carry over when a new month starts.
 - **Savings workspace** - create goals, calculate daily and monthly saving pace, and track deposits, withdrawals, and transfers between cash and card.
-- **Spending analytics** - category breakdowns, daily dynamics, six-month history, trend views, projections, and comparisons with earlier months.
+- **Spending analytics** - category breakdowns, daily dynamics, six-month history, trend views, the month's result, and every finished month's plan compared with what actually happened.
 - **Multi-currency support** - work in UAH, USD, or EUR using current public Monobank exchange rates.
 - **Custom PDF reports** - choose a period, included sections, and transaction filters before generating a localized report in the browser.
 - **Complete authentication journey** - email verification, email/password login, Google OAuth, remember-me sessions, token refresh, logout, and password recovery.

@@ -105,6 +105,54 @@ export type EssentialType = {
     paidAmount?: number;
     paidAt?: string;
     paymentTransactionId?: string;
+    /** Month key ("YYYY-MM") the bill was left unpaid in before it moved here. */
+    carriedFrom?: string;
+};
+
+/** Money that is due to arrive this month, such as a salary on the 15th. */
+export type ExpectedIncome = {
+    id: string;
+    title: string;
+    amount: number;
+    /** Day of the month the money usually arrives. */
+    day: number;
+    /** Recurring incomes come back every month, one-offs are dropped. */
+    recurring: boolean;
+    received: boolean;
+    receivedAmount?: number;
+    receivedAt?: string;
+    transactionId?: string;
+};
+
+/** What a finished month planned and what actually happened to that plan. */
+export type MonthSnapshot = {
+    month: string;
+    essentials: Array<Pick<EssentialType, "id" | "title" | "amount" | "checked" | "paidAmount">>;
+    expectedIncomes: Array<Pick<ExpectedIncome, "id" | "title" | "amount" | "day" | "received" | "receivedAmount">>;
+};
+
+export type ExpectedIncomePayload = {
+    item: Pick<ExpectedIncome, "id" | "title" | "amount" | "day" | "recurring">;
+};
+
+export type ExpectedIncomeListResponse = {
+    message: string;
+    updatedItems: ExpectedIncome[];
+};
+
+export type ExpectedIncomeReceivedPayload = {
+    id: string;
+    received: boolean;
+    actualAmount?: number;
+    /** False when the income was already recorded as a transaction by hand. */
+    addToBalance?: boolean;
+};
+
+export type ExpectedIncomeReceivedResponse = {
+    message: string;
+    updatedItems: ExpectedIncome[];
+    updatedTotals: TransactionTotals;
+    updatedTransactions: TransactionType[];
 };
 
 export type TotalAmountPayload = {
@@ -233,6 +281,8 @@ export type AllTransactionsInfoResponse = {
     defaultEssentialsArray: EssentialType[] | [];
     essentialsArray: EssentialType[] | [];
     nextMonthEssentialsArray: EssentialType[] | [];
+    expectedIncomes?: ExpectedIncome[];
+    monthHistory?: MonthSnapshot[];
     transactions: TransactionType[] | [];
     savingsGoals: SavingsGoal[] | [];
     savingsOperations: SavingsOperation[] | [];
@@ -286,6 +336,7 @@ export type ClearDataResponseType = {
     clearedTotals: boolean;
     essentialsArray?: EssentialType[];
     nextMonthEssentialsArray?: EssentialType[];
+    expectedIncomes?: ExpectedIncome[];
     updatedSavingsOperations?: SavingsOperation[];
 };
 

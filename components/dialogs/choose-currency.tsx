@@ -63,6 +63,8 @@ export const ChoooseCurrency = () => {
                 defaultEssentialsArray: data.defaultEssentialsArray ?? [],
                 essentialsArray: data.essentialsArray ?? [],
                 nextMonthEssentialsArray: data.nextMonthEssentialsArray ?? [],
+                expectedIncomes: data.expectedIncomes ?? [],
+                monthHistory: data.monthHistory ?? [],
                 transactions: data.transactions ?? [],
                 savingsGoals: data.savingsGoals ?? [],
                 savingsOperations: data.savingsOperations ?? [],

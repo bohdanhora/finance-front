@@ -27,6 +27,13 @@ export const essentialSpendsFormSchema = z.object({
     title: z.string().min(1),
 });
 
+export const expectedIncomeFormSchema = z.object({
+    amount: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
+    title: z.string().trim().min(1).max(80),
+    day: z.string().regex(/^([1-9]|[12]\d|3[01])$/),
+    recurring: z.boolean(),
+});
+
 export const incomeFormSchema = z.object({
     value: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
     description: z.string().optional(),

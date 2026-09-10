@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { twMerge } from "tailwind-merge";
 
 import { PrivateProvider } from "providers/auth";
 import { GetDataProvider } from "providers/get-data";
@@ -14,21 +15,14 @@ import { StatCard } from "components/stat-card";
 import { AnimatedMoney } from "components/animated-number";
 import { SpendingChart, type ChartView } from "components/charts/spending-charts";
 import { ViewSwitcher } from "components/charts/view-switcher";
+import { MonthPlanSummary } from "components/month-plan-summary";
 import { Button } from "components/ui/button";
 import useStore from "store/general";
 import { formatCurrency, createDateString } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 import { getCategoryLabel } from "constants/categories";
-import {
-    averageMonthlyExpense,
-    filterByMonth,
-    listMonths,
-    monthTotals,
-    pickHeadlineMode,
-    projectMonthSpend,
-    toMonthKey,
-    versusBaseline,
-} from "lib/statistics";
+import { filterByMonth, listMonths, monthResult, monthTotals, toMonthKey } from "lib/statistics";
+import { planForMonth } from "lib/month-plan";
 import { TransactionEnum } from "constants/index";
 import { formatMonthKey } from "lib/date-locale";
 
@@ -40,16 +34,28 @@ const StatisticsPage = () => {
     const store = useStore();
     const symbol = getCurrencySymbol(store.userCurrency);
 
-    const [month, setMonth] = useState(() => toMonthKey(new Date()));
+    const currentMonth = toMonthKey(new Date());
+    const [month, setMonth] = useState(currentMonth);
     const [view, setView] = useState<ChartView>("categories");
 
     const months = useMemo(() => listMonths(store.transactions), [store.transactions]);
     const inMonth = useMemo(() => filterByMonth(store.transactions, month), [store.transactions, month]);
     const totals = useMemo(() => monthTotals(inMonth), [inMonth]);
+    const result = useMemo(() => monthResult(inMonth), [inMonth]);
     const previousMonth = dayjs(`${month}-01`).subtract(1, "month").format("YYYY-MM");
     const previousTotals = useMemo(
         () => monthTotals(filterByMonth(store.transactions, previousMonth)),
         [previousMonth, store.transactions],
+    );
+    const plan = useMemo(
+        () =>
+            planForMonth(
+                month,
+                currentMonth,
+                { essentials: store.essentialsArray, expectedIncomes: store.expectedIncomes },
+                store.monthHistory,
+            ),
+        [currentMonth, month, store.essentialsArray, store.expectedIncomes, store.monthHistory],
     );
 
     const topExpenses = useMemo(
@@ -63,7 +69,7 @@ const StatisticsPage = () => {
 
     const shiftMonth = (delta: number) => setMonth(dayjs(`${month}-01`).add(delta, "month").format("YYYY-MM"));
 
-    const isCurrentMonth = month === toMonthKey(new Date());
+    const isCurrentMonth = month === currentMonth;
     const oldest = months[months.length - 1];
     const money = (value: number) => `${formatCurrency(value)} ${symbol}`;
     /** The same figure, but counting from the month shown before it. */
@@ -74,15 +80,6 @@ const StatisticsPage = () => {
     const expenseDifference = totals.expense - previousTotals.expense;
     const expenseChange = previousTotals.expense > 0 ? (expenseDifference / previousTotals.expense) * 100 : null;
 
-    const daysInMonth = dayjs(`${month}-01`).daysInMonth();
-    const pace = projectMonthSpend(totals.expense, daysInCalculation, daysInMonth);
-    const baseline = useMemo(() => averageMonthlyExpense(store.transactions, month), [month, store.transactions]);
-    const previousBaseline = useMemo(
-        () => averageMonthlyExpense(store.transactions, previousMonth),
-        [previousMonth, store.transactions],
-    );
-    const headlineMode = pickHeadlineMode(isCurrentMonth, pace, previousTotals.count);
-
     const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
     const viewDescription: Record<ChartView, string> = {
         categories: t("categoriesDescription"),
@@ -91,64 +88,37 @@ const StatisticsPage = () => {
         trend: t("trendDescription"),
     };
 
-    /** Compares one month against the months before it, in words. */
-    const comparisonLine = (expense: number, monthBaseline: ReturnType<typeof averageMonthlyExpense>) => {
-        const change = versusBaseline(expense, monthBaseline);
-
-        return change === null
-            ? t("noComparisonData")
-            : t("versusUsualHint", {
-                  actual: money(expense),
-                  average: money(monthBaseline.average),
-                  count: monthBaseline.months,
-              });
-    };
-
-    const headline =
-        headlineMode === "forecast" ? (
-            <StatCard
-                label={t("forecast")}
-                value={pace && totals.expense > 0 ? animatedMoney(pace.projected) : "-"}
-                secondary={
-                    pace && totals.expense > 0 ? (
-                        <>
-                            <span className="block">{t("forecastPace", { amount: money(pace.dailyAverage) })}</span>
-                            <span className="block">
-                                {t(pace.reliable ? "forecastDays" : "forecastTooEarly", {
-                                    elapsed: pace.daysElapsed,
-                                    total: pace.daysInMonth,
-                                })}
-                            </span>
-                        </>
-                    ) : (
-                        t("noExpenses")
-                    )
-                }
-                hint={t("forecastExplanation")}
-            />
-        ) : headlineMode === "lastMonthResult" ? (
-            <StatCard
-                label={t("lastMonthResult")}
-                value={animatedMoney(previousTotals.expense)}
-                secondary={
-                    <>
-                        <span className="block">{formatMonthKey(previousMonth, locale)}</span>
-                        <span className="block">{comparisonLine(previousTotals.expense, previousBaseline)}</span>
-                    </>
-                }
-                hint={t("lastMonthResultExplanation")}
-            />
-        ) : (
-            <StatCard
-                label={t("versusUsual")}
-                value={(() => {
-                    const change = versusBaseline(totals.expense, baseline);
-                    return change === null ? "-" : `${change >= 0 ? "+" : ""}${Math.round(change)}%`;
-                })()}
-                secondary={comparisonLine(totals.expense, baseline)}
-                hint={t("versusUsualExplanation")}
-            />
-        );
+    const resultCard = (
+        <StatCard
+            label={t("monthResult")}
+            hint={t("monthResultExplanation")}
+            value={
+                <AnimatedMoney
+                    value={Math.abs(result.net)}
+                    symbol={symbol}
+                    prefix={result.net > 0 ? "+" : result.net < 0 ? "-" : undefined}
+                    className={twMerge(
+                        result.net > 0 && "text-emerald-600 dark:text-emerald-400",
+                        result.net < 0 && "text-rose-600 dark:text-rose-400",
+                    )}
+                />
+            }
+            secondary={
+                <>
+                    <span className="block">
+                        {result.keptShare === null
+                            ? t("noIncomeYet")
+                            : result.kept >= 0
+                              ? t("keptShare", { percent: Math.round(result.keptShare) })
+                              : t("overspent", { amount: money(Math.abs(result.kept)) })}
+                    </span>
+                    {result.movedToSavings > 0 && (
+                        <span className="block">{t("movedToSavings", { amount: money(result.movedToSavings) })}</span>
+                    )}
+                </>
+            }
+        />
+    );
 
     return (
         <GetDataProvider>
@@ -192,7 +162,7 @@ const StatisticsPage = () => {
                         <StatGrid>
                             <StatCard label={t("income")} value={animatedMoney(totals.income)} />
                             <StatCard label={t("expense")} value={animatedMoney(totals.expense)} />
-                            {headline}
+                            {resultCard}
                             <StatCard
                                 label={t("transactions")}
                                 value={String(totals.count)}
@@ -230,6 +200,15 @@ const StatisticsPage = () => {
                                 )}
                             </div>
                         </Section>
+
+                        {plan && (
+                            <Section title={t("planTitle")}>
+                                <p className="text-muted-foreground -mt-2 mb-4 max-w-2xl text-sm">
+                                    {t("planDescription")}
+                                </p>
+                                <MonthPlanSummary plan={plan} symbol={symbol} />
+                            </Section>
+                        )}
 
                         <Section title={t("keyFigures")}>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

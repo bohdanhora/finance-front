@@ -14,6 +14,8 @@ const useStore = create<StoreType>((set) => ({
     defaultEssentialsArray: [],
     essentialsArray: [],
     nextMonthEssentialsArray: [],
+    expectedIncomes: [],
+    monthHistory: [],
     transactions: [],
     savingsGoals: [],
     savingsOperations: [],
@@ -60,6 +62,10 @@ const useStore = create<StoreType>((set) => ({
         set(() => ({
             nextMonthEssentialsArray: nextMonthEssentialsArray,
         })),
+    setExpectedIncomes: (expectedIncomes) =>
+        set(() => ({
+            expectedIncomes,
+        })),
     setTransactions: (transactions) =>
         set(() => ({
             transactions: transactions,
@@ -89,6 +95,8 @@ const useStore = create<StoreType>((set) => ({
             defaultEssentialsArray: [],
             essentialsArray: [],
             nextMonthEssentialsArray: [],
+            expectedIncomes: [],
+            monthHistory: [],
             transactions: [],
             savingsGoals: [],
             savingsOperations: [],

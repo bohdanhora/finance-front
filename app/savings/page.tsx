@@ -1,21 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
-import {
-    ArrowDownToLine,
-    ArrowLeftRight,
-    ArrowUpFromLine,
-    CalendarClock,
-    CalendarDays,
-    CheckCircle2,
-    ExternalLink,
-    Pencil,
-    PiggyBank,
-    Plus,
-    Target,
-    Trash2,
-    X,
-} from "lucide-react";
+import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, PiggyBank, Plus, Target, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
@@ -25,7 +11,7 @@ import { useDeleteSavingsGoal, useDeleteSavingsOperation } from "api/main";
 import { Navbar } from "components/navbar";
 import { SavingsGoalDialog } from "components/savings/goal-dialog";
 import { SavingsOperationDialog } from "components/savings/operation-dialog";
-import { SavingsPriceNote } from "components/savings/price-note";
+import { SavingsGoalCard } from "components/savings/goal-card";
 import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -44,13 +30,7 @@ import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
 import { AnimatedMoney } from "components/animated-number";
-import {
-    calculateSavingsPace,
-    convertSavingsCurrency,
-    getSavingsBalance,
-    getSavingsNativeBalance,
-    getUrlHost,
-} from "lib/savings";
+import { getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
 import { PrivateProvider } from "providers/auth";
@@ -382,185 +362,17 @@ const SavingsPage = () => {
                                 </div>
                             ) : (
                                 <div className="grid gap-3 md:grid-cols-2">
-                                    {store.savingsGoals.map((goal) => {
-                                        const sharedSavings = getSavingsBalance(
-                                            store.savingsOperations,
-                                            goal.currency,
-                                            rates,
-                                        );
-                                        const saved = Math.max(sharedSavings ?? 0, 0);
-                                        const covered = Math.min(saved, goal.targetAmount);
-                                        const missing = Math.max(goal.targetAmount - saved, 0);
-                                        const afterPurchase = Math.max(saved - goal.targetAmount, 0);
-                                        const canAfford = sharedSavings !== null && saved >= goal.targetAmount;
-                                        const savingsPace = calculateSavingsPace(missing, goal.targetDate);
-                                        const monthlyContribution =
-                                            savingsPace && !savingsPace.isOverdue
-                                                ? savingsPace.monthlyAmount
-                                                : goal.monthlyContribution;
-                                        const progress =
-                                            goal.targetAmount > 0
-                                                ? Math.min((covered / goal.targetAmount) * 100, 100)
-                                                : 0;
-                                        const comparisonCurrency =
-                                            goal.currency === CURRENCY.UAH
-                                                ? bank.currency === CURRENCY.UAH
-                                                    ? CURRENCY.USD
-                                                    : (bank.currency as CURRENCY)
-                                                : CURRENCY.UAH;
-                                        const convertedTarget = convertSavingsCurrency(
-                                            goal.targetAmount,
-                                            goal.currency,
-                                            comparisonCurrency,
-                                            rates,
-                                        );
-
-                                        return (
-                                            <article
-                                                key={goal.id}
-                                                className="border-border bg-card rounded-2xl border p-5 shadow-sm"
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <h3 className="truncate font-semibold">{goal.name}</h3>
-                                                        {goal.url && (
-                                                            <a
-                                                                href={goal.url}
-                                                                target="_blank"
-                                                                rel="noreferrer noopener"
-                                                                className="text-muted-foreground hover:text-foreground mt-0.5 flex max-w-full items-center gap-1 text-xs underline-offset-2 hover:underline"
-                                                            >
-                                                                <ExternalLink className="size-3 shrink-0" />
-                                                                <span className="truncate">{getUrlHost(goal.url)}</span>
-                                                            </a>
-                                                        )}
-                                                        <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums">
-                                                            {nativeMoney(goal.targetAmount, goal.currency)}
-                                                        </p>
-                                                        {convertedTarget !== null && (
-                                                            <p className="text-muted-foreground mt-0.5 text-xs tabular-nums">
-                                                                ≈ {nativeMoney(convertedTarget, comparisonCurrency)}
-                                                            </p>
-                                                        )}
-                                                        <SavingsPriceNote goal={goal} rates={rates} />
-                                                    </div>
-                                                    <div className="flex shrink-0 items-center gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label={t("editGoal")}
-                                                            onClick={() => openEditGoal(goal)}
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label={t("delete")}
-                                                            className="hover:bg-rose-500/10 hover:text-rose-500"
-                                                            onClick={() => openGoalDelete(goal)}
-                                                        >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    className={twMerge(
-                                                        "mt-4 flex items-start gap-3 rounded-xl border p-3.5",
-                                                        canAfford
-                                                            ? "border-emerald-500/20 bg-emerald-500/[0.07]"
-                                                            : "border-indigo-500/20 bg-indigo-500/[0.06]",
-                                                    )}
-                                                >
-                                                    <CheckCircle2
-                                                        className={twMerge(
-                                                            "mt-0.5 size-4 shrink-0",
-                                                            canAfford
-                                                                ? "text-emerald-600 dark:text-emerald-300"
-                                                                : "text-indigo-600 dark:text-indigo-300",
-                                                        )}
-                                                    />
-                                                    <div className="min-w-0">
-                                                        <p className="text-sm font-medium">
-                                                            {sharedSavings === null
-                                                                ? t("ratesUnavailable")
-                                                                : canAfford
-                                                                  ? t("canAfford")
-                                                                  : t("savingsCover", {
-                                                                        amount: nativeMoney(covered, goal.currency),
-                                                                        percent: Math.round(progress),
-                                                                    })}
-                                                        </p>
-                                                        {sharedSavings !== null && (
-                                                            <p className="text-muted-foreground mt-0.5 text-xs">
-                                                                {canAfford
-                                                                    ? t("afterPurchase", {
-                                                                          amount: nativeMoney(
-                                                                              afterPurchase,
-                                                                              goal.currency,
-                                                                          ),
-                                                                      })
-                                                                    : t("stillNeeded", {
-                                                                          amount: nativeMoney(missing, goal.currency),
-                                                                      })}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="bg-muted mt-4 h-2 overflow-hidden rounded-full">
-                                                    <div
-                                                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-[width]"
-                                                        style={{ width: `${progress}%` }}
-                                                    />
-                                                </div>
-                                                <div className="mt-2 flex items-center justify-between text-xs">
-                                                    <span className="font-medium">{Math.round(progress)}%</span>
-                                                    <span className="text-muted-foreground">
-                                                        {nativeMoney(
-                                                            Math.max(goal.targetAmount - saved, 0),
-                                                            goal.currency,
-                                                        )}{" "}
-                                                        {t("left")}
-                                                    </span>
-                                                </div>
-
-                                                <div
-                                                    className={twMerge(
-                                                        "text-muted-foreground mt-4 grid gap-2 border-t pt-4 text-xs",
-                                                        savingsPace && !savingsPace.isOverdue
-                                                            ? "sm:grid-cols-3"
-                                                            : "sm:grid-cols-2",
-                                                    )}
-                                                >
-                                                    {savingsPace && !savingsPace.isOverdue && (
-                                                        <span className="flex items-center gap-2">
-                                                            <CalendarDays className="size-3.5" />
-                                                            {t("perDay", {
-                                                                amount: nativeMoney(
-                                                                    savingsPace.dailyAmount,
-                                                                    goal.currency,
-                                                                ),
-                                                            })}
-                                                        </span>
-                                                    )}
-                                                    <span className="flex items-center gap-2">
-                                                        <ArrowDownToLine className="size-3.5" />
-                                                        {t("perMonth", {
-                                                            amount: nativeMoney(monthlyContribution, goal.currency),
-                                                        })}
-                                                    </span>
-                                                    <span className="flex items-center gap-2 sm:justify-end">
-                                                        <CalendarClock className="size-3.5" />
-                                                        {goal.targetDate
-                                                            ? dayjs(goal.targetDate).format("DD.MM.YYYY")
-                                                            : t("noDeadline")}
-                                                    </span>
-                                                </div>
-                                            </article>
-                                        );
-                                    })}
+                                    {store.savingsGoals.map((goal) => (
+                                        <SavingsGoalCard
+                                            key={goal.id}
+                                            goal={goal}
+                                            operations={store.savingsOperations}
+                                            rates={rates}
+                                            displayCurrency={bank.currency as CURRENCY}
+                                            onEdit={openEditGoal}
+                                            onDelete={openGoalDelete}
+                                        />
+                                    ))}
                                 </div>
                             )}
                         </Section>

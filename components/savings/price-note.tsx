@@ -14,6 +14,7 @@ import { SavingsGoal } from "types/transactions";
 type Props = {
     goal: SavingsGoal;
     rates: { usdToUah: number; eurToUah: number };
+    className?: string;
 };
 
 const KNOWN_CURRENCIES: Record<string, CURRENCY> = {
@@ -25,7 +26,7 @@ const KNOWN_CURRENCIES: Record<string, CURRENCY> = {
 /** Prices from a shop are rarely exact to the cent, so ignore tiny gaps. */
 const MEANINGFUL_DIFFERENCE = 0.5;
 
-export const SavingsPriceNote = ({ goal, rates }: Props) => {
+export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
     const t = useTranslations("savings");
     const { data, isFetching, isError } = useSavingsGoalPrice(goal.url);
 
@@ -33,7 +34,7 @@ export const SavingsPriceNote = ({ goal, rates }: Props) => {
 
     if (isFetching && !data) {
         return (
-            <p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
+            <p className={twMerge("text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs", className)}>
                 <Loader2 className="size-3 animate-spin" />
                 {t("priceChecking")}
             </p>
@@ -41,7 +42,7 @@ export const SavingsPriceNote = ({ goal, rates }: Props) => {
     }
 
     if (isError || !data || data.price === null) {
-        return <p className="text-muted-foreground mt-1.5 text-xs">{t("priceUnavailable")}</p>;
+        return <p className={twMerge("text-muted-foreground mt-1.5 text-xs", className)}>{t("priceUnavailable")}</p>;
     }
 
     const siteCurrency = data.currency ? KNOWN_CURRENCIES[data.currency.toUpperCase()] : undefined;
@@ -64,6 +65,7 @@ export const SavingsPriceNote = ({ goal, rates }: Props) => {
                     : isPricier
                       ? "text-amber-600 dark:text-amber-400"
                       : "text-muted-foreground",
+                className,
             )}
         >
             <span className="flex items-center gap-1.5 tabular-nums">

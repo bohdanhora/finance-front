@@ -1,7 +1,4 @@
 {
-    "common": {
-        "fillForm": "Fill out the form"
-    },
     "navbar": {
         "currency": "Currency",
         "lang": "Language",
@@ -208,7 +205,9 @@
         "stillToPay": "Still to pay",
         "allPaid": "All paid",
         "noEssentials": "No bills yet. Add your recurring payments so the figures above know what you still owe.",
-        "plannedAmount": "Plan: {amount} {currency}"
+        "plannedAmount": "Plan: {amount} {currency}",
+        "includesExpected": "Counts {amount} still expected",
+        "carriedFrom": "Carried over from {month}"
     },
     "auth": {
         "login": "Login",
@@ -339,17 +338,23 @@
         "spentSame": "Spending did not change",
         "topExpenses": "Biggest expenses",
         "thisMonth": "This month",
-        "forecast": "Projected spending",
-        "forecastPace": "At {amount} per day",
-        "forecastDays": "{elapsed} of {total} days elapsed",
-        "forecastTooEarly": "Only {elapsed} of {total} days in, still a rough guess",
-        "lastMonthResult": "Last month's total",
-        "lastMonthResultExplanation": "Shown while the current month is too young for a forecast, so the slot carries the month you just finished.",
-        "forecastExplanation": "Spending so far divided by the days elapsed and multiplied by the length of the month. Early in the month the estimate is rough.",
-        "versusUsual": "Versus a usual month",
-        "versusUsualHint": "{actual} against {average} on average over {count, plural, one {# month} other {# months}}",
-        "versusUsualExplanation": "How this month's spending compares with the average of the earlier months that have data.",
-        "noComparisonData": "No earlier months to compare with"
+        "monthResult": "Month result",
+        "monthResultExplanation": "Income minus expenses for the month. Money moved to savings is counted as kept rather than spent.",
+        "keptShare": "You kept {percent}% of your income",
+        "overspent": "Spent {amount} more than you earned",
+        "noIncomeYet": "No income recorded this month",
+        "movedToSavings": "Including {amount} moved to savings",
+        "planTitle": "Plan and reality",
+        "planDescription": "What the month planned against what actually happened. A finished month is recorded automatically when the next one starts.",
+        "expectedIncome": "Expected income",
+        "receivedOfPlanned": "{received} of {planned} received",
+        "notReceived": "Not received",
+        "essentialsPlan": "Essential payments",
+        "paidOfPlanned": "{paid} of {planned} paid",
+        "notPaid": "Not paid",
+        "noIncomePlan": "No expected income was planned",
+        "noEssentialsPlan": "No essential payments were planned",
+        "planShort": "Plan {amount}"
     },
     "savings": {
         "eyebrow": "Savings workspace",
@@ -474,7 +479,9 @@
         "cancel": "Cancel",
         "save": "Save",
         "create": "Create",
-        "ratesUnavailable": "Rates unavailable"
+        "ratesUnavailable": "Rates unavailable",
+        "addLink": "Add a link to track the price",
+        "coveredBySavings": "Covered by savings: {amount}"
     },
     "tour": {
         "title": "Quick tour",
@@ -551,8 +558,8 @@
     "hints": {
         "daysLeft": "Days remaining until the end of the current month.",
         "dailyBudget": "Your balance divided by the days left in the month.",
-        "remainingAfterEssentials": "Your balance minus the bills you have not ticked off yet.",
-        "dailySpendingAvailable": "What is left after unpaid bills, divided by the days remaining.",
+        "remainingAfterEssentials": "Your balance plus income you still expect this month, minus the bills you have not ticked off yet.",
+        "dailySpendingAvailable": "What remains after unpaid bills, including income still expected, divided by the days remaining.",
         "totalMoneyIncome": "What you expect to earn next month.",
         "nextRemainingAfterEssentials": "Next month expected income minus the bills you have already listed for it.",
         "saveMoney": "The share of next month remainder you have chosen to put aside.",
@@ -646,6 +653,57 @@
             "category": "Category",
             "description": "Description",
             "amount": "Amount"
+        }
+    },
+    "expectedIncome": {
+        "title": "Expected income",
+        "progress": "Income {received} of {total} received",
+        "stillToCome": "Still to come",
+        "allReceived": "All received",
+        "empty": "Paid later in the month? Add your salary or other income you are waiting for, and the figures above will count it before it arrives.",
+        "add": "Add income",
+        "dialogDescription": "Money you are waiting for this month. Until you mark it as received, it is added to what remains after essentials.",
+        "amountLabel": "Amount",
+        "dayLabel": "Day of month",
+        "titleLabel": "Name",
+        "titlePlaceholder": "Salary, advance, rent from a tenant...",
+        "recurring": "Every month",
+        "recurringHint": "Turn off for a one-off payment that should disappear next month.",
+        "submit": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit income",
+        "remove": "Remove income",
+        "added": "Expected income added",
+        "updated": "Expected income updated",
+        "removed": "Expected income removed",
+        "onDay": "Expected on the {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+        "dueToday": "Expected today",
+        "late": "Was due on the {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+        "received": "Received",
+        "receivedOn": "Received {date}",
+        "oneOff": "One-off",
+        "receive": {
+            "title": "Received {title}?",
+            "description": "Enter the amount that actually arrived.",
+            "planned": "Expected",
+            "actualAmount": "Actually received",
+            "usePlanned": "Full amount",
+            "addToBalance": "Add to my balance as income",
+            "addToBalanceHint": "Turn off if you have already recorded this income yourself.",
+            "lessThanPlanned": "{amount} {currency} less than expected",
+            "moreThanPlanned": "{amount} {currency} more than expected",
+            "balanceAfter": "Balance after: {amount} {currency}",
+            "invalidAmount": "Enter an amount greater than zero.",
+            "confirm": "Mark as received",
+            "saving": "Saving…",
+            "success": "Received {amount} {currency}",
+            "undoTitle": "Mark as not received?",
+            "undoDescription": "The income transaction will be removed and {amount} {currency} will be taken off your balance.",
+            "undoDescriptionNoBalance": "It will count as expected again. Your balance does not change.",
+            "undoConfirm": "Mark as not received",
+            "undoSuccess": "The income is expected again",
+            "cancel": "Cancel"
         }
     }
 }

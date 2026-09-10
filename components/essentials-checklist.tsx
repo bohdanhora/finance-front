@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 
 import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
+import { formatMonthKey } from "lib/date-locale";
 import { formatCurrency } from "lib/utils";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
@@ -20,6 +21,7 @@ import { Checkbox } from "./ui/checkbox";
  */
 export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean }) => {
     const t = useTranslations("possible");
+    const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
 
@@ -78,13 +80,20 @@ export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean
                                 onCheckedChange={() => setSelectedEssential(item)}
                                 className="size-4 shrink-0 rounded-[5px] data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
                             />
-                            <span
-                                className={twMerge(
-                                    "min-w-0 flex-1 truncate text-sm transition-colors",
-                                    item.checked && "text-muted-foreground line-through",
+                            <span className="min-w-0 flex-1">
+                                <span
+                                    className={twMerge(
+                                        "block truncate text-sm transition-colors",
+                                        item.checked && "text-muted-foreground line-through",
+                                    )}
+                                >
+                                    {item.title}
+                                </span>
+                                {item.carriedFrom && !item.checked && (
+                                    <span className="block text-[0.68rem] text-amber-600 dark:text-amber-400">
+                                        {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
+                                    </span>
                                 )}
-                            >
-                                {item.title}
                             </span>
                             <span className="shrink-0 text-right">
                                 <span

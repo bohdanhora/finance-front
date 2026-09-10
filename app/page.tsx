@@ -13,7 +13,6 @@ import { PossibleRemaining } from "components/possible-remaining-balance";
 import { NextMonthIncome } from "components/next-month-income";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
-import { FillForm } from "components/fill-form";
 import { Section } from "components/wrappers/section";
 
 const Home = () => {
@@ -41,8 +40,6 @@ const Home = () => {
                         <TotalAmounts />
                     </div>
                 </div>
-
-                <FillForm />
             </PrivateProvider>
         </GetDataProvider>
     );
