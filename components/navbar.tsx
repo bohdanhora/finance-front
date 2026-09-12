@@ -24,6 +24,7 @@ import { twMerge } from "tailwind-merge";
 import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
 import { SettingsDialog } from "./dialogs/settings";
+import { AssistantChat } from "./assistant/assistant-chat";
 import { useMonobankToken } from "hooks/use-monobank-token";
 import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 import { NavbarActionsMenu } from "./navbar-actions-menu";
@@ -204,6 +205,7 @@ export const Navbar = () => {
             {isMobile && <MobileNav items={navItems} />}
             <ChoooseCurrency />
             <SettingsDialog />
+            <AssistantChat />
         </>
     );
 };

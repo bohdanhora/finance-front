@@ -16,6 +16,8 @@
         "constants/categories.ts",
         "types/monobank.ts",
         "lib/monobank.ts",
+        "lib/assistant/providers.ts",
+        "lib/assistant/context.ts",
         "lib/savings.ts",
         "lib/report/data.ts",
         "lib/report/types.ts",
@@ -27,6 +29,7 @@
         "tests/report.test.ts",
         "tests/statistics.test.ts",
         "tests/streak.test.ts",
-        "tests/monobank.test.ts"
+        "tests/monobank.test.ts",
+        "tests/assistant.test.ts"
     ]
 }

@@ -29,6 +29,7 @@ The interface is responsive, theme-aware, and localized for English, Russian, an
 - **Spending analytics** - category breakdowns, daily dynamics, six-month history, trend views, the month's result, and every finished month's plan compared with what actually happened.
 - **Multi-currency support** - work in UAH, USD, or EUR using current public Monobank exchange rates.
 - **Monobank connection** - paste a personal token in the settings and a read-only bank tab shows card balances, jars, cashback and every card operation grouped by category. Nothing there touches the budget.
+- **AI assistant** - paste your own key from Anthropic, OpenAI, xAI, Google, OpenRouter or any OpenAI compatible API, and a chat answers questions about this account: balance, bills, spending patterns and savings. The key and the conversation stay in the browser, and the model list comes from the provider itself.
 - **Custom PDF reports** - choose a period, included sections, and transaction filters before generating a localized report in the browser.
 - **Complete authentication journey** - email verification, email/password login, Google OAuth, remember-me sessions, token refresh, logout, and password recovery.
 - **Habit building** - account-based daily streaks, milestone celebrations, and a weekly activity view.

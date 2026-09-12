@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { AssistantConnection } from "components/settings/assistant-connection";
 import { MonobankConnection } from "components/settings/monobank-connection";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "components/ui/dialog";
 import { SETTINGS_OPEN_EVENT } from "lib/monobank";
@@ -30,6 +31,7 @@ export const SettingsDialog = () => {
 
                 <div className="flex min-w-0 flex-col gap-3">
                     <MonobankConnection opened={open} onNavigate={close} />
+                    <AssistantConnection opened={open} onNavigate={close} />
                 </div>
             </DialogContent>
         </Dialog>
