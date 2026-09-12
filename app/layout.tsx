@@ -2,7 +2,7 @@ import { Manrope, Poppins } from "next/font/google";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 
 import { twMerge } from "tailwind-merge";
 
@@ -12,6 +12,7 @@ import { ToastProvider } from "providers/toast";
 import "./globals.css";
 import { ReactQueryProvider } from "providers/react-query";
 import { DesktopCalculator } from "components/calculator/desktop-calculator";
+import { KeyboardInset } from "components/keyboard-inset";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 const poppins = Poppins({
@@ -23,6 +24,14 @@ const poppins = Poppins({
 export const metadata: Metadata = {
     title: "Finance App",
     description: "Personal Finance App",
+};
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    viewportFit: "cover",
+    interactiveWidget: "resizes-content",
 };
 
 const RootLayout = async ({
@@ -45,6 +54,7 @@ const RootLayout = async ({
                     <ReactQueryProvider>
                         <ProviderTheme>
                             <main>{children}</main>
+                            <KeyboardInset />
                             <DesktopCalculator />
                             <ToastProvider />
                         </ProviderTheme>

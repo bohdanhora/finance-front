@@ -91,6 +91,7 @@ export const SetTotalDialog = () => {
                                     <FormLabel>{t("label")}</FormLabel>
                                     <FormControl>
                                         <Input
+                                            inputMode="decimal"
                                             placeholder={t("placeholder")}
                                             {...field}
                                             onChange={handleDecimalInputChange(field.onChange)}

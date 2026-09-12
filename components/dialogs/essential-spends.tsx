@@ -292,6 +292,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                                         <FormLabel>{t("dialogs.amount")}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                inputMode="decimal"
                                                 placeholder={t("dialogs.amount")}
                                                 {...field}
                                                 onChange={handleDecimalInputChange(field.onChange)}

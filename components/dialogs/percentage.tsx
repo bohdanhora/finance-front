@@ -90,6 +90,7 @@ export const Percentage = () => {
                                     <FormLabel>{t("percent.label")}</FormLabel>
                                     <FormControl>
                                         <Input
+                                            inputMode="numeric"
                                             placeholder={t("percent.from")}
                                             {...field}
                                             onChange={handleFrom1To100InputChange(field.onChange)}

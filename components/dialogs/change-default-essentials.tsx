@@ -190,6 +190,7 @@ export const ChangeDefaultEssentials = () => {
                                     <FormLabel>{t("amount")}</FormLabel>
                                     <FormControl>
                                         <Input
+                                            inputMode="decimal"
                                             placeholder={t("amount")}
                                             {...field}
                                             onChange={handleDecimalInputChange(field.onChange)}

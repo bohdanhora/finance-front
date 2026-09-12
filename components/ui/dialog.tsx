@@ -48,7 +48,7 @@ function DialogContent({
             <DialogPrimitive.Content
                 data-slot="dialog-content"
                 className={twMerge(
-                    "bg-card/98 text-card-foreground fixed top-[50%] left-[50%] z-50 grid max-h-[88dvh] w-full max-w-[calc(100%-1.5rem)] translate-x-[-50%] translate-y-[-50%] gap-5 overflow-y-auto rounded-[22px] border border-border/80 p-5 shadow-[0_28px_90px_-28px_rgba(0,0,0,0.7)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 sm:max-w-lg sm:p-6",
+                    "bg-card/98 text-card-foreground fixed top-[calc(50%-(var(--keyboard-inset,0px)/2))] left-[50%] z-50 grid max-h-[calc(88dvh-var(--keyboard-inset,0px))] w-full max-w-[calc(100%-1.5rem)] translate-x-[-50%] translate-y-[-50%] gap-5 overflow-y-auto overscroll-contain rounded-[22px] border border-border/80 p-5 shadow-[0_28px_90px_-28px_rgba(0,0,0,0.7)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 sm:max-w-lg sm:p-6",
                     className,
                 )}
                 {...props}

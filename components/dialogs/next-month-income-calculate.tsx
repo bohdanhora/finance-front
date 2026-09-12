@@ -132,6 +132,7 @@ export const NextMonthIncomeCalculate = () => {
                                         <FormLabel>{t("rate")}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                inputMode="decimal"
                                                 placeholder={t("ratePlaceholder")}
                                                 {...field}
                                                 onChange={handleDecimalInputChange(field.onChange)}
@@ -180,6 +181,7 @@ export const NextMonthIncomeCalculate = () => {
                                         <FormLabel>{t("additionalAmount")}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                inputMode="decimal"
                                                 placeholder={t("additionalAmountPlaceholder")}
                                                 className="w-full"
                                                 {...field}

@@ -124,6 +124,7 @@ export const ChangeNextMonthIncome = () => {
                                         <FormLabel>{t("inputIncome")}</FormLabel>
                                         <FormControl>
                                             <Input
+                                                inputMode="decimal"
                                                 placeholder={t("inputIncome")}
                                                 className="w-full"
                                                 {...field}

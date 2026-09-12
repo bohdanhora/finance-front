@@ -29,6 +29,7 @@
 }
 
 :root {
+    --keyboard-inset: 0px;
     --background: #fafafa;
     --foreground: #0a0a0a;
     --card: #ffffff;
