@@ -32,9 +32,7 @@ export type ReportInput = {
 };
 
 export type ReportRange = {
-    /** Inclusive start, or null for "everything up to `to`". */
     from: string | null;
-    /** Inclusive end. */
     to: string;
 };
 
@@ -46,17 +44,14 @@ export type ReportSummary = {
     transactionCount: number;
     averageExpense: number;
     largestExpense: TransactionType | null;
-    /** null when a rate is missing, exactly like the savings screen. */
     savingsTotal: number | null;
     essentialsRemaining: number;
 };
 
 export type ReportCategoryRow = {
-    /** Category key, or "other" for the folded tail. */
     key: string;
     amount: number;
     percent: number;
-    /** True for the row that folds everything past the top slots. */
     folded: boolean;
 };
 

@@ -13,7 +13,6 @@ export const ThemeSwitch = () => {
 
     useEffect(() => setMounted(true), []);
 
-    // Same footprint as the real button, so the navbar does not jump on mount.
     if (!mounted) {
         return <span className="size-9 shrink-0" aria-hidden="true" />;
     }

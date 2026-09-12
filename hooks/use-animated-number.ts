@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** How long the digits take to run from the old figure to the new one. */
 const DEFAULT_DURATION = 650;
 
 export type CountDirection = "up" | "down" | null;
 
-/** Fast off the mark, gentle on the landing, so the figure never overshoots. */
 const easeOutQuart = (progress: number) => 1 - Math.pow(1 - progress, 4);
 
 const prefersReducedMotion = () =>
@@ -15,11 +13,6 @@ const prefersReducedMotion = () =>
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/**
- * Runs the shown number from wherever it currently sits to `value`, so a balance
- * change reads as money moving rather than as a figure that silently swaps. The
- * value at mount is shown as is - only later changes are animated.
- */
 export const useAnimatedNumber = (value: number, duration = DEFAULT_DURATION) => {
     const [displayed, setDisplayed] = useState(value);
     const [direction, setDirection] = useState<CountDirection>(null);
@@ -48,8 +41,6 @@ export const useAnimatedNumber = (value: number, duration = DEFAULT_DURATION) =>
             return;
         }
 
-        // The target is compared against the value on screen, so an update that
-        // lands mid-flight simply redirects the run instead of restarting it.
         setDirection(value > from ? "up" : "down");
 
         const startedAt = performance.now();

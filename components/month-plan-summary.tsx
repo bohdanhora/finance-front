@@ -10,7 +10,6 @@ type PlanRow = {
     id: string;
     title: string;
     planned: number;
-    /** What actually happened, or null when it never did. */
     actual: number | null;
 };
 
@@ -79,7 +78,6 @@ const PlanCard = ({
 
 const share = (actual: number, planned: number) => (planned > 0 ? Math.min((actual / planned) * 100, 100) : 0);
 
-/** Expected income and essential payments, each planned against what really happened. */
 export const MonthPlanSummary = ({ plan, symbol }: { plan: MonthPlan; symbol: string }) => {
     const t = useTranslations("statistics");
     const money = (amount: number) => `${formatCurrency(amount)} ${symbol}`;

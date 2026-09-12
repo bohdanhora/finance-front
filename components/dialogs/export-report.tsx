@@ -89,7 +89,6 @@ export const ExportReportDialog = ({ open, onOpenChange }: Props) => {
         ],
     );
 
-    /** What each section will actually contribute, so nobody exports an empty page. */
     const sectionCounts: Record<ReportSection, number> = {
         summary: model.summary.transactionCount,
         categories: model.categories.length,

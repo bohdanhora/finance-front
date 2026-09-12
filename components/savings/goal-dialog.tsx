@@ -142,9 +142,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
             setSavingsOperations(response.updatedOperations);
             toast.success(goal ? t("goalUpdated") : t("goalCreated"));
             handleOpenChange(false);
-        } catch {
-            // The shared API error handler already shows the server message.
-        }
+        } catch {}
     };
 
     const pending = adding || updating;

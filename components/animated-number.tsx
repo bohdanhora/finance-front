@@ -6,11 +6,6 @@ import { twMerge } from "tailwind-merge";
 import { useAnimatedNumber } from "hooks/use-animated-number";
 import { formatCurrency } from "lib/utils";
 
-/**
- * A figure that counts from its previous value to the new one. Every money
- * amount on the dashboard uses it, so an income or an expense is visible as the
- * numbers running up or down rather than as a silent swap.
- */
 export const AnimatedNumber = ({
     value,
     format = formatCurrency,
@@ -21,7 +16,6 @@ export const AnimatedNumber = ({
     value: number;
     format?: (value: number) => string;
     duration?: number;
-    /** Tints the digits green while they climb and red while they fall. */
     highlight?: boolean;
     className?: string;
 }) => {
@@ -41,7 +35,6 @@ export const AnimatedNumber = ({
     );
 };
 
-/** The same counter with the currency symbol kept still next to it. */
 export const AnimatedMoney = ({
     value,
     symbol,
@@ -66,13 +59,8 @@ export const AnimatedMoney = ({
     </span>
 );
 
-/** How long the "+1,050.00" note stays up after a change, in milliseconds. */
 const DELTA_LIFETIME = 1800;
 
-/**
- * The size of the last change, shown for a moment beside the balance so it is
- * clear what the running digits are counting.
- */
 export const AmountDelta = ({ value, symbol, className }: { value: number; symbol: string; className?: string }) => {
     const previousRef = useRef(value);
     const [change, setChange] = useState<{ id: number; amount: number } | null>(null);

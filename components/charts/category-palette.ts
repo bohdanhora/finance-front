@@ -1,7 +1,3 @@
-/**
- * Categorical palette. Distinguishable side by side and legible on both the
- * light and the dark surface, so one set works for every chart.
- */
 export const CATEGORY_COLORS = [
     "#6366f1",
     "#f43f5e",

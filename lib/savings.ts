@@ -49,10 +49,6 @@ export const calculateSavingsPace = (
     return { daysRemaining, dailyAmount, monthlyAmount, isOverdue: false };
 };
 
-/**
- * Accepts a goal link the way a person types it, so "rozetka.com.ua/item" and
- * a full address both end up as one address the server can open.
- */
 export const normalizeGoalUrl = (value: string): string | null => {
     const trimmed = value.trim();
     if (!trimmed) return null;
@@ -67,7 +63,6 @@ export const normalizeGoalUrl = (value: string): string | null => {
     }
 };
 
-/** The shop name, used as a short label for the link on a goal card. */
 export const getUrlHost = (value: string): string => {
     try {
         return new URL(value).hostname.replace(/^www\./, "");
@@ -111,10 +106,6 @@ export const convertSavingsCurrency = (
     return (amount * fromRate) / toRate;
 };
 
-/**
- * Returns the shared savings balance in one currency. Transfers only change
- * the selected storage balance and never change the overall savings total.
- */
 export const getSavingsBalance = (
     operations: SavingsOperation[],
     currency: CURRENCY,

@@ -42,9 +42,7 @@ const readSavedPosition = (): Position | null => {
     try {
         const parsed = JSON.parse(window.localStorage.getItem(POSITION_STORAGE_KEY) ?? "null") as Position | null;
         if (parsed && Number.isFinite(parsed.x) && Number.isFinite(parsed.y)) return parsed;
-    } catch {
-        // A stale position should never prevent the calculator from opening.
-    }
+    } catch {}
     return null;
 };
 

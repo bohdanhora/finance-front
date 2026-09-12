@@ -18,7 +18,6 @@ export type SavingsGoal = {
     currency: CURRENCY;
     monthlyContribution: number;
     targetDate?: string;
-    /** Optional link to the thing being saved for, used to re-check its price. */
     url?: string;
     createdAt: string;
 };
@@ -33,7 +32,6 @@ export type SavingsGoalPriceResponse = {
 
 export type SavingsOperation = {
     id: string;
-    /** Legacy movements can still point at the goal they were created from. */
     goalId?: string;
     type: SavingsOperationType;
     storage: SavingsStorage;
@@ -105,18 +103,14 @@ export type EssentialType = {
     paidAmount?: number;
     paidAt?: string;
     paymentTransactionId?: string;
-    /** Month key ("YYYY-MM") the bill was left unpaid in before it moved here. */
     carriedFrom?: string;
 };
 
-/** Money that is due to arrive this month, such as a salary on the 15th. */
 export type ExpectedIncome = {
     id: string;
     title: string;
     amount: number;
-    /** Day of the month the money usually arrives. */
     day: number;
-    /** Recurring incomes come back every month, one-offs are dropped. */
     recurring: boolean;
     received: boolean;
     receivedAmount?: number;
@@ -124,7 +118,6 @@ export type ExpectedIncome = {
     transactionId?: string;
 };
 
-/** What a finished month planned and what actually happened to that plan. */
 export type MonthSnapshot = {
     month: string;
     essentials: Array<Pick<EssentialType, "id" | "title" | "amount" | "checked" | "paidAmount">>;
@@ -144,7 +137,6 @@ export type ExpectedIncomeReceivedPayload = {
     id: string;
     received: boolean;
     actualAmount?: number;
-    /** False when the income was already recorded as a transaction by hand. */
     addToBalance?: boolean;
 };
 
@@ -289,29 +281,21 @@ export type AllTransactionsInfoResponse = {
     streak?: StreakRecord;
 };
 
-/** The daily visit streak, owned by the server so it follows the account. */
 export type StreakRecord = {
-    /** Calendar day of the last recorded visit, `YYYY-MM-DD`. */
     lastVisit: string;
-    /** Days in a row up to and including `lastVisit`. */
     current: number;
-    /** The longest run this account has ever put together. */
     best: number;
-    /** Recorded days, oldest first, trimmed to the last month. */
     history: string[];
-    /** Milestones already announced, so a toast never repeats. */
     celebrated: number[];
 };
 
 export type StreakVisitPayload = {
-    /** The visitor's own calendar day, in their timezone. */
     day: string;
 };
 
 export type StreakVisitResponse = {
     message: string;
     streak: StreakRecord;
-    /** The milestone this visit reached, when it deserves a toast. */
     reached: number | null;
 };
 

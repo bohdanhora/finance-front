@@ -258,7 +258,6 @@ const recordStreakVisit = async (payload: StreakVisitPayload): Promise<StreakVis
     return res.data;
 };
 
-/** Idempotent per day: every device can call it on load without double counting. */
 export const useRecordStreakVisit = () =>
     useMutation({
         mutationKey: ["streak-visit"],
@@ -345,7 +344,6 @@ const getSavingsGoalPrice = async (url: string): Promise<SavingsGoalPriceRespons
     return res.data;
 };
 
-/** Re-reads the price from a goal link. A shop that hides it simply returns no price. */
 export const useSavingsGoalPrice = (url?: string) =>
     useQuery({
         queryKey: ["savings-goal-price", url],

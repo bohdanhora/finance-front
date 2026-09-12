@@ -93,12 +93,7 @@ export const Navbar = () => {
         <>
             {logoutPending && <Loader />}
             <header className="sticky top-0 z-40 w-full border-b border-black/8 bg-white/75 shadow-[0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-2xl dark:border-white/8 dark:bg-zinc-950/75 dark:shadow-none">
-                <div // Phones size the three groups to their content and spread them: the
-                    // symmetric columns below only keep the nav centred while there is
-                    // room for it, and would otherwise let the right hand group slide
-                    // under the nav.
-                    className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_auto_auto] items-center justify-between gap-1 px-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2 sm:px-5 lg:px-6"
-                >
+                <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_auto_auto] items-center justify-between gap-1 px-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2 sm:px-5 lg:px-6">
                     <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                         <Link
                             href={Routes.HOME}
@@ -124,8 +119,6 @@ export const Navbar = () => {
                             <span className="hidden text-sm font-bold tracking-[-0.02em] xl:inline">Finance</span>
                         </Link>
 
-                        {/* The streak sits next to the logo: the right hand cluster is
-                            already full on a phone, and this side has the room. */}
                         <StreakBadge />
                     </div>
 

@@ -1,11 +1,3 @@
-/**
- * Print palette for the PDF report. It is deliberately independent of the app
- * theme: the document is always rendered on white paper.
- *
- * The two-series pair (income / expense) is `accent` vs `expense`. The obvious
- * green/red pair was rejected because it is not separable for deuteranopia
- * (dE 5.6); this pair clears every check (dE 26.7 protan, 35.9 normal vision).
- */
 export const REPORT_COLORS = {
     accent: "#4f46e5",
     accentSoft: "#eef2ff",
@@ -22,7 +14,6 @@ export const REPORT_COLORS = {
 } as const;
 
 export const REPORT_PAGE = {
-    /** A4 width minus both margins. */
     contentWidth: 523,
     margin: 36,
 } as const;

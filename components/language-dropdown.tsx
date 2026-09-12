@@ -16,11 +16,6 @@ import { DEFAULT_LOCALE, LANG_COOKIES_NAME, normalizeLocale } from "constants/in
 import { useTranslations } from "next-intl";
 import { LanguagesIcon } from "lucide-react";
 
-/**
- * A year, so the choice survives closing the browser on a phone, and an
- * explicit root path: written from /statistics the cookie used to be scoped to
- * that page, so the dashboard kept rendering the old language.
- */
 const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
 
 export const LangugaeDropdown = () => {

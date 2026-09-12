@@ -16,7 +16,6 @@ export const AuthSectionWrapper = ({
                 <div className="auth-halo" aria-hidden="true" />
 
                 <div className="auth-card relative overflow-hidden rounded-3xl border border-white/40 bg-white/85 shadow-[0_20px_60px_-15px_rgb(0_0_0_/_0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-black/70 dark:shadow-[0_20px_60px_-15px_rgb(0_0_0_/_0.8)]">
-                    {/* hairline highlight along the top edge */}
                     <div
                         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/70 to-transparent"
                         aria-hidden="true"

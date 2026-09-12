@@ -23,10 +23,6 @@ type Props = {
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
-/**
- * Ticking an expected income works like paying a bill: what actually arrived
- * becomes an income transaction, and unticking takes exactly that back off.
- */
 export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Props) => {
     const t = useTranslations("expectedIncome.receive");
     const store = useStore();
@@ -73,9 +69,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                 isUndo ? t("undoSuccess") : t("success", { amount: formatCurrency(numericAmount), currency: symbol }),
             );
             onOpenChange(false);
-        } catch {
-            // The shared API error handler already shows the server message.
-        }
+        } catch {}
     };
 
     if (!income) return null;

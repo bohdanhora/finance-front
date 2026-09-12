@@ -1,5 +1,3 @@
-/** Shared look for the auth screens' inputs and labels. */
-
 export const authInputClass = [
     "h-12 rounded-xl px-4 shadow-none",
     "border-black/10 bg-white/70 dark:border-white/10 dark:bg-white/5",
@@ -11,7 +9,6 @@ export const authInputClass = [
 
 export const authLabelClass = "text-xs font-medium tracking-wide text-black/60 dark:text-white/60";
 
-/** Primary call to action. Lifts slightly on hover, presses back down on click. */
 export const authPrimaryButtonClass = [
     "h-auto min-h-12 w-full rounded-xl px-4 py-3 text-[0.95rem] font-medium whitespace-normal",
     "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white",
@@ -21,7 +18,6 @@ export const authPrimaryButtonClass = [
     "disabled:translate-y-0 disabled:shadow-none",
 ].join(" ");
 
-/** Neutral secondary action sitting inside the glass card. */
 export const authSecondaryButtonClass = [
     "h-auto min-h-12 w-full rounded-xl px-4 py-3 text-[0.95rem] font-medium whitespace-normal",
     "border border-black/10 bg-white/60 text-black/80",

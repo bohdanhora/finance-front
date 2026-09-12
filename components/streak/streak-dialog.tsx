@@ -10,7 +10,6 @@ import { DialogDescription, DialogHeader, DialogTitle } from "ui/dialog";
 
 import { StreakFlame, TIER_PALETTE } from "./flame";
 
-/** Hex accents are tinted by appending an alpha pair rather than duplicating them. */
 const alpha = (hex: string, suffix: string) => `${hex}${suffix}`;
 
 export const StreakDetails = ({ record, symbol }: { record: StreakRecord; symbol: string }) => {

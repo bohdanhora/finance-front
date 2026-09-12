@@ -183,9 +183,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
             }
             toast.success(t("operationSaved"));
             handleOpenChange(false);
-        } catch {
-            // The shared API error handler already shows the server message.
-        }
+        } catch {}
     };
 
     return (

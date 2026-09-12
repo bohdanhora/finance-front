@@ -19,7 +19,6 @@ import { ChevronDown } from "lucide-react";
 import { formatCurrency } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
-/** Same reasoning as the language cookie: root path, and it has to outlive the tab. */
 const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
 
 type CurrencyDropdownProps = {

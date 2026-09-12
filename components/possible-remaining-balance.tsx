@@ -39,8 +39,6 @@ export const PossibleRemaining = () => {
         essentialsConverted,
         essentialsDailyConverted,
     } = useMemo(() => {
-        // Income still on its way counts too, otherwise a salary on the 15th
-        // makes everything read zero until it arrives.
         const remainingAfterEssentials = projectRemaining(
             store.totalAmount,
             store.expectedIncomes,

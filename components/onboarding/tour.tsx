@@ -10,7 +10,6 @@ import { CURRENCY_CHOSEN_EVENT, USER_CURRENCY_STORAGE_KEY } from "constants/inde
 export const TOUR_STORAGE_KEY = "financeTourSeen";
 export const TOUR_START_EVENT = "finance:start-tour";
 
-/** Each step points at an element marked with `data-tour="<anchor>"`. */
 const STEPS = [
     { anchor: "balance", key: "balance" },
     { anchor: "actions", key: "actions" },
@@ -25,9 +24,7 @@ type Rect = { top: number; left: number; width: number; height: number };
 const PADDING = 8;
 const CARD_WIDTH = 320;
 const GAP = 14;
-/** Below this width the card is docked to the bottom instead of floating. */
 const NARROW = 640;
-/** Room kept clear at the top so the sticky navbar never covers the highlight. */
 const TOP_SAFE = 76;
 
 const viewportHeight = () => window.visualViewport?.height ?? window.innerHeight;
@@ -64,15 +61,9 @@ export const OnboardingTour = () => {
         setRect(null);
         try {
             localStorage.setItem(TOUR_STORAGE_KEY, "1");
-        } catch {
-            // private mode or blocked storage: the tour simply runs again next time
-        }
+        } catch {}
     }, []);
 
-    // First visit starts the tour; the navbar button can replay it later. The
-    // currency dialog comes first and is modal, so on a genuinely fresh install
-    // the tour has to wait for it: Radix sets `pointer-events: none` on the body
-    // while a modal is open, which left the tour visible but completely dead.
     useEffect(() => {
         let seen = "1";
         let currencyChosen = true;
@@ -112,8 +103,6 @@ export const OnboardingTour = () => {
         return () => window.removeEventListener(TOUR_START_EVENT, start);
     }, []);
 
-    // Phones dock the card to the bottom edge, so the breakpoint has to be known
-    // during layout rather than through a `sm:` class.
     useEffect(() => {
         const read = () => setNarrow(viewportWidth() < NARROW);
         read();
@@ -128,10 +117,6 @@ export const OnboardingTour = () => {
     const current = steps[index];
     const anchor = current?.anchor;
 
-    // Bring the step's element into the part of the screen the card does not
-    // cover. Instant rather than smooth: a smooth scroll on a phone is still
-    // running when the first measurement happens, which is what made the
-    // highlight land next to the wrong block.
     useEffect(() => {
         if (!active || !anchor) return;
 
@@ -143,14 +128,9 @@ export const OnboardingTour = () => {
         const wanted = TOP_SAFE + Math.max(0, (free - Math.min(r.height, free)) / 2);
 
         window.scrollBy({ top: r.top - wanted, behavior: "auto" });
-        // `narrow`/`cardHeight` only tune where the element lands, so re-running
-        // on every card resize would fight the user's own scrolling.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, anchor]);
 
-    // Follow the element on an animation frame instead of on every scroll event.
-    // Scroll events on a phone fire faster than React can re-render, and the old
-    // listener called setState on each one, which is what froze the overlay.
     useEffect(() => {
         if (!active || !anchor) return;
 
@@ -175,18 +155,11 @@ export const OnboardingTour = () => {
             frame = requestAnimationFrame(tick);
         };
 
-        // Straight away, not on the next frame: a browser that has paused
-        // animation frames (a backgrounded tab, a phone that just woke) would
-        // otherwise leave the tour mounted with nothing to position, so it
-        // rendered nothing at all.
         measure();
         frame = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(frame);
     }, [active, anchor]);
 
-    // The card's height drives whether it fits below the highlight. It is only
-    // in the DOM once `rect` is known, so the measurement has to wait for that
-    // too, otherwise it runs against an empty ref and keeps the placeholder.
     const positioned = rect !== null;
 
     useLayoutEffect(() => {
@@ -215,9 +188,6 @@ export const OnboardingTour = () => {
         return () => window.removeEventListener("keydown", onKey);
     }, [active, finish, steps.length]);
 
-    // A tap on the backdrop closes the tour, a drag scrolls the page behind it.
-    // Pointer events rather than `onClick`: mobile Safari does not reliably fire
-    // a click on a plain div, so the backdrop used to swallow taps silently.
     const pressRef = useRef<{ x: number; y: number; at: number } | null>(null);
 
     const onBackdropDown = (event: React.PointerEvent) => {
@@ -242,9 +212,6 @@ export const OnboardingTour = () => {
 
     const cardWidth = narrow ? Math.min(CARD_WIDTH + 40, vw - GAP * 2) : CARD_WIDTH;
 
-    // Narrow screens dock the card to the bottom edge: there is no honest room
-    // to float a 320px card next to a full-width block, and anchoring it with
-    // `bottom` keeps it on screen even before its height has been measured.
     const floatTop = (() => {
         const spaceBelow = vh - (rect.top + rect.height);
         const placeBelow = spaceBelow > cardHeight + GAP * 2;
@@ -263,8 +230,6 @@ export const OnboardingTour = () => {
               width: cardWidth,
           };
 
-    // Blocks taller than the free area would push the ring off screen and leave
-    // most of the page lit, so the highlight is clipped to what is visible.
     const ringTop = Math.max(GAP, rect.top - PADDING);
     const cardTop = narrow ? vh - cardHeight - GAP : floatTop;
     const ringBottom = Math.min(narrow ? cardTop - GAP : vh - GAP, rect.top + rect.height + PADDING);
@@ -278,8 +243,6 @@ export const OnboardingTour = () => {
             aria-modal="true"
             aria-label={t("title")}
         >
-            {/* A transparent catcher for tap-to-dismiss; the dimming itself is
-                the huge box-shadow below, which leaves the anchor lit. */}
             <div
                 className="absolute inset-0 cursor-pointer"
                 onPointerDown={onBackdropDown}

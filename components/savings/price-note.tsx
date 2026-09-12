@@ -23,7 +23,6 @@ const KNOWN_CURRENCIES: Record<string, CURRENCY> = {
     EUR: CURRENCY.EUR,
 };
 
-/** Prices from a shop are rarely exact to the cent, so ignore tiny gaps. */
 const MEANINGFUL_DIFFERENCE = 0.5;
 
 export const SavingsPriceNote = ({ goal, rates, className }: Props) => {

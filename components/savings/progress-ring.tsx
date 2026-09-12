@@ -1,6 +1,5 @@
 import { useId } from "react";
 
-/** A round progress meter with the percentage in the middle. */
 export const ProgressRing = ({
     value,
     complete = false,
@@ -8,7 +7,6 @@ export const ProgressRing = ({
     stroke = 8,
 }: {
     value: number;
-    /** Switches the indigo ring to emerald once the goal is covered. */
     complete?: boolean;
     size?: number;
     stroke?: number;

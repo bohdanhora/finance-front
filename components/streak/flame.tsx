@@ -6,18 +6,12 @@ import { twMerge } from "tailwind-merge";
 import { StreakTierKey } from "lib/streak";
 
 type FlamePalette = {
-    /** Gradient stops of the flame body, tip first. */
     outer: [string, string];
-    /** The hotter inner tongue burning behind the coin. */
     core: [string, string];
-    /** Colour of the halo and of the coins drifting up from the flame. */
     glow: string;
     coin: [string, string];
-    /** The currency sign stamped on the coin. */
     ink: string;
-    /** Flicker period: the hotter the tier, the livelier the flame. */
     speed: string;
-    /** Accent used by the badge and the dialog around the flame. */
     accent: string;
 };
 
@@ -69,30 +63,21 @@ export const TIER_PALETTE: Record<StreakTierKey, FlamePalette> = {
     },
 };
 
-/** Tips at the top, bulges at the bottom, with one lick curling up the left. */
 const FLAME_PATH =
     "M20 2C21.5 10 27 13 30.5 18C33 21.5 34 25 34 28.5C34 36.5 27.7 43 20 43C12.3 43 6 36.5 6 28.5C6 23.5 8 19.5 11 16.5C11.2 20.5 12.6 22.8 14.6 24C12 16.5 14.5 8 20 2Z";
 
 const CORE_PATH =
     "M20 15C21 20 24.5 22.5 26 25.5C27 27.5 27.4 29.5 27.4 31C27.4 36.5 24 40 20 40C16 40 12.6 36.5 12.6 31C12.6 28 14 25 16 22.5C16.2 25 16.8 26.3 18 27C16.5 22.5 17.5 18 20 15Z";
 
-/** Sideways drift of each coin rising off the flame, in that order. */
 const COIN_DRIFT = ["-70%", "55%", "-20%"];
 
 type StreakFlameProps = {
     tier: StreakTierKey;
-    /** Width in pixels; the flame is a fifth taller than it is wide. */
     size?: number;
-    /** Currency sign on the coin. It is only legible on the larger flames. */
     symbol?: string;
     className?: string;
 };
 
-/**
- * The streak flame: a coin burning at its heart. Each tier changes the colour,
- * the flicker speed and what the flame throws off, so a hundred day run is
- * recognisable at a glance from a nine day one.
- */
 export const StreakFlame = ({ tier, size = 22, symbol, className }: StreakFlameProps) => {
     const id = useId().replace(/:/g, "");
     const palette = TIER_PALETTE[tier];
@@ -186,7 +171,6 @@ export const StreakFlame = ({ tier, size = 22, symbol, className }: StreakFlameP
                     </text>
                 )}
 
-                {/* Only the top tier is polished enough to catch the light. */}
                 {tier === "vault" && (
                     <g clipPath={`url(#${id}-clip)`}>
                         <rect

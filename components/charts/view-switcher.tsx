@@ -7,7 +7,6 @@ export type SwitcherOption<T extends string> = {
     label: string;
 };
 
-/** Segmented control: a quieter, quicker alternative to a dropdown. */
 export const ViewSwitcher = <T extends string>({
     options,
     value,

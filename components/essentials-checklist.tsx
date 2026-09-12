@@ -14,11 +14,6 @@ import { AnimatedMoney } from "./animated-number";
 import { EssentialPaymentDialog } from "./dialogs/essential-payment";
 import { Checkbox } from "./ui/checkbox";
 
-/**
- * Ticking off a paid bill is the most frequent action in the app, so it lives
- * on the dashboard rather than behind a dialog. Unchecked items are the ones
- * still owed, which is what every "after essentials" figure is based on.
- */
 export const EssentialsChecklist = ({ nextMonth = false }: { nextMonth?: boolean }) => {
     const t = useTranslations("possible");
     const locale = useLocale();

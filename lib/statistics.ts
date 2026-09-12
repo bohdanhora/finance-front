@@ -3,11 +3,10 @@ import dayjs from "dayjs";
 import { TransactionEnum } from "../constants/index";
 import { TransactionType } from "../types/transactions";
 
-export type MonthKey = string; // "YYYY-MM"
+export type MonthKey = string;
 
 export const toMonthKey = (date: string | Date): MonthKey => dayjs(date).format("YYYY-MM");
 
-/** Every month that has at least one transaction, newest first. */
 export const listMonths = (transactions: TransactionType[]): MonthKey[] => {
     const keys = new Set(transactions.map((tx) => toMonthKey(tx.date)));
     keys.add(toMonthKey(new Date()));
@@ -27,7 +26,6 @@ export type MonthTotals = {
     expense: number;
     net: number;
     count: number;
-    /** Mean spend per day that actually had spending. */
     averageExpense: number;
     largestExpense: TransactionType | null;
 };
@@ -59,7 +57,6 @@ export type CategorySlice = {
     percent: number;
 };
 
-/** Expense totals per category, largest first. */
 export const byCategory = (transactions: TransactionType[]): CategorySlice[] => {
     const totals = new Map<string, number>();
 
@@ -85,7 +82,6 @@ export type DayPoint = {
     expense: number;
 };
 
-/** One entry per calendar day of the month, so gaps stay visible. */
 export const byDay = (transactions: TransactionType[], month: MonthKey): DayPoint[] => {
     const start = dayjs(`${month}-01`);
     const daysInMonth = start.daysInMonth();
@@ -118,7 +114,6 @@ export type MonthPoint = {
     expense: number;
 };
 
-/** The last `count` months up to and including `upTo`, oldest first. */
 export const byMonth = (transactions: TransactionType[], upTo: MonthKey, count = 6): MonthPoint[] => {
     const end = dayjs(`${upTo}-01`);
 
@@ -136,7 +131,6 @@ export const byMonth = (transactions: TransactionType[], upTo: MonthKey, count =
     });
 };
 
-/** Running balance change across the month, useful as a trend line. */
 export const cumulativeNet = (points: DayPoint[]): number[] => {
     let running = 0;
     return points.map((point) => {
@@ -148,11 +142,8 @@ export const cumulativeNet = (points: DayPoint[]): number[] => {
 const SAVINGS_CATEGORY = "savings";
 
 export type MonthResult = {
-    /** Income minus every expense, i.e. how the balance moved over the month. */
     net: number;
-    /** Net plus money moved to savings: that money was put aside, not spent. */
     kept: number;
-    /** Kept as a share of income, or null when there was no income to share. */
     keptShare: number | null;
     movedToSavings: number;
 };

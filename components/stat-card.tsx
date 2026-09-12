@@ -2,10 +2,6 @@ import { twMerge } from "tailwind-merge";
 
 import { Hint } from "./hint";
 
-/**
- * A single figure on the dashboard: quiet label on top, the number below, an
- * optional converted value, and room for a small inline action.
- */
 export const StatCard = ({
     label,
     value,

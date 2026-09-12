@@ -15,7 +15,6 @@ import { AllTransactionsInfoResponse } from "types/transactions";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
-/** Anything but one of the three known codes means the stored value is junk. */
 const readStoredCurrency = () => {
     try {
         const raw = localStorage.getItem(USER_CURRENCY_STORAGE_KEY);
@@ -46,9 +45,7 @@ export const ChoooseCurrency = () => {
     const persistCurrency = useCallback((nextCurrency: CURRENCY) => {
         try {
             localStorage.setItem(USER_CURRENCY_STORAGE_KEY, JSON.stringify(nextCurrency));
-        } catch {
-            // private mode: the choice holds for this session only
-        }
+        } catch {}
     }, []);
 
     const applyUpdatedInfo = useCallback(
@@ -114,9 +111,7 @@ export const ChoooseCurrency = () => {
             });
             applyUpdatedInfo(result.updatedInfo, nextCurrency);
             finishSelection(nextCurrency);
-        } catch {
-            // The shared API error handler keeps the current currency visible.
-        }
+        } catch {}
     };
 
     useEffect(() => {
@@ -146,10 +141,7 @@ export const ChoooseCurrency = () => {
                 toCurrency: stored,
             })
                 .then((result) => applyUpdatedInfo(result.updatedInfo, stored))
-                .catch(() => {
-                    // The existing local choice remains usable; retry happens
-                    // when the user next opens the selector.
-                });
+                .catch(() => {});
         }
     }, [applyUpdatedInfo, changeCurrencyAsync, currencyInitialized, persistCurrency, userCurrency]);
 

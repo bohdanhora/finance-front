@@ -7,7 +7,6 @@ import { ReportModel, ReportSection } from "./types";
 
 export type ReportFormatters = {
     amount: (value: number) => string;
-    /** Amount with its ISO code, for figures that stand on their own. */
     money: (value: number, currency?: CURRENCY) => string;
     date: (value: string) => string;
     month: (monthKey: string) => string;
@@ -36,7 +35,6 @@ const heading = (text: string): Content => ({
 
 const muted = (text: string): Content => ({ text, style: "muted", margin: [0, 2, 0, 0] });
 
-/** A rounded progress bar. `percent` is clamped, so a 120% goal still draws inside its track. */
 const bar = (percent: number, width: number, color = REPORT_COLORS.accent): Content => {
     const filled = Math.max(0, Math.min(percent, 100)) / 100;
 
@@ -53,7 +51,6 @@ const bar = (percent: number, width: number, color = REPORT_COLORS.accent): Cont
 
 type StatCard = { label: string; value: string; tone?: "accent" | "expense" | "ink" };
 
-/** Cards are separate one-cell tables so the surface gaps between them stay real. */
 const statCards = (cards: StatCard[], perRow = 3): Content[] => {
     const rows: Content[] = [];
 
@@ -233,7 +230,6 @@ const categoriesSection = (model: ReportModel, labels: ReportLabels, formatters:
     return [heading(labels.categories.heading), table];
 };
 
-/** Grouped bars drawn as vectors, so the chart stays crisp at any zoom and in print. */
 const dynamicsChart = (model: ReportModel): Content | null => {
     const peak = Math.max(...model.dynamics.flatMap((row) => [row.income, row.expense]), 0);
     if (peak <= 0) return null;

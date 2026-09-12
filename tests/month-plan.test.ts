@@ -33,7 +33,6 @@ test("a paid bill counts what was actually paid, an unpaid one what is still owe
 });
 
 test("a salary still to come lifts the month out of zero", () => {
-    // 986.79 on the card, 75,900 of bills left and 80,000 due on the 15th.
     const withoutSalary = projectRemaining(986.79, [], [bill(75900)]);
     const withSalary = projectRemaining(986.79, [salary(80000)], [bill(75900)]);
 

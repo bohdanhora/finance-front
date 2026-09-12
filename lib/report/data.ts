@@ -14,7 +14,6 @@ import {
     TransactionsFilter,
 } from "./types";
 
-/** Categories past this count are folded into a single "other" row. */
 const MAX_CATEGORY_ROWS = 8;
 
 const DYNAMICS_MONTHS = 6;
@@ -27,7 +26,6 @@ const startOfMonth = (date: Date, offset = 0) => new Date(date.getFullYear(), da
 
 const endOfMonth = (date: Date, offset = 0) => new Date(date.getFullYear(), date.getMonth() + offset + 1, 0);
 
-/** "YYYY-MM" for grouping, taken from the raw string so timezones cannot shift it. */
 export const monthKey = (date: string) => date.slice(0, 7);
 
 export const resolveRange = (period: ReportPeriod, today = new Date()): ReportRange => {
@@ -95,7 +93,6 @@ export const buildCategoryRows = (transactions: TransactionType[]): ReportCatego
     return rows;
 };
 
-/** The last `count` months ending on the range end, oldest first. */
 export const buildDynamics = (
     transactions: TransactionType[],
     range: ReportRange,

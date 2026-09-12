@@ -10,10 +10,6 @@ export type ExportReportArgs = {
     fileName: string;
 };
 
-/**
- * pdfmake and its fonts are ~900 KB, so they are pulled in only when a report is
- * actually exported instead of riding along in the page bundle.
- */
 export const downloadReportPdf = async ({ fileName, ...args }: ExportReportArgs) => {
     const [pdfMake, vfsModule] = await Promise.all([
         import("pdfmake/build/pdfmake"),

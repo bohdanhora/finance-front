@@ -8,7 +8,7 @@ export const ToastProvider = () => {
 
     return (
         <ToastContainer
-            position='bottom-right'
+            position="bottom-right"
             autoClose={2400}
             limit={2}
             newestOnTop
@@ -18,7 +18,7 @@ export const ToastProvider = () => {
             pauseOnFocusLoss={false}
             pauseOnHover={false}
             theme={resolvedTheme}
-            toastClassName='finance-toast'
+            toastClassName="finance-toast"
         />
     );
 };

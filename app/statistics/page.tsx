@@ -72,7 +72,6 @@ const StatisticsPage = () => {
     const isCurrentMonth = month === currentMonth;
     const oldest = months[months.length - 1];
     const money = (value: number) => `${formatCurrency(value)} ${symbol}`;
-    /** The same figure, but counting from the month shown before it. */
     const animatedMoney = (value: number) => <AnimatedMoney value={value} symbol={symbol} />;
     const expenseCount = inMonth.filter((tx) => tx.transactionType === TransactionEnum.EXPENSE).length;
     const daysInCalculation = isCurrentMonth ? dayjs().date() : dayjs(`${month}-01`).daysInMonth();

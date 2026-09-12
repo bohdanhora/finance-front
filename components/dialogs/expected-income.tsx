@@ -35,7 +35,6 @@ type FormValues = z.infer<typeof expectedIncomeFormSchema>;
 
 const getEmptyValues = (): FormValues => ({ amount: "", title: "", day: "", recurring: true });
 
-/** Adds, edits and removes the incomes expected this month. */
 export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }) => {
     const t = useTranslations("expectedIncome");
     const store = useStore();
@@ -77,9 +76,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
             store.setExpectedIncomes(res.updatedItems);
             if (editingId === id) resetForm();
             toast.success(t("removed"));
-        } catch {
-            // The shared API error handler already shows the server message.
-        }
+        } catch {}
     };
 
     const onSubmit = async (values: FormValues) => {
@@ -96,9 +93,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
             store.setExpectedIncomes(res.updatedItems);
             toast.success(t(editingId ? "updated" : "added"));
             resetForm();
-        } catch {
-            // The shared API error handler already shows the server message.
-        }
+        } catch {}
     };
 
     return (

@@ -26,7 +26,6 @@ type Props = {
     goal: SavingsGoal;
     operations: SavingsOperation[];
     rates: { usdToUah: number; eurToUah: number };
-    /** The currency picked in the navbar, used for the converted target. */
     displayCurrency: CURRENCY;
     onEdit: (goal: SavingsGoal) => void;
     onDelete: (goal: SavingsGoal) => void;
@@ -34,10 +33,6 @@ type Props = {
 
 const money = (value: number, currency: CURRENCY) => `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
 
-/**
- * One savings goal. Every card has the same rows whether or not it has a link,
- * so two goals side by side line up instead of leaving a gap under the shorter.
- */
 export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onEdit, onDelete }: Props) => {
     const t = useTranslations("savings");
 

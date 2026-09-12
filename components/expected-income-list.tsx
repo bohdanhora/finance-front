@@ -15,11 +15,6 @@ import { ExpectedIncomeDialog } from "./dialogs/expected-income";
 import { ExpectedIncomeReceiveDialog } from "./dialogs/expected-income-receive";
 import { Checkbox } from "./ui/checkbox";
 
-/**
- * Money that is due later in the month. Until it is ticked as received it
- * counts toward every "after essentials" figure, so a salary on the 15th no
- * longer makes the first half of the month look empty.
- */
 export const ExpectedIncomeList = () => {
     const t = useTranslations("expectedIncome");
     const tPossible = useTranslations("possible");

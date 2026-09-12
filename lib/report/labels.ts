@@ -1,4 +1,3 @@
-/** Every string the PDF prints. Built from next-intl so the report follows the app language. */
 export type ReportLabels = {
     title: string;
     periodLabel: string;

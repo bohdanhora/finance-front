@@ -27,7 +27,6 @@ ChartJS.register(ArcElement, Tooltip, CategoryScale, LinearScale, BarElement, Po
 
 export type ChartView = "categories" | "daily" | "months" | "trend";
 
-/** Chart.js reads colours once, so resolve them from the live theme. */
 const useAxisColors = () => {
     if (typeof window === "undefined") {
         return { grid: "rgba(120,120,120,0.15)", tick: "#8a8a8a" };
