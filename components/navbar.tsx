@@ -27,6 +27,8 @@ import { SettingsDialog } from "./dialogs/settings";
 import { useMonobankToken } from "hooks/use-monobank-token";
 import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 import { NavbarActionsMenu } from "./navbar-actions-menu";
+import { MobileNav, type NavItem } from "./mobile-nav";
+import { useIsMobile } from "hooks/use-is-mobile";
 import { StreakBadge } from "./streak/streak-badge";
 
 export const Navbar = () => {
@@ -45,6 +47,7 @@ export const Navbar = () => {
     const generalStore = useStore();
     const tNav = useTranslations("navbar");
     const { connected: monobankConnected } = useMonobankToken();
+    const isMobile = useIsMobile();
 
     const userCurrency = generalStore.userCurrency;
 
@@ -88,7 +91,7 @@ export const Navbar = () => {
         setBuy(0);
     }, [store.currency, store.usd, store.eur]);
 
-    const navItems = [
+    const navItems: NavItem[] = [
         { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
         { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3, anchor: "statistics" },
         { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank },
@@ -132,29 +135,31 @@ export const Navbar = () => {
                         <StreakBadge />
                     </div>
 
-                    <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
-                        {navItems.map(({ href, label, Icon, anchor }) => {
-                            const active = pathname === href;
-                            return (
-                                <Link
-                                    key={href}
-                                    href={href}
-                                    aria-label={label}
-                                    aria-current={active ? "page" : undefined}
-                                    data-tour={anchor}
-                                    className={twMerge(
-                                        "relative flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200",
-                                        active
-                                            ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
-                                            : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
-                                    )}
-                                >
-                                    <Icon className="size-4" />
-                                    <span className="hidden lg:inline">{label}</span>
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                    {isMobile === false && (
+                        <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
+                            {navItems.map(({ href, label, Icon, anchor }) => {
+                                const active = pathname === href;
+                                return (
+                                    <Link
+                                        key={href}
+                                        href={href}
+                                        aria-label={label}
+                                        aria-current={active ? "page" : undefined}
+                                        data-tour={anchor}
+                                        className={twMerge(
+                                            "relative flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200",
+                                            active
+                                                ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
+                                                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+                                        )}
+                                    >
+                                        <Icon className="size-4" />
+                                        <span className="hidden lg:inline">{label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+                    )}
                     <div className="col-start-3 flex min-w-0 items-center justify-self-end gap-1.5">
                         <div className="border-border/70 bg-card/65 flex items-center rounded-2xl border p-0.5 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
                             <Button
@@ -196,6 +201,7 @@ export const Navbar = () => {
                     </div>
                 </div>
             </header>
+            {isMobile && <MobileNav items={navItems} />}
             <ChoooseCurrency />
             <SettingsDialog />
         </>
