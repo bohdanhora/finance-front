@@ -28,6 +28,7 @@ The interface is responsive, theme-aware, and localized for English, Russian, an
 - **Savings workspace** - create goals, calculate daily and monthly saving pace, and track deposits, withdrawals, and transfers between cash and card.
 - **Spending analytics** - category breakdowns, daily dynamics, six-month history, trend views, the month's result, and every finished month's plan compared with what actually happened.
 - **Multi-currency support** - work in UAH, USD, or EUR using current public Monobank exchange rates.
+- **Monobank connection** - paste a personal token in the settings and a read-only bank tab shows card balances, jars, cashback and every card operation grouped by category. Nothing there touches the budget.
 - **Custom PDF reports** - choose a period, included sections, and transaction filters before generating a localized report in the browser.
 - **Complete authentication journey** - email verification, email/password login, Google OAuth, remember-me sessions, token refresh, logout, and password recovery.
 - **Habit building** - account-based daily streaks, milestone celebrations, and a weekly activity view.

@@ -7,7 +7,7 @@ import { CurrencyDropdown } from "./currency-dropdown";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
 import { Loader } from "./loader";
-import { BarChart3, Calculator, LayoutDashboard, PiggyBank } from "lucide-react";
+import { BarChart3, Calculator, CreditCard, LayoutDashboard, PiggyBank } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
@@ -23,6 +23,8 @@ import { ThemeSwitch } from "./theme-switch";
 import { twMerge } from "tailwind-merge";
 import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
+import { SettingsDialog } from "./dialogs/settings";
+import { useMonobankToken } from "hooks/use-monobank-token";
 import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 import { NavbarActionsMenu } from "./navbar-actions-menu";
 import { StreakBadge } from "./streak/streak-badge";
@@ -42,6 +44,7 @@ export const Navbar = () => {
     const setEur = useBankStore((state) => state.setEur);
     const generalStore = useStore();
     const tNav = useTranslations("navbar");
+    const { connected: monobankConnected } = useMonobankToken();
 
     const userCurrency = generalStore.userCurrency;
 
@@ -85,6 +88,13 @@ export const Navbar = () => {
         setBuy(0);
     }, [store.currency, store.usd, store.eur]);
 
+    const navItems = [
+        { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
+        { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3, anchor: "statistics" },
+        { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank },
+        ...(monobankConnected ? [{ href: Routes.MONOBANK, label: tNav("monobank"), Icon: CreditCard }] : []),
+    ];
+
     if (isRedirecting) {
         return <Loader />;
     }
@@ -123,11 +133,7 @@ export const Navbar = () => {
                     </div>
 
                     <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
-                        {[
-                            { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
-                            { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3 },
-                            { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank },
-                        ].map(({ href, label, Icon }) => {
+                        {navItems.map(({ href, label, Icon, anchor }) => {
                             const active = pathname === href;
                             return (
                                 <Link
@@ -135,9 +141,9 @@ export const Navbar = () => {
                                     href={href}
                                     aria-label={label}
                                     aria-current={active ? "page" : undefined}
-                                    data-tour={href === Routes.STATISTICS ? "statistics" : undefined}
+                                    data-tour={anchor}
                                     className={twMerge(
-                                        "relative flex h-9 items-center gap-2 rounded-xl px-2 text-sm font-medium transition-all duration-200 sm:px-3",
+                                        "relative flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200",
                                         active
                                             ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
                                             : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
@@ -191,6 +197,7 @@ export const Navbar = () => {
                 </div>
             </header>
             <ChoooseCurrency />
+            <SettingsDialog />
         </>
     );
 };

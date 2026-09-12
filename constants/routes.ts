@@ -6,4 +6,5 @@ export enum Routes {
     SEND_EMAIL_CODE = "/send-email-code",
     STATISTICS = "/statistics",
     SAVINGS = "/savings",
+    MONOBANK = "/monobank",
 }

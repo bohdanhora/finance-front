@@ -13,6 +13,9 @@
     "include": [
         "constants/index.ts",
         "types/transactions.ts",
+        "constants/categories.ts",
+        "types/monobank.ts",
+        "lib/monobank.ts",
         "lib/savings.ts",
         "lib/report/data.ts",
         "lib/report/types.ts",
@@ -23,6 +26,7 @@
         "tests/month-plan.test.ts",
         "tests/report.test.ts",
         "tests/statistics.test.ts",
-        "tests/streak.test.ts"
+        "tests/streak.test.ts",
+        "tests/monobank.test.ts"
     ]
 }
