@@ -20,6 +20,7 @@ export const EXPENSE_CATEGORY_KEYS = [
     "gifts",
     "charity",
     "credit",
+    "transfers",
     "insurance",
     "taxes",
     "electronics",

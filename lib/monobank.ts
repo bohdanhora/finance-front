@@ -30,6 +30,7 @@ export const clearMonobankToken = () => {
         localStorage.removeItem(MONOBANK_TOKEN_STORAGE_KEY);
         localStorage.removeItem(MONOBANK_PROFILE_STORAGE_KEY);
     } catch {}
+    clearMonobankHistory();
     window.dispatchEvent(new Event(MONOBANK_TOKEN_EVENT));
 };
 
@@ -107,7 +108,7 @@ const MCC_CATEGORIES: Record<number, CategoryKey> = {
     4815: "utilities",
     4821: "utilities",
     4899: "subscriptions",
-    4829: "credit",
+    4829: "transfers",
     4900: "utilities",
     4411: "travel",
     4457: "travel",
@@ -197,21 +198,19 @@ const MCC_CATEGORIES: Record<number, CategoryKey> = {
     5995: "pets",
     5996: "home",
     5999: "other",
-    6010: "credit",
-    6011: "credit",
-    6012: "credit",
-    6051: "credit",
+    6012: "transfers",
+    6051: "transfers",
     6211: "savings",
     6300: "insurance",
     6381: "insurance",
     6399: "insurance",
-    6529: "credit",
-    6530: "credit",
-    6534: "credit",
-    6536: "credit",
-    6537: "credit",
-    6538: "credit",
-    6540: "credit",
+    6529: "transfers",
+    6530: "transfers",
+    6534: "transfers",
+    6536: "transfers",
+    6537: "transfers",
+    6538: "transfers",
+    6540: "transfers",
     7011: "travel",
     7032: "travel",
     7033: "travel",
@@ -392,4 +391,136 @@ export const statementRange = (days: number, now: Date = new Date()) => {
         to,
         days: safeDays,
     };
+};
+
+export type MonobankConversion = {
+    amount: number;
+    currencyCode: number;
+    rate: number;
+    unit: "account" | "operation";
+};
+
+export const operationConversion = (
+    item: MonobankStatementItem,
+    accountCurrency: number,
+): MonobankConversion | null => {
+    if (item.currencyCode === accountCurrency || !item.operationAmount || !item.amount) return null;
+
+    const amount = fromMinorUnits(Math.abs(item.operationAmount));
+    const base = fromMinorUnits(Math.abs(item.amount));
+    const unit = amount >= base ? "account" : "operation";
+    const rate = unit === "account" ? amount / base : base / amount;
+
+    return { amount, currencyCode: item.currencyCode, rate: Math.round(rate * 100) / 100, unit };
+};
+
+export const MONOBANK_STATEMENT_LIMIT = 500;
+export const MONOBANK_HISTORY_EMPTY_LIMIT = 6;
+export const MONOBANK_HISTORY_FLOOR = Math.floor(Date.UTC(2017, 10, 1) / 1000);
+
+const DAY_SECONDS = 24 * 60 * 60;
+const HISTORY_WINDOW_SECONDS = MONOBANK_MAX_STATEMENT_DAYS * DAY_SECONDS;
+const HISTORY_STORAGE_PREFIX = "monobank-history:";
+
+export type MonobankHistoryWindow = {
+    from: number;
+    to: number;
+};
+
+export type MonobankHistory = {
+    items: MonobankStatementItem[];
+    from: number | null;
+    to: number | null;
+    gap: MonobankHistoryWindow | null;
+    emptyWindows: number;
+    complete: boolean;
+};
+
+export const EMPTY_MONOBANK_HISTORY: MonobankHistory = {
+    items: [],
+    from: null,
+    to: null,
+    gap: null,
+    emptyWindows: 0,
+    complete: false,
+};
+
+export const mergeStatementItems = (current: MonobankStatementItem[], incoming: MonobankStatementItem[]) => {
+    const byId = new Map(current.map((item) => [item.id, item]));
+    incoming.forEach((item) => byId.set(item.id, item));
+
+    return [...byId.values()].sort((a, b) => b.time - a.time);
+};
+
+export const nextHistoryWindow = (history: MonobankHistory, now: number): MonobankHistoryWindow | null => {
+    if (history.gap) return history.gap;
+
+    if (history.from === null || history.to === null) {
+        return { from: now - HISTORY_WINDOW_SECONDS, to: now };
+    }
+
+    if (history.to < now) {
+        const from = Math.max(history.to - DAY_SECONDS, history.from);
+        return { from, to: Math.min(from + HISTORY_WINDOW_SECONDS, now) };
+    }
+
+    if (history.complete) return null;
+
+    return {
+        from: Math.max(history.from - HISTORY_WINDOW_SECONDS, MONOBANK_HISTORY_FLOOR),
+        to: history.from,
+    };
+};
+
+export const applyHistoryWindow = (
+    history: MonobankHistory,
+    window: MonobankHistoryWindow,
+    items: MonobankStatementItem[],
+): MonobankHistory => {
+    const oldest = items.length > 0 ? Math.min(...items.map((item) => item.time)) : window.from;
+    const partial = items.length >= MONOBANK_STATEMENT_LIMIT && oldest > window.from && oldest < window.to;
+    const backward = history.gap === null && history.from !== null && window.to <= history.from;
+    const emptyWindows = backward ? (items.length === 0 ? history.emptyWindows + 1 : 0) : history.emptyWindows;
+    const from = history.from === null ? window.from : Math.min(history.from, window.from);
+
+    return {
+        items: mergeStatementItems(history.items, items),
+        from,
+        to: history.to === null ? window.to : Math.max(history.to, window.to),
+        gap: partial ? { from: window.from, to: oldest } : null,
+        emptyWindows,
+        complete:
+            history.complete || emptyWindows >= MONOBANK_HISTORY_EMPTY_LIMIT || from <= MONOBANK_HISTORY_FLOOR,
+    };
+};
+
+const historyStorageKey = (token: string, accountId: string) =>
+    `${HISTORY_STORAGE_PREFIX}${token.slice(-6)}:${accountId}`;
+
+export const readMonobankHistory = (token: string, accountId: string): MonobankHistory => {
+    if (typeof window === "undefined") return EMPTY_MONOBANK_HISTORY;
+
+    try {
+        const raw = localStorage.getItem(historyStorageKey(token, accountId));
+        if (!raw) return EMPTY_MONOBANK_HISTORY;
+
+        const parsed = JSON.parse(raw) as MonobankHistory;
+        return Array.isArray(parsed?.items) ? { ...EMPTY_MONOBANK_HISTORY, ...parsed } : EMPTY_MONOBANK_HISTORY;
+    } catch {
+        return EMPTY_MONOBANK_HISTORY;
+    }
+};
+
+export const saveMonobankHistory = (token: string, accountId: string, history: MonobankHistory) => {
+    try {
+        localStorage.setItem(historyStorageKey(token, accountId), JSON.stringify(history));
+    } catch {}
+};
+
+const clearMonobankHistory = () => {
+    try {
+        Object.keys(localStorage)
+            .filter((key) => key.startsWith(HISTORY_STORAGE_PREFIX))
+            .forEach((key) => localStorage.removeItem(key));
+    } catch {}
 };

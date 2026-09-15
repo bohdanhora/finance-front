@@ -18,6 +18,7 @@ import { Button } from "components/ui/button";
 import { ViewSwitcher } from "components/charts/view-switcher";
 import { Section, StatGrid } from "components/wrappers/section";
 import { Routes } from "constants/routes";
+import { useMonobankHistory } from "hooks/use-monobank-history";
 import { useMonobankToken } from "hooks/use-monobank-token";
 import {
     accountLabel,
@@ -26,6 +27,7 @@ import {
     fromMinorUnits,
     jarProgress,
     MONOBANK_COOLDOWN_MS,
+    MONOBANK_MAX_STATEMENT_DAYS,
     saveMonobankProfile,
     statementRange,
     summarizeStatement,
@@ -35,7 +37,9 @@ import { PrivateProvider } from "providers/auth";
 import { GetDataProvider } from "providers/get-data";
 import { MonobankAccount } from "types/monobank";
 
-type Period = "7" | "31";
+type Period = "7" | "31" | "all";
+
+const historyDate = (value: number) => dayjs.unix(value).format("DD.MM.YYYY");
 
 const sortAccounts = (accounts: MonobankAccount[]) =>
     [...accounts].sort((a, b) => {
@@ -61,10 +65,19 @@ const MonobankPage = () => {
     const jars = clientInfo.data?.jars || [];
 
     const account = accounts.find((item) => item.id === selectedId) || accounts[0] || null;
-    const range = useMemo(() => statementRange(Number(period), new Date(requestedAt)), [period, requestedAt]);
-    const statement = useMonobankStatement(token, account?.id || null, range.from, range.to);
+    const allTime = period === "all";
+    const range = useMemo(
+        () => statementRange(allTime ? MONOBANK_MAX_STATEMENT_DAYS : Number(period), new Date(requestedAt)),
+        [allTime, period, requestedAt],
+    );
+    const statement = useMonobankStatement(token, allTime ? null : account?.id || null, range.from, range.to);
+    const history = useMonobankHistory(token, account?.id || null, allTime);
 
-    const items = useMemo(() => statement.data || [], [statement.data]);
+    const items = useMemo(
+        () => (allTime ? history.items : statement.data || []),
+        [allTime, history.items, statement.data],
+    );
+    const oldestItem = history.items[history.items.length - 1];
     const summary = useMemo(() => summarizeStatement(items), [items]);
 
     const lastFetched = Math.max(clientInfo.dataUpdatedAt || 0, statement.dataUpdatedAt || 0);
@@ -93,8 +106,8 @@ const MonobankPage = () => {
         void queryClient.invalidateQueries({ queryKey: ["monobank"] });
     };
 
-    const error = clientInfo.error || statement.error;
-    const loading = clientInfo.isFetching || statement.isFetching;
+    const error = clientInfo.error || (allTime ? history.error : statement.error);
+    const loading = clientInfo.isFetching || (!allTime && statement.isFetching);
     const symbol = account ? currencySymbolByCode(account.currencyCode) : "";
     const money = (value: number) => `${formatCurrency(value)} ${symbol}`;
 
@@ -320,10 +333,24 @@ const MonobankPage = () => {
                                     options={[
                                         { value: "7", label: t("period7") },
                                         { value: "31", label: t("period31") },
+                                        { value: "all", label: t("periodAll") },
                                     ]}
                                 />
                             }
                         >
+                            {allTime && account && (
+                                <p className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
+                                    {history.loading && <Loader2 className="size-4 shrink-0 animate-spin" />}
+                                    {history.complete
+                                        ? t("historyComplete", {
+                                              date: historyDate(oldestItem?.time ?? history.from ?? range.from),
+                                          })
+                                        : history.from
+                                          ? t("historyLoading", { date: historyDate(history.from) })
+                                          : t("historyStarting")}
+                                </p>
+                            )}
+
                             {summary.byCategory.length > 0 && (
                                 <div className="mb-6">
                                     <CategoryBreakdown
@@ -334,13 +361,13 @@ const MonobankPage = () => {
                                 </div>
                             )}
 
-                            {statement.isPending && account ? (
+                            {(allTime ? history.items.length === 0 && history.loading : statement.isPending) && account ? (
                                 <p className="text-muted-foreground flex items-center gap-2 py-8 text-sm">
                                     <Loader2 className="size-4 animate-spin" />
                                     {t("loading")}
                                 </p>
                             ) : items.length > 0 ? (
-                                <StatementList items={items} />
+                                <StatementList items={items} accountCurrency={account?.currencyCode ?? 980} />
                             ) : (
                                 <p className="text-muted-foreground border-border bg-card rounded-2xl border py-16 text-center text-sm shadow-sm">
                                     {t("noOperations")}

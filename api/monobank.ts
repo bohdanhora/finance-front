@@ -26,12 +26,19 @@ export const fetchClientInfo = async (token: string): Promise<MonobankClientInfo
     return res.data;
 };
 
-const fetchStatement = async (
+let lastStatementRequest = 0;
+
+export const statementCooldownLeft = () => Math.max(0, lastStatementRequest + MONOBANK_COOLDOWN_MS - Date.now());
+
+export const isPeriodRejected = (error: unknown) => (error as AxiosError)?.response?.status === 400;
+
+export const fetchStatement = async (
     token: string,
     account: string,
     from: number,
     to: number,
 ): Promise<MonobankStatementItem[]> => {
+    lastStatementRequest = Date.now();
     const res = await monobankAxios.get<MonobankStatementItem[]>(`/statement/${account}/${from}/${to}`, {
         headers: { "X-Token": token },
     });

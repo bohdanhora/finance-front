@@ -3,10 +3,17 @@ import test from "node:test";
 
 import {
     accountLabel,
+    applyHistoryWindow,
     categoryByMcc,
     currencySymbolByCode,
+    EMPTY_MONOBANK_HISTORY,
     fromMinorUnits,
     jarProgress,
+    mergeStatementItems,
+    MONOBANK_HISTORY_EMPTY_LIMIT,
+    MONOBANK_STATEMENT_LIMIT,
+    nextHistoryWindow,
+    operationConversion,
     statementRange,
     summarizeStatement,
 } from "../lib/monobank";
@@ -40,6 +47,8 @@ test("maps merchant codes onto the categories of the app", () => {
     assert.equal(categoryByMcc(3015), "travel");
     assert.equal(categoryByMcc(3360), "car");
     assert.equal(categoryByMcc(3702), "travel");
+    assert.equal(categoryByMcc(4829), "transfers");
+    assert.equal(categoryByMcc(6538), "transfers");
     assert.equal(categoryByMcc(1), "other");
 });
 
@@ -115,4 +124,77 @@ test("reads how full a jar is", () => {
     assert.equal(jarProgress(jar({ goal: 20000 })), 25);
     assert.equal(jarProgress(jar({ goal: 1000 })), 100);
     assert.equal(jarProgress(jar({})), null);
+});
+
+test("reads the rate a dollar account was sold at", () => {
+    const sold = operationConversion(
+        operation({ id: "sell", amount: -237487, operationAmount: -9760000, currencyCode: 980 }),
+        840,
+    );
+    const abroad = operationConversion(
+        operation({ id: "abroad", amount: -41500, operationAmount: -1000, currencyCode: 840 }),
+        980,
+    );
+
+    assert.deepEqual(sold, { amount: 97600, currencyCode: 980, rate: 41.1, unit: "account" });
+    assert.deepEqual(abroad, { amount: 10, currencyCode: 840, rate: 41.5, unit: "operation" });
+    assert.equal(operationConversion(operation({ id: "local", amount: -500 }), 980), null);
+});
+
+test("merges statement pages newest first without duplicates", () => {
+    const merged = mergeStatementItems(
+        [operation({ id: "a", amount: -100, time: 10 }), operation({ id: "b", amount: -200, time: 30, hold: true })],
+        [operation({ id: "b", amount: -200, time: 30, hold: false }), operation({ id: "c", amount: -300, time: 20 })],
+    );
+
+    assert.deepEqual(
+        merged.map((item) => [item.id, item.hold]),
+        [
+            ["b", false],
+            ["c", false],
+            ["a", false],
+        ],
+    );
+});
+
+test("walks the history back one statement window at a time", () => {
+    const now = 1_760_000_000;
+    const month = 31 * 24 * 60 * 60;
+
+    const first = nextHistoryWindow(EMPTY_MONOBANK_HISTORY, now);
+    assert.deepEqual(first, { from: now - month, to: now });
+
+    const recent = applyHistoryWindow(EMPTY_MONOBANK_HISTORY, first!, [operation({ id: "1", amount: -100, time: now - 10 })]);
+    assert.deepEqual(nextHistoryWindow(recent, now), { from: now - 2 * month, to: now - month });
+
+    const later = now + 3 * 24 * 60 * 60;
+    assert.deepEqual(nextHistoryWindow(recent, later), { from: now - 24 * 60 * 60, to: later });
+
+    let history = recent;
+    for (let index = 0; index < MONOBANK_HISTORY_EMPTY_LIMIT; index += 1) {
+        assert.equal(history.complete, false);
+        history = applyHistoryWindow(history, nextHistoryWindow(history, now)!, []);
+    }
+
+    assert.equal(history.complete, true);
+    assert.equal(nextHistoryWindow(history, now), null);
+    assert.equal(history.items.length, 1);
+});
+
+test("asks for the rest of a window the bank cut at its limit", () => {
+    const now = 1_760_000_000;
+    const window = { from: now - 1000, to: now };
+    const full = Array.from({ length: MONOBANK_STATEMENT_LIMIT }, (_, index) =>
+        operation({ id: `op-${index}`, amount: -100, time: now - 1 - index }),
+    );
+
+    const cut = applyHistoryWindow(EMPTY_MONOBANK_HISTORY, window, full);
+    const oldest = now - MONOBANK_STATEMENT_LIMIT;
+
+    assert.deepEqual(cut.gap, { from: now - 1000, to: oldest });
+    assert.deepEqual(nextHistoryWindow(cut, now), { from: now - 1000, to: oldest });
+
+    const filled = applyHistoryWindow(cut, cut.gap!, [operation({ id: "older", amount: -100, time: oldest - 5 })]);
+    assert.equal(filled.gap, null);
+    assert.equal(filled.items.length, MONOBANK_STATEMENT_LIMIT + 1);
 });

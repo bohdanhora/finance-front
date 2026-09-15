@@ -1,4 +1,5 @@
 import {
+    ArrowLeftRight,
     Baby,
     BadgeDollarSign,
     BanknoteArrowUp,
@@ -54,6 +55,7 @@ const CATEGORY_ICONS: Record<CategoryKey, LucideIcon> = {
     gifts: Gift,
     charity: HandHeart,
     credit: Landmark,
+    transfers: ArrowLeftRight,
     insurance: ShieldCheck,
     taxes: ReceiptText,
     electronics: Laptop,
