@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { ErrorResponse } from "types/other";
 import dayjs from "dayjs";
+import { roundMoney } from "lib/money";
 
 export const createDateString = (input: string | Date): string => {
     const date = dayjs(input);
@@ -27,17 +28,13 @@ export const findCurrency = (currency: MonobankCurrency[], isoCode: ISO4217Codes
 };
 
 export const formatCurrency = (num: number) => {
-    const absNum = Math.abs(num);
-
-    const [intPart, decPart = ""] = absNum.toString().split(".");
+    const [intPart, decPart] = Math.abs(roundMoney(num)).toFixed(2).split(".");
 
     const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    const formattedDec = (decPart + "00").slice(0, 2);
-
     if (num < 0) return "0";
 
-    return `${formattedInt}.${formattedDec}`;
+    return `${formattedInt}.${decPart}`;
 };
 
 export const calculateDailyBudget = (totalAmount: number) => {

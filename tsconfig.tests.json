@@ -18,6 +18,7 @@
         "lib/monobank.ts",
         "lib/assistant/providers.ts",
         "lib/assistant/context.ts",
+        "lib/money.ts",
         "lib/savings.ts",
         "lib/report/data.ts",
         "lib/report/types.ts",

@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { handleDecimalInputChange } from "lib/utils";
+import { toMoneyInput } from "lib/money";
 import { changeDefaultFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -64,7 +65,7 @@ export const ChangeDefaultEssentials = () => {
         setEditingId(essential.id);
         form.reset(
             {
-                amount: String(essential.amount),
+                amount: toMoneyInput(essential.amount),
                 title: essential.title,
             },
             { keepDefaultValues: true },

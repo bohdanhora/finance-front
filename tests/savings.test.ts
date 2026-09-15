@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { CURRENCY } from "../constants/index";
-import { getSavingsBalance, getSavingsNativeBalance, getUrlHost, normalizeGoalUrl } from "../lib/savings";
+import { roundMoney, toMoneyInput } from "../lib/money";
+import {
+    calculateSavingsPace,
+    getSavingsBalance,
+    getSavingsNativeBalance,
+    getUrlHost,
+    normalizeGoalUrl,
+} from "../lib/savings";
 import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
 
 const rates = {
@@ -95,6 +102,45 @@ test("reports unavailable conversion rates only when conversion is actually need
 
     assert.equal(getSavingsBalance(baseOperations, CURRENCY.UAH, missingRates), null);
     assert.equal(getSavingsBalance(baseOperations, CURRENCY.UAH, missingRates, SavingsStorage.CARD), 800);
+});
+
+test("rounds converted savings to whole cents", () => {
+    const operations = [
+        operation({
+            id: "card-usd",
+            type: SavingsOperationType.DEPOSIT,
+            storage: SavingsStorage.CARD,
+            amount: 0.1,
+            currency: CURRENCY.USD,
+        }),
+        operation({
+            id: "card-usd-second",
+            type: SavingsOperationType.DEPOSIT,
+            storage: SavingsStorage.CARD,
+            amount: 0.2,
+            currency: CURRENCY.USD,
+        }),
+    ];
+
+    assert.equal(getSavingsNativeBalance(operations, CURRENCY.USD), 0.3);
+    assert.equal(getSavingsBalance(operations, CURRENCY.USD, rates), 0.3);
+});
+
+test("keeps the goal pace free of float noise", () => {
+    const pace = calculateSavingsPace(94898.30799999999, "2026-10-01", new Date(2026, 8, 14));
+
+    assert.ok(pace);
+    assert.equal(pace.daysRemaining, 17);
+    assert.equal(pace.dailyAmount, 5582.26);
+    assert.equal(pace.monthlyAmount, 94898.31);
+    assert.equal(toMoneyInput(pace.monthlyAmount), "94898.31");
+});
+
+test("turns amounts into input text with at most two decimals", () => {
+    assert.equal(roundMoney(0.1 + 0.2), 0.3);
+    assert.equal(toMoneyInput(94898.30799999999), "94898.31");
+    assert.equal(toMoneyInput(12.5), "12.5");
+    assert.equal(toMoneyInput(Number.NaN), "");
 });
 
 test("normalizes a goal link the way a person types it", () => {

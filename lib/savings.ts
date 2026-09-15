@@ -1,5 +1,6 @@
 import { CURRENCY } from "../constants/index";
 import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
+import { roundMoney } from "./money";
 
 type ExchangeRates = {
     usdToUah: number;
@@ -31,7 +32,7 @@ export const calculateSavingsPace = (
     const targetTimestamp = Date.UTC(year, month - 1, day);
     const todayTimestamp = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
     const rawDaysRemaining = Math.ceil((targetTimestamp - todayTimestamp) / MILLISECONDS_PER_DAY);
-    const remaining = Math.max(Number.isFinite(amountRemaining) ? amountRemaining : 0, 0);
+    const remaining = roundMoney(Math.max(Number.isFinite(amountRemaining) ? amountRemaining : 0, 0));
 
     if (rawDaysRemaining < 0) {
         return {
@@ -87,9 +88,11 @@ const getOperationStorageAmount = (operation: SavingsOperation, storage?: Saving
 };
 
 export const getSavingsNativeBalance = (operations: SavingsOperation[], currency: CURRENCY, storage?: SavingsStorage) =>
-    operations
-        .filter((operation) => operation.currency === currency)
-        .reduce((total, operation) => total + getOperationStorageAmount(operation, storage), 0);
+    roundMoney(
+        operations
+            .filter((operation) => operation.currency === currency)
+            .reduce((total, operation) => total + getOperationStorageAmount(operation, storage), 0),
+    );
 
 export const convertSavingsCurrency = (
     amount: number,
@@ -119,5 +122,5 @@ export const getSavingsBalance = (
     });
 
     if (converted.some((value) => value === null)) return null;
-    return (converted as number[]).reduce((total, value) => total + value, 0);
+    return roundMoney((converted as number[]).reduce((total, value) => total + value, 0));
 };

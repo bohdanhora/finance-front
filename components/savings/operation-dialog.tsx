@@ -31,6 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { Textarea } from "components/ui/textarea";
 import { convertSavingsCurrency, getSavingsNativeBalance } from "lib/savings";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { roundMoney } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
 
 const operationSchema = z
@@ -99,7 +100,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const convertedBalanceAmount = shouldAffectMainBalance
         ? convertSavingsCurrency(amount, currency, userCurrency, rates)
         : null;
-    const balanceAmount = convertedBalanceAmount === null ? null : Math.round(convertedBalanceAmount * 100) / 100;
+    const balanceAmount = convertedBalanceAmount === null ? null : roundMoney(convertedBalanceAmount);
     const availableInStorage = getSavingsNativeBalance(store.savingsOperations, currency, storage);
     const exceedsStorage =
         type !== SavingsOperationType.DEPOSIT && amount > 0 && availableInStorage + Number.EPSILON < amount;
@@ -171,7 +172,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                 item,
                 affectsMainBalance:
                     values.type === SavingsOperationType.TRANSFER ? undefined : values.affectsMainBalance,
-                balanceAmount: shouldSyncBalance ? Math.round(convertedAmount! * 100) / 100 : undefined,
+                balanceAmount: shouldSyncBalance ? roundMoney(convertedAmount!) : undefined,
             });
             setSavingsGoals(response.updatedGoals);
             setSavingsOperations(response.updatedOperations);

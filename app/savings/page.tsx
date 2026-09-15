@@ -29,6 +29,7 @@ import {
 import { Section } from "components/wrappers/section";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
+import { toMoneyInput } from "lib/money";
 import { AnimatedMoney } from "components/animated-number";
 import { getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
@@ -181,7 +182,7 @@ const SavingsPage = () => {
                 id: crypto.randomUUID(),
                 storage: preferredStorage,
                 currency: goal.currency,
-                amount: String(goal.targetAmount),
+                amount: toMoneyInput(goal.targetAmount),
             },
         ]);
         setDeleteTarget({

@@ -23,6 +23,7 @@ import { DateObjectPicker } from "components/ui/date-picker";
 import { Textarea } from "components/ui/textarea";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { TransactionEnum } from "constants/index";
+import { toMoneyInput } from "lib/money";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 
 const editTransactionSchema = z.object({
@@ -63,7 +64,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
         form.reset(
             transaction
                 ? {
-                      value: String(transaction.value),
+                      value: toMoneyInput(transaction.value),
                       categories: transaction.categorie,
                       savingsStorage: transaction.savingsStorage ?? SavingsStorage.CARD,
                       date: new Date(transaction.date),

@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { toMoneyInput } from "lib/money";
 import { expectedIncomeFormSchema } from "schemas/other";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
@@ -61,7 +62,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
         setEditingId(income.id);
         form.reset(
             {
-                amount: String(income.amount),
+                amount: toMoneyInput(income.amount),
                 title: income.title,
                 day: String(income.day),
                 recurring: income.recurring,

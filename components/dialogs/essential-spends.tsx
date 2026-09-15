@@ -28,6 +28,7 @@ import { PencilIcon, XIcon } from "lucide-react";
 import { useNewEssential, useRemoveEssential, useSetEssentialPayments, useUpdateEssential } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { handleDecimalInputChange } from "lib/utils";
+import { toMoneyInput } from "lib/money";
 import { essentialSpendsFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -73,7 +74,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
         setEditingId(essential.id);
         form.reset(
             {
-                amount: String(essential.amount),
+                amount: toMoneyInput(essential.amount),
                 title: essential.title,
             },
             { keepDefaultValues: true },

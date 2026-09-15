@@ -8,6 +8,7 @@ import { useSetCheckedEssential } from "api/main";
 import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { roundMoney, toMoneyInput } from "lib/money";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
 import { Button } from "ui/button";
@@ -21,8 +22,6 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
-
-const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
 export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: Props) => {
     const t = useTranslations("dialogs.essentials.payment");
@@ -42,7 +41,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
 
     useEffect(() => {
         if (!open || !essential) return;
-        setActualAmount(String(essential.paidAmount ?? essential.amount));
+        setActualAmount(toMoneyInput(essential.paidAmount ?? essential.amount));
         setError(null);
     }, [essential, open]);
 
@@ -135,7 +134,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                     variant="ghost"
                                     className="h-auto px-2 py-1 text-xs"
                                     onClick={() => {
-                                        setActualAmount(String(essential.amount));
+                                        setActualAmount(toMoneyInput(essential.amount));
                                         setError(null);
                                     }}
                                 >

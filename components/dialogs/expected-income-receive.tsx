@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useSetExpectedIncomeReceived } from "api/main";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { roundMoney, toMoneyInput } from "lib/money";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
 import { Button } from "ui/button";
@@ -20,8 +21,6 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
-
-const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
 export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Props) => {
     const t = useTranslations("expectedIncome.receive");
@@ -38,7 +37,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
 
     useEffect(() => {
         if (!open || !income) return;
-        setActualAmount(String(income.receivedAmount ?? income.amount));
+        setActualAmount(toMoneyInput(income.receivedAmount ?? income.amount));
         setAddToBalance(true);
         setError(null);
     }, [income, open]);
@@ -108,7 +107,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     variant="ghost"
                                     className="h-auto px-2 py-1 text-xs"
                                     onClick={() => {
-                                        setActualAmount(String(income.amount));
+                                        setActualAmount(toMoneyInput(income.amount));
                                         setError(null);
                                     }}
                                 >

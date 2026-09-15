@@ -30,6 +30,7 @@ import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { calculateSavingsPace, getSavingsBalance, normalizeGoalUrl } from "lib/savings";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { toMoneyInput } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
 
 const goalSchema = z.object({
@@ -97,7 +98,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
     useEffect(() => {
         if (!open || !savingsPace || savingsPace.isOverdue) return;
 
-        form.setValue("monthlyContribution", String(savingsPace.monthlyAmount), {
+        form.setValue("monthlyContribution", toMoneyInput(savingsPace.monthlyAmount), {
             shouldValidate: true,
         });
     }, [form, open, savingsPace]);
@@ -109,8 +110,8 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
             goal
                 ? {
                       name: goal.name,
-                      targetAmount: String(goal.targetAmount),
-                      monthlyContribution: goal.monthlyContribution ? String(goal.monthlyContribution) : "",
+                      targetAmount: toMoneyInput(goal.targetAmount),
+                      monthlyContribution: goal.monthlyContribution ? toMoneyInput(goal.monthlyContribution) : "",
                       currency: goal.currency,
                       targetDate: goal.targetDate?.slice(0, 10) ?? "",
                       url: goal.url ?? "",
