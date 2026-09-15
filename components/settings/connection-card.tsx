@@ -19,7 +19,7 @@ export const ConnectionCard = ({
     note: string;
     children: React.ReactNode;
 }) => (
-    <div className="border-border/80 from-muted/35 overflow-hidden rounded-2xl border bg-gradient-to-b to-transparent">
+    <div className="border-border/80 bg-card from-muted/35 min-w-0 overflow-hidden rounded-2xl border bg-gradient-to-b to-transparent shadow-sm">
         <div className="flex items-center gap-3 p-4">
             {mark}
             <div className="min-w-0 flex-1">

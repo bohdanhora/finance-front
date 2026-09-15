@@ -281,6 +281,17 @@ export type AllTransactionsInfoResponse = {
     streak?: StreakRecord;
 };
 
+export type AssistantPreferences = {
+    provider: string;
+    models: Record<string, string>;
+    baseUrl: string;
+};
+
+export type ConnectionsResponse = {
+    assistant: AssistantPreferences | null;
+    monobankToken: string | null;
+};
+
 export type StreakRecord = {
     lastVisit: string;
     current: number;

@@ -29,7 +29,7 @@ import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { calculateSavingsPace, getSavingsBalance, normalizeGoalUrl } from "lib/savings";
-import { formatCurrency } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
 const goalSchema = z.object({
@@ -179,7 +179,12 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                     <FormItem>
                                         <FormLabel>{t("targetAmount")}</FormLabel>
                                         <FormControl>
-                                            <Input inputMode="decimal" placeholder="0" {...field} />
+                                            <Input
+                                                inputMode="decimal"
+                                                placeholder="0"
+                                                {...field}
+                                                onChange={handleDecimalInputChange(field.onChange)}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -225,6 +230,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                 readOnly={Boolean(savingsPace && !savingsPace.isOverdue)}
                                                 className="read-only:bg-muted/50 read-only:text-foreground read-only:cursor-default"
                                                 {...field}
+                                                onChange={handleDecimalInputChange(field.onChange)}
                                             />
                                         </FormControl>
                                         <FormMessage />

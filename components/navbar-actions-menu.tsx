@@ -19,7 +19,7 @@ import {
 } from "components/ui/dropdown-menu";
 import { DEFAULT_LOCALE, LANG_COOKIES_NAME, normalizeLocale } from "constants/index";
 import { TOUR_START_EVENT } from "components/onboarding/tour";
-import { SETTINGS_OPEN_EVENT } from "lib/monobank";
+import { Routes } from "constants/routes";
 
 const COOKIE_OPTIONS = { path: "/", expires: 365, sameSite: "lax" } as const;
 
@@ -103,7 +103,7 @@ export const NavbarActionsMenu = ({ logoutPending, onLogout }: NavbarActionsMenu
                 <DropdownMenuSeparator className="my-1.5" />
                 <DropdownMenuItem
                     className="rounded-xl px-2.5 py-2"
-                    onSelect={() => window.dispatchEvent(new Event(SETTINGS_OPEN_EVENT))}
+                    onSelect={() => router.push(Routes.SETTINGS)}
                 >
                     <Settings2 />
                     {t("settings")}

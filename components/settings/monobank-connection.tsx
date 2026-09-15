@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink, Eye, EyeOff, Link2Off, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
+import { useConnectionsActions } from "api/connections";
 import { fetchClientInfo, isRateLimited, isTokenRejected, monobankClientInfoKey } from "api/monobank";
 import { MonoMark } from "components/monobank/mono-mark";
 import { ConnectionCard, KeyField } from "components/settings/connection-card";
@@ -32,10 +33,12 @@ const snapshotOf = (info: MonobankClientInfo): MonobankProfileSnapshot => ({
     jars: info.jars?.length || 0,
 });
 
-export const MonobankConnection = ({ opened, onNavigate }: { opened: boolean; onNavigate: () => void }) => {
+export const MonobankConnection = () => {
     const t = useTranslations("monobank");
     const queryClient = useQueryClient();
     const { token, connected } = useMonobankToken();
+    const { saveMonobankToken: saveTokenToAccount, clearMonobankToken: clearTokenFromAccount } =
+        useConnectionsActions();
 
     const [value, setValue] = useState("");
     const [visible, setVisible] = useState(false);
@@ -44,14 +47,12 @@ export const MonobankConnection = ({ opened, onNavigate }: { opened: boolean; on
     const [profile, setProfile] = useState<MonobankProfileSnapshot | null>(null);
 
     useEffect(() => {
-        if (!opened) return;
-
         setValue("");
         setVisible(false);
         setError(null);
         const cached = queryClient.getQueryData<MonobankClientInfo>(monobankClientInfoKey(token));
         setProfile(cached ? snapshotOf(cached) : readMonobankProfile());
-    }, [opened, queryClient, token]);
+    }, [queryClient, token]);
 
     const connect = async () => {
         const candidate = value.trim();
@@ -67,6 +68,13 @@ export const MonobankConnection = ({ opened, onNavigate }: { opened: boolean; on
         try {
             const fetched = await fetchClientInfo(candidate);
             const snapshot = snapshotOf(fetched);
+
+            try {
+                await saveTokenToAccount(candidate);
+            } catch {
+                setError(t("syncFailed"));
+                return;
+            }
 
             queryClient.setQueryData(monobankClientInfoKey(candidate), fetched);
             saveMonobankToken(candidate);
@@ -87,7 +95,14 @@ export const MonobankConnection = ({ opened, onNavigate }: { opened: boolean; on
         }
     };
 
-    const disconnect = () => {
+    const disconnect = async () => {
+        try {
+            await clearTokenFromAccount();
+        } catch {
+            toast.error(t("syncFailed"));
+            return;
+        }
+
         queryClient.removeQueries({ queryKey: ["monobank"] });
         clearMonobankToken();
         setProfile(null);
@@ -122,13 +137,13 @@ export const MonobankConnection = ({ opened, onNavigate }: { opened: boolean; on
                         </div>
                     )}
                     <div className="flex flex-col gap-2 sm:flex-row">
-                        <Button asChild className="sm:flex-1" onClick={onNavigate}>
+                        <Button asChild className="sm:flex-1">
                             <Link href={Routes.MONOBANK}>
                                 {t("openTab")}
                                 <ArrowRight />
                             </Link>
                         </Button>
-                        <Button variant="secondary" onClick={disconnect}>
+                        <Button variant="secondary" onClick={() => void disconnect()}>
                             <Link2Off />
                             {t("disconnect")}
                         </Button>

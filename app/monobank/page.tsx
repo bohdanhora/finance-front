@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { AlertTriangle, Landmark, Loader2, RefreshCw, Settings2, Wallet } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import Link from "next/link";
 
 import { isRateLimited, isTokenRejected, useMonobankClientInfo, useMonobankStatement } from "api/monobank";
 import { CategoryBreakdown } from "components/monobank/category-breakdown";
@@ -16,6 +17,7 @@ import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
 import { ViewSwitcher } from "components/charts/view-switcher";
 import { Section, StatGrid } from "components/wrappers/section";
+import { Routes } from "constants/routes";
 import { useMonobankToken } from "hooks/use-monobank-token";
 import {
     accountLabel,
@@ -25,7 +27,6 @@ import {
     jarProgress,
     MONOBANK_COOLDOWN_MS,
     saveMonobankProfile,
-    SETTINGS_OPEN_EVENT,
     statementRange,
     summarizeStatement,
 } from "lib/monobank";
@@ -35,8 +36,6 @@ import { GetDataProvider } from "providers/get-data";
 import { MonobankAccount } from "types/monobank";
 
 type Period = "7" | "31";
-
-const openSettings = () => window.dispatchEvent(new Event(SETTINGS_OPEN_EVENT));
 
 const sortAccounts = (accounts: MonobankAccount[]) =>
     [...accounts].sort((a, b) => {
@@ -120,9 +119,11 @@ const MonobankPage = () => {
                             <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
                                 {t("notConnectedHint")}
                             </p>
-                            <Button onClick={openSettings}>
-                                <Settings2 />
-                                {t("openSettings")}
+                            <Button asChild>
+                                <Link href={Routes.SETTINGS}>
+                                    <Settings2 />
+                                    {t("openSettings")}
+                                </Link>
                             </Button>
                         </div>
                     </div>
@@ -167,9 +168,11 @@ const MonobankPage = () => {
                                     variant="secondary"
                                     size="icon"
                                     aria-label={t("openSettings")}
-                                    onClick={openSettings}
+                                    asChild
                                 >
-                                    <Settings2 />
+                                    <Link href={Routes.SETTINGS}>
+                                        <Settings2 />
+                                    </Link>
                                 </Button>
                             </div>
                         </header>

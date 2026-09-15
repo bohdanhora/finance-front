@@ -4,7 +4,6 @@ import { MonobankAccount, MonobankJar, MonobankStatementItem } from "../types/mo
 export const MONOBANK_TOKEN_STORAGE_KEY = "monobank-token";
 export const MONOBANK_PROFILE_STORAGE_KEY = "monobank-profile";
 export const MONOBANK_TOKEN_EVENT = "finance:monobank-token";
-export const SETTINGS_OPEN_EVENT = "finance:open-settings";
 
 export const MONOBANK_COOLDOWN_MS = 60 * 1000;
 export const MONOBANK_MAX_STATEMENT_DAYS = 31;

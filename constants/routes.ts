@@ -7,4 +7,5 @@ export enum Routes {
     STATISTICS = "/statistics",
     SAVINGS = "/savings",
     MONOBANK = "/monobank",
+    SETTINGS = "/settings",
 }

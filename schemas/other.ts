@@ -13,10 +13,21 @@ export const changeDefaultFormSchema = z.object({
     title: z.string().min(1),
 });
 
-export const changeNextMonthFormSchema = z.object({
-    value: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
-    currency: z.string().optional(),
-});
+export const changeNextMonthFormSchema = z
+    .object({
+        rate: z.string(),
+        hours: z.string(),
+        amount: z.string(),
+        currency: z.string().optional(),
+    })
+    .superRefine(({ rate, hours, amount }, ctx) => {
+        const byRate = rate !== "" || hours !== "";
+
+        if (byRate && !amountMorethanZero(rate)) ctx.addIssue({ code: "custom", path: ["rate"] });
+        if (byRate && !amountMorethanZero(hours)) ctx.addIssue({ code: "custom", path: ["hours"] });
+        if (!byRate && !amountMorethanZero(amount)) ctx.addIssue({ code: "custom", path: ["amount"] });
+        if (amount !== "" && !amountRegex.test(amount)) ctx.addIssue({ code: "custom", path: ["amount"] });
+    });
 
 export const setPercentageFormSchema = z.object({
     value: z.string().min(0).regex(amountRegex),
@@ -38,16 +49,6 @@ export const incomeFormSchema = z.object({
     value: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
     description: z.string().optional(),
     date: z.date(),
-});
-
-export const nextMonthIncomeFormSchema = z.object({
-    rate: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
-    hours: z.string().min(1).regex(amountRegex).refine(amountMorethanZero),
-    customValue: z
-        .string()
-        .optional()
-        .refine((val) => !val || amountMorethanZero(val)),
-    currency: z.string().optional(),
 });
 
 export const getIncomeFormSchema = (totalAmount: number) => {

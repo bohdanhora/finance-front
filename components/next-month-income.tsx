@@ -9,7 +9,6 @@ import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
 import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
-import { NextMonthIncomeCalculate } from "./dialogs/next-month-income-calculate";
 import { Percentage } from "./dialogs/percentage";
 import { Section, StatGrid } from "./wrappers/section";
 import { StatCard } from "./stat-card";
@@ -68,7 +67,6 @@ export const NextMonthIncome = () => {
                 <>
                     <EssentialSpends nextMonth />
                     <ChangeNextMonthIncome />
-                    <NextMonthIncomeCalculate />
                 </>
             }
         >

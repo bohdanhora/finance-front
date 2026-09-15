@@ -8,12 +8,14 @@ import { useRouter } from "next/navigation";
 import { Routes } from "constants/routes";
 import { clearCookies } from "lib/logout";
 import { AxiosError } from "axios";
+import { useConnectionsSync } from "hooks/use-connections-sync";
 
 export const GetDataProvider = ({ children }: { children: ReactNode }) => {
     const router = useRouter();
     const [dataHydrated, setDataHydrated] = useState(false);
 
     const { data: allTransactionsData, isPending, error } = useAllTransactionInfo();
+    useConnectionsSync();
 
     useEffect(() => {
         if (error && typeof error === "object" && "response" in error) {

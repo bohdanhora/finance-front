@@ -30,7 +30,7 @@ import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Textarea } from "components/ui/textarea";
 import { convertSavingsCurrency, getSavingsNativeBalance } from "lib/savings";
-import { formatCurrency } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 
 const operationSchema = z
@@ -316,7 +316,12 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                 <FormItem>
                                     <FormLabel>{t("amount")}</FormLabel>
                                     <FormControl>
-                                        <Input inputMode="decimal" placeholder="0" {...field} />
+                                        <Input
+                                            inputMode="decimal"
+                                            placeholder="0"
+                                            {...field}
+                                            onChange={handleDecimalInputChange(field.onChange)}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

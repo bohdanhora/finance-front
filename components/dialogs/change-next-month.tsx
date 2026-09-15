@@ -36,30 +36,28 @@ export const ChangeNextMonthIncome = () => {
 
     const userCurrency = useStore((state) => state.userCurrency);
 
-    const { mutateAsync: setNextMonthAmountAsync } = useSetNextMonthTotalAmount();
+    const { mutateAsync: setNextMonthAmountAsync, isPending } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
 
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs");
 
-    const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
-        resolver: zodResolver(changeNextMonthFormSchema),
-        defaultValues: {
-            value: "",
-            currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
-        },
+    const getEmptyValues = () => ({
+        rate: "",
+        hours: "",
+        amount: "",
+        currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
     });
 
-    const resetForm = () => {
-        form.reset({
-            value: "",
-            currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
-        });
-    };
+    const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
+        resolver: zodResolver(changeNextMonthFormSchema),
+        defaultValues: getEmptyValues(),
+    });
+
+    const byRate = form.watch("rate") !== "" || form.watch("hours") !== "";
 
     const handleOpenChange = (nextOpen: boolean) => {
-        if (!nextOpen) resetForm();
-        if (nextOpen) resetForm();
+        form.reset(getEmptyValues());
         setOpen(nextOpen);
     };
 
@@ -73,14 +71,14 @@ export const ChangeNextMonthIncome = () => {
                     return value * usdRate;
                 case "€":
                     return value * eurRate;
-                case "₴":
-                    return value;
                 default:
                     return value;
             }
         };
 
-        const valueInUah = convertToUah(Number(values.value), values.currency || currencyArray[0]);
+        const fromRate = values.rate !== "" ? Number(values.rate) * Number(values.hours) : 0;
+        const total = fromRate + (Number(values.amount) || 0);
+        const valueInUah = convertToUah(total, values.currency || currencyArray[0]);
 
         try {
             store.setNextMonthTotalAmount(valueInUah);
@@ -89,8 +87,7 @@ export const ChangeNextMonthIncome = () => {
                 nextMonthTotalAmount: valueInUah,
             });
 
-            resetForm();
-            setOpen(false);
+            handleOpenChange(false);
 
             toast.success(
                 tGlobal("toasts.nextMonthIcomeChanged", {
@@ -103,6 +100,7 @@ export const ChangeNextMonthIncome = () => {
             toast.error(t("changeNextMonthIncomeError"));
         }
     };
+
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
@@ -113,19 +111,57 @@ export const ChangeNextMonthIncome = () => {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("expectedIncome")}</DialogTitle>
-                            <DialogDescription>{t("planNextMonth")}</DialogDescription>
+                            <DialogDescription>{t("nextMonthIncomeHint")}</DialogDescription>
                         </DialogHeader>
-                        <div className="grid w-full grid-cols-[minmax(0,1fr)_5.5rem] items-end gap-3">
+                        <div className="grid w-full grid-cols-2 gap-3">
                             <FormField
                                 control={form.control}
-                                name="value"
+                                name="rate"
                                 render={({ field }) => (
-                                    <FormItem className={twMerge(userCurrency !== CURRENCY.UAH && "col-span-2")}>
-                                        <FormLabel>{t("inputIncome")}</FormLabel>
+                                    <FormItem>
+                                        <FormLabel>{t("rate")}</FormLabel>
                                         <FormControl>
                                             <Input
                                                 inputMode="decimal"
-                                                placeholder={t("inputIncome")}
+                                                placeholder={t("optional")}
+                                                {...field}
+                                                onChange={handleDecimalInputChange(field.onChange)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="hours"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("hours")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                inputMode="decimal"
+                                                placeholder={t("optional")}
+                                                {...field}
+                                                onChange={handleDecimalInputChange(field.onChange)}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="grid w-full grid-cols-[minmax(0,1fr)_5.5rem] items-end gap-3">
+                            <FormField
+                                control={form.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem className={twMerge(userCurrency !== CURRENCY.UAH && "col-span-2")}>
+                                        <FormLabel>{byRate ? t("additionalAmount") : t("fixedAmount")}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                inputMode="decimal"
+                                                placeholder={byRate ? t("optional") : t("inputIncome")}
                                                 className="w-full"
                                                 {...field}
                                                 onChange={handleDecimalInputChange(field.onChange)}
@@ -172,6 +208,7 @@ export const ChangeNextMonthIncome = () => {
                             </DialogClose>
                             <Button
                                 type="submit"
+                                disabled={isPending}
                                 className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
                             >
                                 {t("submit")}

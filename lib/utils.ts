@@ -111,7 +111,7 @@ export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
 
 export const handleDecimalInputChange =
     (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
+        const val = e.target.value.replace(",", ".");
 
         if (val === "") {
             fieldOnChange(val);

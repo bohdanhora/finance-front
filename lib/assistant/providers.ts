@@ -95,7 +95,7 @@ export const supportsEffort = (model: string) => EFFORT_MODELS.includes(model);
 
 export const supportsFallbacks = (model: string) => FALLBACK_MODELS.includes(model);
 
-export const usableModels = (ids: string[], preferred: string[] = [], limit = 60) => {
+export const usableModels = (ids: string[], preferred: string[] = [], limit = 1000) => {
     const skipped = /embed|whisper|tts|dall-e|image|audio|moderation|rerank|vision-preview|realtime|search/i;
 
     const available = [...new Set(ids)].filter((id) => id && !skipped.test(id));

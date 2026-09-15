@@ -1,3 +1,4 @@
+import type { AssistantPreferences } from "../../types/transactions";
 import { type AssistantProviderId, DEFAULT_PROVIDER_ID, getProvider, isProviderId } from "./providers";
 
 export const ASSISTANT_KEYS_STORAGE_KEY = "assistant-keys";
@@ -94,6 +95,48 @@ export const saveModel = (providerId: string, model: string) => {
         ...readRecord<string>(ASSISTANT_MODELS_STORAGE_KEY),
         [providerId]: model.trim(),
     });
+    announce();
+};
+
+export const readStoredModel = (providerId: string): string =>
+    readRecord<string>(ASSISTANT_MODELS_STORAGE_KEY)[providerId] || "";
+
+export const readAssistantPreferences = (): AssistantPreferences => ({
+    provider: readProviderId(),
+    models: readRecord<string>(ASSISTANT_MODELS_STORAGE_KEY),
+    baseUrl: readBaseUrl(),
+});
+
+export const hasAssistantPreferences = () => {
+    try {
+        return (
+            Boolean(localStorage.getItem(ASSISTANT_PROVIDER_STORAGE_KEY)) ||
+            Object.keys(readRecord<string>(ASSISTANT_MODELS_STORAGE_KEY)).length > 0
+        );
+    } catch {
+        return false;
+    }
+};
+
+export const applyAssistantPreferences = (preferences: AssistantPreferences) => {
+    const current = readAssistantPreferences();
+    const provider = isProviderId(preferences.provider) ? preferences.provider : DEFAULT_PROVIDER_ID;
+    const models = preferences.models && typeof preferences.models === "object" ? preferences.models : {};
+    const baseUrl = preferences.baseUrl || "";
+
+    if (
+        current.provider === provider &&
+        current.baseUrl === baseUrl &&
+        JSON.stringify(current.models) === JSON.stringify(models)
+    ) {
+        return;
+    }
+
+    try {
+        localStorage.setItem(ASSISTANT_PROVIDER_STORAGE_KEY, provider);
+        localStorage.setItem(ASSISTANT_BASE_URL_STORAGE_KEY, baseUrl);
+    } catch {}
+    writeRecord(ASSISTANT_MODELS_STORAGE_KEY, models);
     announce();
 };
 
