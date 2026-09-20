@@ -20,9 +20,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { handleFrom1To100InputChange } from "lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { setPercentageFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { Edit2Icon } from "lucide-react";
 import { useSavePercent } from "api/main";
 
@@ -36,8 +37,11 @@ export const Percentage = () => {
 
     const { mutateAsync: savePercent, isPending: percentPending } = useSavePercent();
 
-    const form = useForm<z.infer<typeof setPercentageFormSchema>>({
-        resolver: zodResolver(setPercentageFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => setPercentageFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             value: "",
         },
@@ -50,7 +54,7 @@ export const Percentage = () => {
         setOpen(nextOpen);
     };
 
-    const onSubmit = async (values: z.infer<typeof setPercentageFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             store.setPercentage(Number(values.value));
             await savePercent({ percent: Number(values.value) });

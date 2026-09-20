@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,7 @@ import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { expectedIncomeFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
 import { Button } from "ui/button";
@@ -32,7 +33,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { Input } from "ui/input";
 
-type FormValues = z.infer<typeof expectedIncomeFormSchema>;
+type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
 const getEmptyValues = (): FormValues => ({ amount: "", title: "", day: "", recurring: true });
 
@@ -48,8 +49,11 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
 
     const symbol = getCurrencySymbol(store.userCurrency);
 
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => expectedIncomeFormSchema(validationMessages), [validationMessages]);
+
     const form = useForm<FormValues>({
-        resolver: zodResolver(expectedIncomeFormSchema),
+        resolver: zodResolver(formSchema),
         defaultValues: getEmptyValues(),
     });
 

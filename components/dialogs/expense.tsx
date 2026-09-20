@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useStore from "store/general";
 
 import { z } from "zod";
@@ -31,8 +31,9 @@ import { useSetNewTransaction } from "api/main";
 import { TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
-import { getIncomeFormSchema } from "schemas/other";
+import { getExpenseFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
+import { useValidationMessages } from "lib/validation";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { DateObjectPicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
@@ -43,12 +44,20 @@ export const ExpenseDialogComponent = () => {
     const userCurrency = store.userCurrency;
 
     const t = useTranslations();
+    const validationMessages = useValidationMessages();
 
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
 
     const [open, setOpen] = useState(false);
 
-    const formSchema = getIncomeFormSchema(store.totalAmount);
+    const formSchema = useMemo(
+        () =>
+            getExpenseFormSchema(validationMessages, {
+                totalAmount: store.totalAmount,
+                balanceLabel: `${formatCurrency(store.totalAmount)} ${getCurrencySymbol(userCurrency)}`,
+            }),
+        [store.totalAmount, userCurrency, validationMessages],
+    );
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

@@ -23,9 +23,10 @@ import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { changeNextMonthFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { CURRENCY, currencyArray } from "constants/index";
 import useBankStore from "store/bank";
 import { getCurrencySymbol } from "lib/currency";
@@ -49,8 +50,11 @@ export const ChangeNextMonthIncome = () => {
         currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
     });
 
-    const form = useForm<z.infer<typeof changeNextMonthFormSchema>>({
-        resolver: zodResolver(changeNextMonthFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => changeNextMonthFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: getEmptyValues(),
     });
 
@@ -61,7 +65,7 @@ export const ChangeNextMonthIncome = () => {
         setOpen(nextOpen);
     };
 
-    const onSubmit = async (values: z.infer<typeof changeNextMonthFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const usdRate = bankStore.usd?.rateBuy ?? 0;
         const eurRate = bankStore.eur?.rateBuy ?? 0;
 

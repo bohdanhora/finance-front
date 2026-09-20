@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { SavingsStorage, TransactionType } from "types/transactions";
 import {
@@ -24,21 +24,15 @@ import { Textarea } from "components/ui/textarea";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { TransactionEnum } from "constants/index";
 import { toMoneyInput } from "lib/money";
+import { useValidationMessages } from "lib/validation";
+import { editTransactionFormSchema } from "schemas/other";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-
-const editTransactionSchema = z.object({
-    value: z.string().min(1),
-    categories: z.string().trim().min(1).max(40),
-    savingsStorage: z.nativeEnum(SavingsStorage),
-    date: z.date(),
-    description: z.string().optional(),
-});
 
 interface Props {
     transaction: TransactionType | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSubmit: (data: z.infer<typeof editTransactionSchema>) => Promise<void>;
+    onSubmit: (data: z.infer<ReturnType<typeof editTransactionFormSchema>>) => Promise<void>;
 }
 
 const getEmptyTransactionValues = () => ({
@@ -51,9 +45,12 @@ const getEmptyTransactionValues = () => ({
 
 export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmit }: Props) => {
     const t = useTranslations();
+    const validationMessages = useValidationMessages();
 
-    const form = useForm<z.infer<typeof editTransactionSchema>>({
-        resolver: zodResolver(editTransactionSchema),
+    const formSchema = useMemo(() => editTransactionFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: getEmptyTransactionValues(),
     });
     const selectedCategory = form.watch("categories");
@@ -80,7 +77,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
         onOpenChange(nextOpen);
     };
 
-    const handleSubmit = async (data: z.infer<typeof editTransactionSchema>) => {
+    const handleSubmit = async (data: z.infer<typeof formSchema>) => {
         await onSubmit(data);
         form.reset(getEmptyTransactionValues());
         onOpenChange(false);

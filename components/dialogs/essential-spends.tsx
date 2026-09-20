@@ -30,9 +30,10 @@ import { v4 as uuidv4 } from "uuid";
 import { handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { essentialSpendsFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EssentialType } from "types/transactions";
 import { EssentialPaymentDialog } from "./essential-payment";
 
@@ -60,8 +61,11 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
 
     const arrayEssentials = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
 
-    const form = useForm<z.infer<typeof essentialSpendsFormSchema>>({
-        resolver: zodResolver(essentialSpendsFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => essentialSpendsFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: getEmptyEssentialValues(),
     });
 
@@ -140,7 +144,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
         }
     };
 
-    const onSubmit = async (values: z.infer<typeof essentialSpendsFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             if (editingId) {
                 const essential = arrayEssentials.find(({ id }) => id === editingId);

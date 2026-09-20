@@ -32,17 +32,23 @@ import { calculateSavingsPace, getSavingsBalance, normalizeGoalUrl } from "lib/s
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
+import { ValidationMessages, useValidationMessages } from "lib/validation";
 
-const goalSchema = z.object({
-    name: z.string().trim().min(1).max(80),
-    targetAmount: z.string().refine((value) => Number(value) > 0),
-    monthlyContribution: z.string().refine((value) => value === "" || Number(value) >= 0),
-    currency: z.nativeEnum(CURRENCY),
-    targetDate: z.string(),
-    url: z.string().refine((value) => value.trim() === "" || normalizeGoalUrl(value) !== null),
-});
+const getGoalSchema = (messages: ValidationMessages) =>
+    z.object({
+        name: z.string().trim().min(1, messages.title).max(80, messages.titleTooLong(80)),
+        targetAmount: z.string().refine((value) => Number(value) > 0, { message: messages.amount }),
+        monthlyContribution: z
+            .string()
+            .refine((value) => value === "" || Number(value) >= 0, { message: messages.amount }),
+        currency: z.nativeEnum(CURRENCY, messages.currency),
+        targetDate: z.string(),
+        url: z.string().refine((value) => value.trim() === "" || normalizeGoalUrl(value) !== null, {
+            message: messages.url,
+        }),
+    });
 
-type GoalFormValues = z.infer<typeof goalSchema>;
+type GoalFormValues = z.infer<ReturnType<typeof getGoalSchema>>;
 
 const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
     name: "",
@@ -70,6 +76,9 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
     const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const { mutateAsync: addGoal, isPending: adding } = useAddSavingsGoal();
     const { mutateAsync: updateGoal, isPending: updating } = useUpdateSavingsGoal();
+
+    const validationMessages = useValidationMessages();
+    const goalSchema = useMemo(() => getGoalSchema(validationMessages), [validationMessages]);
 
     const form = useForm<GoalFormValues>({
         resolver: zodResolver(goalSchema),

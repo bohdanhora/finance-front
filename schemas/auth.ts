@@ -24,7 +24,7 @@ export const loginSchema = (t: ReturnType<typeof import("next-intl").useTranslat
             .email({
                 message: t("errors.email"),
             })
-            .min(2),
+            .min(2, { message: t("errors.email") }),
         password: z.string().min(2, {
             message: t("errors.password"),
         }),
@@ -37,7 +37,7 @@ export const forgotPasswordSchema = (t: ReturnType<typeof import("next-intl").us
             .email({
                 message: t("errors.email"),
             })
-            .min(2),
+            .min(2, { message: t("errors.email") }),
     });
 
 export const resetPasswordSchema = (t: ReturnType<typeof import("next-intl").useTranslations>) =>

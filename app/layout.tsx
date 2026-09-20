@@ -8,6 +8,7 @@ import { twMerge } from "tailwind-merge";
 
 import { ProviderTheme } from "providers/theme";
 import { ToastProvider } from "providers/toast";
+import { ValidationProvider } from "providers/validation";
 
 import "./globals.css";
 import { ReactQueryProvider } from "providers/react-query";
@@ -51,14 +52,16 @@ const RootLayout = async ({
                 )}
             >
                 <NextIntlClientProvider messages={messages}>
-                    <ReactQueryProvider>
-                        <ProviderTheme>
-                            <main>{children}</main>
-                            <KeyboardInset />
-                            <DesktopCalculator />
-                            <ToastProvider />
-                        </ProviderTheme>
-                    </ReactQueryProvider>
+                    <ValidationProvider>
+                        <ReactQueryProvider>
+                            <ProviderTheme>
+                                <main>{children}</main>
+                                <KeyboardInset />
+                                <DesktopCalculator />
+                                <ToastProvider />
+                            </ProviderTheme>
+                        </ReactQueryProvider>
+                    </ValidationProvider>
                 </NextIntlClientProvider>
             </body>
         </html>

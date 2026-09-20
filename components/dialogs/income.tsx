@@ -26,9 +26,10 @@ import { twMerge } from "tailwind-merge";
 import { useSetNewTransaction } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { TransactionEnum } from "constants/index";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { incomeFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
 import { DateObjectPicker } from "components/ui/date-picker";
 
@@ -42,8 +43,11 @@ export const IncomeDialogComponent = () => {
 
     const [open, setOpen] = useState(false);
 
-    const form = useForm<z.infer<typeof incomeFormSchema>>({
-        resolver: zodResolver(incomeFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => incomeFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             value: "",
             description: "",
@@ -60,7 +64,7 @@ export const IncomeDialogComponent = () => {
         setOpen(nextOpen);
     };
 
-    const onSubmit = async (values: z.infer<typeof incomeFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         const createTransaction = {
             transactionType: TransactionEnum.INCOME,
             id: uuidv4(),

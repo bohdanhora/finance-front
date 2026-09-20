@@ -28,9 +28,10 @@ import { toast } from "react-toastify";
 import { handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { changeDefaultFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EssentialType } from "types/transactions";
 
 const getEmptyEssentialValues = () => ({ amount: "", title: "" });
@@ -51,8 +52,11 @@ export const ChangeDefaultEssentials = () => {
 
     const t = useTranslations("dialogs");
 
-    const form = useForm<z.infer<typeof changeDefaultFormSchema>>({
-        resolver: zodResolver(changeDefaultFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => changeDefaultFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: getEmptyEssentialValues(),
     });
 
@@ -85,7 +89,7 @@ export const ChangeDefaultEssentials = () => {
         }
     };
 
-    const onSubmit = async (values: z.infer<typeof changeDefaultFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             if (editingId) {
                 const essential = arrayEssentials.find(({ id }) => id === editingId);

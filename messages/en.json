@@ -43,6 +43,28 @@
         "apiFailed": "Monobank API request failed. Please try again later.",
         "noUserId": "User ID is missing."
     },
+    "validation": {
+        "required": "Fill in this field.",
+        "invalidValue": "Enter a valid value.",
+        "amount": "Enter an amount greater than zero.",
+        "amountFormat": "Use digits and up to two decimals, for example 1250.50.",
+        "notEnoughFunds": "Your balance only has {amount}.",
+        "title": "Enter a name.",
+        "titleTooLong": "Keep the name within {max} characters.",
+        "category": "Choose a category.",
+        "date": "Choose a date.",
+        "futureDate": "A future date cannot be used.",
+        "percent": "Enter a number from 0 to 100.",
+        "day": "Enter a day of the month from 1 to 31.",
+        "rate": "Enter an hourly rate greater than zero.",
+        "hours": "Enter the number of hours greater than zero.",
+        "exchangeRate": "Enter an exchange rate greater than zero.",
+        "url": "Enter a full link, for example https://shop.com/item.",
+        "storage": "Choose where the money is kept.",
+        "currency": "Choose a currency.",
+        "sameStorage": "Choose a different place to move the money to.",
+        "note": "Keep the note within {max} characters."
+    },
     "toasts": {
         "noMoney": "You can't spend more than you have :(",
         "addedIncome": "Successfully added {amount} {currency}",

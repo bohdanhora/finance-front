@@ -33,23 +33,26 @@ import { convertSavingsCurrency, getSavingsNativeBalance } from "lib/savings";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
+import { ValidationMessages, useValidationMessages } from "lib/validation";
 
-const operationSchema = z
-    .object({
-        type: z.nativeEnum(SavingsOperationType),
-        storage: z.nativeEnum(SavingsStorage),
-        destinationStorage: z.nativeEnum(SavingsStorage),
-        amount: z.string().refine((value) => Number(value) > 0),
-        currency: z.nativeEnum(CURRENCY),
-        affectsMainBalance: z.boolean(),
-        date: z.string().min(1),
-        note: z.string().max(160),
-    })
-    .refine((values) => values.type !== SavingsOperationType.TRANSFER || values.storage !== values.destinationStorage, {
-        path: ["destinationStorage"],
-    });
+const getOperationSchema = (messages: ValidationMessages) =>
+    z
+        .object({
+            type: z.nativeEnum(SavingsOperationType, messages.required),
+            storage: z.nativeEnum(SavingsStorage, messages.storage),
+            destinationStorage: z.nativeEnum(SavingsStorage, messages.storage),
+            amount: z.string().refine((value) => Number(value) > 0, { message: messages.amount }),
+            currency: z.nativeEnum(CURRENCY, messages.currency),
+            affectsMainBalance: z.boolean(),
+            date: z.string().min(1, messages.date),
+            note: z.string().max(160, messages.note(160)),
+        })
+        .refine(
+            (values) => values.type !== SavingsOperationType.TRANSFER || values.storage !== values.destinationStorage,
+            { path: ["destinationStorage"], message: messages.sameStorage },
+        );
 
-type OperationFormValues = z.infer<typeof operationSchema>;
+type OperationFormValues = z.infer<ReturnType<typeof getOperationSchema>>;
 
 const getEmptyValues = (currency: CURRENCY): OperationFormValues => ({
     type: SavingsOperationType.DEPOSIT,
@@ -77,6 +80,9 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
     const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const { mutateAsync: addOperation, isPending } = useAddSavingsOperation();
+
+    const validationMessages = useValidationMessages();
+    const operationSchema = useMemo(() => getOperationSchema(validationMessages), [validationMessages]);
 
     const form = useForm<OperationFormValues>({
         resolver: zodResolver(operationSchema),

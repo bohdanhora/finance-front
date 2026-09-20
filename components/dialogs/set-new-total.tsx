@@ -20,9 +20,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { handleDecimalInputChange } from "lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { setPercentageFormSchema } from "schemas/other";
+import { setTotalFormSchema } from "schemas/other";
+import { useValidationMessages } from "lib/validation";
 import { Pencil } from "lucide-react";
 import { useSetTotalAmount } from "api/main";
 
@@ -36,8 +37,11 @@ export const SetTotalDialog = () => {
 
     const { mutateAsync: setTotalAsync, isPending: setTotalPending } = useSetTotalAmount();
 
-    const form = useForm<z.infer<typeof setPercentageFormSchema>>({
-        resolver: zodResolver(setPercentageFormSchema),
+    const validationMessages = useValidationMessages();
+    const formSchema = useMemo(() => setTotalFormSchema(validationMessages), [validationMessages]);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             value: "",
         },
@@ -50,7 +54,7 @@ export const SetTotalDialog = () => {
         setOpen(nextOpen);
     };
 
-    const onSubmit = async (values: z.infer<typeof setPercentageFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             await setTotalAsync({ totalAmount: Number(values.value) });
             store.setTotalAmount(Number(values.value));
