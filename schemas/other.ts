@@ -1,8 +1,10 @@
 import z from "zod";
+import { CURRENCY } from "constants/index";
 import { SavingsStorage } from "types/transactions";
 import { ValidationMessages } from "lib/validation";
 
 const amountRegex = /^(0|[1-9]\d*)(\.\d{0,2})?$/;
+const rateRegex = /^(0|[1-9]\d*)(\.\d{0,4})?$/;
 
 const amountMorethanZero = (val?: string) => {
     const num = Number(val);
@@ -80,27 +82,46 @@ export const incomeFormSchema = (messages: ValidationMessages) =>
 type ExpenseSchemaOptions = {
     totalAmount: number;
     balanceLabel: string;
+    userCurrency: CURRENCY;
 };
 
 export const getExpenseFormSchema = (
     messages: ValidationMessages,
-    { totalAmount, balanceLabel }: ExpenseSchemaOptions,
+    { totalAmount, balanceLabel, userCurrency }: ExpenseSchemaOptions,
 ) =>
-    z.object({
-        value: amountField(messages).refine((val) => Number(val) <= totalAmount, {
-            message: messages.notEnoughFunds(balanceLabel),
-        }),
-        description: z.string().optional(),
-        categories: z.string().trim().min(1, messages.category).max(40, messages.category),
-        savingsStorage: z.nativeEnum(SavingsStorage, messages.storage),
-        date: z.date(messages.date),
-    });
+    z
+        .object({
+            value: amountField(messages).refine((val) => Number(val) <= totalAmount, {
+                message: messages.notEnoughFunds(balanceLabel),
+            }),
+            description: z.string().optional(),
+            categories: z.string().trim().min(1, messages.category).max(40, messages.category),
+            savingsStorage: z.nativeEnum(SavingsStorage, messages.storage),
+            savingsCurrency: z.nativeEnum(CURRENCY, messages.currency),
+            savingsRate: z.string(),
+            date: z.date(messages.date),
+        })
+        .superRefine(({ categories, savingsCurrency, savingsRate }, ctx) => {
+            if (categories !== "savings" || savingsCurrency === userCurrency) return;
 
-export const editTransactionFormSchema = (messages: ValidationMessages) =>
-    z.object({
-        value: amountField(messages),
-        categories: z.string().trim().min(1, messages.category).max(40, messages.category),
-        savingsStorage: z.nativeEnum(SavingsStorage, messages.storage),
-        date: z.date(messages.date),
-        description: z.string().optional(),
-    });
+            if (!rateRegex.test(savingsRate) || !amountMorethanZero(savingsRate))
+                ctx.addIssue({ code: "custom", path: ["savingsRate"], message: messages.exchangeRate });
+        });
+
+export const editTransactionFormSchema = (messages: ValidationMessages, userCurrency: CURRENCY) =>
+    z
+        .object({
+            value: amountField(messages),
+            categories: z.string().trim().min(1, messages.category).max(40, messages.category),
+            savingsStorage: z.nativeEnum(SavingsStorage, messages.storage),
+            savingsCurrency: z.nativeEnum(CURRENCY, messages.currency),
+            savingsRate: z.string(),
+            date: z.date(messages.date),
+            description: z.string().optional(),
+        })
+        .superRefine(({ categories, savingsCurrency, savingsRate }, ctx) => {
+            if (categories !== "savings" || savingsCurrency === userCurrency) return;
+
+            if (!rateRegex.test(savingsRate) || !amountMorethanZero(savingsRate))
+                ctx.addIssue({ code: "custom", path: ["savingsRate"], message: messages.exchangeRate });
+        });

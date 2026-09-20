@@ -92,6 +92,7 @@ export type TransactionType = {
     id: string;
     savingsStorage?: SavingsStorage;
     savingsCurrency?: CURRENCY;
+    savingsAmount?: number;
     savingsOperationId?: string;
 };
 
@@ -184,6 +185,7 @@ export type NewTransactionPaymentsPayload = {
     description: string;
     savingsStorage?: SavingsStorage;
     savingsCurrency?: CURRENCY;
+    savingsAmount?: number;
 };
 
 export type NewTransactionResponseType = {
@@ -369,6 +371,7 @@ export type UpdateTransactionPayload = {
     description?: string;
     savingsStorage?: SavingsStorage;
     savingsCurrency?: CURRENCY;
+    savingsAmount?: number;
 };
 
 export type UpdateTransactionResponseType = {

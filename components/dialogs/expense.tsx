@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useStore from "store/general";
+import useBankStore from "store/bank";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,11 +29,13 @@ import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { toast } from "react-toastify";
 import { useSetNewTransaction } from "api/main";
-import { TransactionEnum } from "constants/index";
+import { CURRENCY, TransactionEnum } from "constants/index";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import { getExpenseFormSchema } from "schemas/other";
 import { getCurrencySymbol } from "lib/currency";
+import { getExchangeRate } from "lib/savings";
+import { roundMoney, toRateInput } from "lib/money";
 import { useValidationMessages } from "lib/validation";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { DateObjectPicker } from "components/ui/date-picker";
@@ -42,6 +45,8 @@ import { SavingsStorage } from "types/transactions";
 export const ExpenseDialogComponent = () => {
     const store = useStore();
     const userCurrency = store.userCurrency;
+    const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
+    const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
 
     const t = useTranslations();
     const validationMessages = useValidationMessages();
@@ -50,37 +55,58 @@ export const ExpenseDialogComponent = () => {
 
     const [open, setOpen] = useState(false);
 
+    const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
+
     const formSchema = useMemo(
         () =>
             getExpenseFormSchema(validationMessages, {
                 totalAmount: store.totalAmount,
                 balanceLabel: `${formatCurrency(store.totalAmount)} ${getCurrencySymbol(userCurrency)}`,
+                userCurrency,
             }),
         [store.totalAmount, userCurrency, validationMessages],
     );
 
+    const getEmptyValues = () => ({
+        value: "",
+        description: "",
+        categories: "",
+        savingsStorage: SavingsStorage.CARD,
+        savingsCurrency: userCurrency,
+        savingsRate: "",
+        date: new Date(),
+    });
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            value: "",
-            description: "",
-            categories: "",
-            savingsStorage: SavingsStorage.CARD,
-            date: new Date(),
-        },
+        defaultValues: getEmptyValues(),
     });
 
     const resetForm = () => {
-        form.reset({
-            value: "",
-            description: "",
-            categories: "",
-            savingsStorage: SavingsStorage.CARD,
-            date: new Date(),
-        });
+        form.reset(getEmptyValues());
     };
 
+    const selectedCategory = form.watch("categories");
+    const savingsCurrency = form.watch("savingsCurrency");
+    const savingsRate = form.watch("savingsRate");
+    const value = Number(form.watch("value")) || 0;
+
+    const currentRate = savingsCurrency === userCurrency ? 1 : getExchangeRate(savingsCurrency, userCurrency, rates);
+    const currentRateInput = currentRate ? toRateInput(currentRate) : "";
+    const enteredRate = Number(savingsRate) || 0;
+    const savedAmount = enteredRate > 0 ? roundMoney(value / enteredRate) : 0;
+
+    useEffect(() => {
+        if (savingsCurrency === userCurrency) return;
+        form.setValue("savingsRate", currentRateInput, { shouldValidate: true });
+    }, [currentRateInput, form, savingsCurrency, userCurrency]);
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        const isSavings = values.categories === "savings";
+        const rate = Number(values.savingsRate) || 0;
+        const convertedAmount =
+            isSavings && values.savingsCurrency !== userCurrency ? roundMoney(Number(values.value) / rate) : undefined;
+
         const createTransaction = {
             transactionType: TransactionEnum.EXPENSE,
             id: uuidv4(),
@@ -88,8 +114,9 @@ export const ExpenseDialogComponent = () => {
             date: values.date,
             categorie: values.categories,
             description: values.description || "",
-            savingsStorage: values.categories === "savings" ? values.savingsStorage : undefined,
-            savingsCurrency: values.categories === "savings" ? userCurrency : undefined,
+            savingsStorage: isSavings ? values.savingsStorage : undefined,
+            savingsCurrency: isSavings ? values.savingsCurrency : undefined,
+            savingsAmount: convertedAmount,
         };
 
         try {
@@ -102,7 +129,7 @@ export const ExpenseDialogComponent = () => {
             store.setSavingsOperations(response.updatedSavingsOperations);
 
             toast.success(
-                t(values.categories === "savings" ? "toasts.movedToSavings" : "toasts.addedExpense", {
+                t(isSavings ? "toasts.movedToSavings" : "toasts.addedExpense", {
                     amount: formatCurrency(Number(values.value)),
                     currency: getCurrencySymbol(userCurrency),
                 }),
@@ -115,8 +142,6 @@ export const ExpenseDialogComponent = () => {
             toast.error(t("toasts.errorOccurred") || "Error occurred");
         }
     };
-
-    const selectedCategory = form.watch("categories");
 
     const handleOpenChange = (isOpen: boolean) => {
         if (store.totalAmount <= 0 && isOpen) {
@@ -185,30 +210,111 @@ export const ExpenseDialogComponent = () => {
                                         {t("dialogs.savingsExpenseHint")}
                                     </p>
                                 </div>
-                                <FormField
-                                    control={form.control}
-                                    name="savingsStorage"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t("savings.storage")}</FormLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsStorage"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("savings.storage")}</FormLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {Object.values(SavingsStorage).map((storage) => (
+                                                            <SelectItem key={storage} value={storage}>
+                                                                {t(`savings.${storage}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsCurrency"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.savingsCurrency")}</FormLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {Object.values(CURRENCY).map((currency) => (
+                                                            <SelectItem key={currency} value={currency}>
+                                                                {t(`navbar.${currency}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                {savingsCurrency !== userCurrency && (
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsRate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.savingsRate")}</FormLabel>
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
+                                                    <Input
+                                                        inputMode="decimal"
+                                                        placeholder={currentRateInput || "0"}
+                                                        {...field}
+                                                        onChange={handleDecimalInputChange(field.onChange, 4)}
+                                                    />
                                                 </FormControl>
-                                                <SelectContent>
-                                                    {Object.values(SavingsStorage).map((storage) => (
-                                                        <SelectItem key={storage} value={storage}>
-                                                            {t(`savings.${storage}`)}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                                                    <span>
+                                                        {t("dialogs.savingsRateHint", {
+                                                            currency: getCurrencySymbol(savingsCurrency),
+                                                            rate: field.value || "?",
+                                                            base: getCurrencySymbol(userCurrency),
+                                                        })}
+                                                    </span>
+                                                    {currentRateInput ? (
+                                                        field.value !== currentRateInput && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    form.setValue("savingsRate", currentRateInput, {
+                                                                        shouldValidate: true,
+                                                                    })
+                                                                }
+                                                                className="text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
+                                                            >
+                                                                {t("dialogs.savingsRateCurrent", {
+                                                                    rate: currentRateInput,
+                                                                })}
+                                                            </button>
+                                                        )
+                                                    ) : (
+                                                        <span>{t("dialogs.savingsRateUnavailable")}</span>
+                                                    )}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+                                {savingsCurrency !== userCurrency && savedAmount > 0 && (
+                                    <p className="text-sm font-medium">
+                                        {t("dialogs.savingsConverted", {
+                                            amount: `${formatCurrency(savedAmount)} ${getCurrencySymbol(savingsCurrency)}`,
+                                        })}
+                                    </p>
+                                )}
                             </div>
                         )}
                         <FormField

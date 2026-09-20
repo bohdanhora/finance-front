@@ -107,7 +107,8 @@ export const showAxiosError = (error: AxiosError<ErrorResponse>) => {
 };
 
 export const handleDecimalInputChange =
-    (fieldOnChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (fieldOnChange: (value: string) => void, decimals = 2) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.replace(",", ".");
 
         if (val === "") {
@@ -115,7 +116,7 @@ export const handleDecimalInputChange =
             return;
         }
 
-        if (!/^(0|[1-9]\d*)(\.\d{0,2})?$/.test(val)) return;
+        if (!new RegExp(`^(0|[1-9]\\d*)(\\.\\d{0,${decimals}})?$`).test(val)) return;
 
         fieldOnChange(val);
     };

@@ -386,7 +386,8 @@ export const LastSpends = () => {
                         description: data.description || "",
                         transactionType: editingTx.transactionType,
                         savingsStorage: data.categories === "savings" ? data.savingsStorage : undefined,
-                        savingsCurrency: data.categories === "savings" ? userCurrency : undefined,
+                        savingsCurrency: data.categories === "savings" ? data.savingsCurrency : undefined,
+                        savingsAmount: data.savingsAmount,
                     };
 
                     const res = await updateTransaction(payload);

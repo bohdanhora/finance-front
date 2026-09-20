@@ -124,3 +124,6 @@ export const getSavingsBalance = (
     if (converted.some((value) => value === null)) return null;
     return roundMoney((converted as number[]).reduce((total, value) => total + value, 0));
 };
+
+export const getExchangeRate = (from: CURRENCY, to: CURRENCY, rates: ExchangeRates): number | null =>
+    convertSavingsCurrency(1, from, to, rates);

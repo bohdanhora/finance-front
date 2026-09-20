@@ -22,38 +22,66 @@ import { Button } from "components/ui/button";
 import { DateObjectPicker } from "components/ui/date-picker";
 import { Textarea } from "components/ui/textarea";
 import { CategoryCombobox } from "components/categories/category-combobox";
-import { TransactionEnum } from "constants/index";
-import { toMoneyInput } from "lib/money";
+import { CURRENCY, TransactionEnum } from "constants/index";
+import { roundMoney, toMoneyInput, toRateInput } from "lib/money";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { getCurrencySymbol } from "lib/currency";
+import { getExchangeRate } from "lib/savings";
 import { useValidationMessages } from "lib/validation";
 import { editTransactionFormSchema } from "schemas/other";
+import useBankStore from "store/bank";
+import useStore from "store/general";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+
+export type EditTransactionValues = z.infer<ReturnType<typeof editTransactionFormSchema>> & {
+    savingsAmount?: number;
+};
+
+const getEmptyTransactionValues = (currency: CURRENCY) => ({
+    value: "",
+    categories: "",
+    savingsStorage: SavingsStorage.CARD,
+    savingsCurrency: currency,
+    savingsRate: "",
+    date: new Date(),
+    description: "",
+});
 
 interface Props {
     transaction: TransactionType | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSubmit: (data: z.infer<ReturnType<typeof editTransactionFormSchema>>) => Promise<void>;
+    onSubmit: (data: EditTransactionValues) => Promise<void>;
 }
-
-const getEmptyTransactionValues = () => ({
-    value: "",
-    categories: "",
-    savingsStorage: SavingsStorage.CARD,
-    date: new Date(),
-    description: "",
-});
 
 export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmit }: Props) => {
     const t = useTranslations();
+    const userCurrency = useStore((state) => state.userCurrency);
+    const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
+    const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const validationMessages = useValidationMessages();
 
-    const formSchema = useMemo(() => editTransactionFormSchema(validationMessages), [validationMessages]);
+    const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
+    const formSchema = useMemo(
+        () => editTransactionFormSchema(validationMessages, userCurrency),
+        [userCurrency, validationMessages],
+    );
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: getEmptyTransactionValues(),
+        defaultValues: getEmptyTransactionValues(userCurrency),
     });
+
     const selectedCategory = form.watch("categories");
+    const savingsCurrency = form.watch("savingsCurrency");
+    const savingsRate = form.watch("savingsRate");
+    const value = Number(form.watch("value")) || 0;
+
+    const isSavingsExpense = selectedCategory === "savings" && transaction?.transactionType === TransactionEnum.EXPENSE;
+    const currentRate = savingsCurrency === userCurrency ? 1 : getExchangeRate(savingsCurrency, userCurrency, rates);
+    const currentRateInput = currentRate ? toRateInput(currentRate) : "";
+    const enteredRate = Number(savingsRate) || 0;
+    const savedAmount = enteredRate > 0 ? roundMoney(value / enteredRate) : 0;
 
     useEffect(() => {
         if (!open) return;
@@ -64,22 +92,34 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                       value: toMoneyInput(transaction.value),
                       categories: transaction.categorie,
                       savingsStorage: transaction.savingsStorage ?? SavingsStorage.CARD,
+                      savingsCurrency: transaction.savingsCurrency ?? userCurrency,
+                      savingsRate: "",
                       date: new Date(transaction.date),
                       description: transaction.description ?? "",
                   }
-                : getEmptyTransactionValues(),
+                : getEmptyTransactionValues(userCurrency),
             { keepDefaultValues: true },
         );
-    }, [form, open, transaction]);
+    }, [form, open, transaction, userCurrency]);
+
+    useEffect(() => {
+        if (savingsCurrency === userCurrency) return;
+        form.setValue("savingsRate", currentRateInput, { shouldValidate: true });
+    }, [currentRateInput, form, savingsCurrency, userCurrency]);
 
     const handleOpenChange = (nextOpen: boolean) => {
-        if (!nextOpen) form.reset(getEmptyTransactionValues());
+        if (!nextOpen) form.reset(getEmptyTransactionValues(userCurrency));
         onOpenChange(nextOpen);
     };
 
     const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-        await onSubmit(data);
-        form.reset(getEmptyTransactionValues());
+        const converts = isSavingsExpense && data.savingsCurrency !== userCurrency;
+
+        await onSubmit({
+            ...data,
+            savingsAmount: converts ? roundMoney(Number(data.value) / enteredRate) : undefined,
+        });
+        form.reset(getEmptyTransactionValues(userCurrency));
         onOpenChange(false);
     };
 
@@ -100,7 +140,11 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                 <FormItem>
                                     <FormLabel>{t("dialogs.amount")}</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <Input
+                                            inputMode="decimal"
+                                            {...field}
+                                            onChange={handleDecimalInputChange(field.onChange)}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -126,31 +170,114 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             )}
                         />
 
-                        {selectedCategory === "savings" && transaction?.transactionType === TransactionEnum.EXPENSE && (
-                            <FormField
-                                control={form.control}
-                                name="savingsStorage"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("savings.storage")}</FormLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <FormControl>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {Object.values(SavingsStorage).map((storage) => (
-                                                    <SelectItem key={storage} value={storage}>
-                                                        {t(`savings.${storage}`)}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
+                        {isSavingsExpense && (
+                            <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4">
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsStorage"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("savings.storage")}</FormLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {Object.values(SavingsStorage).map((storage) => (
+                                                            <SelectItem key={storage} value={storage}>
+                                                                {t(`savings.${storage}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsCurrency"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.savingsCurrency")}</FormLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {Object.values(CURRENCY).map((currency) => (
+                                                            <SelectItem key={currency} value={currency}>
+                                                                {t(`navbar.${currency}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                {savingsCurrency !== userCurrency && (
+                                    <FormField
+                                        control={form.control}
+                                        name="savingsRate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.savingsRate")}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        inputMode="decimal"
+                                                        placeholder={currentRateInput || "0"}
+                                                        {...field}
+                                                        onChange={handleDecimalInputChange(field.onChange, 4)}
+                                                    />
+                                                </FormControl>
+                                                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                                                    <span>
+                                                        {t("dialogs.savingsRateHint", {
+                                                            currency: getCurrencySymbol(savingsCurrency),
+                                                            rate: field.value || "?",
+                                                            base: getCurrencySymbol(userCurrency),
+                                                        })}
+                                                    </span>
+                                                    {currentRateInput ? (
+                                                        field.value !== currentRateInput && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    form.setValue("savingsRate", currentRateInput, {
+                                                                        shouldValidate: true,
+                                                                    })
+                                                                }
+                                                                className="text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
+                                                            >
+                                                                {t("dialogs.savingsRateCurrent", {
+                                                                    rate: currentRateInput,
+                                                                })}
+                                                            </button>
+                                                        )
+                                                    ) : (
+                                                        <span>{t("dialogs.savingsRateUnavailable")}</span>
+                                                    )}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                 )}
-                            />
+                                {savingsCurrency !== userCurrency && savedAmount > 0 && (
+                                    <p className="text-sm font-medium">
+                                        {t("dialogs.savingsConverted", {
+                                            amount: `${formatCurrency(savedAmount)} ${getCurrencySymbol(savingsCurrency)}`,
+                                        })}
+                                    </p>
+                                )}
+                            </div>
                         )}
 
                         <FormField

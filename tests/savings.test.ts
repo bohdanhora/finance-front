@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { CURRENCY } from "../constants/index";
-import { roundMoney, toMoneyInput } from "../lib/money";
+import { roundMoney, toMoneyInput, toRateInput } from "../lib/money";
 import {
     calculateSavingsPace,
+    getExchangeRate,
     getSavingsBalance,
     getSavingsNativeBalance,
     getUrlHost,
@@ -154,4 +155,16 @@ test("normalizes a goal link the way a person types it", () => {
 test("shows the shop name for a goal link", () => {
     assert.equal(getUrlHost("https://www.rozetka.com.ua/item/"), "rozetka.com.ua");
     assert.equal(getUrlHost("not a link"), "not a link");
+});
+
+test("offers the current rate of one saved unit in the balance currency", () => {
+    assert.equal(getExchangeRate(CURRENCY.USD, CURRENCY.UAH, rates), 41);
+    assert.equal(getExchangeRate(CURRENCY.UAH, CURRENCY.UAH, rates), 1);
+    assert.equal(roundMoney(getExchangeRate(CURRENCY.EUR, CURRENCY.USD, rates)!), 1.25);
+    assert.equal(getExchangeRate(CURRENCY.USD, CURRENCY.UAH, { usdToUah: 0, eurToUah: 0 }), null);
+});
+
+test("turns a rate into input text with at most four decimals", () => {
+    assert.equal(toRateInput(41.123456), "41.1235");
+    assert.equal(toRateInput(0), "");
 });
