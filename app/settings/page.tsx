@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Navbar } from "components/navbar";
 import { AccountPassword } from "components/settings/account-password";
+import { AccountSessions } from "components/settings/account-sessions";
 import { AssistantConnection } from "components/settings/assistant-connection";
 import { MonobankConnection } from "components/settings/monobank-connection";
 import { PrivateProvider } from "providers/auth";
@@ -31,6 +32,8 @@ const SettingsPage = () => {
                                 <AccountPassword />
                             </div>
                         </div>
+
+                        <AccountSessions />
                     </div>
                 </div>
             </PrivateProvider>

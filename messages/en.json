@@ -939,5 +939,43 @@
         "debtOnCard": "Credit used",
         "debtOnCardHint": "How much of the limit you have spent and still owe. Leave it empty if you owe nothing.",
         "debtOverLimit": "The debt cannot be bigger than the credit limit ({amount})."
+    },
+    "sessions": {
+        "title": "Sessions and sign-ins",
+        "loading": "Loading sessions",
+        "loadFailed": "Could not load the sessions",
+        "activeCount": "{count, plural, one {# active session} other {# active sessions}}",
+        "note": "Ending a session signs that device out right away. Changing or resetting the password ends every other session.",
+        "activeTitle": "Active sessions",
+        "recentTitle": "Recent sign-ins",
+        "recentEmpty": "No finished sessions yet.",
+        "thisDevice": "This device",
+        "onlineNow": "online now",
+        "lastActive": "active {time}",
+        "signedIn": "Signed in {time}",
+        "method": {
+            "password": "email and password",
+            "google": "Google",
+            "legacy": "earlier sign-in"
+        },
+        "ended": {
+            "logout": "signed out {time}",
+            "revoked": "ended by you {time}",
+            "password-changed": "ended by a password change {time}",
+            "password-reset": "ended by a password reset {time}",
+            "expired": "expired {time}"
+        },
+        "end": "End",
+        "signOut": "Sign out",
+        "confirm": "Sure?",
+        "remove": "Remove from history",
+        "endOthers": "End {count, plural, one {the other session} other {# other sessions}}",
+        "endOthersConfirm": "Yes, sign out {count, plural, one {that device} other {# devices}}",
+        "clearHistory": "Clear history",
+        "endedToast": "Session ended, that device is signed out",
+        "removedToast": "Removed from history",
+        "endedOthersToast": "{count, plural, =0 {No other sessions were active} one {# session ended} other {# sessions ended}}",
+        "historyClearedToast": "History cleared",
+        "requestFailed": "Something went wrong, try again"
     }
 }
