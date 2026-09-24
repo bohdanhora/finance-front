@@ -42,7 +42,7 @@ import { DateObjectPicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { SavingsStorage } from "types/transactions";
 import { CardSelect } from "components/cards/card-select";
-import { defaultCardId, spendableOnCard } from "lib/cards";
+import { availableOnCard, defaultCardId, spendableOnCard } from "lib/cards";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -147,7 +147,10 @@ export const ExpenseDialogComponent = () => {
     };
 
     const handleOpenChange = (isOpen: boolean) => {
-        if (store.totalAmount <= 0 && isOpen) {
+        const canSpend = store.cards.length
+            ? store.cards.some((card) => availableOnCard(card) > 0)
+            : store.totalAmount > 0;
+        if (!canSpend && isOpen) {
             toast.warning(t("toasts.noFunds"));
             return;
         }
