@@ -4,7 +4,11 @@ import test from "node:test";
 import { TransactionEnum } from "../constants/index";
 import {
     ALL_CARDS,
+    availableOnCard,
     balanceForFilter,
+    balanceFromAvailable,
+    creditSummary,
+    spendableOnCard,
     defaultCardId,
     resolveCardFilter,
     statisticsTransactions,
@@ -67,4 +71,23 @@ test("a removed card falls back to all cards", () => {
     assert.equal(balanceForFilter("pumb", cards, 1_000), 300);
     assert.equal(defaultCardId(ALL_CARDS, cards), "mono");
     assert.equal(defaultCardId("pumb", cards), "pumb");
+});
+
+test("a credit card spends its own money first and then the limit", () => {
+    const credit: Card = { ...card("credit", -300), creditLimit: 500 };
+    const cards = [card("mono", 1000), credit];
+
+    assert.equal(availableOnCard(credit), 200);
+    assert.equal(spendableOnCard(cards, "credit", 700), 200);
+    assert.equal(spendableOnCard(cards, "mono", 700), 1000);
+    assert.equal(balanceFromAvailable(21200, 20000), 1200);
+    assert.equal(balanceFromAvailable(17000, 20000), -3000);
+    assert.deepEqual(creditSummary(cards), {
+        own: 1000,
+        debt: 300,
+        limit: 500,
+        creditLeft: 200,
+        hasCredit: true,
+    });
+    assert.equal(creditSummary([card("mono", 50)]).hasCredit, false);
 });

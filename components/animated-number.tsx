@@ -43,9 +43,11 @@ export const AnimatedMoney = ({
     duration,
     className,
     symbolClassName,
+    format,
 }: {
     value: number;
     symbol: string;
+    format?: (value: number) => string;
     prefix?: string;
     highlight?: boolean;
     duration?: number;
@@ -54,7 +56,7 @@ export const AnimatedMoney = ({
 }) => (
     <span className={twMerge("tabular-nums", className)}>
         {prefix}
-        <AnimatedNumber value={value} highlight={highlight} duration={duration} />{" "}
+        <AnimatedNumber value={value} highlight={highlight} duration={duration} format={format} />{" "}
         <span className={symbolClassName}>{symbol}</span>
     </span>
 );

@@ -75,6 +75,7 @@ export type Card = {
     name: string;
     skin: CardSkin;
     balance: number;
+    creditLimit?: number;
     createdAt: string;
 };
 
@@ -89,12 +90,14 @@ export type CreateCardPayload = {
     name: string;
     skin: CardSkin;
     balance?: number;
+    creditLimit?: number;
 };
 
 export type UpdateCardPayload = {
     id: string;
     name?: string;
     skin?: CardSkin;
+    creditLimit?: number;
 };
 
 export type CardTransferPayload = {

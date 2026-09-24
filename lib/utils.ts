@@ -37,6 +37,9 @@ export const formatCurrency = (num: number) => {
     return `${formattedInt}.${decPart}`;
 };
 
+export const formatSignedCurrency = (num: number) =>
+    roundMoney(num) < 0 ? `-${formatCurrency(-num)}` : formatCurrency(num);
+
 export const calculateDailyBudget = (totalAmount: number) => {
     const today = new Date();
     const currentYear = today.getFullYear();
