@@ -2,7 +2,7 @@
 
 import useStore from "store/general";
 import { useMemo } from "react";
-import { calculateDailyBudget, formatCurrency } from "lib/utils";
+import { calculateDailyBudget, formatCurrency, formatSignedCurrency } from "lib/utils";
 import { projectRemaining, summarizeExpectedIncomes } from "lib/month-plan";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
@@ -16,6 +16,8 @@ import { StatCard } from "./stat-card";
 import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
 import { ExpectedIncomeList } from "./expected-income-list";
+import { ALL_CARDS, balanceForFilter, findCardById, resolveCardFilter } from "lib/cards";
+import { useCardName } from "./cards/card-face";
 
 export const PossibleRemaining = () => {
     const t = useTranslations("possible");
@@ -23,7 +25,11 @@ export const PossibleRemaining = () => {
     const store = useStore();
     const bankStore = useBankStore();
 
+    const cardName = useCardName();
     const userCurrency = store.userCurrency;
+    const activeCard = resolveCardFilter(store.selectedCardId, store.cards);
+    const selectedCard = activeCard === ALL_CARDS ? null : findCardById(store.cards, activeCard);
+    const baseAmount = balanceForFilter(activeCard, store.cards, store.totalAmount);
 
     const eurRate = bankStore.eur?.rateBuy || 0;
     const usdRate = bankStore.usd?.rateBuy || 0;
@@ -39,13 +45,9 @@ export const PossibleRemaining = () => {
         essentialsConverted,
         essentialsDailyConverted,
     } = useMemo(() => {
-        const remainingAfterEssentials = projectRemaining(
-            store.totalAmount,
-            store.expectedIncomes,
-            store.essentialsArray,
-        );
+        const remainingAfterEssentials = projectRemaining(baseAmount, store.expectedIncomes, store.essentialsArray);
 
-        const { dailyBudget: dailyFull, daysLeft } = calculateDailyBudget(store.totalAmount);
+        const { dailyBudget: dailyFull, daysLeft } = calculateDailyBudget(baseAmount);
         const { dailyBudget: dailyAfterEssentials } = calculateDailyBudget(remainingAfterEssentials);
 
         return {
@@ -58,15 +60,24 @@ export const PossibleRemaining = () => {
             essentialsConverted: convertToAllCurrencies(remainingAfterEssentials, rates),
             essentialsDailyConverted: convertToAllCurrencies(dailyAfterEssentials, rates),
         };
-    }, [store.totalAmount, store.essentialsArray, store.expectedIncomes, rates]);
+    }, [baseAmount, store.essentialsArray, store.expectedIncomes, rates]);
 
     const currency = bankStore.currency as CURRENCY;
     const currencySymbol = getCurrencySymbol(currency);
     const userSymbol = getCurrencySymbol(userCurrency);
 
-    const money = (value: number) => <AnimatedMoney value={value} symbol={userSymbol} />;
+    const money = (value: number) => (
+        <AnimatedMoney
+            value={value}
+            symbol={userSymbol}
+            format={formatSignedCurrency}
+            className={value < 0 ? "text-rose-600 dark:text-rose-400" : undefined}
+        />
+    );
     const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={currencySymbol} /> : undefined;
+        userCurrency === CURRENCY.UAH ? (
+            <AnimatedMoney value={value} symbol={currencySymbol} format={formatSignedCurrency} />
+        ) : undefined;
 
     const converted = alt(essentialsConverted[currency] ?? 0);
     const remainingSecondary =
@@ -83,7 +94,11 @@ export const PossibleRemaining = () => {
 
     return (
         <Section
-            title={t("thisMonth")}
+            title={
+                selectedCard && store.cards.length > 1
+                    ? `${t("thisMonth")} · ${cardName(selectedCard)}`
+                    : t("thisMonth")
+            }
             actions={
                 <>
                     <ExpectedIncomeDialog />
