@@ -19,6 +19,7 @@ export enum EssentialsType {
 export enum TransactionEnum {
     EXPENSE = "expense",
     INCOME = "income",
+    TRANSFER = "transfer",
 }
 
 export const LANG_COOKIES_NAME = "LANG_FINANCE";

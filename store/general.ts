@@ -1,6 +1,23 @@
 import { create } from "zustand";
 import { StoreType } from "types/stores";
 import { CURRENCY } from "constants/index";
+import { ALL_CARDS } from "lib/cards";
+
+const SELECTED_CARD_KEY = "finance:selected-card";
+
+const readSelectedCard = () => {
+    try {
+        return (typeof window !== "undefined" && window.localStorage.getItem(SELECTED_CARD_KEY)) || ALL_CARDS;
+    } catch {
+        return ALL_CARDS;
+    }
+};
+
+const writeSelectedCard = (cardId: string) => {
+    try {
+        window.localStorage.setItem(SELECTED_CARD_KEY, cardId);
+    } catch {}
+};
 
 const useStore = create<StoreType>((set) => ({
     totalAmount: 0,
@@ -20,6 +37,8 @@ const useStore = create<StoreType>((set) => ({
     savingsGoals: [],
     savingsOperations: [],
     streak: null,
+    cards: [],
+    selectedCardId: readSelectedCard(),
 
     setTotalAmount: (totalAmount) =>
         set(() => ({
@@ -82,6 +101,20 @@ const useStore = create<StoreType>((set) => ({
         set(() => ({
             streak,
         })),
+    setCards: (cards) =>
+        set(() => ({
+            cards,
+        })),
+    setSelectedCardId: (selectedCardId) => {
+        writeSelectedCard(selectedCardId);
+        set(() => ({ selectedCardId }));
+    },
+    applyServerUpdate: ({ updatedTotals, updatedCards, totalAmount }) =>
+        set(() => ({
+            ...(updatedTotals ?? {}),
+            ...(typeof totalAmount === "number" ? { totalAmount } : {}),
+            ...(updatedCards ? { cards: updatedCards } : {}),
+        })),
     setAllToDefaults: () =>
         set(() => ({
             totalAmount: 0,
@@ -101,6 +134,7 @@ const useStore = create<StoreType>((set) => ({
             savingsGoals: [],
             savingsOperations: [],
             streak: null,
+            cards: [],
         })),
 }));
 export default useStore;

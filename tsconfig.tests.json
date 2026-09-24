@@ -25,12 +25,14 @@
         "lib/statistics.ts",
         "lib/streak.ts",
         "lib/month-plan.ts",
+        "lib/cards.ts",
         "tests/savings.test.ts",
         "tests/month-plan.test.ts",
         "tests/report.test.ts",
         "tests/statistics.test.ts",
         "tests/streak.test.ts",
         "tests/monobank.test.ts",
-        "tests/assistant.test.ts"
+        "tests/assistant.test.ts",
+        "tests/cards.test.ts"
     ]
 }

@@ -63,10 +63,53 @@ export type DeleteSavingsGoalRequest = {
     data: DeleteSavingsGoalPayload;
 };
 
+export enum CardSkin {
+    DEFAULT = "default",
+    MONOBANK = "monobank",
+    PUMB = "pumb",
+    ROZETKA = "rozetka",
+}
+
+export type Card = {
+    id: string;
+    name: string;
+    skin: CardSkin;
+    balance: number;
+    createdAt: string;
+};
+
+export type CardsMutationResponse = {
+    message: string;
+    updatedCards: Card[];
+    updatedTransactions: TransactionType[];
+    totalAmount: number;
+};
+
+export type CreateCardPayload = {
+    name: string;
+    skin: CardSkin;
+    balance?: number;
+};
+
+export type UpdateCardPayload = {
+    id: string;
+    name?: string;
+    skin?: CardSkin;
+};
+
+export type CardTransferPayload = {
+    fromCardId: string;
+    toCardId: string;
+    amount: number;
+    date?: string;
+    description?: string;
+};
+
 export type SavingsOperationPayload = {
     item: SavingsOperation;
     affectsMainBalance?: boolean;
     balanceAmount?: number;
+    cardId?: string;
 };
 
 export type SavingsMutationResponse = {
@@ -75,6 +118,7 @@ export type SavingsMutationResponse = {
     updatedOperations: SavingsOperation[];
     updatedTransactions?: TransactionType[];
     updatedTotals?: TransactionTotals;
+    updatedCards?: Card[];
 };
 
 export type TransactionTotals = {
@@ -94,6 +138,8 @@ export type TransactionType = {
     savingsCurrency?: CURRENCY;
     savingsAmount?: number;
     savingsOperationId?: string;
+    cardId?: string;
+    toCardId?: string;
 };
 
 export type EssentialType = {
@@ -139,6 +185,7 @@ export type ExpectedIncomeReceivedPayload = {
     received: boolean;
     actualAmount?: number;
     addToBalance?: boolean;
+    cardId?: string;
 };
 
 export type ExpectedIncomeReceivedResponse = {
@@ -146,15 +193,18 @@ export type ExpectedIncomeReceivedResponse = {
     updatedItems: ExpectedIncome[];
     updatedTotals: TransactionTotals;
     updatedTransactions: TransactionType[];
+    updatedCards?: Card[];
 };
 
 export type TotalAmountPayload = {
     totalAmount: number;
+    cardId?: string;
 };
 
 export type TotalAmountResponseType = {
     message: string;
     totalAmount: number;
+    updatedCards?: Card[];
 };
 
 export type NextMonthTotalAmountPayload = {
@@ -197,12 +247,14 @@ export type NewTransactionResponseType = {
     };
     updatedItems: TransactionType[] | [];
     updatedSavingsOperations: SavingsOperation[];
+    updatedCards?: Card[];
 };
 
 export type CheckedEssentialItemType = {
     id: string;
     checked: boolean;
     actualAmount?: number;
+    cardId?: string;
 };
 
 export type CheckedEssentialPayload = {
@@ -219,6 +271,7 @@ export type CheckedEssentialResponseType = {
         totalSpend: number;
     };
     updatedTransactions: TransactionType[] | [];
+    updatedCards?: Card[];
 };
 
 export type RemoveEssentialPayload = {
@@ -281,6 +334,7 @@ export type AllTransactionsInfoResponse = {
     savingsGoals: SavingsGoal[] | [];
     savingsOperations: SavingsOperation[] | [];
     streak?: StreakRecord;
+    cards?: Card[];
 };
 
 export type AssistantPreferences = {
@@ -335,6 +389,7 @@ export type ClearDataResponseType = {
     nextMonthEssentialsArray?: EssentialType[];
     expectedIncomes?: ExpectedIncome[];
     updatedSavingsOperations?: SavingsOperation[];
+    updatedCards?: Card[];
 };
 
 export type SavePercentPayload = {
@@ -360,6 +415,7 @@ export type DeleteTransactionResponseType = {
     };
     updatedItems: TransactionType[];
     updatedSavingsOperations: SavingsOperation[];
+    updatedCards?: Card[];
 };
 
 export type UpdateTransactionPayload = {
@@ -372,6 +428,7 @@ export type UpdateTransactionPayload = {
     savingsStorage?: SavingsStorage;
     savingsCurrency?: CURRENCY;
     savingsAmount?: number;
+    cardId?: string;
 };
 
 export type UpdateTransactionResponseType = {
@@ -384,4 +441,5 @@ export type UpdateTransactionResponseType = {
     };
     updatedItems: TransactionType[];
     updatedSavingsOperations: SavingsOperation[];
+    updatedCards?: Card[];
 };
