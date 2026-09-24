@@ -19,6 +19,7 @@ import { GoogleAuth } from "components/google-auth";
 import { RegistrationWay } from "components/way-to-registration";
 import { AuthSectionWrapper } from "components/wrappers/auth-section";
 import { Button } from "ui/button";
+import { Loader } from "components/loader";
 import { Form } from "ui/form";
 import { PublicProvider } from "providers/auth";
 import { useLoginForm } from "./use-login-form";
@@ -35,6 +36,7 @@ const Login = () => {
     const handledGoogleCallback = useRef(false);
 
     const [rememberMe, setRememberMe] = useState<CheckedState>(false);
+    const [redirecting, setRedirecting] = useState(() => Boolean(extractTokensFromParams(searchParams)));
 
     const { mutateAsync: loginAsync, isPending } = useLoginMutation(rememberMe);
 
@@ -43,12 +45,17 @@ const Login = () => {
     const onSubmit = async (values: LoginFormData) => {
         try {
             await loginAsync(values);
+            setRedirecting(true);
             router.replace(Routes.HOME);
         } catch (error) {
             console.error(tAuth("loginRequestError"), error);
             toast.error(tAuth("loginError"));
         }
     };
+
+    useEffect(() => {
+        router.prefetch(Routes.HOME);
+    }, [router]);
 
     useEffect(() => {
         showSessionToasts([
@@ -66,9 +73,12 @@ const Login = () => {
             sessionStorage.removeItem(GOOGLE_AUTH_REMEMBER_ME_KEY);
 
             loginSetTokens(tokens, rememberGoogleLogin);
+            setRedirecting(true);
             router.replace(Routes.HOME);
         }
     }, [router, searchParams, tApi]);
+
+    if (redirecting) return <Loader />;
 
     return (
         <PublicProvider>
