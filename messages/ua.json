@@ -172,7 +172,9 @@
             "placeholder": "Введіть суму",
             "cancel": "Скасувати",
             "save": "Зберегти",
-            "cardSubtitle": "Вкажіть, скільки зараз на {card}."
+            "cardSubtitle": "Вкажіть, скільки зараз на {card}.",
+            "creditLabel": "Доступно зараз, як показує банк",
+            "creditHint": "Ліміт {limit}. Усе, що менше за ліміт, вважається боргом."
         },
         "currencySelection": {
             "title": "Вибір валюти",
@@ -920,6 +922,23 @@
         "amountRequired": "Введіть суму більше нуля.",
         "notEnough": "На цій картці лише {amount}.",
         "transferToast": "{amount} переказано з {from} на {to}",
-        "betweenCards": "Між картками"
+        "betweenCards": "Між картками",
+        "creditCard": "Кредитна картка",
+        "creditCardHint": "Банк дав на неї кредитний ліміт. Коли власні гроші закінчуються, витрати йдуть у борг і картка йде в мінус.",
+        "creditLimit": "Кредитний ліміт",
+        "availableNow": "Доступно зараз, як у застосунку банку",
+        "availableNowHint": "Власні гроші плюс невикористаний ліміт. Борг порахується з цієї суми.",
+        "ownMoney": "Власні гроші",
+        "creditDebt": "Борг за кредитками",
+        "creditLeft": "Залишок кредиту",
+        "creditBadge": "Кредит",
+        "debtOnFace": "борг {amount}",
+        "limitOnFace": "ліміт {amount}",
+        "availableShort": "доступно {amount}",
+        "limitBelowDebt": "Ліміт не може бути меншим за поточний борг на картці ({amount}).",
+        "notEnoughCredit": "На цій картці доступно лише {amount}, разом із кредитом.",
+        "creditSplitHint": "Баланс - це ваші гроші мінус борг за кредитками. Невикористаний ліміт не ваші гроші, тому він показаний окремо.",
+        "creditPreviewOwn": "Власні гроші: {amount}",
+        "creditPreviewDebt": "Використано кредиту: {amount}"
     }
 }

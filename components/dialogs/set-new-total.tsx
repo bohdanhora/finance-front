@@ -19,7 +19,9 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
-import { handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { balanceFromAvailable, creditLimitOf } from "lib/cards";
+import { getCurrencySymbol } from "lib/currency";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { setTotalFormSchema } from "schemas/other";
@@ -37,6 +39,8 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
 
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs.setTotal");
+    const limit = creditLimitOf(card);
+    const symbol = getCurrencySymbol(store.userCurrency);
 
     const { mutateAsync: setTotalAsync, isPending: setTotalPending } = useSetTotalAmount();
 
@@ -59,7 +63,11 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            const response = await setTotalAsync({ totalAmount: Number(values.value), cardId: card.id });
+            const entered = Number(values.value);
+            const response = await setTotalAsync({
+                totalAmount: limit > 0 ? balanceFromAvailable(entered, limit) : entered,
+                cardId: card.id,
+            });
             store.applyServerUpdate({ totalAmount: response.totalAmount, updatedCards: response.updatedCards });
 
             resetForm();
@@ -96,7 +104,7 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                             name="value"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{t("label")}</FormLabel>
+                                    <FormLabel>{limit > 0 ? t("creditLabel") : t("label")}</FormLabel>
                                     <FormControl>
                                         <Input
                                             inputMode="decimal"
@@ -105,6 +113,11 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                             onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
+                                    {limit > 0 && (
+                                        <p className="text-muted-foreground text-xs">
+                                            {t("creditHint", { limit: `${formatCurrency(limit)} ${symbol}` })}
+                                        </p>
+                                    )}
                                     <FormMessage />
                                 </FormItem>
                             )}

@@ -172,7 +172,9 @@
             "placeholder": "Введите сумму",
             "cancel": "Отмена",
             "save": "Сохранить",
-            "cardSubtitle": "Укажите, сколько сейчас на {card}."
+            "cardSubtitle": "Укажите, сколько сейчас на {card}.",
+            "creditLabel": "Доступно сейчас, как показывает банк",
+            "creditHint": "Лимит {limit}. Всё, что меньше лимита, считается долгом."
         },
         "currencySelection": {
             "title": "Выбор валюты",
@@ -920,6 +922,23 @@
         "amountRequired": "Введите сумму больше нуля.",
         "notEnough": "На этой карте только {amount}.",
         "transferToast": "{amount} переведено с {from} на {to}",
-        "betweenCards": "Между картами"
+        "betweenCards": "Между картами",
+        "creditCard": "Кредитная карта",
+        "creditCardHint": "Банк дал по ней кредитный лимит. Когда свои деньги заканчиваются, траты идут в долг и карта уходит в минус.",
+        "creditLimit": "Кредитный лимит",
+        "availableNow": "Доступно сейчас, как в приложении банка",
+        "availableNowHint": "Свои деньги плюс неиспользованный лимит. Долг посчитается из этой суммы.",
+        "ownMoney": "Свои деньги",
+        "creditDebt": "Долг по кредиткам",
+        "creditLeft": "Остаток кредита",
+        "creditBadge": "Кредит",
+        "debtOnFace": "долг {amount}",
+        "limitOnFace": "лимит {amount}",
+        "availableShort": "доступно {amount}",
+        "limitBelowDebt": "Лимит не может быть меньше текущего долга по карте ({amount}).",
+        "notEnoughCredit": "На этой карте доступно только {amount}, вместе с кредитом.",
+        "creditSplitHint": "Баланс - это ваши деньги минус долг по кредиткам. Неиспользованный лимит не ваши деньги, поэтому он показан отдельно.",
+        "creditPreviewOwn": "Свои деньги: {amount}",
+        "creditPreviewDebt": "Использовано кредита: {amount}"
     }
 }

@@ -6,7 +6,8 @@ import { CardSwatch, useCardName } from "components/cards/card-face";
 import { Label } from "components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { getCurrencySymbol } from "lib/currency";
-import { formatCurrency } from "lib/utils";
+import { availableOnCard, isCreditCard } from "lib/cards";
+import { formatCurrency, formatSignedCurrency } from "lib/utils";
 import useStore from "store/general";
 
 export const CardSelect = ({
@@ -44,8 +45,15 @@ export const CardSelect = ({
                                 <CardSwatch skin={card.skin} />
                                 <span className="truncate">{cardName(card)}</span>
                                 <span className="text-muted-foreground tabular-nums">
-                                    {formatCurrency(card.balance)} {symbol}
+                                    {formatSignedCurrency(card.balance)} {symbol}
                                 </span>
+                                {isCreditCard(card) && (
+                                    <span className="text-muted-foreground/80 text-xs tabular-nums">
+                                        {t("availableShort", {
+                                            amount: `${formatCurrency(availableOnCard(card))} ${symbol}`,
+                                        })}
+                                    </span>
+                                )}
                             </span>
                         </SelectItem>
                     ))}

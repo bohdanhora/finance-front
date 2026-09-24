@@ -21,7 +21,7 @@ import {
 } from "components/ui/dialog";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
-import { defaultCardId, findCardById } from "lib/cards";
+import { availableOnCard, defaultCardId, findCardById, isCreditCard } from "lib/cards";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import useStore from "store/general";
@@ -71,8 +71,13 @@ export const TransferDialog = () => {
             setError(t("amountRequired"));
             return;
         }
-        if (value > source.balance) {
-            setError(t("notEnough", { amount: `${formatCurrency(source.balance)} ${symbol}` }));
+        if (value > availableOnCard(source)) {
+            const available = `${formatCurrency(availableOnCard(source))} ${symbol}`;
+            setError(
+                isCreditCard(source)
+                    ? t("notEnoughCredit", { amount: available })
+                    : t("notEnough", { amount: available }),
+            );
             return;
         }
 

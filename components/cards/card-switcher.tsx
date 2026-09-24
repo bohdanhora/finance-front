@@ -7,7 +7,8 @@ import { twMerge } from "tailwind-merge";
 import { AnimatedMoney } from "components/animated-number";
 import { CardDialog } from "components/cards/card-dialog";
 import { CardFace, useCardName } from "components/cards/card-face";
-import { ALL_CARDS, resolveCardFilter } from "lib/cards";
+import { ALL_CARDS, creditLimitOf, resolveCardFilter } from "lib/cards";
+import { formatSignedCurrency } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 import useStore from "store/general";
 
@@ -56,6 +57,7 @@ export const CardSwitcher = () => {
                                     value={totalAmount}
                                     symbol={symbol}
                                     symbolClassName="text-muted-foreground"
+                                    format={formatSignedCurrency}
                                 />
                             </span>
                         </span>
@@ -74,7 +76,13 @@ export const CardSwitcher = () => {
                         onClick={() => setSelectedCardId(card.id)}
                         className={twMerge(tileClass, selected ? selectedClass : idleClass)}
                     >
-                        <CardFace skin={card.skin} name={cardName(card)} balance={card.balance} symbol={symbol} />
+                        <CardFace
+                            skin={card.skin}
+                            name={cardName(card)}
+                            balance={card.balance}
+                            creditLimit={creditLimitOf(card)}
+                            symbol={symbol}
+                        />
                     </button>
                 );
             })}

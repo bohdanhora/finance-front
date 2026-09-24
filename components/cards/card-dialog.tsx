@@ -20,11 +20,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "components/ui/dialog";
+import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { CARD_SKIN_ORDER } from "lib/card-skins";
+import { balanceFromAvailable, creditLimitOf, isCreditCard } from "lib/cards";
 import { getCurrencySymbol } from "lib/currency";
-import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import useStore from "store/general";
 import { Card, CardSkin } from "types/transactions";
 
@@ -44,6 +46,9 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const [name, setName] = useState("");
     const [skin, setSkin] = useState<CardSkin>(CardSkin.MONOBANK);
     const [balance, setBalance] = useState("");
+    const [isCredit, setIsCredit] = useState(false);
+    const [limit, setLimit] = useState("");
+    const [error, setError] = useState<string | null>(null);
     const [moveTo, setMoveTo] = useState("");
     const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -52,12 +57,17 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const isPrimary = editing && cards[0]?.id === card?.id;
     const busy = createCard.isPending || updateCard.isPending || reorderCards.isPending || deleteCard.isPending;
     const previewName = name.trim() || cardName({ name: "", skin });
+    const creditLimit = isCredit ? Number(limit) || 0 : 0;
+    const startBalance = isCredit ? balanceFromAvailable(Number(balance) || 0, creditLimit) : Number(balance) || 0;
 
     const handleOpenChange = (next: boolean) => {
         if (next) {
             setName(card?.name ?? "");
             setSkin(card?.skin ?? CardSkin.MONOBANK);
             setBalance("");
+            setIsCredit(card ? isCreditCard(card) : false);
+            setLimit(card && isCreditCard(card) ? String(creditLimitOf(card)) : "");
+            setError(null);
             setMoveTo(others[0]?.id ?? "");
             setConfirmDelete(false);
         }
@@ -65,15 +75,21 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     };
 
     const save = async () => {
+        if (card && card.balance < -creditLimit) {
+            setError(t("limitBelowDebt", { amount: `${formatCurrency(-card.balance)} ${symbol}` }));
+            return;
+        }
+        setError(null);
         try {
             if (card) {
-                await updateCard.mutateAsync({ id: card.id, name: name.trim(), skin });
+                await updateCard.mutateAsync({ id: card.id, name: name.trim(), skin, creditLimit });
                 toast.success(t("savedToast"));
             } else {
                 const response = await createCard.mutateAsync({
                     name: name.trim(),
                     skin,
-                    balance: Number(balance) || 0,
+                    balance: startBalance,
+                    creditLimit,
                 });
                 setSelectedCardId(response.card.id);
                 toast.success(t("addedToast"));
@@ -126,7 +142,8 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                         <CardFace
                             skin={skin}
                             name={previewName}
-                            balance={card ? card.balance : Number(balance) || 0}
+                            balance={card ? card.balance : startBalance}
+                            creditLimit={creditLimit}
                             symbol={symbol}
                         />
                     </div>
@@ -168,9 +185,42 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                         />
                     </div>
 
+                    <div className="border-border/70 flex flex-col gap-3 rounded-xl border p-3">
+                        <label className="flex cursor-pointer items-start gap-3">
+                            <Checkbox
+                                checked={isCredit}
+                                onCheckedChange={(checked) => {
+                                    setIsCredit(checked === true);
+                                    setError(null);
+                                }}
+                                className="mt-0.5"
+                            />
+                            <span className="space-y-1">
+                                <span className="block text-sm font-medium">{t("creditCard")}</span>
+                                <span className="text-muted-foreground block text-xs">{t("creditCardHint")}</span>
+                            </span>
+                        </label>
+                        {isCredit && (
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="card-limit">{t("creditLimit")}</Label>
+                                <Input
+                                    id="card-limit"
+                                    inputMode="decimal"
+                                    placeholder="0"
+                                    value={limit}
+                                    onChange={handleDecimalInputChange((value) => {
+                                        setLimit(value);
+                                        setError(null);
+                                    })}
+                                />
+                            </div>
+                        )}
+                        {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                    </div>
+
                     {!editing && (
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="card-balance">{t("startBalance")}</Label>
+                            <Label htmlFor="card-balance">{isCredit ? t("availableNow") : t("startBalance")}</Label>
                             <Input
                                 id="card-balance"
                                 inputMode="decimal"
@@ -178,7 +228,20 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 value={balance}
                                 onChange={handleDecimalInputChange(setBalance)}
                             />
-                            <p className="text-muted-foreground text-xs">{t("startBalanceHint")}</p>
+                            <p className="text-muted-foreground text-xs">
+                                {isCredit ? t("availableNowHint") : t("startBalanceHint")}
+                            </p>
+                            {isCredit && creditLimit > 0 && balance !== "" && (
+                                <p className="text-xs tabular-nums">
+                                    {startBalance < 0
+                                        ? t("creditPreviewDebt", {
+                                              amount: `${formatCurrency(-startBalance)} ${symbol}`,
+                                          })
+                                        : t("creditPreviewOwn", {
+                                              amount: `${formatCurrency(startBalance)} ${symbol}`,
+                                          })}
+                                </p>
+                            )}
                         </div>
                     )}
 
@@ -208,7 +271,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                             {confirmDelete && target && card && (
                                 <p className="text-sm text-rose-600 dark:text-rose-400">
                                     {t("deleteConfirm", {
-                                        amount: `${formatCurrency(card.balance)} ${symbol}`,
+                                        amount: `${formatSignedCurrency(card.balance)} ${symbol}`,
                                         card: cardName(target),
                                     })}
                                 </p>

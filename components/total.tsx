@@ -10,7 +10,9 @@ import { IncomeDialogComponent } from "./dialogs/income";
 import { ExpenseDialogComponent } from "./dialogs/expense";
 import { SetTotalDialog } from "./dialogs/set-new-total";
 import { getCurrencySymbol } from "lib/currency";
-import { ALL_CARDS, balanceForFilter, findCardById, resolveCardFilter } from "lib/cards";
+import { ALL_CARDS, balanceForFilter, cardsForFilter, creditSummary, findCardById, resolveCardFilter } from "lib/cards";
+import { formatCurrency, formatSignedCurrency } from "lib/utils";
+import { Hint } from "./hint";
 import { CardSwitcher } from "./cards/card-switcher";
 import { CardDialog } from "./cards/card-dialog";
 import { TransferDialog } from "./cards/transfer-dialog";
@@ -31,7 +33,9 @@ export const Total = () => {
     const balance = balanceForFilter(active, store.cards, store.totalAmount);
     const conversionCurrency = bankStore.currency === CURRENCY.EUR ? CURRENCY.EUR : CURRENCY.USD;
     const conversionRate = conversionCurrency === CURRENCY.EUR ? bankStore.eur?.rateBuy : bankStore.usd?.rateBuy;
-    const converted = conversionRate ? balance / conversionRate : null;
+    const converted = conversionRate && balance > 0 ? balance / conversionRate : null;
+    const credit = creditSummary(cardsForFilter(active, store.cards));
+    const symbol = getCurrencySymbol(userCurrency);
     const label =
         active === ALL_CARDS && store.cards.length > 1
             ? tCards("allCards")
@@ -78,8 +82,9 @@ export const Total = () => {
                                 key={active}
                                 highlight
                                 value={balance}
-                                symbol={getCurrencySymbol(userCurrency)}
+                                symbol={symbol}
                                 symbolClassName="text-muted-foreground font-normal"
+                                format={formatSignedCurrency}
                             />
                         </h1>
                         <AmountDelta key={active} value={balance} symbol={getCurrencySymbol(userCurrency)} />
@@ -93,6 +98,34 @@ export const Total = () => {
                                 symbol={getCurrencySymbol(conversionCurrency)}
                             />
                         </p>
+                    )}
+
+                    {credit.hasCredit && (
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm tabular-nums">
+                            <span>
+                                <span className="text-muted-foreground">{tCards("ownMoney")} </span>
+                                <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                                    {formatCurrency(credit.own)} {symbol}
+                                </span>
+                            </span>
+                            <span>
+                                <span className="text-muted-foreground">{tCards("creditDebt")} </span>
+                                <span
+                                    className={
+                                        credit.debt > 0 ? "font-medium text-rose-600 dark:text-rose-400" : "font-medium"
+                                    }
+                                >
+                                    {credit.debt > 0 ? formatSignedCurrency(-credit.debt) : formatCurrency(0)} {symbol}
+                                </span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <span className="text-muted-foreground">{tCards("creditLeft")} </span>
+                                <span className="font-medium">
+                                    {formatCurrency(credit.creditLeft)} {symbol}
+                                </span>
+                                <Hint text={tCards("creditSplitHint")} />
+                            </span>
+                        </div>
                     )}
                 </div>
 

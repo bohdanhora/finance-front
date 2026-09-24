@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 
 import { AnimatedMoney } from "components/animated-number";
 import { skinOf } from "lib/card-skins";
+import { formatCurrency, formatSignedCurrency } from "lib/utils";
 import { Card, CardSkin } from "types/transactions";
 
 export const useCardName = () => {
@@ -31,6 +32,7 @@ export const CardFace = ({
     skin,
     name,
     balance,
+    creditLimit = 0,
     symbol,
     className,
     showBalance = true,
@@ -39,12 +41,16 @@ export const CardFace = ({
     skin: CardSkin;
     name: string;
     balance?: number;
+    creditLimit?: number;
     symbol?: string;
     className?: string;
     showBalance?: boolean;
     compact?: boolean;
 }) => {
+    const t = useTranslations("cards");
     const style = skinOf(skin);
+    const isCredit = creditLimit > 0;
+    const inDebt = balance !== undefined && balance < 0;
 
     return (
         <div
@@ -64,7 +70,16 @@ export const CardFace = ({
                 <span className={twMerge("truncate leading-none", style.wordmark, compact && "text-[0.6rem]")}>
                     {style.brand ?? name}
                 </span>
-                {!compact && <Chip />}
+                {!compact && (
+                    <span className="flex items-center gap-1.5">
+                        {isCredit && (
+                            <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[0.6rem] leading-none font-semibold tracking-wide uppercase">
+                                {t("creditBadge")}
+                            </span>
+                        )}
+                        <Chip />
+                    </span>
+                )}
             </div>
             <div className="min-w-0">
                 {style.brand && !compact && name !== style.brand && (
@@ -72,7 +87,21 @@ export const CardFace = ({
                 )}
                 {showBalance && balance !== undefined && (
                     <p className="truncate text-lg leading-tight font-semibold tabular-nums">
-                        <AnimatedMoney value={balance} symbol={symbol ?? ""} symbolClassName={style.muted} />
+                        <AnimatedMoney
+                            value={balance}
+                            symbol={symbol ?? ""}
+                            symbolClassName={style.muted}
+                            format={formatSignedCurrency}
+                        />
+                    </p>
+                )}
+                {showBalance && balance !== undefined && isCredit && !compact && (
+                    <p className={twMerge("truncate text-[0.65rem] leading-tight tabular-nums", style.muted)}>
+                        {inDebt
+                            ? t("debtOnFace", {
+                                  amount: `${formatCurrency(-balance)} / ${formatCurrency(creditLimit)}`,
+                              })
+                            : t("limitOnFace", { amount: formatCurrency(creditLimit) })}
                     </p>
                 )}
             </div>
