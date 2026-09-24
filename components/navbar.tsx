@@ -54,17 +54,17 @@ export const Navbar = () => {
     const { mutateAsync: logoutAsync, isPending: logoutPending } = useLogoutMutation();
 
     const logout = async () => {
-        const userId = Cookies.get("userId") || "";
+        const refreshToken = Cookies.get("refreshToken");
+        setIsRedirecting(true);
         try {
-            setIsRedirecting(true);
-            await logoutAsync({ userId });
+            await logoutAsync({ refreshToken });
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
             clearCookies();
             queryClient.clear();
             generalStore.setAllToDefaults();
             router.replace(Routes.LOGIN);
-        } catch (error) {
-            console.error("Login failed:", error);
-        } finally {
             setIsRedirecting(false);
         }
     };

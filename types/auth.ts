@@ -47,7 +47,39 @@ export type RegistrationResponseType = {
 };
 
 export type LogoutPayload = {
-    userId: string;
+    refreshToken?: string;
+};
+
+export type SessionDeviceType = "desktop" | "mobile" | "tablet";
+
+export type SessionMethod = "password" | "google" | "legacy";
+
+export type SessionEndReason = "logout" | "revoked" | "password-changed" | "password-reset" | "expired";
+
+export type AccountSession = {
+    id: string;
+    browser: string;
+    os: string;
+    deviceType: SessionDeviceType;
+    ip: string;
+    method: SessionMethod;
+    createdAt: string;
+    lastActiveAt: string;
+    expiresAt: string;
+    active: boolean;
+    current: boolean;
+    endedAt?: string;
+    endReason?: SessionEndReason;
+};
+
+export type AccountSessionsResponse = {
+    active: AccountSession[];
+    recent: AccountSession[];
+};
+
+export type RemoveSessionResponse = {
+    message: string;
+    current: boolean;
 };
 
 export type LogoutResponseType = {
