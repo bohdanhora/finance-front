@@ -938,7 +938,9 @@
         "ownOnCardHint": "Only your money, without the credit limit. In monobank it is \"Власні кошти\".",
         "debtOnCard": "Credit used",
         "debtOnCardHint": "How much of the limit you have spent and still owe. Leave it empty if you owe nothing.",
-        "debtOverLimit": "The debt cannot be bigger than the credit limit ({amount})."
+        "debtOverLimit": "The debt cannot be bigger than the credit limit ({amount}).",
+        "scrollBack": "Scroll the cards back",
+        "scrollForward": "Scroll the cards forward"
     },
     "sessions": {
         "title": "Sessions and sign-ins",
