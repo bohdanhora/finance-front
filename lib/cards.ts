@@ -51,8 +51,7 @@ export const creditUsedOf = (card: Card) => roundMoney(Math.max(0, -card.balance
 
 export const ownMoneyOf = (card: Card) => roundMoney(Math.max(0, card.balance));
 
-export const balanceFromAvailable = (available: number, creditLimit: number) =>
-    roundMoney(available - Math.max(0, creditLimit));
+export const balanceFromParts = (own: number, debt: number) => roundMoney(Math.max(0, own) - Math.max(0, debt));
 
 export type CreditSummary = {
     own: number;

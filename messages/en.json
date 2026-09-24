@@ -172,9 +172,7 @@
             "placeholder": "Enter amount",
             "cancel": "Cancel",
             "save": "Save",
-            "cardSubtitle": "Set how much is on {card} right now.",
-            "creditLabel": "Available now, as your bank shows it",
-            "creditHint": "Limit {limit}. Anything below the limit is counted as debt."
+            "cardSubtitle": "Set how much is on {card} right now."
         },
         "currencySelection": {
             "title": "Currency Selection",
@@ -926,8 +924,6 @@
         "creditCard": "Credit card",
         "creditCardHint": "The bank gives it a credit limit. Once your own money runs out, spending goes into debt and the card shows a minus.",
         "creditLimit": "Credit limit",
-        "availableNow": "Available now, as your bank app shows it",
-        "availableNowHint": "Your own money plus the unused limit. The debt is worked out from it.",
         "ownMoney": "Own money",
         "creditDebt": "Credit debt",
         "creditLeft": "Credit left",
@@ -938,7 +934,10 @@
         "limitBelowDebt": "The limit cannot be smaller than the debt already on the card ({amount}).",
         "notEnoughCredit": "Only {amount} is available on this card, credit included.",
         "creditSplitHint": "The balance is your own money minus what you owe on credit cards. The unused limit is not your money, so it is shown apart.",
-        "creditPreviewOwn": "Own money: {amount}",
-        "creditPreviewDebt": "Credit used: {amount}"
+        "ownOnCard": "Own money on the card",
+        "ownOnCardHint": "Only your money, without the credit limit. In monobank it is \"Власні кошти\".",
+        "debtOnCard": "Credit used",
+        "debtOnCardHint": "How much of the limit you have spent and still owe. Leave it empty if you owe nothing.",
+        "debtOverLimit": "The debt cannot be bigger than the credit limit ({amount})."
     }
 }

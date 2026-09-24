@@ -24,7 +24,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { CARD_SKIN_ORDER } from "lib/card-skins";
-import { balanceFromAvailable, creditLimitOf, isCreditCard } from "lib/cards";
+import { balanceFromParts, creditLimitOf, isCreditCard } from "lib/cards";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import useStore from "store/general";
@@ -48,6 +48,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const [balance, setBalance] = useState("");
     const [isCredit, setIsCredit] = useState(false);
     const [limit, setLimit] = useState("");
+    const [debt, setDebt] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [moveTo, setMoveTo] = useState("");
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,13 +59,15 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const busy = createCard.isPending || updateCard.isPending || reorderCards.isPending || deleteCard.isPending;
     const previewName = name.trim() || cardName({ name: "", skin });
     const creditLimit = isCredit ? Number(limit) || 0 : 0;
-    const startBalance = isCredit ? balanceFromAvailable(Number(balance) || 0, creditLimit) : Number(balance) || 0;
+    const startDebt = isCredit ? Number(debt) || 0 : 0;
+    const startBalance = balanceFromParts(Number(balance) || 0, startDebt);
 
     const handleOpenChange = (next: boolean) => {
         if (next) {
             setName(card?.name ?? "");
             setSkin(card?.skin ?? CardSkin.MONOBANK);
             setBalance("");
+            setDebt("");
             setIsCredit(card ? isCreditCard(card) : false);
             setLimit(card && isCreditCard(card) ? String(creditLimitOf(card)) : "");
             setError(null);
@@ -75,6 +78,10 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     };
 
     const save = async () => {
+        if (!card && startDebt > creditLimit) {
+            setError(t("debtOverLimit", { amount: `${formatCurrency(creditLimit)} ${symbol}` }));
+            return;
+        }
         if (card && card.balance < -creditLimit) {
             setError(t("limitBelowDebt", { amount: `${formatCurrency(-card.balance)} ${symbol}` }));
             return;
@@ -220,7 +227,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
 
                     {!editing && (
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="card-balance">{isCredit ? t("availableNow") : t("startBalance")}</Label>
+                            <Label htmlFor="card-balance">{isCredit ? t("ownOnCard") : t("startBalance")}</Label>
                             <Input
                                 id="card-balance"
                                 inputMode="decimal"
@@ -229,18 +236,25 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 onChange={handleDecimalInputChange(setBalance)}
                             />
                             <p className="text-muted-foreground text-xs">
-                                {isCredit ? t("availableNowHint") : t("startBalanceHint")}
+                                {isCredit ? t("ownOnCardHint") : t("startBalanceHint")}
                             </p>
-                            {isCredit && creditLimit > 0 && balance !== "" && (
-                                <p className="text-xs tabular-nums">
-                                    {startBalance < 0
-                                        ? t("creditPreviewDebt", {
-                                              amount: `${formatCurrency(-startBalance)} ${symbol}`,
-                                          })
-                                        : t("creditPreviewOwn", {
-                                              amount: `${formatCurrency(startBalance)} ${symbol}`,
-                                          })}
-                                </p>
+                            {isCredit && (
+                                <>
+                                    <Label htmlFor="card-debt" className="mt-2">
+                                        {t("debtOnCard")}
+                                    </Label>
+                                    <Input
+                                        id="card-debt"
+                                        inputMode="decimal"
+                                        placeholder="0"
+                                        value={debt}
+                                        onChange={handleDecimalInputChange((value) => {
+                                            setDebt(value);
+                                            setError(null);
+                                        })}
+                                    />
+                                    <p className="text-muted-foreground text-xs">{t("debtOnCardHint")}</p>
+                                </>
                             )}
                         </div>
                     )}

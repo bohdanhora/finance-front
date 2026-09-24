@@ -6,7 +6,7 @@ import {
     ALL_CARDS,
     availableOnCard,
     balanceForFilter,
-    balanceFromAvailable,
+    balanceFromParts,
     creditSummary,
     spendableOnCard,
     defaultCardId,
@@ -80,8 +80,8 @@ test("a credit card spends its own money first and then the limit", () => {
     assert.equal(availableOnCard(credit), 200);
     assert.equal(spendableOnCard(cards, "credit", 700), 200);
     assert.equal(spendableOnCard(cards, "mono", 700), 1000);
-    assert.equal(balanceFromAvailable(21200, 20000), 1200);
-    assert.equal(balanceFromAvailable(17000, 20000), -3000);
+    assert.equal(balanceFromParts(1200, 0), 1200);
+    assert.equal(balanceFromParts(0, 3000), -3000);
     assert.deepEqual(creditSummary(cards), {
         own: 1000,
         debt: 300,

@@ -20,7 +20,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
-import { balanceFromAvailable, creditLimitOf } from "lib/cards";
+import { balanceFromParts, creditLimitOf, creditUsedOf, ownMoneyOf } from "lib/cards";
+import { Label } from "ui/label";
 import { getCurrencySymbol } from "lib/currency";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -36,9 +37,12 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
     const cardName = useCardName();
 
     const [open, setOpen] = useState(false);
+    const [debt, setDebt] = useState("");
+    const [debtError, setDebtError] = useState<string | null>(null);
 
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs.setTotal");
+    const tCards = useTranslations("cards");
     const limit = creditLimitOf(card);
     const symbol = getCurrencySymbol(store.userCurrency);
 
@@ -58,14 +62,24 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
 
     const handleOpenChange = (nextOpen: boolean) => {
         if (!nextOpen) resetForm();
+        if (nextOpen && limit > 0) {
+            form.reset({ value: String(ownMoneyOf(card)) });
+            setDebt(creditUsedOf(card) ? String(creditUsedOf(card)) : "");
+        }
+        setDebtError(null);
         setOpen(nextOpen);
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             const entered = Number(values.value);
+            const owed = limit > 0 ? Number(debt) || 0 : 0;
+            if (owed > limit) {
+                setDebtError(tCards("debtOverLimit", { amount: `${formatCurrency(limit)} ${symbol}` }));
+                return;
+            }
             const response = await setTotalAsync({
-                totalAmount: limit > 0 ? balanceFromAvailable(entered, limit) : entered,
+                totalAmount: limit > 0 ? balanceFromParts(entered, owed) : entered,
                 cardId: card.id,
             });
             store.applyServerUpdate({ totalAmount: response.totalAmount, updatedCards: response.updatedCards });
@@ -104,7 +118,7 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                             name="value"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{limit > 0 ? t("creditLabel") : t("label")}</FormLabel>
+                                    <FormLabel>{limit > 0 ? tCards("ownOnCard") : t("label")}</FormLabel>
                                     <FormControl>
                                         <Input
                                             inputMode="decimal"
@@ -114,14 +128,32 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                         />
                                     </FormControl>
                                     {limit > 0 && (
-                                        <p className="text-muted-foreground text-xs">
-                                            {t("creditHint", { limit: `${formatCurrency(limit)} ${symbol}` })}
-                                        </p>
+                                        <p className="text-muted-foreground text-xs">{tCards("ownOnCardHint")}</p>
                                     )}
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+                        {limit > 0 && (
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="set-total-debt">{tCards("debtOnCard")}</Label>
+                                <Input
+                                    id="set-total-debt"
+                                    inputMode="decimal"
+                                    placeholder="0"
+                                    value={debt}
+                                    onChange={handleDecimalInputChange((value) => {
+                                        setDebt(value);
+                                        setDebtError(null);
+                                    })}
+                                />
+                                <p className="text-muted-foreground text-xs">
+                                    {tCards("debtOnCardHint")} (
+                                    {tCards("limitOnFace", { amount: `${formatCurrency(limit)} ${symbol}` })})
+                                </p>
+                                {debtError && <p className="text-sm text-rose-600 dark:text-rose-400">{debtError}</p>}
+                            </div>
+                        )}
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button variant="secondary">{t("cancel")}</Button>
