@@ -41,6 +41,8 @@ import { CategoryCombobox } from "components/categories/category-combobox";
 import { DateObjectPicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { SavingsStorage } from "types/transactions";
+import { CardSelect } from "components/cards/card-select";
+import { defaultCardId, findCardById } from "lib/cards";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -54,17 +56,19 @@ export const ExpenseDialogComponent = () => {
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
 
     const [open, setOpen] = useState(false);
+    const [cardId, setCardId] = useState("");
+    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
 
     const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
 
     const formSchema = useMemo(
         () =>
             getExpenseFormSchema(validationMessages, {
-                totalAmount: store.totalAmount,
-                balanceLabel: `${formatCurrency(store.totalAmount)} ${getCurrencySymbol(userCurrency)}`,
+                totalAmount: cardBalance,
+                balanceLabel: `${formatCurrency(cardBalance)} ${getCurrencySymbol(userCurrency)}`,
                 userCurrency,
             }),
-        [store.totalAmount, userCurrency, validationMessages],
+        [cardBalance, userCurrency, validationMessages],
     );
 
     const getEmptyValues = () => ({
@@ -117,14 +121,13 @@ export const ExpenseDialogComponent = () => {
             savingsStorage: isSavings ? values.savingsStorage : undefined,
             savingsCurrency: isSavings ? values.savingsCurrency : undefined,
             savingsAmount: convertedAmount,
+            cardId: cardId || undefined,
         };
 
         try {
             const response = await setNewTransactionAsync(createTransaction);
 
-            store.setTotalAmount(response.updatedTotals.totalAmount);
-            store.setTotalIncome(response.updatedTotals.totalIncome);
-            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.applyServerUpdate(response);
             store.setTransactions(response.updatedItems);
             store.setSavingsOperations(response.updatedSavingsOperations);
 
@@ -149,6 +152,7 @@ export const ExpenseDialogComponent = () => {
             return;
         }
         if (!isOpen) resetForm();
+        if (isOpen) setCardId(defaultCardId(store.selectedCardId, store.cards));
         setOpen(isOpen);
     };
 
@@ -171,6 +175,15 @@ export const ExpenseDialogComponent = () => {
                             <DialogTitle>{t("dialogs.enterExpense")}</DialogTitle>
                             <DialogDescription>{t("dialogs.expenseHint")}</DialogDescription>
                         </DialogHeader>
+                        <CardSelect
+                            id="expense-card"
+                            label={t("cards.fromCard")}
+                            value={cardId}
+                            onChange={(value) => {
+                                setCardId(value);
+                                if (form.getValues("value")) void form.trigger("value");
+                            }}
+                        />
                         <FormField
                             control={form.control}
                             name="value"

@@ -272,11 +272,7 @@ const SavingsPage = () => {
             store.setSavingsGoals(response.updatedGoals);
             store.setSavingsOperations(response.updatedOperations);
             if (response.updatedTransactions) store.setTransactions(response.updatedTransactions);
-            if (response.updatedTotals) {
-                store.setTotalAmount(response.updatedTotals.totalAmount);
-                store.setTotalIncome(response.updatedTotals.totalIncome);
-                store.setTotalSpend(response.updatedTotals.totalSpend);
-            }
+            store.applyServerUpdate(response);
             toast.success(
                 deleteTarget.kind === "goal" && goalDeletionMode === "purchased"
                     ? t("goalPurchased")

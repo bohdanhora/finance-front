@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
@@ -34,6 +34,8 @@ import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
 import { ValidationMessages, useValidationMessages } from "lib/validation";
+import { defaultCardId, findCardById } from "lib/cards";
+import { CardSwatch, useCardName } from "components/cards/card-face";
 
 const getOperationSchema = (messages: ValidationMessages) =>
     z
@@ -80,6 +82,9 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
     const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const { mutateAsync: addOperation, isPending } = useAddSavingsOperation();
+    const cardName = useCardName();
+    const [cardId, setCardId] = useState("");
+    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
 
     const validationMessages = useValidationMessages();
     const operationSchema = useMemo(() => getOperationSchema(validationMessages), [validationMessages]);
@@ -93,6 +98,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     useEffect(() => {
         if (!open) return;
         form.reset(getEmptyValues(userCurrency));
+        setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
     }, [form, open, userCurrency]);
 
     const type = form.watch("type");
@@ -114,7 +120,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
         type === SavingsOperationType.DEPOSIT &&
         shouldAffectMainBalance &&
         balanceAmount !== null &&
-        balanceAmount > store.totalAmount + Number.EPSILON;
+        balanceAmount > cardBalance + Number.EPSILON;
     const conversionUnavailable = shouldAffectMainBalance && amount > 0 && balanceAmount === null;
 
     const displayMoney = (value: number, selectedCurrency: CURRENCY) =>
@@ -152,7 +158,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
             return;
         }
 
-        if (values.type === SavingsOperationType.DEPOSIT && shouldSyncBalance && convertedAmount! > store.totalAmount) {
+        if (values.type === SavingsOperationType.DEPOSIT && shouldSyncBalance && convertedAmount! > cardBalance) {
             form.setError("amount", { message: t("notEnoughOnBalance") });
             return;
         }
@@ -179,15 +185,12 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                 affectsMainBalance:
                     values.type === SavingsOperationType.TRANSFER ? undefined : values.affectsMainBalance,
                 balanceAmount: shouldSyncBalance ? roundMoney(convertedAmount!) : undefined,
+                cardId: shouldSyncBalance && cardId ? cardId : undefined,
             });
             setSavingsGoals(response.updatedGoals);
             setSavingsOperations(response.updatedOperations);
             if (response.updatedTransactions) store.setTransactions(response.updatedTransactions);
-            if (response.updatedTotals) {
-                store.setTotalAmount(response.updatedTotals.totalAmount);
-                store.setTotalIncome(response.updatedTotals.totalIncome);
-                store.setTotalSpend(response.updatedTotals.totalSpend);
-            }
+            store.applyServerUpdate(response);
             toast.success(t("operationSaved"));
             handleOpenChange(false);
         } catch {}
@@ -372,8 +375,15 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                                 : t("withdrawalDestination")}
                                         </FormLabel>
                                         <Select
-                                            value={field.value ? "main" : "external"}
-                                            onValueChange={(value) => field.onChange(value === "main")}
+                                            value={field.value ? cardId || "main" : "external"}
+                                            onValueChange={(value) => {
+                                                if (value === "external") {
+                                                    field.onChange(false);
+                                                    return;
+                                                }
+                                                if (value !== "main") setCardId(value);
+                                                field.onChange(true);
+                                            }}
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="w-full">
@@ -381,7 +391,20 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="main">{t("mainBalanceCard")}</SelectItem>
+                                                {store.cards.length > 1 ? (
+                                                    store.cards.map((card) => (
+                                                        <SelectItem key={card.id} value={card.id}>
+                                                            <span className="flex min-w-0 items-center gap-2">
+                                                                <CardSwatch skin={card.skin} />
+                                                                <span className="truncate">{cardName(card)}</span>
+                                                            </span>
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value={cardId || "main"}>
+                                                        {t("mainBalanceCard")}
+                                                    </SelectItem>
+                                                )}
                                                 <SelectItem value="external">{t("outsideMainBalance")}</SelectItem>
                                             </SelectContent>
                                         </Select>

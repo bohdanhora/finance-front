@@ -15,6 +15,8 @@ import { Button } from "ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "ui/dialog";
 import { Input } from "ui/input";
 import { Label } from "ui/label";
+import { CardSelect } from "components/cards/card-select";
+import { defaultCardId, findCardById } from "lib/cards";
 
 type Props = {
     essential: EssentialType | null;
@@ -29,8 +31,11 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     const { mutateAsync: setCheckedEssential, isPending } = useSetCheckedEssential();
     const [actualAmount, setActualAmount] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [cardId, setCardId] = useState("");
+    const tCards = useTranslations("cards");
 
     const isUndo = Boolean(essential?.checked);
+    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
     const symbol = getCurrencySymbol(store.userCurrency);
     const numericAmount = Number(actualAmount);
     const hasValidAmount = actualAmount.length > 0 && Number.isFinite(numericAmount) && numericAmount > 0;
@@ -43,6 +48,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
         if (!open || !essential) return;
         setActualAmount(toMoneyInput(essential.paidAmount ?? essential.amount));
         setError(null);
+        setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
     }, [essential, open]);
 
     const submit = async () => {
@@ -52,7 +58,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
             setError(t("invalidAmount"));
             return;
         }
-        if (!isUndo && numericAmount > store.totalAmount) {
+        if (!isUndo && numericAmount > cardBalance) {
             setError(t("notEnoughFunds"));
             return;
         }
@@ -64,15 +70,13 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                 item: {
                     id: essential.id,
                     checked: !isUndo,
-                    ...(!isUndo && { actualAmount: roundMoney(numericAmount) }),
+                    ...(!isUndo && { actualAmount: roundMoney(numericAmount), cardId: cardId || undefined }),
                 },
             });
 
             if (type === EssentialsType.NEXT_MONTH) store.setNextMonthEssentialsArray(response.updatedItems);
             else store.setEssentialsArray(response.updatedItems);
-            store.setTotalAmount(response.updatedTotals.totalAmount);
-            store.setTotalIncome(response.updatedTotals.totalIncome);
-            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.applyServerUpdate(response);
             store.setTransactions(response.updatedTransactions);
 
             const changedAmount = isUndo ? (essential.paidAmount ?? essential.amount) : numericAmount;
@@ -91,7 +95,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     if (!essential) return null;
 
     const paidAmount = essential.paidAmount ?? essential.amount;
-    const balanceAfterPayment = roundMoney(store.totalAmount - (hasValidAmount ? numericAmount : 0));
+    const balanceAfterPayment = roundMoney(cardBalance - (hasValidAmount ? numericAmount : 0));
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
@@ -119,6 +123,15 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                     </div>
                 ) : (
                     <div className="space-y-4">
+                        <CardSelect
+                            id="essential-card"
+                            label={tCards("fromCard")}
+                            value={cardId}
+                            onChange={(value) => {
+                                setCardId(value);
+                                setError(null);
+                            }}
+                        />
                         <div className="border-border bg-muted/30 flex items-center justify-between gap-4 rounded-xl border p-4">
                             <span className="text-muted-foreground text-sm">{t("planned")}</span>
                             <span className="font-semibold tabular-nums">

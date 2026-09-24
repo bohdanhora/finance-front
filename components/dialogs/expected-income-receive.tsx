@@ -15,6 +15,8 @@ import { Checkbox } from "components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "ui/dialog";
 import { Input } from "ui/input";
 import { Label } from "ui/label";
+import { CardSelect } from "components/cards/card-select";
+import { defaultCardId, findCardById } from "lib/cards";
 
 type Props = {
     income: ExpectedIncome | null;
@@ -29,6 +31,8 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     const [actualAmount, setActualAmount] = useState("");
     const [addToBalance, setAddToBalance] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [cardId, setCardId] = useState("");
+    const tCards = useTranslations("cards");
 
     const isUndo = Boolean(income?.received);
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -40,6 +44,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
         setActualAmount(toMoneyInput(income.receivedAmount ?? income.amount));
         setAddToBalance(true);
         setError(null);
+        setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
     }, [income, open]);
 
     const submit = async () => {
@@ -55,13 +60,11 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
             const response = await setReceived({
                 id: income.id,
                 received: !isUndo,
-                ...(!isUndo && { actualAmount: roundMoney(numericAmount), addToBalance }),
+                ...(!isUndo && { actualAmount: roundMoney(numericAmount), addToBalance, cardId: cardId || undefined }),
             });
 
             store.setExpectedIncomes(response.updatedItems);
-            store.setTotalAmount(response.updatedTotals.totalAmount);
-            store.setTotalIncome(response.updatedTotals.totalIncome);
-            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.applyServerUpdate(response);
             store.setTransactions(response.updatedTransactions);
 
             toast.success(
@@ -152,6 +155,15 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                             </span>
                         </label>
 
+                        {addToBalance && (
+                            <CardSelect
+                                id="income-receive-card"
+                                label={tCards("toCard")}
+                                value={cardId}
+                                onChange={setCardId}
+                            />
+                        )}
+
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
                                 {difference < 0 && (
@@ -170,7 +182,12 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                 {addToBalance && (
                                     <p className="text-muted-foreground">
                                         {t("balanceAfter", {
-                                            amount: formatCurrency(roundMoney(store.totalAmount + numericAmount)),
+                                            amount: formatCurrency(
+                                                roundMoney(
+                                                    (findCardById(store.cards, cardId)?.balance ?? store.totalAmount) +
+                                                        numericAmount,
+                                                ),
+                                            ),
                                             currency: symbol,
                                         })}
                                     </p>

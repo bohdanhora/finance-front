@@ -65,6 +65,7 @@ export const ChoooseCurrency = () => {
                 transactions: data.transactions ?? [],
                 savingsGoals: data.savingsGoals ?? [],
                 savingsOperations: data.savingsOperations ?? [],
+                ...(data.cards ? { cards: data.cards } : {}),
                 userCurrency: nextCurrency,
                 currencyInitialized: true,
             });

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { SavingsStorage, TransactionType } from "types/transactions";
 import {
@@ -32,9 +32,12 @@ import { editTransactionFormSchema } from "schemas/other";
 import useBankStore from "store/bank";
 import useStore from "store/general";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { CardSelect } from "components/cards/card-select";
+import { cardIdOf } from "lib/cards";
 
 export type EditTransactionValues = z.infer<ReturnType<typeof editTransactionFormSchema>> & {
     savingsAmount?: number;
+    cardId?: string;
 };
 
 const getEmptyTransactionValues = (currency: CURRENCY) => ({
@@ -60,6 +63,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
     const usdToUah = useBankStore((state) => state.usd?.rateBuy ?? 0);
     const eurToUah = useBankStore((state) => state.eur?.rateBuy ?? 0);
     const validationMessages = useValidationMessages();
+    const [cardId, setCardId] = useState("");
 
     const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
     const formSchema = useMemo(
@@ -86,6 +90,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
     useEffect(() => {
         if (!open) return;
 
+        setCardId(transaction ? (cardIdOf(transaction, useStore.getState().cards) ?? "") : "");
         form.reset(
             transaction
                 ? {
@@ -118,6 +123,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
         await onSubmit({
             ...data,
             savingsAmount: converts ? roundMoney(Number(data.value) / enteredRate) : undefined,
+            cardId: cardId || undefined,
         });
         form.reset(getEmptyTransactionValues(userCurrency));
         onOpenChange(false);
@@ -132,6 +138,8 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             <DialogTitle>{t("transactions.editTransactionTitle")}</DialogTitle>
                             <DialogDescription>{t("transactions.editTransactionSubtitle")}</DialogDescription>
                         </DialogHeader>
+
+                        <CardSelect id="edit-transaction-card" value={cardId} onChange={setCardId} />
 
                         <FormField
                             control={form.control}

@@ -7,7 +7,7 @@ import { createDateString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
 import useStore from "store/general";
 
-import { Download, Pencil, Search, Trash2, X } from "lucide-react";
+import { ArrowLeftRight, Download, Pencil, Search, Trash2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
@@ -36,6 +36,8 @@ import { ExportReportDialog } from "./dialogs/export-report";
 import { getCurrencySymbol } from "lib/currency";
 import { CategoryIcon } from "components/categories/category-icon";
 import { getCategoryLabel } from "constants/categories";
+import { cardIdOf, findCardById, isTransfer, transactionsForCard, transferDirection } from "lib/cards";
+import { CardSwatch, useCardName } from "components/cards/card-face";
 
 export const LastSpends = () => {
     const store = useStore();
@@ -46,6 +48,8 @@ export const LastSpends = () => {
     const t = useTranslations("transactions");
     const tCategory = useTranslations("categories");
     const tErr = useTranslations("errors");
+    const tCards = useTranslations("cards");
+    const cardName = useCardName();
     const categoryLabel = useCallback((category: string) => getCategoryLabel(category, tCategory), [tCategory]);
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -64,8 +68,28 @@ export const LastSpends = () => {
 
     const ITEMS_PER_PAGE = 10;
 
+    const cardTransactions = useMemo(
+        () => transactionsForCard(store.transactions, store.selectedCardId, store.cards),
+        [store.cards, store.selectedCardId, store.transactions],
+    );
+    const showCardColumn = store.cards.length > 1;
+
+    const transferLabel = useCallback(
+        (tx: TransactionType) =>
+            `${cardName(findCardById(store.cards, tx.cardId))} → ${cardName(findCardById(store.cards, tx.toCardId))}`,
+        [cardName, store.cards],
+    );
+
     const filteredTransactions = useMemo(() => {
-        return store.transactions.filter((tx: TransactionType) => {
+        return cardTransactions.filter((tx: TransactionType) => {
+            if (isTransfer(tx)) {
+                const normalized = searchTerm.toLocaleLowerCase();
+                return (
+                    selectedCategory === "all" &&
+                    (tx.description.toLocaleLowerCase().includes(normalized) ||
+                        transferLabel(tx).toLocaleLowerCase().includes(normalized))
+                );
+            }
             const matchesCategory = selectedCategory === "all" || tx.categorie === selectedCategory;
             const normalizedSearch = searchTerm.toLocaleLowerCase();
             const matchesSearch =
@@ -73,11 +97,11 @@ export const LastSpends = () => {
                 categoryLabel(tx.categorie).toLocaleLowerCase().includes(normalizedSearch);
             return matchesCategory && matchesSearch;
         });
-    }, [categoryLabel, searchTerm, selectedCategory, store.transactions]);
+    }, [cardTransactions, categoryLabel, searchTerm, selectedCategory, transferLabel]);
 
-    const uniqueCategories = [...new Set(store.transactions.map((tx) => tx.categorie))].sort((a, b) =>
-        categoryLabel(a).localeCompare(categoryLabel(b)),
-    );
+    const uniqueCategories = [
+        ...new Set(cardTransactions.filter((tx) => !isTransfer(tx)).map((tx) => tx.categorie)),
+    ].sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b)));
     const essentialPaymentTransactionIds = useMemo(
         () =>
             new Set(
@@ -91,10 +115,10 @@ export const LastSpends = () => {
     const totalForCategory = useMemo(() => {
         if (selectedCategory === "all") return null;
 
-        return store.transactions
-            .filter((tx) => tx.categorie === selectedCategory)
+        return cardTransactions
+            .filter((tx) => !isTransfer(tx) && tx.categorie === selectedCategory)
             .reduce((acc, tx) => acc + tx.value, 0);
-    }, [selectedCategory, store.transactions]);
+    }, [cardTransactions, selectedCategory]);
 
     const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
 
@@ -131,6 +155,7 @@ export const LastSpends = () => {
         if (res.updatedSavingsOperations) {
             store.setSavingsOperations(res.updatedSavingsOperations);
         }
+        if (res.updatedCards) store.setCards(res.updatedCards);
 
         if (clearTotalsChck) {
             localStorage.removeItem("currency");
@@ -156,11 +181,7 @@ export const LastSpends = () => {
             store.setTransactions(res.updatedItems);
         }
 
-        if (res.updatedTotals) {
-            store.setTotalAmount(res.updatedTotals.totalAmount);
-            store.setTotalIncome(res.updatedTotals.totalIncome);
-            store.setTotalSpend(res.updatedTotals.totalSpend);
-        }
+        store.applyServerUpdate(res);
         store.setSavingsOperations(res.updatedSavingsOperations);
 
         if (res.message) {
@@ -168,7 +189,7 @@ export const LastSpends = () => {
         }
     };
 
-    if (!store.transactions.length) {
+    if (!cardTransactions.length) {
         return (
             <div className="border-border bg-card w-full rounded-2xl border p-8 text-center shadow-sm">
                 <p className="text-sm font-medium">{t("noSpends")}</p>
@@ -273,71 +294,36 @@ export const LastSpends = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {paginatedTransactions.map((tx) => (
-                        <TableRow
-                            key={tx.id}
-                            className={twMerge(
-                                "group relative border-b-0 transition-colors",
-                                "[&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg",
-                                tx.transactionType === TransactionEnum.INCOME
-                                    ? "bg-emerald-500/[0.08] hover:bg-emerald-500/[0.16]"
-                                    : "bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]",
-                            )}
-                        >
-                            <TableCell className="relative font-medium">
-                                <span
-                                    className={twMerge(
-                                        "tabular-nums",
-                                        tx.transactionType === TransactionEnum.INCOME
-                                            ? "text-emerald-600 dark:text-emerald-400"
-                                            : "text-rose-600 dark:text-rose-400",
-                                    )}
-                                >
-                                    {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
-                                    {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
-                                </span>
-                                {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
-                                    <button
-                                        onClick={() => {
-                                            setEditingTx(tx);
-                                            setEditOpen(true);
-                                        }}
-                                        aria-label={t("edit")}
-                                        className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
-                                    >
-                                        <Pencil size={13} />
-                                    </button>
-                                )}
-                            </TableCell>
-
-                            <TableCell className="max-w-72 truncate">
-                                {tx.description || categoryLabel(tx.categorie)}
-                            </TableCell>
-                            <TableCell>{createDateString(new Date(tx.date))}</TableCell>
-
-                            <TableCell>
-                                <button
-                                    type="button"
-                                    disabled={
-                                        essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId)
-                                    }
-                                    onClick={() => {
-                                        setEditingTx(tx);
-                                        setEditOpen(true);
-                                    }}
-                                    aria-label={t("edit")}
-                                    className="bg-muted enabled:hover:bg-indigo-500/10 enabled:hover:text-indigo-600 inline-flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors disabled:cursor-default dark:enabled:hover:text-indigo-300"
-                                >
-                                    <CategoryIcon category={tx.categorie} className="size-4" />
-                                    <span className="text-xs font-medium">{categoryLabel(tx.categorie)}</span>
-                                    {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
-                                        <Pencil className="size-3 opacity-60" />
-                                    )}
-                                </button>
-                            </TableCell>
-
-                            <TableCell className="text-right">
-                                {!essentialPaymentTransactionIds.has(tx.id) && (
+                    {paginatedTransactions.map((tx) =>
+                        isTransfer(tx) ? (
+                            <TableRow
+                                key={tx.id}
+                                className="group relative border-b-0 bg-indigo-500/[0.06] transition-colors hover:bg-indigo-500/[0.12] [&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg"
+                            >
+                                <TableCell className="font-medium">
+                                    <span className="text-indigo-600 tabular-nums dark:text-indigo-300">
+                                        {
+                                            { in: "+ ", out: "- ", between: "" }[
+                                                transferDirection(tx, store.selectedCardId, store.cards)
+                                            ]
+                                        }
+                                        {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
+                                    </span>
+                                </TableCell>
+                                <TableCell className="max-w-72 truncate">
+                                    <span className="flex min-w-0 items-center gap-2">
+                                        <CardSwatch skin={findCardById(store.cards, tx.cardId)?.skin} />
+                                        <span className="truncate">{tx.description || transferLabel(tx)}</span>
+                                    </span>
+                                </TableCell>
+                                <TableCell>{createDateString(new Date(tx.date))}</TableCell>
+                                <TableCell>
+                                    <span className="bg-muted inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5">
+                                        <ArrowLeftRight className="size-4" />
+                                        <span className="text-xs font-medium">{tCards("betweenCards")}</span>
+                                    </span>
+                                </TableCell>
+                                <TableCell className="text-right">
                                     <button
                                         onClick={() => handleDeleteTransaction(tx.id)}
                                         aria-label={t("delete")}
@@ -345,10 +331,95 @@ export const LastSpends = () => {
                                     >
                                         <X size={14} />
                                     </button>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            <TableRow
+                                key={tx.id}
+                                className={twMerge(
+                                    "group relative border-b-0 transition-colors",
+                                    "[&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg",
+                                    tx.transactionType === TransactionEnum.INCOME
+                                        ? "bg-emerald-500/[0.08] hover:bg-emerald-500/[0.16]"
+                                        : "bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]",
                                 )}
-                            </TableCell>
-                        </TableRow>
-                    ))}
+                            >
+                                <TableCell className="relative font-medium">
+                                    <span
+                                        className={twMerge(
+                                            "tabular-nums",
+                                            tx.transactionType === TransactionEnum.INCOME
+                                                ? "text-emerald-600 dark:text-emerald-400"
+                                                : "text-rose-600 dark:text-rose-400",
+                                        )}
+                                    >
+                                        {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
+                                        {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
+                                    </span>
+                                    {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
+                                        <button
+                                            onClick={() => {
+                                                setEditingTx(tx);
+                                                setEditOpen(true);
+                                            }}
+                                            aria-label={t("edit")}
+                                            className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
+                                        >
+                                            <Pencil size={13} />
+                                        </button>
+                                    )}
+                                </TableCell>
+
+                                <TableCell className="max-w-72 truncate">
+                                    <span className="flex min-w-0 items-center gap-2">
+                                        {showCardColumn && (
+                                            <CardSwatch
+                                                skin={findCardById(store.cards, cardIdOf(tx, store.cards))?.skin}
+                                                className="h-3 w-4"
+                                            />
+                                        )}
+                                        <span className="truncate">
+                                            {tx.description || categoryLabel(tx.categorie)}
+                                        </span>
+                                    </span>
+                                </TableCell>
+                                <TableCell>{createDateString(new Date(tx.date))}</TableCell>
+
+                                <TableCell>
+                                    <button
+                                        type="button"
+                                        disabled={
+                                            essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId)
+                                        }
+                                        onClick={() => {
+                                            setEditingTx(tx);
+                                            setEditOpen(true);
+                                        }}
+                                        aria-label={t("edit")}
+                                        className="bg-muted enabled:hover:bg-indigo-500/10 enabled:hover:text-indigo-600 inline-flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors disabled:cursor-default dark:enabled:hover:text-indigo-300"
+                                    >
+                                        <CategoryIcon category={tx.categorie} className="size-4" />
+                                        <span className="text-xs font-medium">{categoryLabel(tx.categorie)}</span>
+                                        {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
+                                            <Pencil className="size-3 opacity-60" />
+                                        )}
+                                    </button>
+                                </TableCell>
+
+                                <TableCell className="text-right">
+                                    {!essentialPaymentTransactionIds.has(tx.id) && (
+                                        <button
+                                            onClick={() => handleDeleteTransaction(tx.id)}
+                                            aria-label={t("delete")}
+                                            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        ),
+                    )}
                 </TableBody>
             </Table>
 
@@ -388,14 +459,13 @@ export const LastSpends = () => {
                         savingsStorage: data.categories === "savings" ? data.savingsStorage : undefined,
                         savingsCurrency: data.categories === "savings" ? data.savingsCurrency : undefined,
                         savingsAmount: data.savingsAmount,
+                        cardId: data.cardId,
                     };
 
                     const res = await updateTransaction(payload);
 
                     store.setTransactions(res.updatedItems);
-                    store.setTotalAmount(res.updatedTotals.totalAmount);
-                    store.setTotalIncome(res.updatedTotals.totalIncome);
-                    store.setTotalSpend(res.updatedTotals.totalSpend);
+                    store.applyServerUpdate(res);
                     store.setSavingsOperations(res.updatedSavingsOperations);
 
                     toast.success(res.message);

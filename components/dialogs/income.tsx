@@ -32,6 +32,8 @@ import { incomeFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
 import { DateObjectPicker } from "components/ui/date-picker";
+import { CardSelect } from "components/cards/card-select";
+import { defaultCardId } from "lib/cards";
 
 export const IncomeDialogComponent = () => {
     const store = useStore();
@@ -42,6 +44,7 @@ export const IncomeDialogComponent = () => {
     const { mutateAsync: setNewTransactionAsync, isPending: setNewTransactionPending } = useSetNewTransaction();
 
     const [open, setOpen] = useState(false);
+    const [cardId, setCardId] = useState("");
 
     const validationMessages = useValidationMessages();
     const formSchema = useMemo(() => incomeFormSchema(validationMessages), [validationMessages]);
@@ -61,6 +64,7 @@ export const IncomeDialogComponent = () => {
 
     const handleOpenChange = (nextOpen: boolean) => {
         if (!nextOpen) resetForm();
+        if (nextOpen) setCardId(defaultCardId(store.selectedCardId, store.cards));
         setOpen(nextOpen);
     };
 
@@ -72,14 +76,13 @@ export const IncomeDialogComponent = () => {
             date: values.date,
             categorie: TransactionEnum.INCOME,
             description: values.description || "",
+            cardId: cardId || undefined,
         };
 
         try {
             const response = await setNewTransactionAsync(createTransaction);
 
-            store.setTotalAmount(response.updatedTotals.totalAmount);
-            store.setTotalIncome(response.updatedTotals.totalIncome);
-            store.setTotalSpend(response.updatedTotals.totalSpend);
+            store.applyServerUpdate(response);
             store.setTransactions(response.updatedItems);
 
             toast.success(
@@ -115,6 +118,7 @@ export const IncomeDialogComponent = () => {
                             <DialogTitle>{t("dialogs.enterIncome")}</DialogTitle>
                             <DialogDescription>{t("dialogs.incomeReceived")}</DialogDescription>
                         </DialogHeader>
+                        <CardSelect id="income-card" label={t("cards.toCard")} value={cardId} onChange={setCardId} />
                         <FormField
                             control={form.control}
                             name="value"
