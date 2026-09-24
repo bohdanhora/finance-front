@@ -25,6 +25,8 @@ import { filterByMonth, listMonths, monthResult, monthTotals, toMonthKey } from 
 import { planForMonth } from "lib/month-plan";
 import { TransactionEnum } from "constants/index";
 import { formatMonthKey } from "lib/date-locale";
+import { statisticsTransactions } from "lib/cards";
+import { CardFilter } from "components/cards/card-filter";
 
 const StatisticsPage = () => {
     const t = useTranslations("statistics");
@@ -38,14 +40,18 @@ const StatisticsPage = () => {
     const [month, setMonth] = useState(currentMonth);
     const [view, setView] = useState<ChartView>("categories");
 
-    const months = useMemo(() => listMonths(store.transactions), [store.transactions]);
-    const inMonth = useMemo(() => filterByMonth(store.transactions, month), [store.transactions, month]);
+    const scopedTransactions = useMemo(
+        () => statisticsTransactions(store.transactions, store.selectedCardId, store.cards),
+        [store.cards, store.selectedCardId, store.transactions],
+    );
+    const months = useMemo(() => listMonths(scopedTransactions), [scopedTransactions]);
+    const inMonth = useMemo(() => filterByMonth(scopedTransactions, month), [scopedTransactions, month]);
     const totals = useMemo(() => monthTotals(inMonth), [inMonth]);
     const result = useMemo(() => monthResult(inMonth), [inMonth]);
     const previousMonth = dayjs(`${month}-01`).subtract(1, "month").format("YYYY-MM");
     const previousTotals = useMemo(
-        () => monthTotals(filterByMonth(store.transactions, previousMonth)),
-        [previousMonth, store.transactions],
+        () => monthTotals(filterByMonth(scopedTransactions, previousMonth)),
+        [previousMonth, scopedTransactions],
     );
     const plan = useMemo(
         () =>
@@ -133,7 +139,8 @@ const StatisticsPage = () => {
                                 <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <CardFilter />
                                 <Button
                                     variant="secondary"
                                     size="icon"
@@ -192,7 +199,7 @@ const StatisticsPage = () => {
                                     <SpendingChart
                                         view={view}
                                         transactions={inMonth}
-                                        allTransactions={store.transactions}
+                                        allTransactions={scopedTransactions}
                                         month={month}
                                         currencySymbol={symbol}
                                     />

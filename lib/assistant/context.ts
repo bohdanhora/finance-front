@@ -63,6 +63,7 @@ export type AssistantContextInput = {
     rates: { usdToUah: number; eurToUah: number };
     bank?: AssistantBankContext | null;
     transactionLimit?: number;
+    cards?: { name: string; balance: number }[];
 };
 
 const money = (value: number) => value.toFixed(2);
@@ -158,11 +159,14 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
     const symbol = input.currency.toUpperCase();
     const limit = input.transactionLimit ?? DEFAULT_TRANSACTION_LIMIT;
 
-    const inMonth = filterByMonth(input.transactions, month);
+    const transactions = input.transactions.filter(
+        (transaction) => transaction.transactionType !== TransactionEnum.TRANSFER,
+    );
+    const inMonth = filterByMonth(transactions, month);
     const totals = monthTotals(inMonth);
     const result = monthResult(inMonth);
     const categories = byCategory(inMonth).slice(0, 12);
-    const months = byMonth(input.transactions, month, 6);
+    const months = byMonth(transactions, month, 6);
     const incomes = summarizeExpectedIncomes(input.expectedIncomes);
     const essentials = summarizeEssentials(input.essentials);
 
@@ -170,7 +174,7 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
     const daysLeft = Math.max(daysInMonth - dayjs(today).date() + 1, 1);
     const toSave = (input.totalAmount * input.percentage) / 100;
 
-    const recent = [...input.transactions]
+    const recent = [...transactions]
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, limit)
         .map(
@@ -187,6 +191,9 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
         "",
         "## Balance right now",
         `Current balance: ${money(input.totalAmount)}`,
+        input.cards && input.cards.length > 1
+            ? `Balance by card: ${input.cards.map((card) => `${card.name} ${money(card.balance)}`).join(", ")}`
+            : "",
         `Income recorded this month: ${money(input.totalIncome)}`,
         `Spending recorded this month: ${money(input.totalSpend)}`,
         `Savings percent set by the user: ${input.percentage}% (that is ${money(toSave)} of the current balance)`,

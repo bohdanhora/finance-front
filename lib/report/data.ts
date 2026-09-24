@@ -194,7 +194,8 @@ const buildSummary = (input: ReportInput, scoped: TransactionType[], savings: Re
 export const buildReportModel = (input: ReportInput): ReportModel => {
     const today = input.today ?? new Date();
     const range = resolveRange(input.options.period, today);
-    const scoped = input.transactions
+    const flows = input.transactions.filter((transaction) => transaction.transactionType !== TransactionEnum.TRANSFER);
+    const scoped = flows
         .filter((transaction) => inRange(transaction, range))
         .sort((left, right) => right.date.localeCompare(left.date));
 
@@ -206,7 +207,7 @@ export const buildReportModel = (input: ReportInput): ReportModel => {
         generatedAt: toIsoDay(today),
         summary: buildSummary(input, scoped, savings),
         categories: buildCategoryRows(scoped),
-        dynamics: buildDynamics(input.transactions, range),
+        dynamics: buildDynamics(flows, range),
         essentials: buildEssentials(input),
         savings,
         transactions: applyFilter(scoped, input.options.transactionsFilter),

@@ -7,6 +7,7 @@ import useStore from "store/general";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { filterByMonth, monthTotals, toMonthKey } from "lib/statistics";
+import { statisticsTransactions } from "lib/cards";
 import { Section } from "./wrappers/section";
 import { StatCard } from "./stat-card";
 import { AnimatedMoney } from "./animated-number";
@@ -27,8 +28,9 @@ export const TotalAmounts = () => {
             [CURRENCY.EUR]: eurRate,
             [CURRENCY.USD]: usdRate,
         };
-        const thisMonth = monthTotals(filterByMonth(store.transactions, toMonthKey(new Date())));
-        const allTime = monthTotals(store.transactions);
+        const scoped = statisticsTransactions(store.transactions, store.selectedCardId, store.cards);
+        const thisMonth = monthTotals(filterByMonth(scoped, toMonthKey(new Date())));
+        const allTime = monthTotals(scoped);
 
         return {
             thisMonth: {
@@ -40,7 +42,7 @@ export const TotalAmounts = () => {
                 spend: convertToAllCurrencies(allTime.expense, rates),
             },
         };
-    }, [eurRate, store.transactions, usdRate]);
+    }, [eurRate, store.cards, store.selectedCardId, store.transactions, usdRate]);
 
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);

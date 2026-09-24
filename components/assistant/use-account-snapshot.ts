@@ -81,6 +81,10 @@ export const useAccountSnapshot = () => {
             nextMonthEssentials: store.nextMonthEssentialsArray,
             expectedIncomes: store.expectedIncomes,
             transactions: store.transactions,
+            cards: store.cards.map((card, index) => ({
+                name: card.name.trim() || (card.skin === "default" ? `Card ${index + 1}` : card.skin),
+                balance: card.balance,
+            })),
             savingsGoals: store.savingsGoals,
             savingsOperations: store.savingsOperations,
             streak: store.streak,
