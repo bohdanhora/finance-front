@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { Routes } from "constants/routes";
 import Cookies from "js-cookie";
 import { getAuthCookieOptions, isRememberedSession } from "lib/auth-helper";
@@ -12,6 +12,10 @@ const authAxios = axios.create({
 const transactionsAxios = axios.create({
     baseURL: `${url}/transactions`,
     headers: {},
+});
+
+const accountAxios = axios.create({
+    baseURL: `${url}/auth`,
 });
 
 const retryMap = new WeakMap();
@@ -29,74 +33,79 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
     refreshSubscribers.push(callback);
 };
 
-transactionsAxios.interceptors.request.use((config) => {
-    const token = Cookies.get("accessToken");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+const withSession = (instance: AxiosInstance) => {
+    instance.interceptors.request.use((config) => {
+        const token = Cookies.get("accessToken");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
 
-transactionsAxios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        const originalRequest = error.config;
+    instance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !retryMap.get(originalRequest)) {
-            retryMap.set(originalRequest, true);
+            if (error.response?.status === 401 && !retryMap.get(originalRequest)) {
+                retryMap.set(originalRequest, true);
 
-            if (!isRefreshing) {
-                isRefreshing = true;
+                if (!isRefreshing) {
+                    isRefreshing = true;
 
-                const refreshToken = Cookies.get("refreshToken");
+                    const refreshToken = Cookies.get("refreshToken");
 
-                if (!refreshToken) {
-                    Cookies.remove("accessToken");
-                    Cookies.remove("refreshToken");
-                    if (typeof window !== "undefined") {
-                        window.location.href = Routes.LOGIN;
-                    }
-                    return Promise.reject(new Error("No refresh token found"));
-                }
-
-                return authAxios
-                    .post("/refresh", { refreshToken })
-                    .then((res) => {
-                        const newToken = res.data.accessToken;
-                        const newRefreshToken = res.data.refreshToken;
-                        const cookieOptions = getAuthCookieOptions(isRememberedSession());
-
-                        Cookies.set("accessToken", newToken, cookieOptions);
-                        Cookies.set("refreshToken", newRefreshToken, cookieOptions);
-
-                        isRefreshing = false;
-
-                        onRefreshed(newToken);
-
-                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                        return transactionsAxios(originalRequest);
-                    })
-                    .catch((refreshError) => {
-                        isRefreshing = false;
+                    if (!refreshToken) {
                         Cookies.remove("accessToken");
                         Cookies.remove("refreshToken");
                         if (typeof window !== "undefined") {
                             window.location.href = Routes.LOGIN;
                         }
-                        return Promise.reject(refreshError);
+                        return Promise.reject(new Error("No refresh token found"));
+                    }
+
+                    return authAxios
+                        .post("/refresh", { refreshToken })
+                        .then((res) => {
+                            const newToken = res.data.accessToken;
+                            const newRefreshToken = res.data.refreshToken;
+                            const cookieOptions = getAuthCookieOptions(isRememberedSession());
+
+                            Cookies.set("accessToken", newToken, cookieOptions);
+                            Cookies.set("refreshToken", newRefreshToken, cookieOptions);
+
+                            isRefreshing = false;
+
+                            onRefreshed(newToken);
+
+                            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                            return instance(originalRequest);
+                        })
+                        .catch((refreshError) => {
+                            isRefreshing = false;
+                            Cookies.remove("accessToken");
+                            Cookies.remove("refreshToken");
+                            if (typeof window !== "undefined") {
+                                window.location.href = Routes.LOGIN;
+                            }
+                            return Promise.reject(refreshError);
+                        });
+                } else {
+                    return new Promise((resolve) => {
+                        addRefreshSubscriber((token: string) => {
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                            resolve(instance(originalRequest));
+                        });
                     });
-            } else {
-                return new Promise((resolve) => {
-                    addRefreshSubscriber((token: string) => {
-                        originalRequest.headers.Authorization = `Bearer ${token}`;
-                        resolve(transactionsAxios(originalRequest));
-                    });
-                });
+                }
             }
-        }
 
-        return Promise.reject(error);
-    },
-);
+            return Promise.reject(error);
+        },
+    );
+};
 
-export { authAxios, transactionsAxios };
+withSession(transactionsAxios);
+withSession(accountAxios);
+
+export { accountAxios, authAxios, transactionsAxios };
