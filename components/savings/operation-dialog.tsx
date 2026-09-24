@@ -34,7 +34,7 @@ import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
 import { ValidationMessages, useValidationMessages } from "lib/validation";
-import { defaultCardId, findCardById } from "lib/cards";
+import { defaultCardId, spendableOnCard } from "lib/cards";
 import { CardSwatch, useCardName } from "components/cards/card-face";
 
 const getOperationSchema = (messages: ValidationMessages) =>
@@ -84,7 +84,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
     const { mutateAsync: addOperation, isPending } = useAddSavingsOperation();
     const cardName = useCardName();
     const [cardId, setCardId] = useState("");
-    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
+    const cardBalance = spendableOnCard(store.cards, cardId, store.totalAmount);
 
     const validationMessages = useValidationMessages();
     const operationSchema = useMemo(() => getOperationSchema(validationMessages), [validationMessages]);

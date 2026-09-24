@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 import { useSetExpectedIncomeReceived } from "api/main";
 import { getCurrencySymbol } from "lib/currency";
-import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney, toMoneyInput } from "lib/money";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
@@ -182,7 +182,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                 {addToBalance && (
                                     <p className="text-muted-foreground">
                                         {t("balanceAfter", {
-                                            amount: formatCurrency(
+                                            amount: formatSignedCurrency(
                                                 roundMoney(
                                                     (findCardById(store.cards, cardId)?.balance ?? store.totalAmount) +
                                                         numericAmount,

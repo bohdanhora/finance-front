@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { useSetCheckedEssential } from "api/main";
 import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
-import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney, toMoneyInput } from "lib/money";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "ui/input";
 import { Label } from "ui/label";
 import { CardSelect } from "components/cards/card-select";
-import { defaultCardId, findCardById } from "lib/cards";
+import { defaultCardId, findCardById, spendableOnCard } from "lib/cards";
 
 type Props = {
     essential: EssentialType | null;
@@ -35,7 +35,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     const tCards = useTranslations("cards");
 
     const isUndo = Boolean(essential?.checked);
-    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
+    const cardBalance = spendableOnCard(store.cards, cardId, store.totalAmount);
     const symbol = getCurrencySymbol(store.userCurrency);
     const numericAmount = Number(actualAmount);
     const hasValidAmount = actualAmount.length > 0 && Number.isFinite(numericAmount) && numericAmount > 0;
@@ -95,7 +95,8 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     if (!essential) return null;
 
     const paidAmount = essential.paidAmount ?? essential.amount;
-    const balanceAfterPayment = roundMoney(cardBalance - (hasValidAmount ? numericAmount : 0));
+    const currentBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
+    const balanceAfterPayment = roundMoney(currentBalance - (hasValidAmount ? numericAmount : 0));
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
@@ -198,7 +199,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                 {difference === 0 && <p className="text-muted-foreground">{t("matchesPlan")}</p>}
                                 <p className="text-muted-foreground">
                                     {t("balanceAfter", {
-                                        amount: formatCurrency(Math.max(0, balanceAfterPayment)),
+                                        amount: formatSignedCurrency(balanceAfterPayment),
                                         currency: symbol,
                                     })}
                                 </p>

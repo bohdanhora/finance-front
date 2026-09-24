@@ -84,6 +84,7 @@ export const useAccountSnapshot = () => {
             cards: store.cards.map((card, index) => ({
                 name: card.name.trim() || (card.skin === "default" ? `Card ${index + 1}` : card.skin),
                 balance: card.balance,
+                creditLimit: card.creditLimit ?? 0,
             })),
             savingsGoals: store.savingsGoals,
             savingsOperations: store.savingsOperations,

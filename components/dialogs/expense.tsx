@@ -42,7 +42,7 @@ import { DateObjectPicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { SavingsStorage } from "types/transactions";
 import { CardSelect } from "components/cards/card-select";
-import { defaultCardId, findCardById } from "lib/cards";
+import { defaultCardId, spendableOnCard } from "lib/cards";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -57,7 +57,7 @@ export const ExpenseDialogComponent = () => {
 
     const [open, setOpen] = useState(false);
     const [cardId, setCardId] = useState("");
-    const cardBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
+    const cardBalance = spendableOnCard(store.cards, cardId, store.totalAmount);
 
     const rates = useMemo(() => ({ usdToUah, eurToUah }), [eurToUah, usdToUah]);
 

@@ -63,7 +63,7 @@ export type AssistantContextInput = {
     rates: { usdToUah: number; eurToUah: number };
     bank?: AssistantBankContext | null;
     transactionLimit?: number;
-    cards?: { name: string; balance: number }[];
+    cards?: { name: string; balance: number; creditLimit?: number }[];
 };
 
 const money = (value: number) => value.toFixed(2);
@@ -193,6 +193,17 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
         `Current balance: ${money(input.totalAmount)}`,
         input.cards && input.cards.length > 1
             ? `Balance by card: ${input.cards.map((card) => `${card.name} ${money(card.balance)}`).join(", ")}`
+            : "",
+        input.cards?.some((card) => (card.creditLimit ?? 0) > 0)
+            ? `Credit cards (a negative balance is debt owed to the bank, the unused limit is not the user's money): ${input.cards
+                  .filter((card) => (card.creditLimit ?? 0) > 0)
+                  .map(
+                      (card) =>
+                          `${card.name} limit ${money(card.creditLimit ?? 0)}, ${
+                              card.balance < 0 ? `debt ${money(-card.balance)}` : `own money ${money(card.balance)}`
+                          }`,
+                  )
+                  .join("; ")}`
             : "",
         `Income recorded this month: ${money(input.totalIncome)}`,
         `Spending recorded this month: ${money(input.totalSpend)}`,
