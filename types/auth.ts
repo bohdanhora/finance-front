@@ -53,3 +53,19 @@ export type LogoutPayload = {
 export type LogoutResponseType = {
     message: string;
 };
+
+export type AccountResponse = {
+    name: string;
+    email: string;
+    registeredVia: "local" | "google";
+    hasPassword: boolean;
+};
+
+export type ChangePasswordPayload = {
+    oldPassword?: string;
+    newPassword: string;
+};
+
+export type ChangePasswordResponseType = {
+    message: string;
+};

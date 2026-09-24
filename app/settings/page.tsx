@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { Navbar } from "components/navbar";
+import { AccountPassword } from "components/settings/account-password";
 import { AssistantConnection } from "components/settings/assistant-connection";
 import { MonobankConnection } from "components/settings/monobank-connection";
 import { PrivateProvider } from "providers/auth";
@@ -25,7 +26,10 @@ const SettingsPage = () => {
 
                         <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-2">
                             <AssistantConnection />
-                            <MonobankConnection />
+                            <div className="flex min-w-0 flex-col gap-4">
+                                <MonobankConnection />
+                                <AccountPassword />
+                            </div>
                         </div>
                     </div>
                 </div>

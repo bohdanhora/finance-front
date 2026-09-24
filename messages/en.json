@@ -854,5 +854,27 @@
         "emptyBaseUrl": "Enter the API address first.",
         "modelPlaceholder": "choose a model",
         "browserHint": "Requests go from this browser straight to the provider, so the provider has to allow browser calls. Anthropic, OpenAI, Google and OpenRouter do."
+    },
+    "password": {
+        "title": "Password",
+        "statusSet": "Set, you can sign in with your email and password",
+        "statusGoogle": "Not set yet, you sign in with Google only",
+        "statusNotSet": "Not set yet",
+        "setBadge": "Set",
+        "current": "Current password",
+        "new": "New password",
+        "confirm": "Repeat the new password",
+        "create": "Create password",
+        "change": "Change password",
+        "currentRequired": "Enter your current password.",
+        "samePassword": "The new password matches the current one.",
+        "wrongCurrent": "The current password is wrong.",
+        "requestFailed": "Could not save the password. Try again.",
+        "createdToast": "Password created",
+        "changedToast": "Password changed",
+        "loading": "Loading the account",
+        "loadFailed": "Could not load the account. Refresh the page and try again.",
+        "note": "With a password you can also sign in as {email} without Google. It is stored hashed and nobody can read it, us included.",
+        "noteNoEmail": "With a password you can also sign in without Google. It is stored hashed and nobody can read it, us included."
     }
 }
