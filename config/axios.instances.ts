@@ -18,19 +18,34 @@ const accountAxios = axios.create({
     baseURL: `${url}/auth`,
 });
 
-const retryMap = new WeakMap();
+let pendingRefresh: Promise<string> | null = null;
 
-let isRefreshing = false;
+const requestNewTokens = async () => {
+    const refreshToken = Cookies.get("refreshToken");
+    if (!refreshToken) throw new Error("No refresh token found");
 
-let refreshSubscribers: ((token: string) => void)[] = [];
+    const res = await authAxios.post("/refresh", { refreshToken });
+    const cookieOptions = getAuthCookieOptions(isRememberedSession());
 
-const onRefreshed = (token: string) => {
-    refreshSubscribers.forEach((callback) => callback(token));
-    refreshSubscribers = [];
+    Cookies.set("accessToken", res.data.accessToken, cookieOptions);
+    Cookies.set("refreshToken", res.data.refreshToken, cookieOptions);
+
+    return res.data.accessToken as string;
 };
 
-const addRefreshSubscriber = (callback: (token: string) => void) => {
-    refreshSubscribers.push(callback);
+const refreshAccessToken = () => {
+    pendingRefresh ??= requestNewTokens().finally(() => {
+        pendingRefresh = null;
+    });
+    return pendingRefresh;
+};
+
+const endLocalSession = () => {
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    if (typeof window !== "undefined") {
+        window.location.href = Routes.LOGIN;
+    }
 };
 
 const withSession = (instance: AxiosInstance) => {
@@ -47,60 +62,22 @@ const withSession = (instance: AxiosInstance) => {
         (error) => {
             const originalRequest = error.config;
 
-            if (error.response?.status === 401 && !retryMap.get(originalRequest)) {
-                retryMap.set(originalRequest, true);
-
-                if (!isRefreshing) {
-                    isRefreshing = true;
-
-                    const refreshToken = Cookies.get("refreshToken");
-
-                    if (!refreshToken) {
-                        Cookies.remove("accessToken");
-                        Cookies.remove("refreshToken");
-                        if (typeof window !== "undefined") {
-                            window.location.href = Routes.LOGIN;
-                        }
-                        return Promise.reject(new Error("No refresh token found"));
-                    }
-
-                    return authAxios
-                        .post("/refresh", { refreshToken })
-                        .then((res) => {
-                            const newToken = res.data.accessToken;
-                            const newRefreshToken = res.data.refreshToken;
-                            const cookieOptions = getAuthCookieOptions(isRememberedSession());
-
-                            Cookies.set("accessToken", newToken, cookieOptions);
-                            Cookies.set("refreshToken", newRefreshToken, cookieOptions);
-
-                            isRefreshing = false;
-
-                            onRefreshed(newToken);
-
-                            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                            return instance(originalRequest);
-                        })
-                        .catch((refreshError) => {
-                            isRefreshing = false;
-                            Cookies.remove("accessToken");
-                            Cookies.remove("refreshToken");
-                            if (typeof window !== "undefined") {
-                                window.location.href = Routes.LOGIN;
-                            }
-                            return Promise.reject(refreshError);
-                        });
-                } else {
-                    return new Promise((resolve) => {
-                        addRefreshSubscriber((token: string) => {
-                            originalRequest.headers.Authorization = `Bearer ${token}`;
-                            resolve(instance(originalRequest));
-                        });
-                    });
-                }
+            if (error.response?.status !== 401 || !originalRequest || originalRequest.authRetried) {
+                return Promise.reject(error);
             }
 
-            return Promise.reject(error);
+            originalRequest.authRetried = true;
+
+            return refreshAccessToken().then(
+                (token) => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return instance(originalRequest);
+                },
+                (refreshError) => {
+                    endLocalSession();
+                    return Promise.reject(refreshError);
+                },
+            );
         },
     );
 };
@@ -108,4 +85,4 @@ const withSession = (instance: AxiosInstance) => {
 withSession(transactionsAxios);
 withSession(accountAxios);
 
-export { accountAxios, authAxios, transactionsAxios };
+export { accountAxios, authAxios, refreshAccessToken, transactionsAxios };
