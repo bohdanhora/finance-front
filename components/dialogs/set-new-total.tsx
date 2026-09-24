@@ -26,9 +26,12 @@ import { setTotalFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
 import { Pencil } from "lucide-react";
 import { useSetTotalAmount } from "api/main";
+import { Card } from "types/transactions";
+import { useCardName } from "components/cards/card-face";
 
-export const SetTotalDialog = () => {
+export const SetTotalDialog = ({ card }: { card: Card }) => {
     const store = useStore();
+    const cardName = useCardName();
 
     const [open, setOpen] = useState(false);
 
@@ -56,8 +59,8 @@ export const SetTotalDialog = () => {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            await setTotalAsync({ totalAmount: Number(values.value) });
-            store.setTotalAmount(Number(values.value));
+            const response = await setTotalAsync({ totalAmount: Number(values.value), cardId: card.id });
+            store.applyServerUpdate({ totalAmount: response.totalAmount, updatedCards: response.updatedCards });
 
             resetForm();
             setOpen(false);
@@ -76,16 +79,17 @@ export const SetTotalDialog = () => {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-foreground shrink-0"
+                        aria-label={t("title")}
+                        className="text-muted-foreground hover:text-foreground size-8 shrink-0"
                     >
-                        <Pencil className="w-6 h-6 text-gray-500 hover:text-black dark:hover:text-white" />
+                        <Pencil className="size-4" />
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("title")}</DialogTitle>
-                            <DialogDescription>{t("subtitle")}</DialogDescription>
+                            <DialogDescription>{t("cardSubtitle", { card: cardName(card) })}</DialogDescription>
                         </DialogHeader>
                         <FormField
                             control={form.control}
