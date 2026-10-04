@@ -42,7 +42,7 @@ export const CategoryBreakdown = ({
                         </div>
                         <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
                             <div
-                                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600"
+                                className="h-full rounded-full bg-primary"
                                 style={{ width: `${Math.max(share, 2)}%` }}
                             />
                         </div>

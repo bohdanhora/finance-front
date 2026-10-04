@@ -16,7 +16,7 @@ export const MobileNav = ({ items }: { items: NavItem[] }) => {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/8 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl sm:hidden dark:border-white/10 dark:bg-zinc-950/85">
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] sm:hidden">
             <div className="mx-auto flex w-full max-w-md items-stretch justify-around gap-1 px-2 py-1.5">
                 {items.map(({ href, label, Icon, anchor }) => {
                     const active = pathname === href;

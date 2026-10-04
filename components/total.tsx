@@ -48,10 +48,6 @@ export const Total = () => {
             data-tour="balance"
             className="border-border bg-card relative w-full scroll-mt-24 overflow-hidden rounded-2xl border p-5 shadow-sm sm:p-6"
         >
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-20 -left-16 size-48 rounded-full bg-indigo-500/[0.07] blur-3xl"
-            />
             <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 flex-1">
                     <div className="-my-1.5 flex min-h-8 items-center gap-1">

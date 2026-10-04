@@ -11,7 +11,7 @@ export const authLabelClass = "text-xs font-medium tracking-wide text-black/60 d
 
 export const authPrimaryButtonClass = [
     "h-auto min-h-12 w-full rounded-xl px-4 py-3 text-[0.95rem] font-medium whitespace-normal",
-    "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white",
+    "bg-primary text-primary-foreground",
     "shadow-lg shadow-indigo-500/25 dark:shadow-indigo-900/40",
     "transition-[transform,box-shadow,filter] duration-200",
     "hover:-translate-y-0.5 hover:brightness-110 hover:shadow-xl active:translate-y-0 active:brightness-95",

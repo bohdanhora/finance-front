@@ -62,10 +62,7 @@ export const CardFace = ({
                 className,
             )}
         >
-            <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-10 -right-8 -z-10 size-28 rounded-full bg-white/10 blur-2xl"
-            />
+            <span aria-hidden="true" className="pointer-events-none absolute -top-10 -right-8 -z-10 hidden" />
             <div className="flex items-start justify-between gap-2">
                 <span className={twMerge("truncate leading-none", style.wordmark, compact && "text-[0.6rem]")}>
                     {style.brand ?? name}

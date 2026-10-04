@@ -185,7 +185,9 @@ const ModelPicker = ({
                             onKeyDown={moveBetweenOptions}
                         >
                             <span className="min-w-0 truncate">{model}</span>
-                            {value === model && <Check className="size-4 shrink-0 text-indigo-600 dark:text-indigo-300" />}
+                            {value === model && (
+                                <Check className="size-4 shrink-0 text-indigo-600 dark:text-indigo-300" />
+                            )}
                         </button>
                     ))}
                     {!typed && filtered.length === 0 && (
@@ -332,7 +334,7 @@ export const AssistantConnection = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-700 text-white shadow-sm">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                     <Sparkles className="size-5" />
                 </span>
             }

@@ -169,7 +169,7 @@ export const AccountSessions = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-700 text-white shadow-sm">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                     <MonitorSmartphone className="size-5" />
                 </span>
             }

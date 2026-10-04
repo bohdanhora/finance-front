@@ -14,8 +14,8 @@ export const CARD_SKINS: Record<CardSkin, CardSkinStyle> = {
     [CardSkin.DEFAULT]: {
         id: CardSkin.DEFAULT,
         brand: null,
-        surface: "bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700",
-        swatch: "bg-gradient-to-br from-indigo-500 to-violet-700",
+        surface: "bg-indigo-600",
+        swatch: "bg-indigo-600",
         text: "text-white",
         muted: "text-white/70",
         wordmark: "text-[0.7rem] font-semibold tracking-[0.18em] uppercase",

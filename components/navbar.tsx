@@ -105,7 +105,7 @@ export const Navbar = () => {
     return (
         <>
             {logoutPending && <Loader />}
-            <header className="sticky top-0 z-40 w-full border-b border-black/8 bg-white/75 shadow-[0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-2xl dark:border-white/8 dark:bg-zinc-950/75 dark:shadow-none">
+            <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
                 <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_auto_auto] items-center justify-between gap-1 px-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2 sm:px-5 lg:px-6">
                     <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                         <Link
@@ -113,7 +113,7 @@ export const Navbar = () => {
                             aria-label="Finance"
                             className="flex w-fit shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                         >
-                            <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
+                            <span className="flex size-9 items-center justify-center bg-primary">
                                 <svg
                                     width="19"
                                     height="19"
@@ -149,7 +149,7 @@ export const Navbar = () => {
                                         className={twMerge(
                                             "relative flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200",
                                             active
-                                                ? "bg-gradient-to-b from-white to-indigo-50 text-indigo-700 shadow-sm ring-1 ring-black/5 dark:from-white/12 dark:to-indigo-500/10 dark:text-indigo-300 dark:ring-white/10"
+                                                ? "bg-primary/10 text-primary"
                                                 : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
                                         )}
                                     >

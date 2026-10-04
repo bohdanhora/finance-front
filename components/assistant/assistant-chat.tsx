@@ -125,7 +125,7 @@ export const AssistantChat = () => {
                 onClick={() => setOpen((current) => !current)}
                 className={twMerge(
                     "fixed right-4 bottom-20 z-50 flex size-13 cursor-pointer items-center justify-center rounded-2xl",
-                    "bg-gradient-to-br from-indigo-500 to-violet-700 text-white shadow-lg shadow-indigo-500/30",
+                    "bg-primary text-primary-foreground",
                     "transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-xl",
                     "sm:right-6 sm:bottom-6",
                     open && "scale-95 opacity-0",
@@ -145,7 +145,7 @@ export const AssistantChat = () => {
                     )}
                 >
                     <header className="border-border/70 flex items-center gap-2 border-b px-4 py-3">
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-700 text-white">
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                             <Sparkles className="size-4" />
                         </span>
                         <div className="min-w-0 flex-1">

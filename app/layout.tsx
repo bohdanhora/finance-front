@@ -1,4 +1,4 @@
-import { Manrope, Poppins } from "next/font/google";
+import { IBM_Plex_Sans, Martian_Mono, Unbounded } from "next/font/google";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -15,12 +15,13 @@ import { ReactQueryProvider } from "providers/react-query";
 import { DesktopCalculator } from "components/calculator/desktop-calculator";
 import { KeyboardInset } from "components/keyboard-inset";
 
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
-const poppins = Poppins({
-    subsets: ["latin"],
-    weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-    variable: "--font-poppins",
+const plex = IBM_Plex_Sans({
+    subsets: ["latin", "cyrillic"],
+    weight: ["400", "500", "600"],
+    variable: "--font-plex",
 });
+const unbounded = Unbounded({ subsets: ["latin", "cyrillic"], variable: "--font-unbounded" });
+const martian = Martian_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-martian" });
 
 const description = "Personal Finance App";
 
@@ -59,7 +60,7 @@ const RootLayout = async ({
             <body
                 className={twMerge(
                     "bg-background text-foreground text-base font-normal antialiased",
-                    `${manrope.variable} ${poppins.variable} font-manrope`,
+                    `${plex.variable} ${unbounded.variable} ${martian.variable} font-sans`,
                 )}
             >
                 <NextIntlClientProvider messages={messages}>

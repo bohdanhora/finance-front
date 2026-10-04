@@ -15,16 +15,16 @@ export const AuthSectionWrapper = ({
             <div className="relative w-full max-w-md">
                 <div className="auth-halo" aria-hidden="true" />
 
-                <div className="auth-card relative overflow-hidden rounded-3xl border border-white/40 bg-white/85 shadow-[0_20px_60px_-15px_rgb(0_0_0_/_0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-black/70 dark:shadow-[0_20px_60px_-15px_rgb(0_0_0_/_0.8)]">
+                <div className="auth-card relative overflow-hidden border border-border bg-card">
                     <div
-                        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/70 to-transparent"
+                        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-foreground"
                         aria-hidden="true"
                     />
 
-                    <div className="p-6 font-poppins sm:p-9">
+                    <div className="p-6 font-display sm:p-9">
                         <div className="mb-9 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                                <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg shadow-indigo-500/25">
+                                <span className="flex size-9 items-center justify-center bg-primary">
                                     <svg
                                         width="19"
                                         height="19"
