@@ -22,9 +22,20 @@ const poppins = Poppins({
     variable: "--font-poppins",
 });
 
+const description = "Personal Finance App";
+
 export const metadata: Metadata = {
+    metadataBase: new URL("https://finance-front-zeta.vercel.app"),
     title: "Finance App",
-    description: "Personal Finance App",
+    description,
+    openGraph: {
+        type: "website",
+        url: "/",
+        siteName: "Finance App",
+        title: "Finance App",
+        description,
+    },
+    twitter: { card: "summary_large_image", title: "Finance App", description },
 };
 
 export const viewport: Viewport = {
