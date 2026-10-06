@@ -25,7 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronLeft, ChevronRight, Layers, Plus } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { AnimatedMoney } from "components/animated-number";
 import { CardDialog } from "components/cards/card-dialog";
@@ -37,12 +37,11 @@ import { useReorderCards } from "api/cards";
 import useStore from "store/general";
 import { Card } from "types/transactions";
 
-const tileBase =
-    "relative w-36 shrink-0 cursor-pointer snap-start rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 sm:w-44";
+const tileBase = "card-tile relative w-tile shrink-0 cursor-pointer snap-start outline-none sm:w-tile-lg";
 
-const tileClass = `${tileBase} transition-[transform,opacity,box-shadow] duration-200`;
+const tileClass = tileBase;
 
-const sortableTileClass = `${tileBase} transition-[opacity,box-shadow] duration-200`;
+const sortableTileClass = tileBase;
 
 const horizontalOnly: Modifier = ({ transform }) => ({ ...transform, y: 0 });
 
@@ -72,11 +71,7 @@ const SortableCard = ({
             onClick={onSelect}
             onContextMenu={(event) => event.preventDefault()}
             style={{ transform: CSS.Translate.toString(transform), transition }}
-            className={twMerge(
-                className,
-                "touch-manipulation select-none [-webkit-touch-callout:none]",
-                isDragging && "opacity-30",
-            )}
+            className={twMerge(className, "touch-manipulation select-none", isDragging && "opacity-30")}
         >
             {children}
         </button>
@@ -142,7 +137,7 @@ export const CardSwitcher = () => {
     };
 
     const arrowClass =
-        "bg-card/90 text-foreground ring-border hover:bg-card absolute top-1/2 z-20 hidden size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full shadow-md ring-1 backdrop-blur transition-opacity [@media(pointer:fine)]:flex";
+        "bg-paper border-rule-strong text-ink hover:bg-ink hover:text-paper absolute top-1/2 z-20 hidden size-9 -translate-y-1/2 items-center justify-center border transition-colors pointer-fine:flex";
 
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
@@ -177,8 +172,8 @@ export const CardSwitcher = () => {
 
     const active = resolveCardFilter(selectedCardId, cards);
     const showAll = cards.length > 1;
-    const selectedClass = "ring-2 ring-indigo-500 ring-offset-2 ring-offset-card";
-    const idleClass = dragging ? "opacity-75" : "opacity-75 hover:opacity-100 hover:-translate-y-0.5";
+    const selectedClass = "";
+    const idleClass = dragging ? "opacity-60" : "opacity-90 hover:opacity-100";
     const draggedCard = cards.find((card) => card.id === draggedId) ?? null;
 
     return (
@@ -188,7 +183,7 @@ export const CardSwitcher = () => {
                     type="button"
                     aria-label={t("scrollBack")}
                     onClick={() => scrollByPage(-1)}
-                    className={twMerge(arrowClass, "-left-3 sm:-left-4")}
+                    className={twMerge(arrowClass, "-left-2")}
                 >
                     <ChevronLeft className="size-4" />
                 </button>
@@ -198,7 +193,7 @@ export const CardSwitcher = () => {
                     type="button"
                     aria-label={t("scrollForward")}
                     onClick={() => scrollByPage(1)}
-                    className={twMerge(arrowClass, "-right-3 sm:-right-4")}
+                    className={twMerge(arrowClass, "-right-2")}
                 >
                     <ChevronRight className="size-4" />
                 </button>
@@ -208,7 +203,7 @@ export const CardSwitcher = () => {
                 role="listbox"
                 aria-label={t("switcherLabel")}
                 className={twMerge(
-                    "-mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 pt-1 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                    "no-scrollbar -mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pt-2 pb-4 md:mx-0 md:scroll-px-0 md:px-0",
                     dragging && "snap-none",
                 )}
             >
@@ -220,20 +215,24 @@ export const CardSwitcher = () => {
                         onClick={() => setSelectedCardId(ALL_CARDS)}
                         className={twMerge(tileClass, active === ALL_CARDS ? selectedClass : idleClass)}
                     >
-                        <div className="bg-muted/70 ring-border flex aspect-[1.586] w-full flex-col justify-between rounded-2xl p-3.5 text-left ring-1">
-                            <span className="flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] uppercase">
-                                <Layers className="size-3.5 text-indigo-500" />
+                        <div
+                            className={twMerge(
+                                "bg-surface border-rule-strong rounded-card flex aspect-card w-full flex-col justify-between gap-2 border p-3 text-left sm:p-3.5",
+                            )}
+                        >
+                            <span className="flex items-center gap-2 font-mono text-2xs tracking-wide uppercase">
+                                <Layers className="size-3" />
                                 {t("allCards")}
                             </span>
                             <span className="min-w-0">
-                                <span className="text-muted-foreground block text-xs">
+                                <span className="text-ink-faint block text-xs">
                                     {t("cardsCount", { count: cards.length })}
                                 </span>
-                                <span className="block truncate text-lg leading-tight font-semibold tabular-nums">
+                                <span className="figure block text-base leading-tight break-words sm:text-lg">
                                     <AnimatedMoney
                                         value={totalAmount}
                                         symbol={symbol}
-                                        symbolClassName="text-muted-foreground"
+                                        symbolClassName="text-ink-faint"
                                         format={formatSignedCurrency}
                                     />
                                 </span>
@@ -272,6 +271,7 @@ export const CardSwitcher = () => {
                                         balance={card.balance}
                                         creditLimit={creditLimitOf(card)}
                                         symbol={symbol}
+                                        cover={card.cover}
                                     />
                                 </SortableCard>
                             );
@@ -281,13 +281,14 @@ export const CardSwitcher = () => {
                         createPortal(
                             <DragOverlay modifiers={[horizontalOnly]} zIndex={60}>
                                 {draggedCard && (
-                                    <div className="scale-[1.05] cursor-grabbing rounded-2xl shadow-2xl ring-2 shadow-black/40 ring-indigo-500/70">
+                                    <div className="rotate-2 cursor-grabbing">
                                         <CardFace
                                             skin={draggedCard.skin}
                                             name={cardName(draggedCard)}
                                             balance={draggedCard.balance}
                                             creditLimit={creditLimitOf(draggedCard)}
                                             symbol={symbol}
+                                            cover={draggedCard.cover}
                                         />
                                     </div>
                                 )}
@@ -303,10 +304,10 @@ export const CardSwitcher = () => {
                             aria-label={t("addTitle")}
                             className={twMerge(
                                 tileClass,
-                                "border-border text-muted-foreground hover:text-foreground flex aspect-[1.586] flex-col items-center justify-center gap-1.5 border-2 border-dashed text-sm font-medium hover:border-indigo-400/60 hover:bg-indigo-500/5",
+                                "border-rule text-ink-faint hover:border-accent hover:text-accent rounded-card flex aspect-card flex-col items-center justify-center gap-2 border border-dashed font-mono text-2xs tracking-wide uppercase transition-colors",
                             )}
                         >
-                            <Plus className="size-5" />
+                            <Plus className="size-4" />
                             {t("addCard")}
                         </button>
                     }

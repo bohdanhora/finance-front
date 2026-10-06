@@ -3,10 +3,7 @@ import { CardSkin } from "types/transactions";
 export type CardSkinStyle = {
     id: CardSkin;
     brand: string | null;
-    surface: string;
-    swatch: string;
-    text: string;
-    muted: string;
+    color: string;
     wordmark: string;
 };
 
@@ -14,38 +11,26 @@ export const CARD_SKINS: Record<CardSkin, CardSkinStyle> = {
     [CardSkin.DEFAULT]: {
         id: CardSkin.DEFAULT,
         brand: null,
-        surface: "bg-indigo-600",
-        swatch: "bg-indigo-600",
-        text: "text-white",
-        muted: "text-white/70",
-        wordmark: "text-[0.7rem] font-semibold tracking-[0.18em] uppercase",
+        color: "#2531e0",
+        wordmark: "font-mono text-2xs tracking-wide uppercase",
     },
     [CardSkin.MONOBANK]: {
         id: CardSkin.MONOBANK,
         brand: "monobank",
-        surface: "bg-gradient-to-br from-zinc-800 via-zinc-900 to-black ring-1 ring-white/10",
-        swatch: "bg-gradient-to-br from-zinc-700 to-black",
-        text: "text-white",
-        muted: "text-white/60",
-        wordmark: "text-sm font-bold tracking-tight lowercase",
+        color: "#1a1a1a",
+        wordmark: "font-sans text-sm font-semibold lowercase tracking-tight",
     },
     [CardSkin.PUMB]: {
         id: CardSkin.PUMB,
         brand: "ПУМБ",
-        surface: "bg-gradient-to-br from-[#ef3b33] via-[#d71f26] to-[#9d1119]",
-        swatch: "bg-gradient-to-br from-[#ef3b33] to-[#9d1119]",
-        text: "text-white",
-        muted: "text-white/75",
-        wordmark: "text-sm font-extrabold tracking-wide",
+        color: "#d71f26",
+        wordmark: "font-display text-sm font-semibold tracking-wide",
     },
     [CardSkin.ROZETKA]: {
         id: CardSkin.ROZETKA,
         brand: "ROZETKA",
-        surface: "bg-gradient-to-br from-[#10b95a] via-[#00a046] to-[#006b2e]",
-        swatch: "bg-gradient-to-br from-[#10b95a] to-[#006b2e]",
-        text: "text-white",
-        muted: "text-white/75",
-        wordmark: "text-[0.8rem] font-black tracking-[0.06em]",
+        color: "#00a046",
+        wordmark: "font-display text-xs font-semibold tracking-wider",
     },
 };
 

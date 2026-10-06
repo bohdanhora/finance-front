@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { AnimatedMoney } from "components/animated-number";
 import { skinOf } from "lib/card-skins";
@@ -14,17 +14,14 @@ export const useCardName = () => {
         card?.name?.trim() || (card && card.skin !== CardSkin.DEFAULT ? skinOf(card.skin).brand : null) || t("unnamed");
 };
 
-export const CardSwatch = ({ skin, className }: { skin?: CardSkin; className?: string }) => (
+export const CardSwatch = ({ skin, cover, className }: { skin?: CardSkin; cover?: string; className?: string }) => (
     <span
         aria-hidden="true"
-        className={twMerge("inline-block h-4 w-6 shrink-0 rounded-[4px] shadow-sm", skinOf(skin).swatch, className)}
-    />
-);
-
-const Chip = () => (
-    <span
-        aria-hidden="true"
-        className="block h-5 w-7 rounded-[5px] bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-500 opacity-90 shadow-inner"
+        className={twMerge(
+            "ring-ink/20 inline-block size-2.5 shrink-0 bg-cover bg-center ring-1 ring-inset",
+            className,
+        )}
+        style={{ backgroundColor: skinOf(skin).color, backgroundImage: cover ? `url(${cover})` : undefined }}
     />
 );
 
@@ -34,6 +31,7 @@ export const CardFace = ({
     balance,
     creditLimit = 0,
     symbol,
+    cover,
     className,
     showBalance = true,
     compact = false,
@@ -43,6 +41,7 @@ export const CardFace = ({
     balance?: number;
     creditLimit?: number;
     symbol?: string;
+    cover?: string;
     className?: string;
     showBalance?: boolean;
     compact?: boolean;
@@ -51,57 +50,76 @@ export const CardFace = ({
     const style = skinOf(skin);
     const isCredit = creditLimit > 0;
     const inDebt = balance !== undefined && balance < 0;
+    const branded = !cover && Boolean(style.brand);
+    const showName = branded && name !== style.brand;
 
     return (
         <div
             className={twMerge(
-                "relative isolate flex aspect-[1.586] w-full flex-col justify-between overflow-hidden text-left shadow-md",
-                compact ? "rounded-lg p-2" : "rounded-2xl p-3.5",
-                style.surface,
-                style.text,
+                "ring-ink/10 relative isolate flex aspect-card w-full flex-col justify-between gap-2 bg-cover bg-center text-left text-white ring-1 ring-inset",
+                compact ? "rounded-card-sm p-2" : "rounded-card p-3 sm:p-3.5",
                 className,
             )}
+            style={{ backgroundColor: style.color, backgroundImage: cover ? `url(${cover})` : undefined }}
         >
-            <span aria-hidden="true" className="pointer-events-none absolute -top-10 -right-8 -z-10 hidden" />
-            <div className="flex items-start justify-between gap-2">
-                <span className={twMerge("truncate leading-none", style.wordmark, compact && "text-[0.6rem]")}>
-                    {style.brand ?? name}
+            {cover && (
+                <span
+                    aria-hidden="true"
+                    className={twMerge(
+                        "absolute inset-0 -z-10 bg-black/35",
+                        compact ? "rounded-card-sm" : "rounded-card",
+                    )}
+                />
+            )}
+
+            <div className="flex min-w-0 items-start justify-between gap-2">
+                <span
+                    className={twMerge(
+                        "min-w-0 leading-tight break-words",
+                        branded ? style.wordmark : "font-mono text-2xs tracking-wide uppercase",
+                        compact && "text-3xs",
+                    )}
+                >
+                    {branded ? style.brand : name}
                 </span>
-                {!compact && (
-                    <span className="flex items-center gap-1.5">
-                        {isCredit && (
-                            <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[0.6rem] leading-none font-semibold tracking-wide uppercase">
-                                {t("creditBadge")}
-                            </span>
-                        )}
-                        <Chip />
+                {isCredit && !compact && (
+                    <span className="shrink-0 rounded-sm border border-white/60 px-1 py-px font-mono text-3xs leading-none uppercase">
+                        {t("creditBadge")}
                     </span>
                 )}
             </div>
-            <div className="min-w-0">
-                {style.brand && !compact && name !== style.brand && (
-                    <p className={twMerge("truncate text-xs font-medium", style.muted)}>{name}</p>
-                )}
-                {showBalance && balance !== undefined && (
-                    <p className="truncate text-lg leading-tight font-semibold tabular-nums">
-                        <AnimatedMoney
-                            value={balance}
-                            symbol={symbol ?? ""}
-                            symbolClassName={style.muted}
-                            format={formatSignedCurrency}
-                        />
-                    </p>
-                )}
-                {showBalance && balance !== undefined && isCredit && !compact && (
-                    <p className={twMerge("truncate text-[0.65rem] leading-tight tabular-nums", style.muted)}>
-                        {inDebt
-                            ? t("debtOnFace", {
-                                  amount: `${formatCurrency(-balance)} / ${formatCurrency(creditLimit)}`,
-                              })
-                            : t("limitOnFace", { amount: formatCurrency(creditLimit) })}
-                    </p>
-                )}
-            </div>
+
+            {showBalance && (
+                <div className="min-w-0">
+                    {showName && !compact && (
+                        <p className="mb-0.5 text-xs leading-tight break-words text-white/75">{name}</p>
+                    )}
+                    {balance !== undefined && (
+                        <p
+                            className={twMerge(
+                                "figure leading-tight break-words",
+                                compact ? "text-xs" : "text-base sm:text-lg",
+                            )}
+                        >
+                            <AnimatedMoney
+                                value={balance}
+                                symbol={symbol ?? ""}
+                                symbolClassName="text-white/60"
+                                format={formatSignedCurrency}
+                            />
+                        </p>
+                    )}
+                    {balance !== undefined && isCredit && !compact && (
+                        <p className="mt-0.5 font-mono text-3xs leading-snug break-words text-white/75 tabular-nums">
+                            {inDebt
+                                ? t("debtOnFace", {
+                                      amount: `${formatCurrency(-balance)} / ${formatCurrency(creditLimit)}`,
+                                  })
+                                : t("limitOnFace", { amount: formatCurrency(creditLimit) })}
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

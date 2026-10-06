@@ -1,10 +1,10 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Star, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Star, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useCreateCard, useDeleteCard, useReorderCards, useUpdateCard } from "api/cards";
 import { CardFace, useCardName } from "components/cards/card-face";
@@ -24,6 +24,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { CARD_SKIN_ORDER } from "lib/card-skins";
+import { readCardCover } from "lib/card-cover";
 import { balanceFromParts, creditLimitOf, isCreditCard } from "lib/cards";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
@@ -45,6 +46,9 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [skin, setSkin] = useState<CardSkin>(CardSkin.MONOBANK);
+    const [cover, setCover] = useState<string | null>(null);
+    const [coverBusy, setCoverBusy] = useState(false);
+    const fileRef = useRef<HTMLInputElement>(null);
     const [balance, setBalance] = useState("");
     const [isCredit, setIsCredit] = useState(false);
     const [limit, setLimit] = useState("");
@@ -66,6 +70,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
         if (next) {
             setName(card?.name ?? "");
             setSkin(card?.skin ?? CardSkin.MONOBANK);
+            setCover(card?.cover ?? null);
             setBalance("");
             setDebt("");
             setIsCredit(card ? isCreditCard(card) : false);
@@ -89,7 +94,13 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
         setError(null);
         try {
             if (card) {
-                await updateCard.mutateAsync({ id: card.id, name: name.trim(), skin, creditLimit });
+                await updateCard.mutateAsync({
+                    id: card.id,
+                    name: name.trim(),
+                    skin,
+                    creditLimit,
+                    ...(cover !== (card.cover ?? null) ? { cover } : {}),
+                });
                 toast.success(t("savedToast"));
             } else {
                 const response = await createCard.mutateAsync({
@@ -97,12 +108,29 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     skin,
                     balance: startBalance,
                     creditLimit,
+                    ...(cover ? { cover } : {}),
                 });
                 setSelectedCardId(response.card.id);
                 toast.success(t("addedToast"));
             }
             setOpen(false);
         } catch {}
+    };
+
+    const pickCover = async (file?: File) => {
+        if (!file) return;
+        setCoverBusy(true);
+        try {
+            setCover(await readCardCover(file));
+        } catch (reason) {
+            const code = reason instanceof Error ? reason.message : "unreadable";
+            toast.error(
+                t(code === "notImage" ? "coverNotImage" : code === "tooBig" ? "coverTooBig" : "coverUnreadable"),
+            );
+        } finally {
+            setCoverBusy(false);
+            if (fileRef.current) fileRef.current.value = "";
+        }
     };
 
     const makePrimary = async () => {
@@ -132,7 +160,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+            <DialogContent>
                 <form
                     className="flex flex-col gap-5"
                     onSubmit={(event) => {
@@ -145,29 +173,33 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                         <DialogDescription>{editing ? t("editSubtitle") : t("addSubtitle")}</DialogDescription>
                     </DialogHeader>
 
-                    <div className="mx-auto w-full max-w-64">
+                    <div className="w-full max-w-72">
                         <CardFace
                             skin={skin}
                             name={previewName}
                             balance={card ? card.balance : startBalance}
                             creditLimit={creditLimit}
                             symbol={symbol}
+                            cover={cover ?? undefined}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <Label>{t("skin")}</Label>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                             {CARD_SKIN_ORDER.map((option) => (
                                 <button
                                     key={option}
                                     type="button"
-                                    aria-pressed={skin === option}
+                                    aria-pressed={!cover && skin === option}
                                     aria-label={cardName({ name: "", skin: option })}
-                                    onClick={() => setSkin(option)}
+                                    onClick={() => {
+                                        setSkin(option);
+                                        setCover(null);
+                                    }}
                                     className={twMerge(
-                                        "cursor-pointer rounded-xl p-0.5 ring-2 ring-transparent transition-shadow outline-none focus-visible:ring-indigo-400",
-                                        skin === option && "ring-indigo-500",
+                                        "outline-offset-2",
+                                        !cover && skin === option && "outline-accent outline-2",
                                     )}
                                 >
                                     <CardFace
@@ -178,6 +210,46 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                     />
                                 </button>
                             ))}
+                            <button
+                                type="button"
+                                aria-pressed={Boolean(cover)}
+                                disabled={coverBusy}
+                                onClick={() => fileRef.current?.click()}
+                                className={twMerge(
+                                    "border-rule text-ink-faint hover:border-accent hover:text-accent rounded-card-sm flex aspect-card flex-col items-center justify-center gap-1 border border-dashed bg-cover bg-center px-1 font-mono text-3xs uppercase outline-offset-2 transition-colors",
+                                    cover && "outline-accent border-transparent text-white outline-2",
+                                )}
+                                style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+                            >
+                                {coverBusy ? (
+                                    <Loader2 className="size-3.5 animate-spin" />
+                                ) : (
+                                    <span
+                                        className={twMerge(
+                                            "flex flex-col items-center gap-1",
+                                            cover && "bg-black/55 px-1.5 py-1",
+                                        )}
+                                    >
+                                        <ImagePlus className="size-3.5" />
+                                        {cover ? t("coverChange") : t("coverUpload")}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                        <input
+                            ref={fileRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                            className="hidden"
+                            onChange={(event) => void pickCover(event.target.files?.[0])}
+                        />
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-ink-faint text-xs">{t("coverHint")}</p>
+                            {cover && (
+                                <Button type="button" variant="ghost" size="sm" onClick={() => setCover(null)}>
+                                    {t("coverRemove")}
+                                </Button>
+                            )}
                         </div>
                     </div>
 
@@ -192,7 +264,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                         />
                     </div>
 
-                    <div className="border-border/70 flex flex-col gap-3 rounded-xl border p-3">
+                    <div className="border-rule flex flex-col gap-3 border p-3">
                         <label className="flex cursor-pointer items-start gap-3">
                             <Checkbox
                                 checked={isCredit}
@@ -204,7 +276,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                             />
                             <span className="space-y-1">
                                 <span className="block text-sm font-medium">{t("creditCard")}</span>
-                                <span className="text-muted-foreground block text-xs">{t("creditCardHint")}</span>
+                                <span className="text-ink-faint block text-xs">{t("creditCardHint")}</span>
                             </span>
                         </label>
                         {isCredit && (
@@ -222,7 +294,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 />
                             </div>
                         )}
-                        {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                        {error && <p className="text-sm text-signal">{error}</p>}
                     </div>
 
                     {!editing && (
@@ -235,7 +307,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 value={balance}
                                 onChange={handleDecimalInputChange(setBalance)}
                             />
-                            <p className="text-muted-foreground text-xs">
+                            <p className="text-ink-faint text-xs">
                                 {isCredit ? t("ownOnCardHint") : t("startBalanceHint")}
                             </p>
                             {isCredit && (
@@ -253,14 +325,14 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                             setError(null);
                                         })}
                                     />
-                                    <p className="text-muted-foreground text-xs">{t("debtOnCardHint")}</p>
+                                    <p className="text-ink-faint text-xs">{t("debtOnCardHint")}</p>
                                 </>
                             )}
                         </div>
                     )}
 
                     {editing && others.length > 0 && (
-                        <div className="border-border/70 flex flex-col gap-3 rounded-xl border p-3">
+                        <div className="border-rule flex flex-col gap-3 border p-3">
                             {!isPrimary && (
                                 <Button
                                     type="button"
@@ -283,7 +355,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 }}
                             />
                             {confirmDelete && target && card && (
-                                <p className="text-sm text-rose-600 dark:text-rose-400">
+                                <p className="text-sm text-signal">
                                     {t("deleteConfirm", {
                                         amount: `${formatSignedCurrency(card.balance)} ${symbol}`,
                                         card: cardName(target),
