@@ -14,6 +14,7 @@ import { Section, StatGrid } from "./wrappers/section";
 import { StatCard } from "./stat-card";
 import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
+import { NextMonthBreakdown } from "./next-month-breakdown";
 
 export const NextMonthIncome = () => {
     const store = useStore();
@@ -34,7 +35,7 @@ export const NextMonthIncome = () => {
         [bankStore.eur?.rateBuy, bankStore.usd?.rateBuy],
     );
 
-    const { totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
+    const { plan, totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
         const totalEssentials = store.nextMonthEssentialsArray.reduce(
             (sum, item) => (!item.checked ? sum + item.amount : sum),
             0,
@@ -45,6 +46,7 @@ export const NextMonthIncome = () => {
         const { saved, remaining: savedAfter } = calculateSavings(remaining, percent);
 
         return {
+            plan: { income: total, essentials: totalEssentials, saved, free: savedAfter },
             totalIncome: convertToAllCurrencies(total, rates),
             remainingIncome: convertToAllCurrencies(remaining, rates),
             savedMoney: convertToAllCurrencies(saved, rates),
@@ -99,8 +101,9 @@ export const NextMonthIncome = () => {
                 />
             </StatGrid>
 
-            <div className="mt-8 lg:w-1/2 lg:pr-5">
+            <div className="mt-8 grid items-start gap-10 lg:grid-cols-2">
                 <EssentialsChecklist nextMonth actions={<EssentialSpends nextMonth triggerLabel={t("editList")} />} />
+                <NextMonthBreakdown {...plan} percent={percent} symbol={userSymbol} />
             </div>
         </Section>
     );

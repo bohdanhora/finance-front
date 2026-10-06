@@ -1011,5 +1011,22 @@
         "thisMonthNote": "Daily spending limit until the end of the month after essential payments.",
         "nextMonthNote": "Expected income, payments and savings for next month.",
         "historyNote": "All income, expenses and transfers. Tap a row to edit it."
+    },
+    "nextPlan": {
+        "title": "Plan for {month}",
+        "days": "{count} days",
+        "empty": "Enter next month income to see how it splits between payments, savings and spending.",
+        "income": "Expected income",
+        "essentials": "Essential payments",
+        "savings": "Savings {percent}%",
+        "free": "Free to spend",
+        "perDay": "Per day",
+        "perWeek": "Per week",
+        "overspent": "Payments exceed income by {amount}.",
+        "legend": {
+            "essentials": "Payments",
+            "savings": "Savings",
+            "free": "Spending"
+        }
     }
 }
