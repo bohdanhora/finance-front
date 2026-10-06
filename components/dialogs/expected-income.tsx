@@ -32,6 +32,7 @@ import {
 } from "ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { Input } from "ui/input";
+import { Hint } from "components/hint";
 
 type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
@@ -229,18 +230,17 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                             control={form.control}
                             name="recurring"
                             render={({ field }) => (
-                                <FormItem className="border-rule flex items-start gap-3 border p-3">
+                                <FormItem className="border-rule flex items-center gap-3 border p-3">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value}
                                             onCheckedChange={(checked) => field.onChange(checked === true)}
-                                            className="mt-0.5"
                                         />
                                     </FormControl>
-                                    <div className="space-y-1">
-                                        <FormLabel className="cursor-pointer">{t("recurring")}</FormLabel>
-                                        <p className="text-ink-faint text-xs">{t("recurringHint")}</p>
-                                    </div>
+                                    <FormLabel className="cursor-pointer font-sans text-sm tracking-normal normal-case text-ink">
+                                        {t("recurring")}
+                                    </FormLabel>
+                                    <Hint text={t("recurringHint")} />
                                 </FormItem>
                             )}
                         />

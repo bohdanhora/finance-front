@@ -38,6 +38,7 @@ import {
     saveModelList,
     saveProviderId,
 } from "lib/assistant/storage";
+import { Hint } from "components/hint";
 
 const StepLabel = ({ step, htmlFor, children }: { step: number; htmlFor: string; children: React.ReactNode }) => (
     <Label htmlFor={htmlFor} className="flex items-center gap-2 text-xs font-semibold">
@@ -362,7 +363,10 @@ export const AssistantConnection = () => {
 
                     {provider.id === "custom" && (
                         <div className="mt-2 flex flex-col gap-2">
-                            <Label htmlFor="assistant-base-url">{t("baseUrlLabel")}</Label>
+                            <div className="flex items-center gap-1.5">
+                                <Label htmlFor="assistant-base-url">{t("baseUrlLabel")}</Label>
+                                <Hint text={t("baseUrlHint")} />
+                            </div>
                             <Input
                                 id="assistant-base-url"
                                 inputMode="url"
@@ -372,7 +376,6 @@ export const AssistantConnection = () => {
                                 onChange={(event) => setUrl(event.target.value)}
                                 onBlur={commitBaseUrl}
                             />
-                            <p className="text-ink-faint text-xs leading-relaxed">{t("baseUrlHint")}</p>
                         </div>
                     )}
                 </div>
@@ -450,9 +453,12 @@ export const AssistantConnection = () => {
 
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-2">
-                        <StepLabel step={3} htmlFor="assistant-model">
-                            {t("modelLabel")}
-                        </StepLabel>
+                        <div className="flex items-center gap-1.5">
+                            <StepLabel step={3} htmlFor="assistant-model">
+                                {t("modelLabel")}
+                            </StepLabel>
+                            <Hint text={t("modelHint")} />
+                        </div>
                         {connected && (
                             <div className="text-ink-faint flex items-center gap-2 text-xs">
                                 {models.length > 0 && <span>{t("modelsCount", { count: models.length })}</span>}
@@ -483,8 +489,6 @@ export const AssistantConnection = () => {
                     />
 
                     {connected && error && <p className="text-sm text-signal">{error}</p>}
-
-                    <p className="text-ink-faint text-xs leading-relaxed">{t("modelHint")}</p>
                 </div>
 
                 {connected && (

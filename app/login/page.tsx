@@ -82,7 +82,7 @@ const Login = () => {
 
     return (
         <PublicProvider>
-            <AuthSectionWrapper title={tAuth("login")} subtitle={tAuth("loginSubTitle")}>
+            <AuthSectionWrapper title={tAuth("login")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
                         <RenderEmailField form={form} name="email" />

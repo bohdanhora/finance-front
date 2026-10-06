@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
+import { Hint } from "components/hint";
 
 export const ConnectionCard = ({
     mark,
@@ -23,7 +23,10 @@ export const ConnectionCard = ({
         <div className="flex items-center gap-3 py-4">
             {mark}
             <div className="min-w-0 flex-1">
-                <h2 className="font-display text-lg leading-tight font-medium tracking-tight uppercase">{title}</h2>
+                <h2 className="font-display flex items-center gap-2 text-lg leading-tight font-medium tracking-tight uppercase">
+                    {title}
+                    <Hint text={note} />
+                </h2>
                 <p className="text-ink-faint mt-1 text-xs break-words">{status}</p>
             </div>
             {connected && (
@@ -34,12 +37,7 @@ export const ConnectionCard = ({
             )}
         </div>
 
-        <div className="border-rule min-w-0 border-t py-4">{children}</div>
-
-        <div className="border-rule flex items-start gap-2.5 border-t py-3">
-            <ShieldCheck className="text-ink-faint mt-0.5 size-3.5 shrink-0" />
-            <p className="text-ink-faint text-xs leading-relaxed">{note}</p>
-        </div>
+        <div className="border-rule min-w-0 border-t pt-4">{children}</div>
     </section>
 );
 

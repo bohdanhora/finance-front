@@ -58,7 +58,7 @@ const SendEmailCodePage = () => {
 
     return (
         <PublicProvider>
-            <AuthSectionWrapper title={tAuth("emailVerificationTitle")} subtitle={tAuth("emailVerificationSubtitle")}>
+            <AuthSectionWrapper title={tAuth("emailVerificationTitle")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
                         <RenderEmailField form={form} name="email" />

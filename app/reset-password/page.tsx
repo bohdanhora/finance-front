@@ -50,7 +50,7 @@ const ResetPassword = () => {
 
     return (
         <PublicProvider>
-            <AuthSectionWrapper title={tAuth("resetPassword")} subtitle={tAuth("resetPasswordSubtitle")}>
+            <AuthSectionWrapper title={tAuth("resetPassword")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
                         <RenderPassword form={form} name="password" label="password" />

@@ -31,6 +31,7 @@ import { Pencil } from "lucide-react";
 import { useSetTotalAmount } from "api/main";
 import { Card } from "types/transactions";
 import { useCardName } from "components/cards/card-face";
+import { Hint } from "components/hint";
 
 export const SetTotalDialog = ({ card }: { card: Card }) => {
     const store = useStore();
@@ -118,7 +119,10 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                             name="value"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{limit > 0 ? tCards("ownOnCard") : t("label")}</FormLabel>
+                                    <div className="flex items-center gap-1.5">
+                                        <FormLabel>{limit > 0 ? tCards("ownOnCard") : t("label")}</FormLabel>
+                                        {limit > 0 && <Hint text={tCards("ownOnCardHint")} />}
+                                    </div>
                                     <FormControl>
                                         <Input
                                             inputMode="decimal"
@@ -127,14 +131,18 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                             onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
-                                    {limit > 0 && <p className="text-ink-faint text-xs">{tCards("ownOnCardHint")}</p>}
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         {limit > 0 && (
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="set-total-debt">{tCards("debtOnCard")}</Label>
+                                <div className="flex items-center gap-1.5">
+                                    <Label htmlFor="set-total-debt">{tCards("debtOnCard")}</Label>
+                                    <Hint
+                                        text={`${tCards("debtOnCardHint")} ${tCards("limitOnFace", { amount: `${formatCurrency(limit)} ${symbol}` })}`}
+                                    />
+                                </div>
                                 <Input
                                     id="set-total-debt"
                                     inputMode="decimal"
@@ -145,10 +153,6 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                         setDebtError(null);
                                     })}
                                 />
-                                <p className="text-ink-faint text-xs">
-                                    {tCards("debtOnCardHint")} (
-                                    {tCards("limitOnFace", { amount: `${formatCurrency(limit)} ${symbol}` })})
-                                </p>
                                 {debtError && <p className="text-sm text-signal">{debtError}</p>}
                             </div>
                         )}

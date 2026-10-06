@@ -1,3 +1,5 @@
+import { Hint } from "components/hint";
+
 export const PageHeader = ({
     index,
     title,
@@ -14,11 +16,13 @@ export const PageHeader = ({
             <p className="label">
                 <span className="text-accent">{index}</span> / Finance
             </p>
-            <h1 className="font-display mt-3 text-3xl leading-none font-medium tracking-tight uppercase sm:text-4xl">
-                {title}
-                <span className="caret caret-blink" aria-hidden="true" />
-            </h1>
-            {subtitle && <p className="text-ink-muted mt-3 max-w-xl text-sm leading-relaxed">{subtitle}</p>}
+            <div className="mt-3 flex items-center gap-3">
+                <h1 className="font-display text-3xl leading-none font-medium tracking-tight uppercase sm:text-4xl">
+                    {title}
+                    <span className="caret caret-blink" aria-hidden="true" />
+                </h1>
+                {subtitle && <Hint text={subtitle} />}
+            </div>
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </header>

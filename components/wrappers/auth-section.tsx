@@ -8,15 +8,7 @@ import { ThemeSwitch } from "components/theme-switch";
 
 const FEATURES = ["featureBalance", "featureBudget", "featureSavings"] as const;
 
-export const AuthSectionWrapper = ({
-    children,
-    title,
-    subtitle,
-}: {
-    children: React.ReactNode;
-    title: string;
-    subtitle?: string;
-}) => {
+export const AuthSectionWrapper = ({ children, title }: { children: React.ReactNode; title: string }) => {
     const t = useTranslations("auth");
 
     return (
@@ -29,7 +21,6 @@ export const AuthSectionWrapper = ({
                         Finance
                         <span className="caret caret-blink" aria-hidden="true" />
                     </p>
-                    <p className="mt-6 max-w-sm text-base leading-relaxed opacity-70">{t("pitch")}</p>
                 </div>
 
                 <ol className="border-t border-current">
@@ -57,7 +48,6 @@ export const AuthSectionWrapper = ({
                     <h1 className="font-display text-3xl leading-tight font-medium tracking-tight uppercase">
                         {title}
                     </h1>
-                    {subtitle && <p className="text-ink-muted mt-3 text-sm leading-relaxed">{subtitle}</p>}
                     <div className="border-rule-strong mt-8 border-t pt-8">{children}</div>
                 </div>
             </div>

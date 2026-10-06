@@ -809,7 +809,8 @@
         "converted": "{amount}, курс {rate}",
         "noOperations": "За цей період операцій немає",
         "hold": "В обробці",
-        "cashbackEarned": "{amount} кешбеку"
+        "cashbackEarned": "{amount} кешбеку",
+        "readOnlyBadge": "Лише перегляд"
     },
     "assistant": {
         "title": "ШІ-асистент",
@@ -874,7 +875,8 @@
         "baseUrlHint": "Будь-який сервіс з OpenAI-сумісним чат-API: DeepSeek, Mistral, Groq, Together або локальний сервер. Вкажіть адресу разом з /v1.",
         "emptyBaseUrl": "Спершу вкажіть адресу API.",
         "modelPlaceholder": "оберіть модель",
-        "browserHint": "Запити йдуть із цього браузера прямо до провайдера, тому він має дозволяти браузерні виклики. Anthropic, OpenAI, Google та OpenRouter дозволяють."
+        "browserHint": "Запити йдуть із цього браузера прямо до провайдера, тому він має дозволяти браузерні виклики. Anthropic, OpenAI, Google та OpenRouter дозволяють.",
+        "disclaimerShort": "Відповіді можуть бути неточними"
     },
     "password": {
         "title": "Пароль",

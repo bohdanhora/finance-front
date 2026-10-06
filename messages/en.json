@@ -809,7 +809,8 @@
         "converted": "{amount}, rate {rate}",
         "noOperations": "No operations in this period",
         "hold": "Pending",
-        "cashbackEarned": "{amount} cashback"
+        "cashbackEarned": "{amount} cashback",
+        "readOnlyBadge": "Read-only"
     },
     "assistant": {
         "title": "AI assistant",
@@ -874,7 +875,8 @@
         "baseUrlHint": "Any service with an OpenAI-compatible chat API: DeepSeek, Mistral, Groq, Together or a local server. Include /v1 in the address.",
         "emptyBaseUrl": "Enter the API address first.",
         "modelPlaceholder": "choose a model",
-        "browserHint": "Requests go from this browser straight to the provider, so the provider has to allow browser calls. Anthropic, OpenAI, Google and OpenRouter do."
+        "browserHint": "Requests go from this browser straight to the provider, so the provider has to allow browser calls. Anthropic, OpenAI, Google and OpenRouter do.",
+        "disclaimerShort": "Answers can be wrong"
     },
     "password": {
         "title": "Password",

@@ -49,7 +49,7 @@ const Registration = () => {
 
     return (
         <PublicProvider>
-            <AuthSectionWrapper title={t("registration")} subtitle={t("registrationSubTitle")}>
+            <AuthSectionWrapper title={t("registration")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
                         <RenderInputField form={form} name="name" label="name" />

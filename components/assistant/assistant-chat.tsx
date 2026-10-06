@@ -11,6 +11,7 @@ import { useIsMobile } from "hooks/use-is-mobile";
 import { buildInstructions } from "lib/assistant/prompt";
 import { ASSISTANT_OPEN_EVENT, AssistantMessage, readAssistantChat, saveAssistantChat } from "lib/assistant/storage";
 import { useAccountSnapshot } from "./use-account-snapshot";
+import { Hint } from "components/hint";
 
 const SUGGESTION_KEYS = ["spending", "saving", "bills", "afford"] as const;
 
@@ -253,7 +254,10 @@ export const AssistantChat = () => {
                                 </Button>
                             )}
                         </div>
-                        <p className="text-ink-faint mt-2 px-1 text-2xs leading-relaxed">{t("disclaimer")}</p>
+                        <p className="label mt-2 flex items-center gap-1.5 px-1">
+                            {t("disclaimerShort")}
+                            <Hint text={t("disclaimer")} />
+                        </p>
                     </div>
                 </div>
             )}

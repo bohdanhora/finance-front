@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
-import { AlertTriangle, Landmark, Loader2, RefreshCw, Settings2, Wallet } from "lucide-react";
+import { AlertTriangle, Eye, Landmark, Loader2, RefreshCw, Settings2, Wallet } from "lucide-react";
 import { twMerge } from "lib/tw";
 import Link from "next/link";
 
 import { isRateLimited, isTokenRejected, useMonobankClientInfo, useMonobankStatement } from "api/monobank";
 import { CategoryBreakdown } from "components/monobank/category-breakdown";
+import { Hint } from "components/hint";
 import { MonoMark } from "components/monobank/mono-mark";
 import { StatementList } from "components/monobank/statement-list";
 import { Navbar } from "components/navbar";
@@ -183,8 +184,10 @@ const MonobankPage = () => {
                         }
                     />
 
-                    <p className="border-accent text-ink-muted flex items-start gap-3 border-l-2 py-1 pl-4 text-sm leading-relaxed">
-                        {t("readOnly")}
+                    <p className="label flex items-center gap-2">
+                        <Eye className="text-accent size-3.5" />
+                        {t("readOnlyBadge")}
+                        <Hint text={t("readOnly")} />
                     </p>
 
                     {errorMessage() && (

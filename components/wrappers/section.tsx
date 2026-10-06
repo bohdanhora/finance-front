@@ -1,4 +1,5 @@
 import { twMerge } from "lib/tw";
+import { Hint } from "components/hint";
 
 export const Section = ({
     index,
@@ -11,7 +12,7 @@ export const Section = ({
 }: {
     index?: string;
     title: React.ReactNode;
-    description?: React.ReactNode;
+    description?: string;
     actions?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
@@ -29,10 +30,14 @@ export const Section = ({
                     <h2 className="font-display min-w-0 text-lg leading-tight font-medium tracking-tight uppercase md:text-xl">
                         {title}
                     </h2>
+                    {description && (
+                        <span className="self-center">
+                            <Hint text={description} />
+                        </span>
+                    )}
                 </div>
                 {actions && <div className="flex max-w-full min-w-0 flex-wrap items-center gap-2">{actions}</div>}
             </header>
-            {description && <p className="text-ink-muted mt-3 max-w-2xl text-sm leading-relaxed">{description}</p>}
             <div className="mt-5">{children}</div>
         </section>
     );

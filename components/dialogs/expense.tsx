@@ -43,6 +43,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { SavingsStorage } from "types/transactions";
 import { CardSelect } from "components/cards/card-select";
 import { availableOnCard, defaultCardId, spendableOnCard } from "lib/cards";
+import { Hint } from "components/hint";
 
 export const ExpenseDialogComponent = () => {
     const store = useStore();
@@ -214,13 +215,12 @@ export const ExpenseDialogComponent = () => {
                             )}
                         />
                         {selectedCategory === "savings" && (
-                            <div className="space-y-3 border border-accent bg-accent-wash p-4">
-                                <div className="flex items-start gap-3 text-sm">
-                                    <span className="flex size-8 shrink-0 items-center justify-center bg-accent-wash text-accent">
-                                        <PiggyBank className="size-4" />
-                                    </span>
-                                    <p className="text-ink-faint leading-relaxed">{t("dialogs.savingsExpenseHint")}</p>
-                                </div>
+                            <div className="border-accent space-y-3 border-l-2 pl-4">
+                                <p className="label text-accent flex items-center gap-2">
+                                    <PiggyBank className="size-3.5" />
+                                    {t("categories.savings")}
+                                    <Hint text={t("dialogs.savingsExpenseHint")} />
+                                </p>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <FormField
                                         control={form.control}

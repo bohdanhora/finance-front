@@ -30,6 +30,7 @@ import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import useStore from "store/general";
 import { Card, CardSkin } from "types/transactions";
+import { Hint } from "components/hint";
 
 export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode }) => {
     const t = useTranslations("cards");
@@ -185,7 +186,10 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label>{t("skin")}</Label>
+                        <div className="flex items-center gap-1.5">
+                            <Label>{t("skin")}</Label>
+                            <Hint text={t("coverHint")} />
+                        </div>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                             {CARD_SKIN_ORDER.map((option) => (
                                 <button
@@ -243,14 +247,17 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                             className="hidden"
                             onChange={(event) => void pickCover(event.target.files?.[0])}
                         />
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-ink-faint text-xs">{t("coverHint")}</p>
-                            {cover && (
-                                <Button type="button" variant="ghost" size="sm" onClick={() => setCover(null)}>
-                                    {t("coverRemove")}
-                                </Button>
-                            )}
-                        </div>
+                        {cover && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="self-start"
+                                onClick={() => setCover(null)}
+                            >
+                                {t("coverRemove")}
+                            </Button>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -265,20 +272,19 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     </div>
 
                     <div className="border-rule flex flex-col gap-3 border p-3">
-                        <label className="flex cursor-pointer items-start gap-3">
-                            <Checkbox
-                                checked={isCredit}
-                                onCheckedChange={(checked) => {
-                                    setIsCredit(checked === true);
-                                    setError(null);
-                                }}
-                                className="mt-0.5"
-                            />
-                            <span className="space-y-1">
-                                <span className="block text-sm font-medium">{t("creditCard")}</span>
-                                <span className="text-ink-faint block text-xs">{t("creditCardHint")}</span>
-                            </span>
-                        </label>
+                        <div className="flex items-center gap-1.5">
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={isCredit}
+                                    onCheckedChange={(checked) => {
+                                        setIsCredit(checked === true);
+                                        setError(null);
+                                    }}
+                                />
+                                <span className="text-sm font-medium">{t("creditCard")}</span>
+                            </label>
+                            <Hint text={t("creditCardHint")} />
+                        </div>
                         {isCredit && (
                             <div className="flex flex-col gap-2">
                                 <Label htmlFor="card-limit">{t("creditLimit")}</Label>
@@ -299,7 +305,10 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
 
                     {!editing && (
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="card-balance">{isCredit ? t("ownOnCard") : t("startBalance")}</Label>
+                            <div className="flex items-center gap-1.5">
+                                <Label htmlFor="card-balance">{isCredit ? t("ownOnCard") : t("startBalance")}</Label>
+                                <Hint text={isCredit ? t("ownOnCardHint") : t("startBalanceHint")} />
+                            </div>
                             <Input
                                 id="card-balance"
                                 inputMode="decimal"
@@ -307,14 +316,12 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 value={balance}
                                 onChange={handleDecimalInputChange(setBalance)}
                             />
-                            <p className="text-ink-faint text-xs">
-                                {isCredit ? t("ownOnCardHint") : t("startBalanceHint")}
-                            </p>
                             {isCredit && (
                                 <>
-                                    <Label htmlFor="card-debt" className="mt-2">
-                                        {t("debtOnCard")}
-                                    </Label>
+                                    <div className="mt-2 flex items-center gap-1.5">
+                                        <Label htmlFor="card-debt">{t("debtOnCard")}</Label>
+                                        <Hint text={t("debtOnCardHint")} />
+                                    </div>
                                     <Input
                                         id="card-debt"
                                         inputMode="decimal"
@@ -325,7 +332,6 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                             setError(null);
                                         })}
                                     />
-                                    <p className="text-ink-faint text-xs">{t("debtOnCardHint")}</p>
                                 </>
                             )}
                         </div>

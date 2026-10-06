@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
+import { Info } from "lucide-react";
+
 import { twMerge } from "lib/tw";
 
 export const Hint = ({ text }: { text: string }) => {
@@ -48,11 +50,9 @@ export const Hint = ({ text }: { text: string }) => {
                 onFocus={() => !touchRef.current && setOpen(true)}
                 onBlur={() => !touchRef.current && setOpen(false)}
                 onClick={() => touchRef.current && setOpen((prev) => !prev)}
-                className="group/hint -m-2 inline-flex size-8 shrink-0 cursor-help items-center justify-center"
+                className="text-ink-faint hover:text-accent aria-expanded:text-accent -m-1.5 inline-flex size-7 shrink-0 cursor-help items-center justify-center transition-colors"
             >
-                <span className="border-ink-faint text-ink-faint group-hover/hint:border-accent group-hover/hint:bg-accent group-hover/hint:text-on-accent flex size-3.5 items-center justify-center border font-mono text-3xs leading-none normal-case transition-colors">
-                    i
-                </span>
+                <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
             </button>
 
             {open && (

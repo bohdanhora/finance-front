@@ -39,7 +39,7 @@ const ForgotPassword = () => {
 
     return (
         <PublicProvider>
-            <AuthSectionWrapper title={tAuth("forgotPasswordTitle")} subtitle={tAuth("forgotPasswordSubtitle")}>
+            <AuthSectionWrapper title={tAuth("forgotPasswordTitle")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="auth-stagger space-y-5">
                         <RenderEmailField form={form} name="email" />

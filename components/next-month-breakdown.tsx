@@ -9,6 +9,7 @@ import { twMerge } from "lib/tw";
 import { formatCurrency } from "lib/utils";
 import { AnimatedMoney } from "./animated-number";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
+import { Hint } from "components/hint";
 
 type Props = {
     income: number;
@@ -32,8 +33,10 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
     if (income <= 0) {
         return (
             <div className="border-rule flex flex-col items-start gap-4 border border-dashed p-6">
-                <p className="label text-ink">{t("title", { month })}</p>
-                <p className="text-ink-muted text-sm leading-relaxed">{t("empty")}</p>
+                <p className="label text-ink flex items-center gap-1.5">
+                    {t("title", { month })}
+                    <Hint text={t("empty")} />
+                </p>
                 <ChangeNextMonthIncome />
             </div>
         );

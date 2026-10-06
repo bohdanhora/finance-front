@@ -809,7 +809,8 @@
         "converted": "{amount}, курс {rate}",
         "noOperations": "За этот период операций нет",
         "hold": "В обработке",
-        "cashbackEarned": "{amount} кешбэка"
+        "cashbackEarned": "{amount} кешбэка",
+        "readOnlyBadge": "Только просмотр"
     },
     "assistant": {
         "title": "ИИ-ассистент",
@@ -874,7 +875,8 @@
         "baseUrlHint": "Любой сервис с OpenAI-совместимым чат-API: DeepSeek, Mistral, Groq, Together или локальный сервер. Укажите адрес вместе с /v1.",
         "emptyBaseUrl": "Сначала укажите адрес API.",
         "modelPlaceholder": "выберите модель",
-        "browserHint": "Запросы идут из этого браузера прямо к провайдеру, поэтому он должен разрешать браузерные вызовы. Anthropic, OpenAI, Google и OpenRouter разрешают."
+        "browserHint": "Запросы идут из этого браузера прямо к провайдеру, поэтому он должен разрешать браузерные вызовы. Anthropic, OpenAI, Google и OpenRouter разрешают.",
+        "disclaimerShort": "Ответы могут быть неточными"
     },
     "password": {
         "title": "Пароль",
