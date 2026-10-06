@@ -5,18 +5,15 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 
 import { useStreak } from "hooks/use-streak";
-import { getCurrencySymbol } from "lib/currency";
-import { getStreakTier } from "lib/streak";
-import useStore from "store/general";
+import { getStreakTier, toDayKey } from "lib/streak";
 import { Dialog, DialogContent, DialogTrigger } from "ui/dialog";
 
-import { StreakFlame } from "./flame";
+import { StreakMeter } from "./streak-meter";
 import { StreakDetails } from "./streak-dialog";
 
 export const StreakBadge = () => {
     const t = useTranslations("streak");
     const { record, reached, clearMilestone } = useStreak();
-    const userCurrency = useStore((state) => state.userCurrency);
 
     const [open, setOpen] = useState(false);
 
@@ -30,7 +27,7 @@ export const StreakBadge = () => {
     if (!record) return null;
 
     const tier = getStreakTier(record.current);
-    const symbol = getCurrencySymbol(userCurrency);
+    const visitedToday = record.history.includes(toDayKey());
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -40,15 +37,15 @@ export const StreakBadge = () => {
                     data-tour="streak"
                     aria-label={t("badgeLabel", { days: record.current })}
                     title={t("badgeLabel", { days: record.current })}
-                    className="sm:border-border/70 flex h-9 shrink-0 cursor-pointer items-center gap-0.5 rounded-2xl px-0.5 transition-colors hover:bg-black/[0.04] sm:gap-1 sm:border sm:bg-card/65 sm:py-0.5 sm:pr-2 sm:pl-1 sm:shadow-sm sm:shadow-black/5 sm:ring-1 sm:ring-white/40 dark:hover:bg-white/[0.06] dark:sm:ring-white/5"
+                    className="border-rule hover:border-rule-strong flex h-9 shrink-0 items-center gap-2 border px-2.5 transition-colors"
                 >
-                    <StreakFlame tier={tier.key} size={18} symbol={symbol} />
-                    <span className="text-xs font-bold tabular-nums sm:text-sm">{record.current}</span>
+                    <StreakMeter tier={tier.key} live={visitedToday} className="h-3.5" />
+                    <span className="font-mono text-xs tabular-nums">{record.current}</span>
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md">
-                <StreakDetails record={record} symbol={symbol} />
+            <DialogContent>
+                <StreakDetails record={record} />
             </DialogContent>
         </Dialog>
     );
