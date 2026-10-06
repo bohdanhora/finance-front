@@ -10,7 +10,6 @@ import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeDefaultEssentials } from "./dialogs/change-default-essentials";
-import { ExpectedIncomeDialog } from "./dialogs/expected-income";
 import { Section, StatGrid } from "./wrappers/section";
 import { StatCard } from "./stat-card";
 import { AnimatedMoney } from "./animated-number";
@@ -22,6 +21,7 @@ import { useCardName } from "./cards/card-face";
 export const PossibleRemaining = () => {
     const t = useTranslations("possible");
     const tHints = useTranslations("hints");
+    const tSections = useTranslations("sections");
     const store = useStore();
     const bankStore = useBankStore();
 
@@ -71,7 +71,8 @@ export const PossibleRemaining = () => {
             value={value}
             symbol={userSymbol}
             format={formatSignedCurrency}
-            className={value < 0 ? "text-rose-600 dark:text-rose-400" : undefined}
+            symbolClassName="text-ink-faint"
+            className={value < 0 ? "text-signal" : undefined}
         />
     );
     const alt = (value: number) =>
@@ -84,7 +85,7 @@ export const PossibleRemaining = () => {
         pendingIncome > 0 ? (
             <>
                 {converted && <span className="block">{converted}</span>}
-                <span className="mt-0.5 block text-xs text-emerald-600 dark:text-emerald-400">
+                <span className="text-accent mt-0.5 block">
                     {t("includesExpected", { amount: `${formatCurrency(pendingIncome)} ${userSymbol}` })}
                 </span>
             </>
@@ -94,20 +95,15 @@ export const PossibleRemaining = () => {
 
     return (
         <Section
+            index="01"
             title={
                 selectedCard && store.cards.length > 1
                     ? `${t("thisMonth")} · ${cardName(selectedCard)}`
                     : t("thisMonth")
             }
-            actions={
-                <>
-                    <ExpectedIncomeDialog />
-                    <EssentialSpends />
-                    <ChangeDefaultEssentials />
-                </>
-            }
+            description={tSections("thisMonthNote")}
         >
-            <StatGrid>
+            <StatGrid anchor="budget">
                 <StatCard label={t("daysLeft")} value={String(daysLeft)} hint={tHints("daysLeft")} />
                 <StatCard
                     label={t("dailyBudget")}
@@ -122,6 +118,8 @@ export const PossibleRemaining = () => {
                     secondary={remainingSecondary}
                 />
                 <StatCard
+                    tone="accent"
+                    className="bg-surface"
                     label={t("dailySpendingAvailable")}
                     hint={tHints("dailySpendingAvailable")}
                     value={money(dailyAfterEssentials)}
@@ -129,12 +127,19 @@ export const PossibleRemaining = () => {
                 />
             </StatGrid>
 
-            <div className="mt-3">
+            <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10">
                 <ExpectedIncomeList />
-            </div>
 
-            <div className="mt-3" data-tour="essentials">
-                <EssentialsChecklist />
+                <div data-tour="essentials">
+                    <EssentialsChecklist
+                        actions={
+                            <>
+                                <EssentialSpends triggerLabel={t("editList")} />
+                                <ChangeDefaultEssentials triggerLabel={t("template")} />
+                            </>
+                        }
+                    />
+                </div>
             </div>
         </Section>
     );

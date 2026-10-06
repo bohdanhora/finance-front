@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useAnimatedNumber } from "hooks/use-animated-number";
 import { formatCurrency } from "lib/utils";
@@ -25,8 +25,8 @@ export const AnimatedNumber = ({
         <span
             className={twMerge(
                 "tabular-nums transition-colors duration-500",
-                highlight && direction === "up" && "text-emerald-600 dark:text-emerald-400",
-                highlight && direction === "down" && "text-rose-600 dark:text-rose-400",
+                highlight && direction === "up" && "text-accent ",
+                highlight && direction === "down" && "text-signal ",
                 className,
             )}
         >
@@ -94,7 +94,7 @@ export const AmountDelta = ({ value, symbol, className }: { value: number; symbo
             aria-hidden="true"
             className={twMerge(
                 "amount-delta text-sm font-semibold tabular-nums",
-                grew ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400",
+                grew ? "text-accent " : "text-signal ",
                 className,
             )}
         >

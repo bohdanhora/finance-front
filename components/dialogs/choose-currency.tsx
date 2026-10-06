@@ -163,7 +163,6 @@ export const ChoooseCurrency = () => {
             }}
         >
             <DialogContent
-                className="sm:max-w-[425px]"
                 showCloseButton={!selectionRequired}
                 onInteractOutside={(e) => {
                     if (selectionRequired) e.preventDefault();
@@ -175,7 +174,7 @@ export const ChoooseCurrency = () => {
                 <DialogTitle>{t("currencySelection.title")}</DialogTitle>
                 <DialogDescription>{t("currencySelection.changeDescription")}</DialogDescription>
 
-                <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/8 px-3 py-2.5 text-sm text-indigo-700 dark:text-indigo-300">
+                <div className="border border-accent bg-accent-wash px-3 py-2.5 text-sm text-accent">
                     <p>{t("currencySelection.changeHint")}</p>
                     <p className="mt-1 text-xs opacity-80">{t("currencySelection.savingsHint")}</p>
                 </div>
@@ -188,35 +187,31 @@ export const ChoooseCurrency = () => {
                         <SelectValue placeholder={t("currencySelection.choose")}>
                             {currency && (
                                 <span className="flex items-center gap-2">
-                                    <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-500/10 font-semibold text-indigo-600 dark:text-indigo-300">
+                                    <span className="flex size-7 items-center justify-center bg-accent-wash font-semibold text-accent">
                                         {getCurrencySymbol(currency)}
                                     </span>
                                     <span>{tNav(currency)}</span>
-                                    <span className="text-muted-foreground text-xs font-medium uppercase">
-                                        {currency}
-                                    </span>
+                                    <span className="text-ink-faint text-xs font-medium uppercase">{currency}</span>
                                 </span>
                             )}
                         </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="min-w-[var(--radix-select-trigger-width)]">
+                    <SelectContent className="min-w-(--radix-select-trigger-width)">
                         {Object.values(CURRENCY).map((item) => (
                             <SelectItem value={item} key={item} className="min-h-12">
                                 <span className="flex w-full items-center gap-3">
-                                    <span className="flex size-8 items-center justify-center rounded-lg bg-indigo-500/10 font-semibold text-indigo-600 dark:text-indigo-300">
+                                    <span className="flex size-8 items-center justify-center bg-accent-wash font-semibold text-accent">
                                         {getCurrencySymbol(item)}
                                     </span>
                                     <span className="min-w-0 flex-1">{tNav(item)}</span>
-                                    <span className="text-muted-foreground pr-2 text-xs font-medium uppercase">
-                                        {item}
-                                    </span>
+                                    <span className="text-ink-faint pr-2 text-xs font-medium uppercase">{item}</span>
                                 </span>
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
                 {isPending && (
-                    <p className="text-muted-foreground flex items-center gap-2 text-xs">
+                    <p className="text-ink-faint flex items-center gap-2 text-xs">
                         <Loader2 className="size-3.5 animate-spin" />
                         {t("currencySelection.converting")}
                     </p>

@@ -198,7 +198,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
@@ -418,8 +418,8 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                             <div
                                 className={
                                     exceedsStorage || exceedsMainBalance || conversionUnavailable
-                                        ? "rounded-2xl border border-rose-500/25 bg-rose-500/[0.07] p-3 text-sm"
-                                        : "rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-3 text-sm"
+                                        ? " border border-signal bg-signal-wash p-3 text-sm"
+                                        : " border border-accent bg-accent-wash p-3 text-sm"
                                 }
                             >
                                 {type !== SavingsOperationType.DEPOSIT && (
@@ -430,9 +430,9 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                     </p>
                                 )}
                                 {exceedsStorage ? (
-                                    <p className="text-rose-600 dark:text-rose-400">{t("notEnoughInStorage")}</p>
+                                    <p className="text-signal">{t("notEnoughInStorage")}</p>
                                 ) : conversionUnavailable ? (
-                                    <p className="text-rose-600 dark:text-rose-400">{t("conversionUnavailable")}</p>
+                                    <p className="text-signal">{t("conversionUnavailable")}</p>
                                 ) : type !== SavingsOperationType.TRANSFER && !shouldAffectMainBalance ? (
                                     <p>
                                         {t(
@@ -442,7 +442,7 @@ export const SavingsOperationDialog = ({ open, onOpenChange }: Props) => {
                                         )}
                                     </p>
                                 ) : type === SavingsOperationType.DEPOSIT ? (
-                                    <p className={exceedsMainBalance ? "text-rose-600 dark:text-rose-400" : ""}>
+                                    <p className={exceedsMainBalance ? "text-signal " : ""}>
                                         {exceedsMainBalance
                                             ? t("notEnoughOnBalance")
                                             : t("depositBalanceImpact", {

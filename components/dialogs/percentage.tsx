@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { handleFrom1To100InputChange } from "lib/utils";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -73,14 +73,11 @@ export const Percentage = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="text-muted-foreground hover:text-foreground size-7 shrink-0 rounded-lg p-0"
-                    >
+                    <Button variant="ghost" size="icon-sm" className="-m-1.5 size-7">
                         <Edit2Icon className="size-3" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("percent.title")}</DialogTitle>

@@ -3,7 +3,7 @@
 import { Check, ChevronsUpDown, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { CATEGORY_KEYS, CategoryKey, EXPENSE_CATEGORY_KEYS, getCategoryLabel } from "constants/categories";
 import { Button } from "components/ui/button";
@@ -82,23 +82,19 @@ export const CategoryCombobox = ({
             variant="popover"
             role="combobox"
             aria-expanded={open}
-            className={twMerge(
-                "h-11 w-full justify-between px-3 font-normal",
-                !value && "text-muted-foreground",
-                className,
-            )}
+            className={twMerge("h-11 w-full justify-between px-3 font-normal", !value && "text-ink-faint", className)}
         >
             <span className="flex min-w-0 items-center gap-2">
                 {value && <CategoryIcon category={value} className="size-4 shrink-0" />}
                 <span className="truncate">{selectedLabel}</span>
             </span>
-            <ChevronsUpDown className="text-muted-foreground size-4" />
+            <ChevronsUpDown className="text-ink-faint size-4" />
         </Button>
     );
 
     const search = (
         <div className="relative shrink-0">
-            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
                 autoFocus={isMobile === false}
                 enterKeyHint="done"
@@ -123,11 +119,11 @@ export const CategoryCombobox = ({
                     key={key}
                     type="button"
                     onClick={() => select(key)}
-                    className="hover:bg-muted flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left text-sm"
+                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-2.5 px-2.5 py-2.5 text-left text-sm"
                 >
-                    <CategoryIcon category={key} className="text-muted-foreground size-4" />
+                    <CategoryIcon category={key} className="text-ink-faint size-4" />
                     <span className="min-w-0 flex-1 truncate">{label}</span>
-                    {value === key && <Check className="size-4 text-indigo-500" />}
+                    {value === key && <Check className="size-4 text-accent" />}
                 </button>
             ))}
 
@@ -135,15 +131,15 @@ export const CategoryCombobox = ({
                 <button
                     type="button"
                     onClick={() => select(normalizedQuery)}
-                    className="hover:bg-muted flex w-full cursor-pointer items-center gap-2.5 rounded-lg border border-dashed px-2.5 py-2.5 text-left text-sm"
+                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-2.5 border border-dashed px-2.5 py-2.5 text-left text-sm"
                 >
-                    <Plus className="size-4 text-indigo-500" />
+                    <Plus className="size-4 text-accent" />
                     <span className="truncate">{tDialogs("createCategory", { name: normalizedQuery })}</span>
                 </button>
             )}
 
             {filtered.length === 0 && (!allowCustom || !normalizedQuery) && (
-                <p className="text-muted-foreground px-3 py-6 text-center text-sm">{tDialogs("noCategories")}</p>
+                <p className="text-ink-faint px-3 py-6 text-center text-sm">{tDialogs("noCategories")}</p>
             )}
         </div>
     );
@@ -155,9 +151,9 @@ export const CategoryCombobox = ({
                 <DialogContent
                     showCloseButton={false}
                     onOpenAutoFocus={(event) => event.preventDefault()}
-                    className="top-auto bottom-[var(--keyboard-inset,0px)] left-0 flex max-h-[calc(82dvh-var(--keyboard-inset,0px))] w-full max-w-full translate-x-0 translate-y-0 flex-col gap-3 rounded-t-[22px] rounded-b-none p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+                    className="flex flex-col gap-3"
                 >
-                    <span aria-hidden="true" className="bg-border mx-auto h-1 w-10 shrink-0 rounded-full" />
+                    <span aria-hidden="true" className="bg-rule mx-auto h-1 w-10 shrink-0" />
                     <DialogTitle className="shrink-0 text-base">{tDialogs("category")}</DialogTitle>
                     {search}
                     {list}
@@ -172,7 +168,7 @@ export const CategoryCombobox = ({
             <PopoverContent
                 align="start"
                 collisionPadding={12}
-                className="flex max-h-[min(24rem,calc(var(--radix-popover-content-available-height)-var(--keyboard-inset,0px)))] w-[var(--radix-popover-trigger-width)] flex-col gap-2 p-2"
+                className="flex max-h-96 w-(--radix-popover-trigger-width) flex-col gap-2 p-2"
             >
                 {search}
                 {list}

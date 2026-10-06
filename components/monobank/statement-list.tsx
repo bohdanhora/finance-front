@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { CategoryIcon } from "components/categories/category-icon";
 import { Button } from "components/ui/button";
@@ -14,7 +14,13 @@ import { MonobankStatementItem } from "types/monobank";
 
 const PAGE_SIZE = 100;
 
-export const StatementList = ({ items, accountCurrency }: { items: MonobankStatementItem[]; accountCurrency: number }) => {
+export const StatementList = ({
+    items,
+    accountCurrency,
+}: {
+    items: MonobankStatementItem[];
+    accountCurrency: number;
+}) => {
     const t = useTranslations("monobank");
     const tCat = useTranslations("categories");
     const [visible, setVisible] = useState(PAGE_SIZE);
@@ -24,7 +30,7 @@ export const StatementList = ({ items, accountCurrency }: { items: MonobankState
 
     return (
         <div className="flex flex-col gap-3">
-            <ul className="border-border bg-card divide-border divide-y rounded-2xl border shadow-sm">
+            <ul className="border-rule-strong border-t">
                 {items.slice(0, visible).map((item) => {
                     const category = categoryByMcc(item.mcc);
                     const income = item.amount >= 0;
@@ -33,42 +39,35 @@ export const StatementList = ({ items, accountCurrency }: { items: MonobankState
                     const operationSymbol = conversion ? currencySymbolByCode(conversion.currencyCode) : "";
 
                     return (
-                        <li key={item.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
+                        <li key={item.id} className="border-rule flex items-center gap-3 border-b py-3 pl-1">
                             <span
                                 className={twMerge(
-                                    "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                                    income
-                                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                        : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
+                                    "border-rule flex size-9 shrink-0 items-center justify-center border",
+                                    income && "border-accent text-accent",
                                 )}
                             >
                                 <CategoryIcon category={income ? "income" : category} className="size-4" />
                             </span>
 
                             <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-medium">{item.description}</p>
-                                <p className="text-muted-foreground truncate text-xs">
+                                <p className="text-sm break-words">{item.description}</p>
+                                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
                                     {getCategoryLabel(income ? "income" : category, tCat)} ·{" "}
                                     {dayjs.unix(item.time).format("DD/MM/YY HH:mm")}
                                     {item.hold ? ` · ${t("hold")}` : ""}
                                 </p>
                                 {item.comment && (
-                                    <p className="text-muted-foreground truncate text-xs">{item.comment}</p>
+                                    <p className="text-ink-faint mt-0.5 text-xs break-words">{item.comment}</p>
                                 )}
                             </div>
 
                             <div className="shrink-0 text-right">
-                                <p
-                                    className={twMerge(
-                                        "text-sm font-semibold tabular-nums",
-                                        income ? "text-emerald-600 dark:text-emerald-400" : "text-foreground",
-                                    )}
-                                >
+                                <p className={twMerge("font-mono text-sm tabular-nums", income && "text-accent")}>
                                     {income ? "+" : "-"}
                                     {formatCurrency(fromMinorUnits(Math.abs(item.amount)))} {symbol}
                                 </p>
                                 {conversion && (
-                                    <p className="text-muted-foreground text-xs tabular-nums">
+                                    <p className="text-ink-faint font-mono text-3xs tabular-nums">
                                         {t("converted", {
                                             amount: `${formatCurrency(conversion.amount)} ${operationSymbol}`,
                                             rate:
@@ -79,7 +78,7 @@ export const StatementList = ({ items, accountCurrency }: { items: MonobankState
                                     </p>
                                 )}
                                 {cashback > 0 && (
-                                    <p className="text-xs text-amber-600 tabular-nums dark:text-amber-400">
+                                    <p className="text-accent font-mono text-3xs tabular-nums">
                                         {t("cashbackEarned", { amount: `${formatCurrency(cashback)} ${symbol}` })}
                                     </p>
                                 )}
@@ -91,7 +90,7 @@ export const StatementList = ({ items, accountCurrency }: { items: MonobankState
 
             {hidden > 0 && (
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     className="self-center"
                     onClick={() => setVisible((count) => count + PAGE_SIZE)}
                 >

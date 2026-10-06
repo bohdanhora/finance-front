@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { PencilIcon, XIcon } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { v4 as uuidv4 } from "uuid";
 
 import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
@@ -108,11 +108,11 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
             }}
         >
             <DialogTrigger asChild>
-                <Button variant="secondary" className="h-fit">
+                <Button variant="outline" size="sm">
                     {triggerLabel ?? t("title")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{t("title")}</DialogTitle>
                     <DialogDescription>{t("dialogDescription")}</DialogDescription>
@@ -124,13 +124,13 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                             <li
                                 key={income.id}
                                 className={twMerge(
-                                    "border-border/70 bg-muted/25 flex items-center gap-3 rounded-xl border px-3 py-2.5",
-                                    editingId === income.id && "border-indigo-500/60",
+                                    "border-rule flex items-center gap-3 border-b py-2.5",
+                                    editingId === income.id && "border-accent",
                                 )}
                             >
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-medium">{income.title}</p>
-                                    <p className="text-muted-foreground mt-0.5 text-xs tabular-nums">
+                                    <p className="text-ink-faint mt-0.5 text-xs tabular-nums">
                                         {formatCurrency(income.amount)} {symbol} · {t("onDay", { day: income.day })}
                                         {!income.recurring && ` · ${t("oneOff")}`}
                                     </p>
@@ -141,7 +141,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                         variant="ghost"
                                         disabled={pending || income.received}
                                         onClick={() => startEditing(income)}
-                                        className="text-muted-foreground hover:text-foreground size-8 rounded-lg p-0"
+                                        className="text-ink-faint hover:text-ink size-8 p-0"
                                         aria-label={t("edit")}
                                     >
                                         <PencilIcon className="size-3.5" />
@@ -151,7 +151,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                         variant="ghost"
                                         disabled={pending || income.received}
                                         onClick={() => remove(income.id)}
-                                        className="text-muted-foreground size-8 rounded-lg p-0 hover:bg-red-500/10 hover:text-red-500"
+                                        className="text-ink-faint size-8 p-0 hover:bg-signal-wash hover:text-signal"
                                         aria-label={t("remove")}
                                     >
                                         <XIcon className="size-3.5" />
@@ -164,7 +164,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-[1fr_6.5rem] gap-3">
+                        <div className="flex gap-3 *:first:min-w-0 *:first:flex-1 *:last:w-28 *:last:shrink-0">
                             <FormField
                                 control={form.control}
                                 name="amount"
@@ -229,7 +229,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                             control={form.control}
                             name="recurring"
                             render={({ field }) => (
-                                <FormItem className="border-border/70 flex items-start gap-3 rounded-xl border p-3">
+                                <FormItem className="border-rule flex items-start gap-3 border p-3">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value}
@@ -239,7 +239,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                     </FormControl>
                                     <div className="space-y-1">
                                         <FormLabel className="cursor-pointer">{t("recurring")}</FormLabel>
-                                        <p className="text-muted-foreground text-xs">{t("recurringHint")}</p>
+                                        <p className="text-ink-faint text-xs">{t("recurringHint")}</p>
                                     </div>
                                 </FormItem>
                             )}

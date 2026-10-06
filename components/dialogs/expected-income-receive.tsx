@@ -81,7 +81,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{isUndo ? t("undoTitle") : t("title", { title: income.title })}</DialogTitle>
                     <DialogDescription>
@@ -95,8 +95,8 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
 
                 {!isUndo && (
                     <div className="space-y-4">
-                        <div className="border-border bg-muted/30 flex items-center justify-between gap-4 rounded-xl border p-4">
-                            <span className="text-muted-foreground text-sm">{t("planned")}</span>
+                        <div className="border-rule flex items-center justify-between gap-4 border-y py-4">
+                            <span className="text-ink-faint text-sm">{t("planned")}</span>
                             <span className="font-semibold tabular-nums">
                                 {formatCurrency(income.amount)} {symbol}
                             </span>
@@ -136,14 +136,14 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                         }
                                     }}
                                 />
-                                <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
+                                <span className="text-ink-faint pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
                                     {symbol}
                                 </span>
                             </div>
-                            {error && <p className="text-destructive text-sm">{error}</p>}
+                            {error && <p className="text-signal text-sm">{error}</p>}
                         </div>
 
-                        <label className="border-border/70 flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                        <label className="border-rule flex cursor-pointer items-start gap-3 border p-3">
                             <Checkbox
                                 checked={addToBalance}
                                 onCheckedChange={(checked) => setAddToBalance(checked === true)}
@@ -151,7 +151,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                             />
                             <span className="space-y-1">
                                 <span className="block text-sm font-medium">{t("addToBalance")}</span>
-                                <span className="text-muted-foreground block text-xs">{t("addToBalanceHint")}</span>
+                                <span className="text-ink-faint block text-xs">{t("addToBalanceHint")}</span>
                             </span>
                         </label>
 
@@ -167,7 +167,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
                                 {difference < 0 && (
-                                    <p className="text-amber-600 dark:text-amber-400">
+                                    <p className="text-signal">
                                         {t("lessThanPlanned", {
                                             amount: formatCurrency(Math.abs(difference)),
                                             currency: symbol,
@@ -175,12 +175,12 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     </p>
                                 )}
                                 {difference > 0 && (
-                                    <p className="text-emerald-600 dark:text-emerald-400">
+                                    <p className="text-accent">
                                         {t("moreThanPlanned", { amount: formatCurrency(difference), currency: symbol })}
                                     </p>
                                 )}
                                 {addToBalance && (
-                                    <p className="text-muted-foreground">
+                                    <p className="text-ink-faint">
                                         {t("balanceAfter", {
                                             amount: formatSignedCurrency(
                                                 roundMoney(

@@ -6,12 +6,9 @@ export const BackToLogin = () => {
     const tAuth = useTranslations("auth");
 
     return (
-        <p className="text-center text-sm text-black/55 dark:text-white/55">
+        <p className="text-ink-muted text-sm">
             {tAuth("backToLoginFromForgot")}{" "}
-            <Link
-                href={Routes.LOGIN}
-                className="font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >
+            <Link href={Routes.LOGIN} className="link text-accent font-medium">
                 {tAuth("login")}
             </Link>
         </p>

@@ -102,12 +102,12 @@ export const TransferDialog = () => {
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="secondary">
+                <Button variant="outline" size="lg" className="w-full">
                     <ArrowLeftRight />
                     {t("transfer")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <form
                     className="flex flex-col gap-5"
                     onSubmit={(event) => {
@@ -157,7 +157,7 @@ export const TransferDialog = () => {
                         />
                     </div>
 
-                    {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                    {error && <p className="text-sm text-signal">{error}</p>}
 
                     <DialogFooter>
                         <DialogClose asChild>

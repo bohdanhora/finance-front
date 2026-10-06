@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { MonthPlan, summarizeEssentials, summarizeExpectedIncomes } from "lib/month-plan";
 import { formatCurrency } from "lib/utils";
@@ -32,37 +32,42 @@ const PlanCard = ({
     planLabel: (amount: number) => string;
     money: (amount: number) => string;
 }) => (
-    <div className="border-border bg-card flex flex-col rounded-2xl border p-5 shadow-sm">
-        <p className="text-muted-foreground text-[0.7rem] font-medium tracking-wide uppercase">{title}</p>
+    <div className="flex min-w-0 flex-col">
+        <h3 className="label text-ink">{title}</h3>
         {rows.length === 0 ? (
-            <p className="text-muted-foreground mt-3 text-sm">{emptyLabel}</p>
+            <p className="border-rule text-ink-faint mt-3 border border-dashed px-4 py-6 text-center text-sm">
+                {emptyLabel}
+            </p>
         ) : (
             <>
-                <p className="mt-1 text-base font-semibold tabular-nums">{headline}</p>
-                <div className="bg-muted mt-3 h-1.5 overflow-hidden rounded-full">
+                <p className="mt-1 text-sm tabular-nums">{headline}</p>
+                <div className="bg-wash mt-3 h-1.5">
                     <div
-                        className="h-full rounded-full bg-emerald-500 transition-[width] duration-500"
+                        className="bg-accent h-full transition-[width] duration-500"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
-                <ul className="divide-border mt-3 max-h-80 divide-y overflow-y-auto">
+                <ul className="border-rule-strong mt-3 max-h-80 overflow-y-auto border-t">
                     {rows.map((row) => {
                         const differs = row.actual !== null && Math.abs(row.actual - row.planned) >= 0.01;
 
                         return (
-                            <li key={row.id} className="flex items-center justify-between gap-4 py-2.5">
-                                <span className="min-w-0 truncate text-sm">{row.title}</span>
+                            <li
+                                key={row.id}
+                                className="border-rule flex items-center justify-between gap-4 border-b py-2.5"
+                            >
+                                <span className="min-w-0 text-sm break-words">{row.title}</span>
                                 <span className="shrink-0 text-right">
                                     <span
                                         className={twMerge(
-                                            "block text-sm tabular-nums",
-                                            row.actual === null ? "text-amber-600 dark:text-amber-400" : "font-medium",
+                                            "block font-mono text-xs tabular-nums",
+                                            row.actual === null && "text-signal uppercase",
                                         )}
                                     >
                                         {row.actual === null ? missingLabel : money(row.actual)}
                                     </span>
                                     {(differs || row.actual === null) && (
-                                        <span className="text-muted-foreground block text-[0.68rem] tabular-nums">
+                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
                                             {planLabel(row.planned)}
                                         </span>
                                     )}
@@ -75,7 +80,6 @@ const PlanCard = ({
         )}
     </div>
 );
-
 const share = (actual: number, planned: number) => (planned > 0 ? Math.min((actual / planned) * 100, 100) : 0);
 
 export const MonthPlanSummary = ({ plan, symbol }: { plan: MonthPlan; symbol: string }) => {
@@ -87,7 +91,7 @@ export const MonthPlanSummary = ({ plan, symbol }: { plan: MonthPlan; symbol: st
     const essentials = summarizeEssentials(plan.essentials);
 
     return (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
             <PlanCard
                 title={t("expectedIncome")}
                 headline={t("receivedOfPlanned", {

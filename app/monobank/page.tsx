@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { AlertTriangle, Landmark, Loader2, RefreshCw, Settings2, Wallet } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import Link from "next/link";
 
 import { isRateLimited, isTokenRejected, useMonobankClientInfo, useMonobankStatement } from "api/monobank";
@@ -17,6 +17,7 @@ import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
 import { ViewSwitcher } from "components/charts/view-switcher";
 import { Section, StatGrid } from "components/wrappers/section";
+import { PageHeader, PageShell } from "components/wrappers/page-header";
 import { Routes } from "constants/routes";
 import { useMonobankHistory } from "hooks/use-monobank-history";
 import { useMonobankToken } from "hooks/use-monobank-token";
@@ -125,13 +126,13 @@ const MonobankPage = () => {
             <GetDataProvider>
                 <PrivateProvider>
                     <Navbar />
-                    <div className="mx-auto w-full max-w-3xl px-4 pt-16 pb-24 sm:px-6">
-                        <div className="border-border bg-card flex flex-col items-center gap-4 rounded-3xl border p-10 text-center shadow-sm">
-                            <MonoMark className="size-14 rounded-3xl" textClassName="text-[0.8rem]" />
-                            <h1 className="text-xl font-semibold tracking-tight">{t("notConnectedTitle")}</h1>
-                            <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
-                                {t("notConnectedHint")}
-                            </p>
+                    <div className="shell pt-16 pb-28">
+                        <div className="border-rule mx-auto flex max-w-xl flex-col items-center gap-4 border border-dashed p-10 text-center">
+                            <MonoMark className="size-14" />
+                            <h1 className="font-display text-xl font-medium tracking-tight uppercase">
+                                {t("notConnectedTitle")}
+                            </h1>
+                            <p className="text-ink-faint max-w-md text-sm leading-relaxed">{t("notConnectedHint")}</p>
                             <Button asChild>
                                 <Link href={Routes.SETTINGS}>
                                     <Settings2 />
@@ -150,26 +151,22 @@ const MonobankPage = () => {
             <PrivateProvider>
                 <Navbar />
 
-                <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24 sm:px-6">
-                    <div className="rise-stagger flex w-full flex-col gap-10">
-                        <header className="flex flex-wrap items-end justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
-                                <p className="text-muted-foreground mt-1 text-sm">
-                                    {clientInfo.data?.name
-                                        ? t("connectedAs", { name: clientInfo.data.name })
-                                        : t("subtitle")}
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-2">
+                <PageShell>
+                    <PageHeader
+                        index="04"
+                        title={t("title")}
+                        subtitle={
+                            clientInfo.data?.name ? t("connectedAs", { name: clientInfo.data.name }) : t("subtitle")
+                        }
+                        actions={
+                            <>
                                 {lastFetched > 0 && (
-                                    <span className="text-muted-foreground hidden text-xs sm:inline">
+                                    <span className="label hidden sm:inline">
                                         {t("updatedAt", { time: dayjs(lastFetched).format("HH:mm") })}
                                     </span>
                                 )}
                                 <Button
-                                    variant="secondary"
+                                    variant="outline"
                                     disabled={loading || cooldownLeft > 0}
                                     title={cooldownLeft > 0 ? t("cooldown", { seconds: cooldownLeft }) : t("refresh")}
                                     onClick={refresh}
@@ -177,205 +174,197 @@ const MonobankPage = () => {
                                     {loading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
                                     {cooldownLeft > 0 ? t("cooldown", { seconds: cooldownLeft }) : t("refresh")}
                                 </Button>
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    aria-label={t("openSettings")}
-                                    asChild
-                                >
+                                <Button variant="ghost" size="icon" aria-label={t("openSettings")} asChild>
                                     <Link href={Routes.SETTINGS}>
-                                        <Settings2 />
+                                        <Settings2 className="size-4" />
                                     </Link>
                                 </Button>
-                            </div>
-                        </header>
+                            </>
+                        }
+                    />
 
-                        <p className="rounded-2xl border border-indigo-500/20 bg-indigo-500/8 px-4 py-3 text-sm leading-relaxed text-indigo-700 dark:text-indigo-300">
-                            {t("readOnly")}
+                    <p className="border-accent text-ink-muted flex items-start gap-3 border-l-2 py-1 pl-4 text-sm leading-relaxed">
+                        {t("readOnly")}
+                    </p>
+
+                    {errorMessage() && (
+                        <div className="border-signal text-signal flex items-start gap-3 border-l-2 py-1 pl-4 text-sm">
+                            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                            <p>{errorMessage()}</p>
+                        </div>
+                    )}
+
+                    {clientInfo.isPending && (
+                        <p className="text-ink-faint flex items-center gap-2 text-sm">
+                            <Loader2 className="size-4 animate-spin" />
+                            {t("loading")}
                         </p>
+                    )}
 
-                        {errorMessage() && (
-                            <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
-                                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                                <p>{errorMessage()}</p>
+                    {account && (
+                        <StatGrid>
+                            <StatCard
+                                label={t("balance")}
+                                value={money(fromMinorUnits(account.balance - account.creditLimit))}
+                                secondary={
+                                    account.creditLimit > 0
+                                        ? t("withCreditLimit", { amount: money(fromMinorUnits(account.balance)) })
+                                        : accountLabel(account)
+                                }
+                            />
+                            <StatCard
+                                label={t("spent")}
+                                value={money(summary.spent)}
+                                secondary={
+                                    <>
+                                        <span className="block">{t("operations", { count: summary.count })}</span>
+                                        {summary.largest && (
+                                            <span className="block">
+                                                {t("largest", {
+                                                    amount: money(fromMinorUnits(Math.abs(summary.largest.amount))),
+                                                })}
+                                            </span>
+                                        )}
+                                    </>
+                                }
+                            />
+                            <StatCard label={t("received")} value={money(summary.received)} />
+                            <StatCard label={t("cashback")} value={money(summary.cashback)} />
+                        </StatGrid>
+                    )}
+
+                    {accounts.length > 0 && (
+                        <Section index="01" title={t("accounts")}>
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                {accounts.map((item) => {
+                                    const active = item.id === account?.id;
+
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            onClick={() => setSelectedId(item.id)}
+                                            className={twMerge(
+                                                "border-rule hover:border-rule-strong flex items-center gap-3 border p-4 text-left transition-colors",
+                                                active && "bg-ink text-paper border-ink hover:border-ink",
+                                            )}
+                                        >
+                                            <span className="flex size-9 shrink-0 items-center justify-center border border-current opacity-70">
+                                                <Wallet className="size-4" />
+                                            </span>
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block truncate text-sm font-medium">
+                                                    {accountLabel(item)}
+                                                </span>
+                                                <span className="block font-mono text-3xs uppercase opacity-60">
+                                                    {currencyNameByCode(item.currencyCode)}
+                                                </span>
+                                            </span>
+                                            <span className="shrink-0 font-mono text-sm tabular-nums">
+                                                {formatCurrency(fromMinorUnits(item.balance - item.creditLimit))}{" "}
+                                                {currencySymbolByCode(item.currencyCode)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
-                        )}
+                        </Section>
+                    )}
 
-                        {clientInfo.isPending && (
-                            <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                                <Loader2 className="size-4 animate-spin" />
-                                {t("loading")}
+                    {jars.length > 0 && (
+                        <Section index="02" title={t("jars")}>
+                            <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                                {jars.map((jar) => {
+                                    const progress = jarProgress(jar);
+                                    const jarSymbol = currencySymbolByCode(jar.currencyCode);
+
+                                    return (
+                                        <div
+                                            key={jar.id}
+                                            className="border-rule-strong flex flex-col gap-2 border-t pt-3"
+                                        >
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="text-accent flex shrink-0 items-center justify-center">
+                                                    <Landmark className="size-4" />
+                                                </span>
+                                                <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                                                    {jar.title}
+                                                </p>
+                                            </div>
+                                            <p className="figure text-figure">
+                                                {formatCurrency(fromMinorUnits(jar.balance))} {jarSymbol}
+                                            </p>
+                                            {progress !== null && jar.goal && (
+                                                <>
+                                                    <div className="bg-wash h-1.5 w-full">
+                                                        <div
+                                                            className="bg-accent h-full"
+                                                            style={{ width: `${Math.max(progress, 2)}%` }}
+                                                        />
+                                                    </div>
+                                                    <p className="text-ink-faint font-mono text-2xs">
+                                                        {t("jarGoal", {
+                                                            amount: `${formatCurrency(fromMinorUnits(jar.goal))} ${jarSymbol}`,
+                                                            percent: progress,
+                                                        })}
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </Section>
+                    )}
+
+                    <Section
+                        index={jars.length > 0 ? "03" : "02"}
+                        title={t("statement")}
+                        actions={
+                            <ViewSwitcher
+                                value={period}
+                                onChange={setPeriod}
+                                options={[
+                                    { value: "7", label: t("period7") },
+                                    { value: "31", label: t("period31") },
+                                    { value: "all", label: t("periodAll") },
+                                ]}
+                            />
+                        }
+                    >
+                        {allTime && account && (
+                            <p className="text-ink-faint mb-4 flex items-center gap-2 text-sm">
+                                {history.loading && <Loader2 className="size-4 shrink-0 animate-spin" />}
+                                {history.complete
+                                    ? t("historyComplete", {
+                                          date: historyDate(oldestItem?.time ?? history.from ?? range.from),
+                                      })
+                                    : history.from
+                                      ? t("historyLoading", { date: historyDate(history.from) })
+                                      : t("historyStarting")}
                             </p>
                         )}
 
-                        {account && (
-                            <StatGrid>
-                                <StatCard
-                                    label={t("balance")}
-                                    value={money(fromMinorUnits(account.balance - account.creditLimit))}
-                                    secondary={
-                                        account.creditLimit > 0
-                                            ? t("withCreditLimit", { amount: money(fromMinorUnits(account.balance)) })
-                                            : accountLabel(account)
-                                    }
-                                />
-                                <StatCard
-                                    label={t("spent")}
-                                    value={money(summary.spent)}
-                                    secondary={
-                                        <>
-                                            <span className="block">{t("operations", { count: summary.count })}</span>
-                                            {summary.largest && (
-                                                <span className="block">
-                                                    {t("largest", {
-                                                        amount: money(fromMinorUnits(Math.abs(summary.largest.amount))),
-                                                    })}
-                                                </span>
-                                            )}
-                                        </>
-                                    }
-                                />
-                                <StatCard label={t("received")} value={money(summary.received)} />
-                                <StatCard label={t("cashback")} value={money(summary.cashback)} />
-                            </StatGrid>
+                        {summary.byCategory.length > 0 && (
+                            <div className="mb-6">
+                                <CategoryBreakdown totals={summary.byCategory} spent={summary.spent} symbol={symbol} />
+                            </div>
                         )}
 
-                        {accounts.length > 0 && (
-                            <Section title={t("accounts")}>
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {accounts.map((item) => {
-                                        const active = item.id === account?.id;
-
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                type="button"
-                                                onClick={() => setSelectedId(item.id)}
-                                                className={twMerge(
-                                                    "border-border bg-card flex cursor-pointer items-center gap-3 rounded-2xl border p-4 text-left shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:shadow-md",
-                                                    active && "border-indigo-500/60 ring-2 ring-indigo-500/20",
-                                                )}
-                                            >
-                                                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
-                                                    <Wallet className="size-4" />
-                                                </span>
-                                                <span className="min-w-0 flex-1">
-                                                    <span className="block truncate text-sm font-medium">
-                                                        {accountLabel(item)}
-                                                    </span>
-                                                    <span className="text-muted-foreground block text-xs">
-                                                        {currencyNameByCode(item.currencyCode)}
-                                                    </span>
-                                                </span>
-                                                <span className="shrink-0 text-sm font-semibold tabular-nums">
-                                                    {formatCurrency(fromMinorUnits(item.balance - item.creditLimit))}{" "}
-                                                    {currencySymbolByCode(item.currencyCode)}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </Section>
+                        {(allTime ? history.items.length === 0 && history.loading : statement.isPending) && account ? (
+                            <p className="text-ink-faint flex items-center gap-2 py-8 text-sm">
+                                <Loader2 className="size-4 animate-spin" />
+                                {t("loading")}
+                            </p>
+                        ) : items.length > 0 ? (
+                            <StatementList items={items} accountCurrency={account?.currencyCode ?? 980} />
+                        ) : (
+                            <p className="text-ink-faint border-rule border border-dashed py-16 text-center text-sm">
+                                {t("noOperations")}
+                            </p>
                         )}
-
-                        {jars.length > 0 && (
-                            <Section title={t("jars")}>
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {jars.map((jar) => {
-                                        const progress = jarProgress(jar);
-                                        const jarSymbol = currencySymbolByCode(jar.currencyCode);
-
-                                        return (
-                                            <div
-                                                key={jar.id}
-                                                className="border-border bg-card flex flex-col gap-2 rounded-2xl border p-4 shadow-sm"
-                                            >
-                                                <div className="flex items-center gap-2.5">
-                                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                                                        <Landmark className="size-4" />
-                                                    </span>
-                                                    <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                                                        {jar.title}
-                                                    </p>
-                                                </div>
-                                                <p className="text-lg font-semibold tabular-nums">
-                                                    {formatCurrency(fromMinorUnits(jar.balance))} {jarSymbol}
-                                                </p>
-                                                {progress !== null && jar.goal && (
-                                                    <>
-                                                        <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                                                            <div
-                                                                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-600"
-                                                                style={{ width: `${Math.max(progress, 2)}%` }}
-                                                            />
-                                                        </div>
-                                                        <p className="text-muted-foreground text-xs">
-                                                            {t("jarGoal", {
-                                                                amount: `${formatCurrency(fromMinorUnits(jar.goal))} ${jarSymbol}`,
-                                                                percent: progress,
-                                                            })}
-                                                        </p>
-                                                    </>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </Section>
-                        )}
-
-                        <Section
-                            title={t("statement")}
-                            actions={
-                                <ViewSwitcher
-                                    value={period}
-                                    onChange={setPeriod}
-                                    options={[
-                                        { value: "7", label: t("period7") },
-                                        { value: "31", label: t("period31") },
-                                        { value: "all", label: t("periodAll") },
-                                    ]}
-                                />
-                            }
-                        >
-                            {allTime && account && (
-                                <p className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
-                                    {history.loading && <Loader2 className="size-4 shrink-0 animate-spin" />}
-                                    {history.complete
-                                        ? t("historyComplete", {
-                                              date: historyDate(oldestItem?.time ?? history.from ?? range.from),
-                                          })
-                                        : history.from
-                                          ? t("historyLoading", { date: historyDate(history.from) })
-                                          : t("historyStarting")}
-                                </p>
-                            )}
-
-                            {summary.byCategory.length > 0 && (
-                                <div className="mb-6">
-                                    <CategoryBreakdown
-                                        totals={summary.byCategory}
-                                        spent={summary.spent}
-                                        symbol={symbol}
-                                    />
-                                </div>
-                            )}
-
-                            {(allTime ? history.items.length === 0 && history.loading : statement.isPending) && account ? (
-                                <p className="text-muted-foreground flex items-center gap-2 py-8 text-sm">
-                                    <Loader2 className="size-4 animate-spin" />
-                                    {t("loading")}
-                                </p>
-                            ) : items.length > 0 ? (
-                                <StatementList items={items} accountCurrency={account?.currencyCode ?? 980} />
-                            ) : (
-                                <p className="text-muted-foreground border-border bg-card rounded-2xl border py-16 text-center text-sm shadow-sm">
-                                    {t("noOperations")}
-                                </p>
-                            )}
-                        </Section>
-                    </div>
-                </div>
+                    </Section>
+                </PageShell>
             </PrivateProvider>
         </GetDataProvider>
     );

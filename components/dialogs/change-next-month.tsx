@@ -20,7 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
 
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useMemo, useState } from "react";
@@ -31,7 +31,7 @@ import { CURRENCY, currencyArray } from "constants/index";
 import useBankStore from "store/bank";
 import { getCurrencySymbol } from "lib/currency";
 
-export const ChangeNextMonthIncome = () => {
+export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string }) => {
     const store = useStore();
     const bankStore = useBankStore();
 
@@ -109,9 +109,11 @@ export const ChangeNextMonthIncome = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="secondary">{t("changeNextMonthIncome")}</Button>
+                    <Button variant="outline" size="sm">
+                        {triggerLabel ?? t("changeNextMonthIncome")}
+                    </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("expectedIncome")}</DialogTitle>
@@ -155,7 +157,7 @@ export const ChangeNextMonthIncome = () => {
                                 )}
                             />
                         </div>
-                        <div className="grid w-full grid-cols-[minmax(0,1fr)_5.5rem] items-end gap-3">
+                        <div className="flex w-full items-end gap-3 *:first:min-w-0 *:first:flex-1 *:last:w-24 *:last:shrink-0">
                             <FormField
                                 control={form.control}
                                 name="amount"

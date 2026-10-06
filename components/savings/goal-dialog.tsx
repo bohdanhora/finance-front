@@ -159,7 +159,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
@@ -181,7 +181,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                             )}
                         />
 
-                        <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-3">
+                        <div className="flex gap-3 *:first:min-w-0 *:first:flex-1 *:last:w-32 *:last:shrink-0">
                             <FormField
                                 control={form.control}
                                 name="targetAmount"
@@ -238,7 +238,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                 inputMode="decimal"
                                                 placeholder="0"
                                                 readOnly={Boolean(savingsPace && !savingsPace.isOverdue)}
-                                                className="read-only:bg-muted/50 read-only:text-foreground read-only:cursor-default"
+                                                className="read-only:bg-wash read-only:text-ink read-only:cursor-default"
                                                 {...field}
                                                 onChange={handleDecimalInputChange(field.onChange)}
                                             />
@@ -280,7 +280,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                             {...field}
                                         />
                                     </FormControl>
-                                    <p className="text-muted-foreground text-xs">{t("goalUrlHint")}</p>
+                                    <p className="text-ink-faint text-xs">{t("goalUrlHint")}</p>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -290,23 +290,23 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                             <div
                                 className={
                                     savingsPace.isOverdue
-                                        ? "rounded-2xl border border-rose-500/25 bg-rose-500/[0.07] p-4"
-                                        : "rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4"
+                                        ? " border border-signal bg-signal-wash p-4"
+                                        : " border border-accent bg-accent-wash p-4"
                                 }
                             >
                                 <div className="flex items-center gap-3">
                                     <span
                                         className={
                                             savingsPace.isOverdue
-                                                ? "flex size-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500"
-                                                : "flex size-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                                                ? "flex size-9 items-center justify-center  bg-signal-wash text-signal"
+                                                : "flex size-9 items-center justify-center  bg-accent-wash text-accent "
                                         }
                                     >
                                         <Calculator className="size-4" />
                                     </span>
                                     <div className="min-w-0">
                                         <p className="text-sm font-semibold">{t("requiredPace")}</p>
-                                        <p className="text-muted-foreground text-xs">
+                                        <p className="text-ink-faint text-xs">
                                             {savingsPace.isOverdue
                                                 ? t("deadlinePassed")
                                                 : t("daysToGoal", { count: savingsPace.daysRemaining })}
@@ -316,8 +316,8 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
 
                                 {!savingsPace.isOverdue && (
                                     <div className="mt-3 grid grid-cols-2 gap-2">
-                                        <div className="bg-background/70 rounded-xl px-3 py-2.5">
-                                            <p className="text-muted-foreground flex items-center gap-1.5 text-[0.7rem] font-medium uppercase">
+                                        <div className="bg-paper/70 px-3 py-2.5">
+                                            <p className="label flex items-center gap-1.5">
                                                 <CalendarDays className="size-3.5" />
                                                 {t("daily")}
                                             </p>
@@ -325,10 +325,8 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                 {planMoney(savingsPace.dailyAmount)}
                                             </p>
                                         </div>
-                                        <div className="bg-background/70 rounded-xl px-3 py-2.5">
-                                            <p className="text-muted-foreground text-[0.7rem] font-medium uppercase">
-                                                {t("monthly")}
-                                            </p>
+                                        <div className="bg-paper/70 px-3 py-2.5">
+                                            <p className="label">{t("monthly")}</p>
                                             <p className="mt-1 font-semibold tabular-nums">
                                                 {planMoney(savingsPace.monthlyAmount)}
                                             </p>
@@ -337,9 +335,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                 )}
 
                                 {!savingsPace.isOverdue && (
-                                    <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-                                        {t("calculatedPlan")}
-                                    </p>
+                                    <p className="text-ink-faint mt-2 text-xs leading-relaxed">{t("calculatedPlan")}</p>
                                 )}
                             </div>
                         )}

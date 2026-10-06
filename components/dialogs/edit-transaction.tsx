@@ -132,7 +132,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("transactions.editTransactionTitle")}</DialogTitle>
@@ -179,7 +179,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                         />
 
                         {isSavingsExpense && (
-                            <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4">
+                            <div className="space-y-3 border border-accent bg-accent-wash p-4">
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <FormField
                                         control={form.control}
@@ -245,7 +245,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                                         onChange={handleDecimalInputChange(field.onChange, 4)}
                                                     />
                                                 </FormControl>
-                                                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                                                <div className="text-ink-faint flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                                                     <span>
                                                         {t("dialogs.savingsRateHint", {
                                                             currency: getCurrencySymbol(savingsCurrency),
@@ -262,7 +262,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                                                                         shouldValidate: true,
                                                                     })
                                                                 }
-                                                                className="text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
+                                                                className="text-accent underline-offset-2 hover:underline"
                                                             >
                                                                 {t("dialogs.savingsRateCurrent", {
                                                                     rate: currentRateInput,

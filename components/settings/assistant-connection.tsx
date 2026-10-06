@@ -16,7 +16,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useConnectionsActions } from "api/connections";
 import { ConnectionCard, KeyField } from "components/settings/connection-card";
@@ -41,15 +41,13 @@ import {
 
 const StepLabel = ({ step, htmlFor, children }: { step: number; htmlFor: string; children: React.ReactNode }) => (
     <Label htmlFor={htmlFor} className="flex items-center gap-2 text-xs font-semibold">
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-[0.65rem] font-bold text-indigo-600 dark:text-indigo-300">
-            {step}
-        </span>
+        <span className="text-accent font-mono text-2xs">{step}</span>
         {children}
     </Label>
 );
 
 const optionClass =
-    "flex min-h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none hover:bg-indigo-500/10 focus-visible:bg-indigo-500/10";
+    "flex min-h-10 w-full cursor-pointer items-center justify-between gap-2  px-3 py-2 text-left text-sm outline-none hover:bg-accent-wash focus-visible:bg-accent-wash";
 
 const focusOption = (event: React.KeyboardEvent<HTMLElement>, target: Element | null | undefined) => {
     event.preventDefault();
@@ -112,15 +110,15 @@ const ModelPicker = ({
                     aria-expanded={open}
                     aria-controls={listId}
                     disabled={disabled}
-                    className="flex h-11 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-md border border-gray-300 bg-white px-3 text-left text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 dark:border-gray-600 dark:bg-zinc-500/10 dark:focus-visible:border-blue-600"
+                    className="border-rule bg-surface hover:border-ink-faint focus-visible:border-accent flex h-11 w-full min-w-0 items-center justify-between gap-2 border px-3 text-left text-sm transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:h-10"
                 >
-                    <span className={twMerge("min-w-0 truncate", !value && "text-muted-foreground")}>
+                    <span className={twMerge("min-w-0 truncate", !value && "text-ink-faint")}>
                         {value || placeholder}
                     </span>
                     {loading ? (
-                        <Loader2 className="text-muted-foreground size-4 shrink-0 animate-spin" />
+                        <Loader2 className="text-ink-faint size-4 shrink-0 animate-spin" />
                     ) : (
-                        <ChevronDown className="text-muted-foreground size-4 shrink-0" />
+                        <ChevronDown className="text-ink-faint size-4 shrink-0" />
                     )}
                 </button>
             </PopoverTrigger>
@@ -129,10 +127,10 @@ const ModelPicker = ({
                 sideOffset={6}
                 collisionPadding={12}
                 data-model-picker
-                className="bg-popover text-popover-foreground w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] rounded-xl p-1.5"
+                className="w-(--radix-popover-trigger-width) p-1.5"
             >
                 <div className="relative mb-1.5">
-                    <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                    <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         autoComplete="off"
                         spellCheck={false}
@@ -167,7 +165,7 @@ const ModelPicker = ({
                             type="button"
                             role="option"
                             aria-selected={false}
-                            className={twMerge(optionClass, "font-medium text-indigo-600 dark:text-indigo-300")}
+                            className={twMerge(optionClass, "font-medium text-accent ")}
                             onClick={() => choose(typed)}
                             onKeyDown={moveBetweenOptions}
                         >
@@ -185,13 +183,11 @@ const ModelPicker = ({
                             onKeyDown={moveBetweenOptions}
                         >
                             <span className="min-w-0 truncate">{model}</span>
-                            {value === model && (
-                                <Check className="size-4 shrink-0 text-indigo-600 dark:text-indigo-300" />
-                            )}
+                            {value === model && <Check className="size-4 shrink-0 text-accent" />}
                         </button>
                     ))}
                     {!typed && filtered.length === 0 && (
-                        <p className="text-muted-foreground px-3 py-6 text-center text-sm">{t("noModels")}</p>
+                        <p className="text-ink-faint px-3 py-6 text-center text-sm">{t("noModels")}</p>
                     )}
                 </div>
             </PopoverContent>
@@ -334,8 +330,8 @@ export const AssistantConnection = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-                    <Sparkles className="size-5" />
+                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                    <Sparkles className="size-4" />
                 </span>
             }
             title={t("title")}
@@ -355,7 +351,7 @@ export const AssistantConnection = () => {
                                 <span className="min-w-0 truncate">{t(`providers.${provider.id}`)}</span>
                             </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="min-w-[var(--radix-select-trigger-width)]">
+                        <SelectContent className="min-w-(--radix-select-trigger-width)">
                             {ASSISTANT_PROVIDERS.map((option) => (
                                 <SelectItem key={option.id} value={option.id} className="min-h-11">
                                     <span className="text-sm font-medium">{t(`providers.${option.id}`)}</span>
@@ -366,9 +362,7 @@ export const AssistantConnection = () => {
 
                     {provider.id === "custom" && (
                         <div className="mt-2 flex flex-col gap-2">
-                            <Label htmlFor="assistant-base-url" className="text-xs font-semibold">
-                                {t("baseUrlLabel")}
-                            </Label>
+                            <Label htmlFor="assistant-base-url">{t("baseUrlLabel")}</Label>
                             <Input
                                 id="assistant-base-url"
                                 inputMode="url"
@@ -378,7 +372,7 @@ export const AssistantConnection = () => {
                                 onChange={(event) => setUrl(event.target.value)}
                                 onBlur={commitBaseUrl}
                             />
-                            <p className="text-muted-foreground text-xs leading-relaxed">{t("baseUrlHint")}</p>
+                            <p className="text-ink-faint text-xs leading-relaxed">{t("baseUrlHint")}</p>
                         </div>
                     )}
                 </div>
@@ -394,7 +388,7 @@ export const AssistantConnection = () => {
                                 id="assistant-key"
                                 readOnly
                                 value={maskedKey}
-                                className="text-muted-foreground flex-1 font-mono"
+                                className="text-ink-faint flex-1 font-mono"
                             />
                             <Button variant="secondary" onClick={disconnect}>
                                 <Link2Off />
@@ -425,7 +419,7 @@ export const AssistantConnection = () => {
                                     <button
                                         type="button"
                                         aria-label={visible ? t("hideKey") : t("showKey")}
-                                        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+                                        className="text-ink-faint hover:text-ink absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
                                         onClick={() => setVisible((current) => !current)}
                                     >
                                         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -437,14 +431,14 @@ export const AssistantConnection = () => {
                                 </Button>
                             </KeyField>
 
-                            {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                            {error && <p className="text-sm text-signal">{error}</p>}
 
                             {provider.keysUrl && (
                                 <a
                                     href={provider.keysUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="flex w-fit items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                    className="link text-accent flex w-fit items-center gap-1.5 text-sm"
                                 >
                                     {t("getKey")}
                                     <ExternalLink className="size-3.5" />
@@ -460,12 +454,12 @@ export const AssistantConnection = () => {
                             {t("modelLabel")}
                         </StepLabel>
                         {connected && (
-                            <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                            <div className="text-ink-faint flex items-center gap-2 text-xs">
                                 {models.length > 0 && <span>{t("modelsCount", { count: models.length })}</span>}
                                 <button
                                     type="button"
                                     disabled={loadingModels}
-                                    className="hover:text-foreground flex cursor-pointer items-center gap-1.5 font-medium disabled:cursor-default disabled:opacity-60"
+                                    className="hover:text-ink flex cursor-pointer items-center gap-1.5 font-medium disabled:cursor-default disabled:opacity-60"
                                     onClick={() => void reloadModels()}
                                 >
                                     <RefreshCw className={twMerge("size-3.5", loadingModels && "animate-spin")} />
@@ -488,9 +482,9 @@ export const AssistantConnection = () => {
                         }}
                     />
 
-                    {connected && error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                    {connected && error && <p className="text-sm text-signal">{error}</p>}
 
-                    <p className="text-muted-foreground text-xs leading-relaxed">{t("modelHint")}</p>
+                    <p className="text-ink-faint text-xs leading-relaxed">{t("modelHint")}</p>
                 </div>
 
                 {connected && (

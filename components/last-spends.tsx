@@ -10,9 +10,8 @@ import useStore from "store/general";
 import { ArrowLeftRight, Download, Pencil, Search, Trash2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
@@ -29,7 +28,6 @@ import {
     DialogTrigger,
 } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
-import { Label } from "./ui/label";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
 import { ExportReportDialog } from "./dialogs/export-report";
@@ -191,82 +189,37 @@ export const LastSpends = () => {
 
     if (!cardTransactions.length) {
         return (
-            <div className="border-border bg-card w-full rounded-2xl border p-8 text-center shadow-sm">
+            <div className="border-rule border border-dashed px-4 py-10 text-center">
                 <p className="text-sm font-medium">{t("noSpends")}</p>
-                <p className="text-muted-foreground mt-1.5 text-sm">{t("noTransactionsHint")}</p>
+                <p className="text-ink-faint mx-auto mt-1.5 max-w-sm text-sm">{t("noTransactionsHint")}</p>
             </div>
         );
     }
 
+    const symbol = getCurrencySymbol(userCurrency);
+    const rows = paginatedTransactions.map((tx, index) => {
+        const day = createDateString(new Date(tx.date));
+        const previous = paginatedTransactions[index - 1];
+        return { tx, day, showDay: !previous || createDateString(new Date(previous.date)) !== day };
+    });
+
     return (
-        <div className="border-border bg-card w-full rounded-2xl border p-4 shadow-sm sm:p-5">
-            <div className="mb-4 flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                {totalForCategory !== null && (
-                    <p className="text-base">
-                        {t("total")}:
-                        <span className="font-bold pl-1">
-                            {selectedCategory === TransactionEnum.INCOME ? "+" : "-"}
-                            {formatCurrency(totalForCategory)}
-                        </span>
-                        <span>{getCurrencySymbol(userCurrency)}</span>
-                    </p>
-                )}
-                <div className="flex flex-col items-center gap-2 w-full justify-end md:flex-row">
-                    <Dialog
-                        open={clearDialogOpen}
-                        onOpenChange={(nextOpen) => {
-                            if (!nextOpen) setClearTotalsChck(false);
-                            setClearDialogOpen(nextOpen);
-                        }}
-                    >
-                        <DialogTrigger className="border-border text-muted-foreground hover:text-foreground inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-sm text-nowrap transition-colors hover:bg-black/[0.04] md:w-fit dark:hover:bg-white/[0.06]">
-                            <Trash2 className="size-4" />
-                            {t("clearDataTitle")}
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle> {t("clearDataConfirmation")}</DialogTitle>
-                                <DialogDescription>{t("clearDataWarning")}</DialogDescription>
-                            </DialogHeader>
-                            <div className="border-border/70 bg-muted/25 flex items-start gap-3 rounded-xl border p-3">
-                                <Checkbox
-                                    id="clearTotals"
-                                    checked={clearTotalsChck}
-                                    className="mt-0.5 cursor-pointer"
-                                    onCheckedChange={(checked) => setClearTotalsChck(checked)}
-                                />
-                                <Label htmlFor="clearTotals" className="cursor-pointer text-sm leading-relaxed">
-                                    {t("clearTotalsLabel")}
-                                </Label>
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary">{t("cancel")}</Button>
-                                </DialogClose>
-                                <Button variant="destructive" disabled={clearDataPending} onClick={clearDataHandle}>
-                                    {t("clearDataTitle")}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                    <Button variant="secondary" onClick={() => setReportDialogOpen(true)} className="w-full md:w-fit">
-                        <Download className="size-4" />
-                        {t("exportPdf")}
-                    </Button>
-                    <ExportReportDialog open={reportDialogOpen} onOpenChange={setReportDialogOpen} />
-                    <div className="relative w-full md:max-w-64">
-                        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                        <Input
-                            type="search"
-                            enterKeyHint="search"
-                            placeholder={t("searchPlaceholder")}
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            className="w-full pl-9"
-                        />
-                    </div>
+        <div className="w-full">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                <div className="relative min-w-0 flex-1">
+                    <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                    <Input
+                        type="search"
+                        enterKeyHint="search"
+                        placeholder={t("searchPlaceholder")}
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="pl-9"
+                    />
+                </div>
+                <div className="flex gap-2">
                     <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                        <SelectTrigger className="w-full md:w-fit">
+                        <SelectTrigger className="min-w-0 flex-1 md:w-48 md:flex-none">
                             <SelectValue placeholder={t("allCategories")} />
                         </SelectTrigger>
                         <SelectContent>
@@ -278,162 +231,173 @@ export const LastSpends = () => {
                             ))}
                         </SelectContent>
                     </Select>
+                    <Button
+                        variant="outline"
+                        onClick={() => setReportDialogOpen(true)}
+                        className="h-11 sm:h-10"
+                        aria-label={t("exportPdf")}
+                        title={t("exportPdf")}
+                    >
+                        <Download className="size-3.5" />
+                        <span className="hidden lg:inline">{t("exportPdf")}</span>
+                    </Button>
+                    <ExportReportDialog open={reportDialogOpen} onOpenChange={setReportDialogOpen} />
+                    <Dialog
+                        open={clearDialogOpen}
+                        onOpenChange={(nextOpen) => {
+                            if (!nextOpen) setClearTotalsChck(false);
+                            setClearDialogOpen(nextOpen);
+                        }}
+                    >
+                        <DialogTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className="hover:bg-signal-wash hover:text-signal h-11 sm:h-10"
+                                aria-label={t("clearDataTitle")}
+                                title={t("clearDataTitle")}
+                            >
+                                <Trash2 className="size-3.5" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{t("clearDataConfirmation")}</DialogTitle>
+                                <DialogDescription>{t("clearDataWarning")}</DialogDescription>
+                            </DialogHeader>
+                            <label className="border-rule flex cursor-pointer items-start gap-3 border p-3">
+                                <Checkbox
+                                    id="clearTotals"
+                                    checked={clearTotalsChck}
+                                    className="mt-0.5"
+                                    onCheckedChange={(checked) => setClearTotalsChck(checked)}
+                                />
+                                <span className="text-sm leading-relaxed">{t("clearTotalsLabel")}</span>
+                            </label>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="secondary">{t("cancel")}</Button>
+                                </DialogClose>
+                                <Button variant="destructive" disabled={clearDataPending} onClick={clearDataHandle}>
+                                    {t("clearDataTitle")}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 
-            <Table className="w-full min-w-[720px] border-separate border-spacing-y-1.5">
-                <TableHeader>
-                    <TableRow className="text-muted-foreground hover:bg-transparent">
-                        <TableHead>{t("amount")}</TableHead>
-                        <TableHead>{t("description")}</TableHead>
-                        <TableHead>{t("date")}</TableHead>
-                        <TableHead>{t("category")}</TableHead>
-                        <TableHead>
-                            <span className="sr-only">{t("delete")}</span>
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {paginatedTransactions.map((tx) =>
-                        isTransfer(tx) ? (
-                            <TableRow
-                                key={tx.id}
-                                className="group relative border-b-0 bg-indigo-500/[0.06] transition-colors hover:bg-indigo-500/[0.12] [&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg"
-                            >
-                                <TableCell className="font-medium">
-                                    <span className="text-indigo-600 tabular-nums dark:text-indigo-300">
-                                        {
-                                            { in: "+ ", out: "- ", between: "" }[
-                                                transferDirection(tx, store.selectedCardId, store.cards)
-                                            ]
-                                        }
-                                        {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
-                                    </span>
-                                </TableCell>
-                                <TableCell className="max-w-72 truncate">
-                                    <span className="flex min-w-0 items-center gap-2">
-                                        <CardSwatch skin={findCardById(store.cards, tx.cardId)?.skin} />
-                                        <span className="truncate">{tx.description || transferLabel(tx)}</span>
-                                    </span>
-                                </TableCell>
-                                <TableCell>{createDateString(new Date(tx.date))}</TableCell>
-                                <TableCell>
-                                    <span className="bg-muted inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5">
-                                        <ArrowLeftRight className="size-4" />
-                                        <span className="text-xs font-medium">{tCards("betweenCards")}</span>
-                                    </span>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <button
-                                        onClick={() => handleDeleteTransaction(tx.id)}
-                                        aria-label={t("delete")}
-                                        className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            <TableRow
-                                key={tx.id}
-                                className={twMerge(
-                                    "group relative border-b-0 transition-colors",
-                                    "[&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg",
-                                    tx.transactionType === TransactionEnum.INCOME
-                                        ? "bg-emerald-500/[0.08] hover:bg-emerald-500/[0.16]"
-                                        : "bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.04] dark:hover:bg-white/[0.08]",
-                                )}
-                            >
-                                <TableCell className="relative font-medium">
+            {totalForCategory !== null && (
+                <p className="border-rule mt-3 flex items-baseline justify-between gap-3 border-b pb-3">
+                    <span className="label">
+                        {t("total")} · {categoryLabel(selectedCategory)}
+                    </span>
+                    <span className="figure text-lg">
+                        {selectedCategory === TransactionEnum.INCOME ? "+" : "-"}
+                        {formatCurrency(totalForCategory)} <span className="text-ink-faint">{symbol}</span>
+                    </span>
+                </p>
+            )}
+
+            <ul className="mt-4">
+                {rows.map(({ tx, day, showDay }) => {
+                    const transfer = isTransfer(tx);
+                    const income = !transfer && tx.transactionType === TransactionEnum.INCOME;
+                    const locked = essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId);
+                    const editable = !transfer && !locked;
+                    const deletable = transfer || !essentialPaymentTransactionIds.has(tx.id);
+                    const sign = transfer
+                        ? { in: "+", out: "-", between: "" }[transferDirection(tx, store.selectedCardId, store.cards)]
+                        : income
+                          ? "+"
+                          : "-";
+                    const cardSkin = findCardById(store.cards, transfer ? tx.cardId : cardIdOf(tx, store.cards))?.skin;
+
+                    return (
+                        <li key={tx.id}>
+                            {showDay && <p className="label border-rule-strong mt-5 border-b pb-1.5">{day}</p>}
+                            <div className="group border-rule hover:bg-surface flex items-center gap-2 border-b py-2.5 pl-1 transition-colors">
+                                <button
+                                    type="button"
+                                    disabled={!editable}
+                                    onClick={() => {
+                                        setEditingTx(tx);
+                                        setEditOpen(true);
+                                    }}
+                                    aria-label={editable ? t("edit") : undefined}
+                                    className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
+                                >
                                     <span
                                         className={twMerge(
-                                            "tabular-nums",
-                                            tx.transactionType === TransactionEnum.INCOME
-                                                ? "text-emerald-600 dark:text-emerald-400"
-                                                : "text-rose-600 dark:text-rose-400",
+                                            "border-rule flex size-9 shrink-0 items-center justify-center border",
+                                            income && "border-accent text-accent",
                                         )}
                                     >
-                                        {tx.transactionType !== TransactionEnum.INCOME ? "-" : "+"}{" "}
-                                        {formatCurrency(tx.value)} {getCurrencySymbol(userCurrency)}
-                                    </span>
-                                    {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
-                                        <button
-                                            onClick={() => {
-                                                setEditingTx(tx);
-                                                setEditOpen(true);
-                                            }}
-                                            aria-label={t("edit")}
-                                            className="ml-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md align-middle text-black/40 transition-all hover:bg-black/5 hover:text-indigo-600 md:size-6 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-indigo-400"
-                                        >
-                                            <Pencil size={13} />
-                                        </button>
-                                    )}
-                                </TableCell>
-
-                                <TableCell className="max-w-72 truncate">
-                                    <span className="flex min-w-0 items-center gap-2">
-                                        {showCardColumn && (
-                                            <CardSwatch
-                                                skin={findCardById(store.cards, cardIdOf(tx, store.cards))?.skin}
-                                                className="h-3 w-4"
-                                            />
+                                        {transfer ? (
+                                            <ArrowLeftRight className="size-4" />
+                                        ) : (
+                                            <CategoryIcon category={tx.categorie} className="size-4" />
                                         )}
-                                        <span className="truncate">
-                                            {tx.description || categoryLabel(tx.categorie)}
+                                    </span>
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block truncate text-sm">
+                                            {transfer
+                                                ? tx.description || transferLabel(tx)
+                                                : tx.description || categoryLabel(tx.categorie)}
+                                        </span>
+                                        <span className="text-ink-faint mt-0.5 flex min-w-0 items-center gap-1.5 font-mono text-3xs uppercase">
+                                            {(showCardColumn || transfer) && (
+                                                <CardSwatch skin={cardSkin} className="size-2" />
+                                            )}
+                                            <span className="truncate">
+                                                {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
+                                            </span>
+                                            {editable && (
+                                                <Pencil className="size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+                                            )}
                                         </span>
                                     </span>
-                                </TableCell>
-                                <TableCell>{createDateString(new Date(tx.date))}</TableCell>
-
-                                <TableCell>
+                                    <span
+                                        className={twMerge(
+                                            "shrink-0 text-right font-mono text-sm tabular-nums",
+                                            income && "text-accent",
+                                            transfer && "text-ink-muted",
+                                        )}
+                                    >
+                                        {sign}
+                                        {formatCurrency(tx.value)} <span className="text-ink-faint">{symbol}</span>
+                                    </span>
+                                </button>
+                                {deletable ? (
                                     <button
                                         type="button"
-                                        disabled={
-                                            essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId)
-                                        }
-                                        onClick={() => {
-                                            setEditingTx(tx);
-                                            setEditOpen(true);
-                                        }}
-                                        aria-label={t("edit")}
-                                        className="bg-muted enabled:hover:bg-indigo-500/10 enabled:hover:text-indigo-600 inline-flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors disabled:cursor-default dark:enabled:hover:text-indigo-300"
+                                        onClick={() => handleDeleteTransaction(tx.id)}
+                                        aria-label={t("delete")}
+                                        className="text-ink-faint hover:bg-signal-wash hover:text-signal inline-flex size-9 shrink-0 items-center justify-center transition-colors md:size-8 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
                                     >
-                                        <CategoryIcon category={tx.categorie} className="size-4" />
-                                        <span className="text-xs font-medium">{categoryLabel(tx.categorie)}</span>
-                                        {!essentialPaymentTransactionIds.has(tx.id) && !tx.savingsOperationId && (
-                                            <Pencil className="size-3 opacity-60" />
-                                        )}
+                                        <X className="size-3.5" />
                                     </button>
-                                </TableCell>
+                                ) : (
+                                    <span className="size-9 shrink-0 md:size-8" />
+                                )}
+                            </div>
+                        </li>
+                    );
+                })}
+            </ul>
 
-                                <TableCell className="text-right">
-                                    {!essentialPaymentTransactionIds.has(tx.id) && (
-                                        <button
-                                            onClick={() => handleDeleteTransaction(tx.id)}
-                                            aria-label={t("delete")}
-                                            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-black/40 transition-all hover:bg-rose-500/10 hover:text-rose-600 md:size-7 md:opacity-0 md:group-hover:opacity-100 dark:text-white/40 dark:hover:text-rose-400"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ),
-                    )}
-                </TableBody>
-            </Table>
-
-            {filteredTransactions.length === 0 && <p className="text-center text-sm italic">{t("noMatchingTx")}</p>}
+            {filteredTransactions.length === 0 && (
+                <p className="text-ink-faint border-rule border-b py-8 text-center text-sm">{t("noMatchingTx")}</p>
+            )}
 
             {totalPages > 1 && (
-                <Pagination className="mt-4">
+                <Pagination className="mt-5">
                     <PaginationContent>
                         <PaginationItem>
                             <PaginationPrevious onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} />
                         </PaginationItem>
                         <PaginationItem>
-                            <span className="text-sm px-2">
-                                {currentPage} / {totalPages}
+                            <span className="px-3 font-mono text-xs tabular-nums">
+                                {String(currentPage).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}
                             </span>
                         </PaginationItem>
                         <PaginationItem>

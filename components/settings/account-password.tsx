@@ -38,9 +38,7 @@ const PasswordInput = ({
     onChange: (value: string) => void;
 }) => (
     <div className="flex flex-col gap-1.5">
-        <Label htmlFor={id} className="text-xs font-semibold">
-            {label}
-        </Label>
+        <Label htmlFor={id}>{label}</Label>
         <div className="relative">
             <Input
                 id={id}
@@ -57,7 +55,7 @@ const PasswordInput = ({
                 type="button"
                 tabIndex={-1}
                 aria-label={visible ? hideLabel : showLabel}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+                className="text-ink-faint hover:text-ink absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
                 onClick={onToggle}
             >
                 {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -144,8 +142,8 @@ export const AccountPassword = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background">
-                    <KeyRound className="size-5" />
+                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                    <KeyRound className="size-4" />
                 </span>
             }
             title={t("title")}
@@ -155,12 +153,12 @@ export const AccountPassword = () => {
             note={account?.email ? t("note", { email: account.email }) : t("noteNoEmail")}
         >
             {isLoading ? (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <div className="text-ink-faint flex items-center gap-2 text-sm">
                     <Loader2 className="size-4 animate-spin" />
                     {t("loading")}
                 </div>
             ) : isError ? (
-                <p className="text-sm text-rose-600 dark:text-rose-400">{t("loadFailed")}</p>
+                <p className="text-sm text-signal">{t("loadFailed")}</p>
             ) : (
                 <form
                     className="flex flex-col gap-3"
@@ -183,7 +181,7 @@ export const AccountPassword = () => {
                     {field("next", t("new"), "new-password")}
                     {field("confirm", t("confirm"), "new-password")}
 
-                    {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                    {error && <p className="text-sm text-signal">{error}</p>}
 
                     <Button type="submit" disabled={isPending} className="sm:self-start">
                         {isPending && <Loader2 className="animate-spin" />}

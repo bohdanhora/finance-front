@@ -1,6 +1,6 @@
 "use client";
 
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 export type SwitcherOption<T extends string> = {
     value: T;
@@ -22,8 +22,7 @@ export const ViewSwitcher = <T extends string>({
         <div
             role="tablist"
             className={twMerge(
-                "border-border bg-muted/60 flex max-w-full gap-1 overflow-x-auto rounded-xl border p-1",
-                "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:inline-flex sm:overflow-visible",
+                "no-scrollbar border-rule flex max-w-full overflow-x-auto border sm:inline-flex",
                 className,
             )}
         >
@@ -38,10 +37,8 @@ export const ViewSwitcher = <T extends string>({
                         aria-selected={active}
                         onClick={() => onChange(option.value)}
                         className={twMerge(
-                            "min-h-9 shrink-0 cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-200",
-                            active
-                                ? "bg-card text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground",
+                            "border-rule min-h-9 shrink-0 border-l px-3 py-2 font-mono text-2xs whitespace-nowrap uppercase transition-colors first:border-l-0",
+                            active ? "bg-ink text-paper" : "text-ink-faint hover:text-ink hover:bg-wash",
                         )}
                     >
                         {option.label}

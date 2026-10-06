@@ -111,9 +111,9 @@ export const MonobankConnection = () => {
     };
 
     const counter = (label: string, count: number) => (
-        <div className="bg-muted/50 ring-border/60 min-w-0 rounded-xl px-3 py-2 ring-1">
-            <p className="text-muted-foreground text-[0.62rem] font-semibold tracking-[0.08em] uppercase">{label}</p>
-            <p className="text-sm font-semibold tabular-nums">{count}</p>
+        <div className="border-rule min-w-0 border-l pl-3">
+            <p className="label">{label}</p>
+            <p className="figure mt-1 text-lg">{count}</p>
         </div>
     );
 
@@ -151,9 +151,7 @@ export const MonobankConnection = () => {
                 </div>
             ) : (
                 <div className="flex flex-col gap-2.5">
-                    <Label htmlFor="monobank-token" className="text-xs font-semibold">
-                        {t("tokenLabel")}
-                    </Label>
+                    <Label htmlFor="monobank-token">{t("tokenLabel")}</Label>
                     <KeyField>
                         <div className="relative flex-1">
                             <Input
@@ -176,7 +174,7 @@ export const MonobankConnection = () => {
                             <button
                                 type="button"
                                 aria-label={visible ? t("hideToken") : t("showToken")}
-                                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+                                className="text-ink-faint hover:text-ink absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
                                 onClick={() => setVisible((current) => !current)}
                             >
                                 {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -188,13 +186,13 @@ export const MonobankConnection = () => {
                         </Button>
                     </KeyField>
 
-                    {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+                    {error && <p className="text-sm text-signal">{error}</p>}
 
                     <a
                         href={MONOBANK_TOKEN_PAGE}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex w-fit items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                        className="flex w-fit items-center gap-1.5 text-sm font-medium text-accent hover:underline"
                     >
                         {t("getToken")}
                         <ExternalLink className="size-3.5" />

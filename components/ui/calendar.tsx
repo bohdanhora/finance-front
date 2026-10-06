@@ -6,7 +6,7 @@ import { DayButton, DayPicker, getDefaultClassNames, type DropdownProps } from "
 
 import { Button, buttonVariants } from "components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 function CalendarDropdown({ options, value, onChange, disabled, "aria-label": ariaLabel }: DropdownProps) {
     const selectedValue = String(value ?? "");
@@ -24,19 +24,13 @@ function CalendarDropdown({ options, value, onChange, disabled, "aria-label": ar
                 size="sm"
                 aria-label={ariaLabel}
                 className={twMerge(
-                    "border-border/70 bg-muted/40 hover:bg-indigo-500/10 hover:text-indigo-600 focus:ring-indigo-500/25 h-10 rounded-xl px-3 font-semibold shadow-none transition-colors focus:ring-2 dark:hover:text-indigo-300",
-                    isMonthDropdown ? "w-[6.75rem] capitalize sm:w-32" : "w-20 sm:w-24",
+                    "h-9 px-2.5 font-mono text-2xs uppercase",
+                    isMonthDropdown ? "w-28 sm:w-32" : "w-20 sm:w-24",
                 )}
             >
                 <SelectValue />
             </SelectTrigger>
-            <SelectContent
-                align="center"
-                className={twMerge(
-                    "border-border/80 bg-popover text-popover-foreground max-h-72 rounded-xl shadow-xl",
-                    isMonthDropdown ? "min-w-[9rem]" : "min-w-24",
-                )}
-            >
+            <SelectContent align="center" className={twMerge("max-h-72", isMonthDropdown ? "min-w-36" : "min-w-24")}>
                 {options?.map((option) => (
                     <SelectItem
                         key={option.value}
@@ -70,7 +64,7 @@ function Calendar({
         <DayPicker
             showOutsideDays={showOutsideDays}
             className={twMerge(
-                "bg-transparent text-foreground group/calendar w-[20.5rem] max-w-[calc(100vw-1.5rem)] p-4 [--cell-size:--spacing(10)] sm:w-96 sm:p-5 sm:[--cell-size:--spacing(12)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+                "bg-transparent text-ink group/calendar w-80 max-w-full p-4 [--cell-size:--spacing(10)] sm:w-96 sm:p-5 sm:[--cell-size:--spacing(12)]",
                 String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
                 String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
                 className,
@@ -87,16 +81,16 @@ function Calendar({
                 ),
                 button_previous: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-border/70 bg-muted/35 pointer-events-auto size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
+                    "border-rule pointer-events-auto size-(--cell-size) border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
                     defaultClassNames.button_previous,
                 ),
                 button_next: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-border/70 bg-muted/35 pointer-events-auto size-(--cell-size) rounded-xl border p-0 select-none hover:bg-indigo-500/10 hover:text-indigo-600 aria-disabled:opacity-40 dark:hover:text-indigo-300",
+                    "border-rule pointer-events-auto size-(--cell-size) border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
                     defaultClassNames.button_next,
                 ),
                 month_caption: twMerge(
-                    "flex h-(--cell-size) w-full items-center justify-center px-[calc(var(--cell-size)+0.5rem)]",
+                    "flex h-(--cell-size) w-full items-center justify-center px-12 sm:px-14",
                     defaultClassNames.month_caption,
                 ),
                 dropdowns: twMerge(
@@ -106,37 +100,31 @@ function Calendar({
                 dropdown_root: twMerge("relative", defaultClassNames.dropdown_root),
                 dropdown: twMerge(defaultClassNames.dropdown),
                 caption_label: twMerge(
-                    "select-none font-semibold",
+                    "select-none font-mono text-xs uppercase",
                     captionLayout === "label"
                         ? "text-sm capitalize"
-                        : "flex h-8 items-center gap-1 rounded-xl pr-2 pl-3 text-sm capitalize [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
+                        : "flex h-8 items-center gap-1 pr-2 pl-3 text-sm capitalize [&>svg]:size-3.5 [&>svg]:text-ink-faint",
                     defaultClassNames.caption_label,
                 ),
                 table: "w-full border-collapse",
-                weekdays: twMerge("mt-3 flex border-b border-border/50 pb-2", defaultClassNames.weekdays),
-                weekday: twMerge(
-                    "text-muted-foreground flex-1 select-none rounded-md text-center text-[0.68rem] font-semibold uppercase tracking-[0.08em]",
-                    defaultClassNames.weekday,
-                ),
+                weekdays: twMerge("mt-3 flex border-b border-rule-strong pb-2", defaultClassNames.weekdays),
+                weekday: twMerge("label flex-1 select-none text-center", defaultClassNames.weekday),
                 week: twMerge("mt-1.5 flex w-full", defaultClassNames.week),
                 week_number_header: twMerge("select-none w-(--cell-size)", defaultClassNames.week_number_header),
-                week_number: twMerge("text-[0.8rem] select-none text-muted-foreground", defaultClassNames.week_number),
+                week_number: twMerge("text-xs select-none text-ink-faint", defaultClassNames.week_number),
                 day: twMerge(
-                    "group/day relative aspect-square h-full w-full select-none p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
+                    "group/day relative aspect-square h-full w-full select-none p-0 text-center",
                     defaultClassNames.day,
                 ),
-                range_start: twMerge("rounded-l-lg bg-accent", defaultClassNames.range_start),
-                range_middle: twMerge("rounded-none", defaultClassNames.range_middle),
-                range_end: twMerge("rounded-r-lg bg-accent", defaultClassNames.range_end),
+                range_start: twMerge("bg-wash", defaultClassNames.range_start),
+                range_middle: twMerge("", defaultClassNames.range_middle),
+                range_end: twMerge("bg-wash", defaultClassNames.range_end),
                 today: twMerge(
-                    "rounded-xl bg-indigo-500/5 text-indigo-600 ring-1 ring-inset ring-indigo-500/35 dark:text-indigo-300 data-[selected=true]:rounded-xl data-[selected=true]:text-white",
+                    "text-accent [&>button]:outline [&>button]:outline-1 [&>button]:-outline-offset-1 [&>button]:outline-accent",
                     defaultClassNames.today,
                 ),
-                outside: twMerge(
-                    "text-muted-foreground opacity-30 aria-selected:text-muted-foreground",
-                    defaultClassNames.outside,
-                ),
-                disabled: twMerge("text-muted-foreground opacity-50", defaultClassNames.disabled),
+                outside: twMerge("text-ink-faint opacity-30 aria-selected:text-ink-faint", defaultClassNames.outside),
+                disabled: twMerge("text-ink-faint opacity-50", defaultClassNames.disabled),
                 hidden: twMerge("invisible", defaultClassNames.hidden),
                 ...classNames,
             }}
@@ -194,7 +182,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
             data-range-end={modifiers.range_end}
             data-range-middle={modifiers.range_middle}
             className={twMerge(
-                "data-[selected-single=true]:bg-indigo-600 data-[selected-single=true]:text-white data-[selected-single=true]:shadow-lg data-[selected-single=true]:shadow-indigo-500/25 data-[range-middle=true]:bg-indigo-500/10 data-[range-middle=true]:text-foreground data-[range-start=true]:bg-indigo-600 data-[range-start=true]:text-white data-[range-end=true]:bg-indigo-600 data-[range-end=true]:text-white group-data-[focused=true]/day:ring-indigo-500/35 dark:hover:text-white flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-xl leading-none font-semibold transition-all hover:scale-[1.04] hover:bg-indigo-500/10 hover:text-indigo-700 active:scale-95 group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-2 data-[range-end=true]:rounded-xl data-[range-end=true]:rounded-r-xl data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-xl data-[range-start=true]:rounded-l-xl dark:hover:text-indigo-200 [&>span]:text-xs [&>span]:opacity-70",
+                "data-[selected-single=true]:bg-accent data-[selected-single=true]:text-on-accent data-[range-middle=true]:bg-wash data-[range-middle=true]:text-ink data-[range-start=true]:bg-accent data-[range-start=true]:text-on-accent data-[range-end=true]:bg-accent data-[range-end=true]:text-on-accent flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 font-sans text-sm leading-none normal-case tabular-nums tracking-normal hover:bg-wash hover:text-ink group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:outline group-data-[focused=true]/day:outline-2 group-data-[focused=true]/day:outline-accent [&>span]:text-xs [&>span]:opacity-70",
                 defaultClassNames.day,
                 className,
             )}

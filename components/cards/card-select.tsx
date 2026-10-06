@@ -44,11 +44,11 @@ export const CardSelect = ({
                             <span className="flex min-w-0 items-center gap-2">
                                 <CardSwatch skin={card.skin} />
                                 <span className="truncate">{cardName(card)}</span>
-                                <span className="text-muted-foreground tabular-nums">
+                                <span className="text-ink-faint tabular-nums">
                                     {formatSignedCurrency(card.balance)} {symbol}
                                 </span>
                                 {isCreditCard(card) && (
-                                    <span className="text-muted-foreground/80 text-xs tabular-nums">
+                                    <span className="text-ink-faint/80 text-xs tabular-nums">
                                         {t("availableShort", {
                                             amount: `${formatCurrency(availableOnCard(card))} ${symbol}`,
                                         })}

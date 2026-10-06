@@ -1,17 +1,22 @@
 "use client";
 
-import { Info } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+
+import { twMerge } from "lib/tw";
 
 export const Hint = ({ text }: { text: string }) => {
     const id = useId();
     const [open, setOpen] = useState(false);
+    const [alignEnd, setAlignEnd] = useState(false);
     const wrapperRef = useRef<HTMLSpanElement>(null);
 
     const touchRef = useRef(false);
 
     useEffect(() => {
         if (!open) return;
+
+        const rect = wrapperRef.current?.getBoundingClientRect();
+        if (rect) setAlignEnd(rect.left > window.innerWidth / 2);
 
         const onPointerDown = (event: PointerEvent) => {
             if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
@@ -43,16 +48,21 @@ export const Hint = ({ text }: { text: string }) => {
                 onFocus={() => !touchRef.current && setOpen(true)}
                 onBlur={() => !touchRef.current && setOpen(false)}
                 onClick={() => touchRef.current && setOpen((prev) => !prev)}
-                className="text-muted-foreground/60 hover:text-muted-foreground -m-2 inline-flex size-8 cursor-help items-center justify-center transition-colors"
+                className="group/hint -m-2 inline-flex size-8 shrink-0 cursor-help items-center justify-center"
             >
-                <Info size={13} />
+                <span className="border-ink-faint text-ink-faint group-hover/hint:border-accent group-hover/hint:bg-accent group-hover/hint:text-on-accent flex size-3.5 items-center justify-center border font-mono text-3xs leading-none normal-case transition-colors">
+                    i
+                </span>
             </button>
 
             {open && (
                 <span
                     id={id}
                     role="tooltip"
-                    className="border-border bg-card text-foreground pointer-events-none absolute top-full right-0 z-50 mt-2 w-[min(14rem,calc(100vw-3rem))] rounded-xl border p-3 text-xs leading-relaxed font-normal normal-case shadow-xl"
+                    className={twMerge(
+                        "border-rule-strong bg-paper text-ink pointer-events-none absolute top-full z-50 mt-2 w-tip border p-3 font-sans text-xs leading-relaxed font-normal tracking-normal normal-case",
+                        alignEnd ? "-right-2" : "-left-2",
+                    )}
                 >
                     {text}
                 </span>

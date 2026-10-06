@@ -26,7 +26,7 @@ import { MinusIcon, PiggyBank } from "lucide-react";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { Textarea } from "ui/textarea";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { toast } from "react-toastify";
 import { useSetNewTransaction } from "api/main";
 import { CURRENCY, TransactionEnum } from "constants/index";
@@ -163,16 +163,13 @@ export const ExpenseDialogComponent = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button
-                        variant="secondary"
-                        className="border-rose-500/30 bg-rose-500/10 text-rose-700 hover:bg-rose-500/20 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-400 dark:hover:bg-rose-400/20"
-                    >
+                    <Button size="lg" className="w-full">
                         <MinusIcon />
                         {t("expenses.expense")}
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("dialogs.enterExpense")}</DialogTitle>
@@ -217,14 +214,12 @@ export const ExpenseDialogComponent = () => {
                             )}
                         />
                         {selectedCategory === "savings" && (
-                            <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4">
+                            <div className="space-y-3 border border-accent bg-accent-wash p-4">
                                 <div className="flex items-start gap-3 text-sm">
-                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
+                                    <span className="flex size-8 shrink-0 items-center justify-center bg-accent-wash text-accent">
                                         <PiggyBank className="size-4" />
                                     </span>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        {t("dialogs.savingsExpenseHint")}
-                                    </p>
+                                    <p className="text-ink-faint leading-relaxed">{t("dialogs.savingsExpenseHint")}</p>
                                 </div>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <FormField
@@ -291,7 +286,7 @@ export const ExpenseDialogComponent = () => {
                                                         onChange={handleDecimalInputChange(field.onChange, 4)}
                                                     />
                                                 </FormControl>
-                                                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                                                <div className="text-ink-faint flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                                                     <span>
                                                         {t("dialogs.savingsRateHint", {
                                                             currency: getCurrencySymbol(savingsCurrency),
@@ -308,7 +303,7 @@ export const ExpenseDialogComponent = () => {
                                                                         shouldValidate: true,
                                                                     })
                                                                 }
-                                                                className="text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
+                                                                className="text-accent underline-offset-2 hover:underline"
                                                             >
                                                                 {t("dialogs.savingsRateCurrent", {
                                                                     rate: currentRateInput,

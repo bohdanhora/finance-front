@@ -100,7 +100,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{isUndo ? t("undoTitle") : t("title", { title: essential.title })}</DialogTitle>
                     <DialogDescription>
@@ -114,8 +114,8 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                 </DialogHeader>
 
                 {isUndo ? (
-                    <div className="border-border bg-muted/30 rounded-xl border p-4">
-                        <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                    <div className="border-rule border-y py-4">
+                        <p className="text-ink-faint text-xs font-medium tracking-wide uppercase">
                             {t("returnToBalance")}
                         </p>
                         <p className="mt-1 text-2xl font-semibold tabular-nums">
@@ -133,8 +133,8 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                 setError(null);
                             }}
                         />
-                        <div className="border-border bg-muted/30 flex items-center justify-between gap-4 rounded-xl border p-4">
-                            <span className="text-muted-foreground text-sm">{t("planned")}</span>
+                        <div className="border-rule flex items-center justify-between gap-4 border-y py-4">
+                            <span className="text-ink-faint text-sm">{t("planned")}</span>
                             <span className="font-semibold tabular-nums">
                                 {formatCurrency(essential.amount)} {symbol}
                             </span>
@@ -174,30 +174,30 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                         }
                                     }}
                                 />
-                                <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
+                                <span className="text-ink-faint pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
                                     {symbol}
                                 </span>
                             </div>
-                            {error && <p className="text-destructive text-sm">{error}</p>}
+                            {error && <p className="text-signal text-sm">{error}</p>}
                         </div>
 
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
                                 {difference > 0 && (
-                                    <p className="text-emerald-600 dark:text-emerald-400">
+                                    <p className="text-accent">
                                         {t("saved", { amount: formatCurrency(difference), currency: symbol })}
                                     </p>
                                 )}
                                 {difference < 0 && (
-                                    <p className="text-rose-600 dark:text-rose-400">
+                                    <p className="text-signal">
                                         {t("overPlan", {
                                             amount: formatCurrency(Math.abs(difference)),
                                             currency: symbol,
                                         })}
                                     </p>
                                 )}
-                                {difference === 0 && <p className="text-muted-foreground">{t("matchesPlan")}</p>}
-                                <p className="text-muted-foreground">
+                                {difference === 0 && <p className="text-ink-faint">{t("matchesPlan")}</p>}
+                                <p className="text-ink-faint">
                                     {t("balanceAfter", {
                                         amount: formatSignedCurrency(balanceAfterPayment),
                                         currency: symbol,

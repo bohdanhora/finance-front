@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { balanceFromParts, creditLimitOf, creditUsedOf, ownMoneyOf } from "lib/cards";
 import { Label } from "ui/label";
@@ -102,12 +102,12 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                         variant="ghost"
                         size="icon"
                         aria-label={t("title")}
-                        className="text-muted-foreground hover:text-foreground size-8 shrink-0"
+                        className="text-ink-faint hover:text-ink size-8 shrink-0"
                     >
                         <Pencil className="size-4" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("title")}</DialogTitle>
@@ -127,9 +127,7 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                             onChange={handleDecimalInputChange(field.onChange)}
                                         />
                                     </FormControl>
-                                    {limit > 0 && (
-                                        <p className="text-muted-foreground text-xs">{tCards("ownOnCardHint")}</p>
-                                    )}
+                                    {limit > 0 && <p className="text-ink-faint text-xs">{tCards("ownOnCardHint")}</p>}
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -147,11 +145,11 @@ export const SetTotalDialog = ({ card }: { card: Card }) => {
                                         setDebtError(null);
                                     })}
                                 />
-                                <p className="text-muted-foreground text-xs">
+                                <p className="text-ink-faint text-xs">
                                     {tCards("debtOnCardHint")} (
                                     {tCards("limitOnFace", { amount: `${formatCurrency(limit)} ${symbol}` })})
                                 </p>
-                                {debtError && <p className="text-sm text-rose-600 dark:text-rose-400">{debtError}</p>}
+                                {debtError && <p className="text-sm text-signal">{debtError}</p>}
                             </div>
                         )}
                         <DialogFooter>

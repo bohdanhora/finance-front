@@ -1,11 +1,11 @@
 "use client";
 
 import dayjs from "dayjs";
-import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, PiggyBank, Plus, Target, Trash2, X } from "lucide-react";
+import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Plus, Target, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useDeleteSavingsGoal, useDeleteSavingsOperation } from "api/main";
 import { Navbar } from "components/navbar";
@@ -26,7 +26,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "components/ui/dialog";
-import { Section } from "components/wrappers/section";
+import { Section, StatGrid } from "components/wrappers/section";
+import { PageHeader, PageShell } from "components/wrappers/page-header";
 import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
@@ -111,8 +112,8 @@ const SavingsPage = () => {
     const nativeMoney = (value: number, currency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
     const currencyBreakdown = (balances: Record<CURRENCY, number>) => (
-        <div className="mt-3 border-t border-border/60 pt-2.5">
-            <p className="mb-1.5 text-[0.62rem] font-semibold tracking-[0.08em] uppercase">{t("actualByCurrency")}</p>
+        <div className="border-rule mt-3 border-t pt-2.5">
+            <p className="label mb-1.5">{t("actualByCurrency")}</p>
             <div className="grid grid-cols-3 gap-1.5">
                 {SAVINGS_CURRENCIES.map((currency) => {
                     const amount = Math.max(balances[currency], 0);
@@ -121,12 +122,10 @@ const SavingsPage = () => {
                         <div
                             key={currency}
                             title={nativeMoney(amount, currency)}
-                            className="bg-muted/55 min-w-0 rounded-lg px-2 py-1.5"
+                            className="border-rule min-w-0 border-l pl-2"
                         >
-                            <p className="text-[0.62rem] font-semibold tracking-wide uppercase">{currency}</p>
-                            <p className="text-foreground truncate text-xs font-semibold">
-                                {nativeMoney(amount, currency)}
-                            </p>
+                            <p className="label">{currency}</p>
+                            <p className="text-ink truncate text-xs font-semibold">{nativeMoney(amount, currency)}</p>
                         </div>
                     );
                 })}
@@ -291,176 +290,156 @@ const SavingsPage = () => {
             <PrivateProvider>
                 <Navbar />
 
-                <main className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24 sm:px-6">
-                    <div className="rise-stagger flex w-full flex-col gap-10">
-                        <header className="flex flex-wrap items-end justify-between gap-4">
-                            <div>
-                                <div className="mb-2 flex items-center gap-2 text-indigo-600 dark:text-indigo-300">
-                                    <PiggyBank className="size-5" />
-                                    <span className="text-xs font-semibold tracking-[0.12em] uppercase">
-                                        {t("eyebrow")}
-                                    </span>
-                                </div>
-                                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
-                                <p className="text-muted-foreground mt-1 max-w-2xl text-sm">{t("subtitle")}</p>
-                            </div>
+                <PageShell>
+                    <PageHeader
+                        index="03"
+                        title={t("title")}
+                        subtitle={t("subtitle")}
+                        actions={
+                            <Button variant="accent" onClick={() => openOperation()}>
+                                <ArrowDownToLine />
+                                {t("addOperation")}
+                            </Button>
+                        }
+                    />
 
-                            <div className="flex flex-wrap gap-2">
-                                <Button variant="secondary" onClick={() => openOperation()}>
-                                    <ArrowDownToLine />
-                                    {t("addOperation")}
-                                </Button>
-                                <Button onClick={openNewGoal}>
+                    <StatGrid className="lg:grid-cols-3">
+                        <StatCard
+                            label={t("saved")}
+                            value={summaryValue(summary.saved, nativeSummary.saved)}
+                            secondary={summaryDetails(t("sharedPoolHint"), nativeSummary.saved)}
+                            hint={t("equivalentIn", { currency: store.userCurrency.toUpperCase() })}
+                        />
+                        <StatCard
+                            label={t("card")}
+                            value={summaryValue(summary.card, nativeSummary.card)}
+                            secondary={summaryDetails(t("bankHint"), nativeSummary.card)}
+                        />
+                        <StatCard
+                            label={t("cash")}
+                            value={summaryValue(summary.cash, nativeSummary.cash)}
+                            secondary={summaryDetails(t("cashHint"), nativeSummary.cash)}
+                        />
+                    </StatGrid>
+
+                    <Section
+                        index="01"
+                        title={t("goals")}
+                        actions={
+                            <Button variant="outline" size="sm" onClick={openNewGoal}>
+                                <Plus />
+                                {t("newGoal")}
+                            </Button>
+                        }
+                    >
+                        {store.savingsGoals.length === 0 ? (
+                            <div className="border-rule flex flex-col items-center border border-dashed px-6 py-14 text-center">
+                                <Target className="text-accent mb-4 size-6" strokeWidth={1.5} />
+                                <h2 className="font-display text-lg font-medium uppercase">{t("emptyGoalsTitle")}</h2>
+                                <p className="text-ink-faint mt-1 max-w-md text-sm">{t("emptyGoalsHint")}</p>
+                                <Button className="mt-5" onClick={openNewGoal}>
                                     <Plus />
-                                    {t("newGoal")}
+                                    {t("createFirstGoal")}
                                 </Button>
                             </div>
-                        </header>
+                        ) : (
+                            <div className="grid gap-x-10 gap-y-12 md:grid-cols-2">
+                                {store.savingsGoals.map((goal) => (
+                                    <SavingsGoalCard
+                                        key={goal.id}
+                                        goal={goal}
+                                        operations={store.savingsOperations}
+                                        rates={rates}
+                                        displayCurrency={bank.currency as CURRENCY}
+                                        onEdit={openEditGoal}
+                                        onDelete={openGoalDelete}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </Section>
 
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                            <StatCard
-                                label={t("saved")}
-                                value={summaryValue(summary.saved, nativeSummary.saved)}
-                                secondary={summaryDetails(t("sharedPoolHint"), nativeSummary.saved)}
-                                hint={t("equivalentIn", { currency: store.userCurrency.toUpperCase() })}
-                            />
-                            <StatCard
-                                label={t("card")}
-                                value={summaryValue(summary.card, nativeSummary.card)}
-                                secondary={summaryDetails(t("bankHint"), nativeSummary.card)}
-                            />
-                            <StatCard
-                                label={t("cash")}
-                                value={summaryValue(summary.cash, nativeSummary.cash)}
-                                secondary={summaryDetails(t("cashHint"), nativeSummary.cash)}
-                            />
-                        </div>
+                    <Section index="02" title={t("recentActivity")}>
+                        {recentOperations.length === 0 ? (
+                            <div className="border-rule border border-dashed px-5 py-10 text-center">
+                                <p className="font-medium">{t("noOperations")}</p>
+                                <p className="text-ink-faint mt-1 text-sm">{t("noOperationsHint")}</p>
+                            </div>
+                        ) : (
+                            <ul className="border-rule-strong border-t">
+                                {recentOperations.map((operation) => {
+                                    const isDeposit = operation.type === SavingsOperationType.DEPOSIT;
+                                    const isWithdrawal = operation.type === SavingsOperationType.WITHDRAWAL;
+                                    const Icon = isDeposit
+                                        ? ArrowDownToLine
+                                        : isWithdrawal
+                                          ? ArrowUpFromLine
+                                          : ArrowLeftRight;
 
-                        <Section
-                            title={t("goals")}
-                            actions={
-                                <Button variant="secondary" size="sm" onClick={openNewGoal}>
-                                    <Plus />
-                                    {t("newGoal")}
-                                </Button>
-                            }
-                        >
-                            {store.savingsGoals.length === 0 ? (
-                                <div className="border-border bg-card flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
-                                    <Target className="mb-4 size-8 text-indigo-500" />
-                                    <h2 className="font-semibold">{t("emptyGoalsTitle")}</h2>
-                                    <p className="text-muted-foreground mt-1 max-w-md text-sm">{t("emptyGoalsHint")}</p>
-                                    <Button className="mt-5" onClick={openNewGoal}>
-                                        <Plus />
-                                        {t("createFirstGoal")}
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="grid gap-3 md:grid-cols-2">
-                                    {store.savingsGoals.map((goal) => (
-                                        <SavingsGoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            operations={store.savingsOperations}
-                                            rates={rates}
-                                            displayCurrency={bank.currency as CURRENCY}
-                                            onEdit={openEditGoal}
-                                            onDelete={openGoalDelete}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </Section>
-
-                        <Section title={t("recentActivity")}>
-                            {recentOperations.length === 0 ? (
-                                <div className="border-border bg-card rounded-2xl border px-5 py-10 text-center">
-                                    <p className="font-medium">{t("noOperations")}</p>
-                                    <p className="text-muted-foreground mt-1 text-sm">{t("noOperationsHint")}</p>
-                                </div>
-                            ) : (
-                                <ul className="border-border bg-card divide-border divide-y rounded-2xl border shadow-sm">
-                                    {recentOperations.map((operation) => {
-                                        const isDeposit = operation.type === SavingsOperationType.DEPOSIT;
-                                        const isWithdrawal = operation.type === SavingsOperationType.WITHDRAWAL;
-                                        const Icon = isDeposit
-                                            ? ArrowDownToLine
-                                            : isWithdrawal
-                                              ? ArrowUpFromLine
-                                              : ArrowLeftRight;
-
-                                        return (
-                                            <li
-                                                key={operation.id}
-                                                className="flex items-center gap-3 px-4 py-3.5 sm:px-5"
+                                    return (
+                                        <li
+                                            key={operation.id}
+                                            className="border-rule flex items-center gap-3 border-b py-3"
+                                        >
+                                            <span
+                                                className={twMerge(
+                                                    "border-rule flex size-9 shrink-0 items-center justify-center border",
+                                                    isDeposit && "border-accent text-accent",
+                                                )}
                                             >
-                                                <span
-                                                    className={twMerge(
-                                                        "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                                                        isDeposit &&
-                                                            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
-                                                        isWithdrawal &&
-                                                            "bg-rose-500/10 text-rose-600 dark:text-rose-300",
-                                                        !isDeposit &&
-                                                            !isWithdrawal &&
-                                                            "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
-                                                    )}
-                                                >
-                                                    <Icon className="size-4" />
-                                                </span>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-medium">
-                                                        {operation.note || t(operation.type)}
-                                                    </p>
-                                                    <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                                                        {t("sharedSavings")} · {t(operation.storage)}
-                                                        {operation.destinationStorage
-                                                            ? ` → ${t(operation.destinationStorage)}`
-                                                            : ""}{" "}
-                                                        {operation.type !== SavingsOperationType.TRANSFER
-                                                            ? ` · ${t(
-                                                                  operation.linkedTransactionId
-                                                                      ? "mainBalanceLinked"
-                                                                      : "outsideBalanceLinked",
-                                                              )}`
-                                                            : ""}{" "}
-                                                        · {dayjs(operation.date).format("DD.MM.YYYY")}
-                                                    </p>
-                                                </div>
-                                                <span
-                                                    className={twMerge(
-                                                        "shrink-0 text-sm font-semibold tabular-nums",
-                                                        isDeposit && "text-emerald-600 dark:text-emerald-300",
-                                                        isWithdrawal && "text-rose-600 dark:text-rose-300",
-                                                    )}
-                                                >
-                                                    {isDeposit ? "+" : isWithdrawal ? "−" : ""}
-                                                    {nativeMoney(operation.amount, operation.currency)}
-                                                </span>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    aria-label={t("delete")}
-                                                    className="text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500"
-                                                    onClick={() =>
-                                                        setDeleteTarget({
-                                                            kind: "operation",
-                                                            id: operation.id,
-                                                            label: operation.note || t(operation.type),
-                                                            linkedToBalance: Boolean(operation.linkedTransactionId),
-                                                        })
-                                                    }
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            )}
-                        </Section>
-                    </div>
-                </main>
+                                                <Icon className="size-4" />
+                                            </span>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-medium">
+                                                    {operation.note || t(operation.type)}
+                                                </p>
+                                                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                                                    {t("sharedSavings")} · {t(operation.storage)}
+                                                    {operation.destinationStorage
+                                                        ? ` → ${t(operation.destinationStorage)}`
+                                                        : ""}{" "}
+                                                    {operation.type !== SavingsOperationType.TRANSFER
+                                                        ? ` · ${t(
+                                                              operation.linkedTransactionId
+                                                                  ? "mainBalanceLinked"
+                                                                  : "outsideBalanceLinked",
+                                                          )}`
+                                                        : ""}{" "}
+                                                    · {dayjs(operation.date).format("DD.MM.YYYY")}
+                                                </p>
+                                            </div>
+                                            <span
+                                                className={twMerge(
+                                                    "shrink-0 font-mono text-sm tabular-nums",
+                                                    isDeposit && "text-accent",
+                                                )}
+                                            >
+                                                {isDeposit ? "+" : isWithdrawal ? "-" : ""}
+                                                {nativeMoney(operation.amount, operation.currency)}
+                                            </span>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                aria-label={t("delete")}
+                                                className="text-ink-faint hover:bg-signal-wash hover:text-signal"
+                                                onClick={() =>
+                                                    setDeleteTarget({
+                                                        kind: "operation",
+                                                        id: operation.id,
+                                                        label: operation.note || t(operation.type),
+                                                        linkedToBalance: Boolean(operation.linkedTransactionId),
+                                                    })
+                                                }
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </Button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </Section>
+                </PageShell>
 
                 <SavingsGoalDialog open={goalDialogOpen} goal={editingGoal} onOpenChange={setGoalDialogOpen} />
                 <SavingsOperationDialog open={operationDialogOpen} onOpenChange={setOperationDialogOpen} />
@@ -490,16 +469,16 @@ const SavingsPage = () => {
                                             aria-checked={goalDeletionMode === mode}
                                             onClick={() => setGoalDeletionMode(mode)}
                                             className={twMerge(
-                                                "rounded-xl border p-3 text-left transition-colors",
+                                                " border p-3 text-left transition-colors",
                                                 goalDeletionMode === mode
-                                                    ? "border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/10"
-                                                    : "border-border hover:bg-muted/60",
+                                                    ? "border-accent bg-accent-wash"
+                                                    : "border-rule hover:border-rule-strong",
                                             )}
                                         >
                                             <span className="block text-sm font-semibold">
                                                 {t(mode === "purchased" ? "purchasedWithSavings" : "deleteOnly")}
                                             </span>
-                                            <span className="text-muted-foreground mt-1 block text-xs">
+                                            <span className="text-ink-faint mt-1 block text-xs">
                                                 {t(
                                                     mode === "purchased"
                                                         ? "purchasedWithSavingsHint"
@@ -511,11 +490,11 @@ const SavingsPage = () => {
                                 </div>
 
                                 {goalDeletionMode === "purchased" && (
-                                    <div className="bg-muted/45 space-y-3 rounded-xl border p-3.5">
+                                    <div className="border-rule space-y-3 border p-3.5">
                                         <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div>
                                                 <p className="text-sm font-semibold">{t("purchaseBreakdown")}</p>
-                                                <p className="text-muted-foreground mt-0.5 text-xs">
+                                                <p className="text-ink-faint mt-0.5 text-xs">
                                                     {t("purchaseGoalAmount", {
                                                         amount: nativeMoney(
                                                             deleteTarget.targetAmount,
@@ -542,11 +521,8 @@ const SavingsPage = () => {
                                                 const available = Math.max(getPurchaseBalance(deduction), 0);
 
                                                 return (
-                                                    <div
-                                                        key={deduction.id}
-                                                        className="bg-background/70 rounded-xl border p-3"
-                                                    >
-                                                        <div className="grid items-end gap-2 sm:grid-cols-[1fr_0.8fr_1fr_auto]">
+                                                    <div key={deduction.id} className="border-rule border p-3">
+                                                        <div className="grid items-end gap-2 sm:grid-cols-4">
                                                             <div className="space-y-1.5">
                                                                 <Label>{t("purchaseSource")}</Label>
                                                                 <Select
@@ -623,7 +599,7 @@ const SavingsPage = () => {
                                                                     variant="ghost"
                                                                     size="icon"
                                                                     aria-label={t("removePurchaseSource")}
-                                                                    className="text-muted-foreground hover:text-rose-500"
+                                                                    className="text-ink-faint hover:text-signal"
                                                                     onClick={() =>
                                                                         setPurchaseDeductions((current) =>
                                                                             current.filter(
@@ -639,9 +615,7 @@ const SavingsPage = () => {
                                                         <p
                                                             className={twMerge(
                                                                 "mt-2 text-xs",
-                                                                deductionInvalid
-                                                                    ? "text-rose-500"
-                                                                    : "text-muted-foreground",
+                                                                deductionInvalid ? "text-signal" : "text-ink-faint",
                                                             )}
                                                         >
                                                             {hasInvalidDeductionAmount(deduction)

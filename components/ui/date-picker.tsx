@@ -8,7 +8,7 @@ import { useLocale } from "next-intl";
 import { Button } from "components/ui/button";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 const copy = {
     en: { placeholder: "Choose a date", clear: "Clear", today: "Today" },
@@ -86,13 +86,13 @@ const DatePickerShell = React.forwardRef<HTMLButtonElement, DatePickerShellProps
                         variant="popover"
                         disabled={disabled}
                         className={twMerge(
-                            "h-10 w-full justify-start rounded-xl px-3 text-left font-normal shadow-none transition-colors hover:border-indigo-500/50 hover:bg-indigo-500/5",
-                            !selectedDate && "text-muted-foreground",
+                            "h-11 w-full justify-start px-3 text-left font-sans text-sm normal-case tracking-normal hover:border-ink-faint sm:h-10",
+                            !selectedDate && "text-ink-faint",
                             className,
                         )}
                         {...triggerProps}
                     >
-                        <CalendarDays className="mr-1 size-4 text-indigo-500" />
+                        <CalendarDays className="text-ink-faint mr-1 size-4" />
                         <span className="min-w-0 flex-1 truncate">
                             {selectedDate
                                 ? new Intl.DateTimeFormat(intlLocale, {
@@ -104,11 +104,7 @@ const DatePickerShell = React.forwardRef<HTMLButtonElement, DatePickerShellProps
                         </span>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                    align="start"
-                    sideOffset={8}
-                    className="border-border/80 bg-popover text-popover-foreground w-auto overflow-hidden rounded-[22px] p-0 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.65)]"
-                >
+                <PopoverContent align="start" sideOffset={8} className="w-auto overflow-hidden p-0">
                     <Calendar
                         mode="single"
                         selected={selectedDate}
@@ -121,7 +117,7 @@ const DatePickerShell = React.forwardRef<HTMLButtonElement, DatePickerShellProps
                         startMonth={new Date(1900, 0, 1)}
                         endMonth={new Date(today.getFullYear() + 30, 11, 31)}
                         footer={
-                            <div className="border-border/70 mt-3 flex items-center justify-between border-t pt-3">
+                            <div className="border-rule mt-3 flex items-center justify-between border-t pt-3">
                                 {clearable ? (
                                     <Button
                                         type="button"

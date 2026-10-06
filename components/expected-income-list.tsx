@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { getCurrencySymbol } from "lib/currency";
 import { paydayStatus, summarizeExpectedIncomes } from "lib/month-plan";
@@ -13,6 +13,7 @@ import { ExpectedIncome } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
 import { ExpectedIncomeDialog } from "./dialogs/expected-income";
 import { ExpectedIncomeReceiveDialog } from "./dialogs/expected-income-receive";
+import { ChecklistEmpty, ChecklistShell, SegmentBar } from "./essentials-checklist";
 import { Checkbox } from "./ui/checkbox";
 
 export const ExpectedIncomeList = () => {
@@ -26,15 +27,13 @@ export const ExpectedIncomeList = () => {
 
     if (!items.length) {
         return (
-            <div className="border-border flex flex-col items-start gap-3 rounded-2xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-muted-foreground max-w-xl text-sm">{t("empty")}</p>
-                <ExpectedIncomeDialog triggerLabel={t("add")} />
-            </div>
+            <ChecklistShell title={t("title")} actions={<ExpectedIncomeDialog triggerLabel={t("add")} />}>
+                <ChecklistEmpty>{t("empty")}</ChecklistEmpty>
+            </ChecklistShell>
         );
     }
 
     const summary = summarizeExpectedIncomes(items);
-    const progress = Math.round((summary.receivedCount / summary.total) * 100);
 
     const statusLine = (item: ExpectedIncome) => {
         if (item.received) {
@@ -42,57 +41,48 @@ export const ExpectedIncomeList = () => {
         }
 
         const status = paydayStatus(item.day);
-        if (status === "today") return t("dueToday");
+        if (status === "today") return <span className="text-accent">{t("dueToday")}</span>;
         return (
-            <span className={status === "late" ? "text-amber-600 dark:text-amber-400" : undefined}>
+            <span className={status === "late" ? "text-signal" : undefined}>
                 {t(status === "late" ? "late" : "onDay", { day: item.day })}
             </span>
         );
     };
 
     return (
-        <div className="border-border bg-card rounded-2xl border p-5 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-                <p className="text-muted-foreground text-[0.7rem] font-medium tracking-wide uppercase">
-                    {t("progress", { received: summary.receivedCount, total: summary.total })}
-                </p>
-                <p className="text-sm font-medium tabular-nums">
-                    {summary.pending > 0 ? (
-                        <span className="text-emerald-600 dark:text-emerald-400">
-                            {t("stillToCome")}: <AnimatedMoney value={summary.pending} symbol={symbol} />
+        <ChecklistShell
+            title={t("progress", { received: summary.receivedCount, total: summary.total })}
+            actions={<ExpectedIncomeDialog triggerLabel={tPossible("editList")} />}
+            status={
+                summary.pending > 0 ? (
+                    <span>
+                        <span className="text-ink-muted">{t("stillToCome")}: </span>
+                        <span className="text-accent font-medium">
+                            +<AnimatedMoney value={summary.pending} symbol={symbol} />
                         </span>
-                    ) : (
-                        <span className="text-muted-foreground">{t("allReceived")}</span>
-                    )}
-                </p>
-            </div>
+                    </span>
+                ) : (
+                    <span className="text-ink-muted">{t("allReceived")}</span>
+                )
+            }
+        >
+            <SegmentBar done={summary.receivedCount} total={summary.total} />
 
-            <div className="bg-muted mb-4 h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                    className="h-1.5 rounded-full bg-emerald-500 transition-[width] duration-500"
-                    style={{ width: `${progress}%` }}
-                />
-            </div>
-
-            <ul className="flex flex-col">
+            <ul className="border-rule-strong mt-3 border-t">
                 {items.map((item) => (
-                    <li key={item.id}>
-                        <label className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
-                            <Checkbox
-                                checked={item.received}
-                                onCheckedChange={() => setSelectedIncome(item)}
-                                className="size-4 shrink-0 rounded-[5px] data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
-                            />
+                    <li key={item.id} className="border-rule border-b">
+                        <label className="hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors">
+                            <Checkbox checked={item.received} onCheckedChange={() => setSelectedIncome(item)} />
                             <span className="min-w-0 flex-1">
                                 <span
                                     className={twMerge(
                                         "block truncate text-sm transition-colors",
-                                        item.received && "text-muted-foreground",
+                                        item.received && "text-ink-faint",
                                     )}
                                 >
                                     {item.title}
                                 </span>
-                                <span className="text-muted-foreground block text-[0.68rem]">
+                                <span className="text-ink-faint mt-0.5 block font-mono text-3xs uppercase">
                                     {statusLine(item)}
                                     {!item.recurring && ` · ${t("oneOff")}`}
                                 </span>
@@ -100,10 +90,8 @@ export const ExpectedIncomeList = () => {
                             <span className="shrink-0 text-right">
                                 <span
                                     className={twMerge(
-                                        "block text-sm tabular-nums transition-colors",
-                                        item.received
-                                            ? "text-muted-foreground"
-                                            : "font-medium text-emerald-600 dark:text-emerald-400",
+                                        "block font-mono text-xs tabular-nums transition-colors",
+                                        item.received ? "text-ink-faint" : "text-accent",
                                     )}
                                 >
                                     {item.received ? "" : "+"}
@@ -115,7 +103,7 @@ export const ExpectedIncomeList = () => {
                                 {item.received &&
                                     item.receivedAmount !== undefined &&
                                     item.receivedAmount !== item.amount && (
-                                        <span className="text-muted-foreground block text-[0.68rem] tabular-nums">
+                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
                                             {tPossible("plannedAmount", {
                                                 amount: formatCurrency(item.amount),
                                                 currency: symbol,
@@ -134,6 +122,6 @@ export const ExpectedIncomeList = () => {
                     if (!open) setSelectedIncome(null);
                 }}
             />
-        </div>
+        </ChecklistShell>
     );
 };

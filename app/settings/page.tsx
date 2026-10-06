@@ -9,6 +9,7 @@ import { AssistantConnection } from "components/settings/assistant-connection";
 import { MonobankConnection } from "components/settings/monobank-connection";
 import { PrivateProvider } from "providers/auth";
 import { GetDataProvider } from "providers/get-data";
+import { PageHeader, PageShell } from "components/wrappers/page-header";
 
 const SettingsPage = () => {
     const t = useTranslations("monobank");
@@ -18,24 +19,19 @@ const SettingsPage = () => {
             <PrivateProvider>
                 <Navbar />
 
-                <div className="mx-auto w-full max-w-5xl px-4 pt-8 pb-24 sm:px-6">
-                    <div className="rise-stagger flex w-full flex-col gap-8">
-                        <header>
-                            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("settingsTitle")}</h1>
-                            <p className="text-muted-foreground mt-1 text-sm">{t("settingsDescription")}</p>
-                        </header>
+                <PageShell>
+                    <PageHeader index="05" title={t("settingsTitle")} subtitle={t("settingsDescription")} />
 
-                        <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-2">
-                            <AssistantConnection />
-                            <div className="flex min-w-0 flex-col gap-4">
-                                <MonobankConnection />
-                                <AccountPassword />
-                            </div>
+                    <div className="grid min-w-0 grid-cols-1 items-start gap-x-10 gap-y-14 lg:grid-cols-2">
+                        <AssistantConnection />
+                        <div className="flex min-w-0 flex-col gap-14">
+                            <MonobankConnection />
+                            <AccountPassword />
                         </div>
-
-                        <AccountSessions />
                     </div>
-                </div>
+
+                    <AccountSessions />
+                </PageShell>
             </PrivateProvider>
         </GetDataProvider>
     );

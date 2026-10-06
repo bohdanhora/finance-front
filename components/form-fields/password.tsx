@@ -2,7 +2,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
@@ -42,9 +42,9 @@ export const RenderPassword = <T extends FieldValues>({
                                 onClick={() => setShow((prev) => !prev)}
                                 tabIndex={-1}
                                 aria-label={show ? tAuth("hidePassword") : tAuth("showPassword")}
-                                className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-black/40 transition-colors hover:bg-black/5 hover:text-black/70 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white/80"
+                                className="text-ink-faint hover:text-ink absolute top-1/2 right-1.5 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center transition-colors"
                             >
-                                {show ? <EyeOff size={17} /> : <Eye size={17} />}
+                                {show ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </div>
                     </FormControl>

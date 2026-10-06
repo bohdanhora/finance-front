@@ -20,31 +20,26 @@ export const CategoryBreakdown = ({
     const tMono = useTranslations("monobank");
 
     return (
-        <div className="border-border bg-card flex flex-col gap-4 rounded-2xl border p-5 shadow-sm sm:p-6">
+        <div className="border-rule-strong border-t">
             {totals.map((total) => {
                 const share = spent > 0 ? Math.round((total.amount / spent) * 100) : 0;
 
                 return (
-                    <div key={total.category} className="flex flex-col gap-1.5">
+                    <div key={total.category} className="border-rule flex flex-col gap-2 border-b py-3">
                         <div className="flex items-center gap-3">
-                            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
-                                <CategoryIcon category={total.category} className="size-4" />
-                            </span>
-                            <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                            <CategoryIcon category={total.category} className="text-ink-faint size-4 shrink-0" />
+                            <span className="min-w-0 flex-1 text-sm break-words">
                                 {getCategoryLabel(total.category, tCat)}
                             </span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="label hidden sm:inline">
                                 {tMono("operations", { count: total.count })}
                             </span>
-                            <span className="w-28 shrink-0 text-right text-sm font-semibold tabular-nums">
+                            <span className="shrink-0 text-right font-mono text-xs tabular-nums">
                                 {formatCurrency(total.amount)} {symbol}
                             </span>
                         </div>
-                        <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                            <div
-                                className="h-full rounded-full bg-primary"
-                                style={{ width: `${Math.max(share, 2)}%` }}
-                            />
+                        <div className="bg-wash h-1.5 w-full">
+                            <div className="h-full bg-accent" style={{ width: `${Math.max(share, 2)}%` }} />
                         </div>
                     </div>
                 );

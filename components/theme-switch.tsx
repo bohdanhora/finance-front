@@ -24,7 +24,7 @@ export const ThemeSwitch = () => {
             aria-label={t("theme")}
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
         >
-            {resolvedTheme === "dark" ? <FiSun /> : <FiMoon />}
+            {resolvedTheme === "dark" ? <FiSun className="size-4" /> : <FiMoon className="size-4" />}
         </Button>
     );
 };

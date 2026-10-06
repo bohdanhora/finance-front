@@ -253,7 +253,7 @@ export const ExportReportDialog = ({ open, onOpenChange }: Props) => {
                                 ))}
                             </SelectContent>
                         </Select>
-                        <p className="text-muted-foreground text-xs">{periodLabel}</p>
+                        <p className="text-ink-faint text-xs">{periodLabel}</p>
                     </div>
 
                     <div className="space-y-2">
@@ -267,7 +267,7 @@ export const ExportReportDialog = ({ open, onOpenChange }: Props) => {
                                     <label
                                         key={section}
                                         htmlFor={`report-${section}`}
-                                        className="border-border/70 hover:bg-muted/40 flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors"
+                                        className="border-rule hover:border-rule-strong flex cursor-pointer items-center gap-3 border px-3 py-2.5 transition-colors"
                                     >
                                         <Checkbox
                                             id={`report-${section}`}
@@ -276,7 +276,7 @@ export const ExportReportDialog = ({ open, onOpenChange }: Props) => {
                                         />
                                         <span className="flex flex-col">
                                             <span className="text-sm leading-tight">{t(`sections.${section}`)}</span>
-                                            <span className="text-muted-foreground text-xs">
+                                            <span className="text-ink-faint text-xs">
                                                 {count ? t("itemsCount", { count }) : t("empty")}
                                             </span>
                                         </span>

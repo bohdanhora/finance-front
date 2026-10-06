@@ -20,7 +20,7 @@ import { clearCookies } from "lib/logout";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeSwitch } from "./theme-switch";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { getCurrencySymbol } from "lib/currency";
 import { ChoooseCurrency } from "./dialogs/choose-currency";
 import { AssistantChat } from "./assistant/assistant-chat";
@@ -30,6 +30,7 @@ import { NavbarActionsMenu } from "./navbar-actions-menu";
 import { MobileNav, type NavItem } from "./mobile-nav";
 import { useIsMobile } from "hooks/use-is-mobile";
 import { StreakBadge } from "./streak/streak-badge";
+import { Brand } from "./brand";
 
 export const Navbar = () => {
     const { data: currency } = useGetCurrencyQuery();
@@ -94,7 +95,7 @@ export const Navbar = () => {
     const navItems: NavItem[] = [
         { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
         { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3, anchor: "statistics" },
-        { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank },
+        { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank, anchor: "savings" },
         ...(monobankConnected ? [{ href: Routes.MONOBANK, label: tNav("monobank"), Icon: CreditCard }] : []),
     ];
 
@@ -105,95 +106,70 @@ export const Navbar = () => {
     return (
         <>
             {logoutPending && <Loader />}
-            <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
-                <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_auto_auto] items-center justify-between gap-1 px-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2 sm:px-5 lg:px-6">
-                    <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-                        <Link
-                            href={Routes.HOME}
-                            aria-label="Finance"
-                            className="flex w-fit shrink-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                        >
-                            <span className="flex size-9 items-center justify-center bg-primary">
-                                <svg
-                                    width="19"
-                                    height="19"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="white"
-                                    strokeWidth="2.2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M3 17.5 9 11l4 4 7.5-7.5" />
-                                    <path d="M15 7h6v6" />
-                                </svg>
-                            </span>
-                            <span className="hidden text-sm font-bold tracking-[-0.02em] xl:inline">Finance</span>
+            <header className="bg-paper border-rule-strong sticky top-0 z-40 w-full border-b">
+                <div className="shell flex h-14 items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <Link href={Routes.HOME} aria-label="Finance" className="shrink-0">
+                            <Brand wordmarkClassName="hidden sm:inline" />
                         </Link>
-
                         <StreakBadge />
                     </div>
 
                     {isMobile === false && (
-                        <nav className="border-border/70 bg-card/65 col-start-2 flex min-w-0 items-center gap-1 justify-self-center rounded-2xl border p-1 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
-                            {navItems.map(({ href, label, Icon, anchor }) => {
+                        <nav aria-label={tNav("menu")} className="flex h-full min-w-0 items-stretch">
+                            {navItems.map(({ href, label, anchor }, index) => {
                                 const active = pathname === href;
                                 return (
                                     <Link
                                         key={href}
                                         href={href}
-                                        aria-label={label}
                                         aria-current={active ? "page" : undefined}
                                         data-tour={anchor}
                                         className={twMerge(
-                                            "relative flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200",
-                                            active
-                                                ? "bg-primary/10 text-primary"
-                                                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+                                            "relative flex items-center gap-1.5 px-3 font-mono text-2xs tracking-wide uppercase transition-colors",
+                                            active ? "text-ink" : "text-ink-faint hover:text-ink",
                                         )}
                                     >
-                                        <Icon className="size-4" />
-                                        <span className="hidden lg:inline">{label}</span>
+                                        <span className={active ? "text-accent" : undefined}>
+                                            {String(index + 1).padStart(2, "0")}
+                                        </span>
+                                        {label}
+                                        {active && <span className="bg-accent absolute inset-x-3 -bottom-px h-0.5" />}
                                     </Link>
                                 );
                             })}
                         </nav>
                     )}
-                    <div className="col-start-3 flex min-w-0 items-center justify-self-end gap-1.5">
-                        <div className="border-border/70 bg-card/65 flex items-center rounded-2xl border p-0.5 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
-                            <Button
-                                variant="ghost"
-                                className="h-9 gap-1.5 rounded-xl px-2"
+
+                    <div className="flex shrink-0 items-center">
+                        <div className="border-rule flex h-9 items-stretch border">
+                            <button
+                                type="button"
                                 aria-label={tNav("currency")}
                                 title={tNav("currency")}
                                 onClick={() => window.dispatchEvent(new Event("finance:open-currency-selection"))}
+                                className="hover:bg-wash flex items-center gap-1.5 px-2.5 font-mono text-2xs uppercase transition-colors"
                             >
-                                <span className="flex size-6 items-center justify-center rounded-lg bg-indigo-500/10 text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                                    {getCurrencySymbol(userCurrency)}
-                                </span>
-                                <span className="hidden text-xs font-bold uppercase sm:inline">{userCurrency}</span>
-                            </Button>
+                                <span className="text-accent">{getCurrencySymbol(userCurrency)}</span>
+                                <span className="hidden sm:inline">{userCurrency}</span>
+                            </button>
                             {userCurrency === CURRENCY.UAH && (
-                                <>
-                                    <span className="bg-border hidden h-5 w-px sm:block" aria-hidden="true" />
-                                    <div className="hidden sm:block">
-                                        <CurrencyDropdown rate={buy} />
-                                    </div>
-                                </>
+                                <div className="border-rule hidden border-l sm:flex">
+                                    <CurrencyDropdown rate={buy} />
+                                </div>
                             )}
                         </div>
 
-                        <div className="border-border/70 bg-card/65 flex items-center rounded-2xl border p-0.5 shadow-sm shadow-black/5 ring-1 ring-white/40 dark:ring-white/5">
+                        <div className="ml-2 flex items-center">
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="hidden rounded-xl lg:inline-flex"
+                                className="hidden lg:inline-flex"
                                 aria-label={tNav("calculator")}
                                 title={tNav("calculator")}
                                 onClick={() => window.dispatchEvent(new Event(CALCULATOR_TOGGLE_EVENT))}
                             >
-                                <Calculator />
+                                <Calculator className="size-4" />
                             </Button>
                             <ThemeSwitch />
                             <NavbarActionsMenu logoutPending={logoutPending} onLogout={logout} />

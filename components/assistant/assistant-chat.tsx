@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUp, Eraser, Sparkles, Square, X } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { Button } from "components/ui/button";
 import { useAssistantSettings } from "hooks/use-assistant-settings";
@@ -124,14 +124,12 @@ export const AssistantChat = () => {
                 title={t("open")}
                 onClick={() => setOpen((current) => !current)}
                 className={twMerge(
-                    "fixed right-4 bottom-20 z-50 flex size-13 cursor-pointer items-center justify-center rounded-2xl",
-                    "bg-primary text-primary-foreground",
-                    "transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-xl",
+                    "bottom-safe bg-ink text-paper hover:bg-accent hover:text-on-accent fixed right-4 z-40 flex size-12 items-center justify-center transition-colors",
                     "sm:right-6 sm:bottom-6",
-                    open && "scale-95 opacity-0",
+                    open && "opacity-0",
                 )}
             >
-                <Sparkles className="size-5" />
+                <Sparkles className="size-4" />
             </button>
 
             {open && (
@@ -139,24 +137,21 @@ export const AssistantChat = () => {
                     role="dialog"
                     aria-label={t("title")}
                     className={twMerge(
-                        "border-border bg-card fixed z-50 flex flex-col overflow-hidden border shadow-2xl",
-                        "inset-x-0 top-0 bottom-[var(--keyboard-inset,0px)] rounded-none",
-                        "sm:inset-auto sm:right-6 sm:bottom-6 sm:h-[min(38rem,calc(100dvh-3rem))] sm:w-[26rem] sm:rounded-3xl",
+                        "chat-panel bg-paper border-rule-strong fixed z-50 flex flex-col overflow-hidden border",
                     )}
                 >
-                    <header className="border-border/70 flex items-center gap-2 border-b px-4 py-3">
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                            <Sparkles className="size-4" />
+                    <header className="border-rule-strong flex items-center gap-2 border-b px-4 py-3">
+                        <span className="border-rule-strong flex size-8 shrink-0 items-center justify-center border">
+                            <Sparkles className="size-3.5" />
                         </span>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold">{t("title")}</p>
-                            <p className="text-muted-foreground truncate text-xs">{t("subtitle")}</p>
+                            <p className="font-display truncate text-sm font-medium uppercase">{t("title")}</p>
+                            <p className="label truncate">{t("subtitle")}</p>
                         </div>
                         {visible.length > 0 && (
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="rounded-xl"
                                 aria-label={t("newChat")}
                                 title={t("newChat")}
                                 onClick={reset}
@@ -164,13 +159,7 @@ export const AssistantChat = () => {
                                 <Eraser />
                             </Button>
                         )}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-xl"
-                            aria-label={t("close")}
-                            onClick={() => setOpen(false)}
-                        >
+                        <Button variant="ghost" size="icon" aria-label={t("close")} onClick={() => setOpen(false)}>
                             <X />
                         </Button>
                     </header>
@@ -178,15 +167,15 @@ export const AssistantChat = () => {
                     <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4">
                         {visible.length === 0 ? (
                             <div className="flex flex-col gap-3 py-6">
-                                <p className="text-sm font-medium">{t("emptyTitle")}</p>
-                                <p className="text-muted-foreground text-sm leading-relaxed">{t("emptyHint")}</p>
+                                <p className="font-display text-base font-medium uppercase">{t("emptyTitle")}</p>
+                                <p className="text-ink-faint text-sm leading-relaxed">{t("emptyHint")}</p>
                                 <div className="flex flex-col gap-2 pt-2">
                                     {SUGGESTION_KEYS.map((suggestion) => (
                                         <button
                                             key={suggestion}
                                             type="button"
                                             onClick={() => void send(t(`suggestions.${suggestion}`))}
-                                            className="border-border hover:bg-muted cursor-pointer rounded-xl border px-3 py-2.5 text-left text-sm"
+                                            className="border-rule hover:border-accent hover:text-accent border px-3 py-2.5 text-left text-sm transition-colors"
                                         >
                                             {t(`suggestions.${suggestion}`)}
                                         </button>
@@ -205,17 +194,15 @@ export const AssistantChat = () => {
                                     >
                                         <div
                                             className={twMerge(
-                                                "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+                                                "max-w-5/6 px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
                                                 mine
-                                                    ? "bg-indigo-500/12 text-foreground rounded-br-md"
-                                                    : "bg-muted/70 rounded-bl-md",
+                                                    ? "bg-ink text-paper"
+                                                    : "border-rule border-l-2 border-l-accent bg-surface",
                                             )}
                                         >
                                             {pending ? (
-                                                <span className="text-muted-foreground flex items-center gap-1.5">
-                                                    <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
-                                                    <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
-                                                    <span className="size-1.5 animate-bounce rounded-full bg-current" />
+                                                <span className="text-ink-faint flex items-center gap-1.5">
+                                                    <span className="caret caret-blink" />
                                                 </span>
                                             ) : (
                                                 message.content
@@ -226,15 +213,11 @@ export const AssistantChat = () => {
                             })
                         )}
 
-                        {error && (
-                            <p className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
-                                {error}
-                            </p>
-                        )}
+                        {error && <p className="border-signal text-signal border-l-2 py-1 pl-3 text-sm">{error}</p>}
                     </div>
 
-                    <div className="border-border/70 border-t p-3">
-                        <div className="border-input bg-black/[0.02] focus-within:border-indigo-500 flex items-end gap-2 rounded-2xl border px-3 py-2 transition-colors dark:bg-white/[0.04]">
+                    <div className="border-rule-strong border-t p-3">
+                        <div className="border-rule bg-surface focus-within:border-accent flex items-end gap-2 border px-3 py-2 transition-colors">
                             <textarea
                                 rows={1}
                                 value={draft}
@@ -246,13 +229,13 @@ export const AssistantChat = () => {
                                     event.preventDefault();
                                     void send(draft);
                                 }}
-                                className="placeholder:text-muted-foreground max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
+                                className="placeholder:text-ink-faint max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
                             />
                             {streaming ? (
                                 <Button
                                     size="icon"
                                     variant="secondary"
-                                    className="size-9 shrink-0 rounded-xl"
+                                    className="size-9 shrink-0"
                                     aria-label={t("stop")}
                                     onClick={stop}
                                 >
@@ -261,7 +244,7 @@ export const AssistantChat = () => {
                             ) : (
                                 <Button
                                     size="icon"
-                                    className="size-9 shrink-0 rounded-xl"
+                                    className="size-9 shrink-0"
                                     aria-label={t("send")}
                                     disabled={!draft.trim()}
                                     onClick={() => void send(draft)}
@@ -270,9 +253,7 @@ export const AssistantChat = () => {
                                 </Button>
                             )}
                         </div>
-                        <p className="text-muted-foreground mt-2 px-1 text-[0.68rem] leading-relaxed">
-                            {t("disclaimer")}
-                        </p>
+                        <p className="text-ink-faint mt-2 px-1 text-2xs leading-relaxed">{t("disclaimer")}</p>
                     </div>
                 </div>
             )}

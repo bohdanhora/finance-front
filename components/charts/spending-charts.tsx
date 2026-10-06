@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
-import { Doughnut, Bar, Line } from "react-chartjs-2";
+import { useEffect, useMemo, useState } from "react";
+import { Bar, Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
-    ArcElement,
     Tooltip,
     CategoryScale,
     LinearScale,
@@ -15,35 +14,71 @@ import {
     type TooltipItem,
 } from "chart.js";
 import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 
 import { formatCurrency } from "lib/utils";
 import { byCategory, byDay, byMonth, cumulativeNet, type MonthKey } from "lib/statistics";
 import { TransactionType } from "types/transactions";
-import { CATEGORY_COLORS, colorFor, EXPENSE_COLOR, INCOME_COLOR } from "./category-palette";
 import { getCategoryLabel } from "constants/categories";
 import { formatMonthKey } from "lib/date-locale";
+import { CategoryIcon } from "components/categories/category-icon";
 
-ChartJS.register(ArcElement, Tooltip, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler);
+ChartJS.register(Tooltip, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler);
 
 export type ChartView = "categories" | "daily" | "months" | "trend";
 
-const useAxisColors = () => {
-    if (typeof window === "undefined") {
-        return { grid: "rgba(120,120,120,0.15)", tick: "#8a8a8a" };
-    }
-    const isDark = document.documentElement.classList.contains("dark");
-    return {
-        grid: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
-        tick: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.5)",
-    };
+type Palette = {
+    accent: string;
+    accentWash: string;
+    muted: string;
+    rule: string;
+    tick: string;
+    paper: string;
+    ink: string;
 };
 
-const moneyTooltip = (symbol: string) => ({
-    callbacks: {
-        label: (item: TooltipItem<"bar" | "line" | "doughnut">) =>
-            ` ${item.dataset.label ? item.dataset.label + ": " : ""}${formatCurrency(Number(item.parsed.y ?? item.parsed))} ${symbol}`,
-    },
-});
+const FALLBACK: Palette = {
+    accent: "#2531e0",
+    accentWash: "#e3e5fb",
+    muted: "#868a90",
+    rule: "#cdd0d1",
+    tick: "#64686e",
+    paper: "#f0f1ee",
+    ink: "#0c0d0e",
+};
+
+const usePalette = () => {
+    const { resolvedTheme } = useTheme();
+    const [palette, setPalette] = useState<Palette>(FALLBACK);
+
+    useEffect(() => {
+        const style = getComputedStyle(document.documentElement);
+        const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+        const dark = document.documentElement.classList.contains("dark");
+        setPalette({
+            accent: read("--accent", FALLBACK.accent),
+            accentWash: read("--accent-wash", FALLBACK.accentWash),
+            muted: dark ? "#6e727a" : FALLBACK.muted,
+            rule: read("--rule", FALLBACK.rule),
+            tick: read("--ink-faint", FALLBACK.tick),
+            paper: read("--paper", FALLBACK.paper),
+            ink: read("--ink", FALLBACK.ink),
+        });
+    }, [resolvedTheme]);
+
+    return palette;
+};
+
+const Legend = ({ items }: { items: { label: string; color: string }[] }) => (
+    <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2">
+        {items.map((item) => (
+            <li key={item.label} className="label flex items-center gap-2">
+                <span className="size-2.5" style={{ backgroundColor: item.color }} />
+                {item.label}
+            </li>
+        ))}
+    </ul>
+);
 
 type Props = {
     view: ChartView;
@@ -57,21 +92,48 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
     const tCat = useTranslations("categories");
     const tStats = useTranslations("statistics");
     const locale = useLocale();
-    const axis = useAxisColors();
+    const palette = usePalette();
     const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
 
     const categories = useMemo(() => byCategory(transactions), [transactions]);
     const days = useMemo(() => byDay(transactions, month), [transactions, month]);
     const months = useMemo(() => byMonth(allTransactions, month), [allTransactions, month]);
 
+    const font = { family: "Martian Mono, IBM Plex Sans, monospace", size: 10 };
+
+    const tooltip = {
+        backgroundColor: palette.paper,
+        titleColor: palette.ink,
+        bodyColor: palette.ink,
+        borderColor: palette.ink,
+        borderWidth: 1,
+        cornerRadius: 0,
+        padding: 10,
+        boxPadding: 4,
+        usePointStyle: true,
+        titleFont: font,
+        bodyFont: { ...font, size: 11 },
+        callbacks: {
+            label: (item: TooltipItem<"bar" | "line">) =>
+                ` ${item.dataset.label ? item.dataset.label + ": " : ""}${formatCurrency(Number(item.parsed.y))} ${currencySymbol}`,
+        },
+    };
+
     const scales = {
-        x: { grid: { display: false }, ticks: { color: axis.tick }, border: { display: false } },
+        x: { grid: { display: false }, ticks: { color: palette.tick, font }, border: { color: palette.ink } },
         y: {
-            grid: { color: axis.grid },
-            ticks: { color: axis.tick },
+            grid: { color: palette.rule },
+            ticks: { color: palette.tick, font },
             border: { display: false },
             beginAtZero: true,
         },
+    };
+
+    const options = {
+        maintainAspectRatio: false,
+        interaction: { mode: "index" as const, intersect: false },
+        plugins: { legend: { display: false }, tooltip },
+        scales,
     };
 
     if (view === "categories") {
@@ -79,59 +141,37 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
             return <EmptyChart message={tStats("noExpenses")} />;
         }
 
-        return (
-            <div className="flex flex-col items-center gap-8 lg:flex-row">
-                <div className="relative w-full max-w-[280px] shrink-0">
-                    <Doughnut
-                        data={{
-                            labels: categories.map((c) => categoryLabel(c.name)),
-                            datasets: [
-                                {
-                                    data: categories.map((c) => c.value),
-                                    backgroundColor: categories.map((_, i) => colorFor(i)),
-                                    borderWidth: 0,
-                                    hoverOffset: 6,
-                                },
-                            ],
-                        }}
-                        options={{
-                            cutout: "62%",
-                            plugins: { legend: { display: false }, tooltip: moneyTooltip(currencySymbol) },
-                        }}
-                    />
-                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                        <span className="text-muted-foreground text-[0.65rem] font-medium tracking-wide uppercase">
-                            {tStats("expense")}
-                        </span>
-                        <span className="mt-1 text-lg font-semibold tabular-nums">
-                            {formatCurrency(categories.reduce((total, category) => total + category.value, 0))}{" "}
-                            {currencySymbol}
-                        </span>
-                    </div>
-                </div>
+        const total = categories.reduce((sum, category) => sum + category.value, 0);
+        const max = categories[0]?.value || 1;
 
-                <ul className="flex w-full flex-col gap-3">
-                    {categories.map((cat, index) => (
-                        <li key={cat.name} className="space-y-1.5">
-                            <div className="flex items-center justify-between gap-4 text-sm">
-                                <span className="flex min-w-0 items-center gap-2">
-                                    <span
-                                        className="size-2.5 shrink-0 rounded-full"
-                                        style={{ backgroundColor: colorFor(index) }}
-                                    />
-                                    <span className="truncate">{categoryLabel(cat.name)}</span>
-                                </span>
-                                <span className="text-muted-foreground shrink-0 tabular-nums">
-                                    {formatCurrency(cat.value)} {currencySymbol}
-                                    <span className="ml-2 text-xs">{cat.percent}%</span>
-                                </span>
-                            </div>
-                            <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                                <div
-                                    className="h-1.5 rounded-full transition-[width] duration-500"
-                                    style={{ width: `${cat.percent}%`, backgroundColor: colorFor(index) }}
+        return (
+            <div>
+                <div className="border-rule-strong flex flex-wrap items-baseline justify-between gap-3 border-b pb-3">
+                    <span className="label">{tStats("expense")}</span>
+                    <span className="figure text-figure">
+                        {formatCurrency(total)} <span className="text-ink-faint">{currencySymbol}</span>
+                    </span>
+                </div>
+                <ul>
+                    {categories.map((cat) => (
+                        <li
+                            key={cat.name}
+                            className="border-rule grid grid-cols-12 items-center gap-x-3 gap-y-2 border-b py-3"
+                        >
+                            <span className="col-span-7 flex min-w-0 items-center gap-2.5 text-sm sm:col-span-4">
+                                <CategoryIcon category={cat.name} className="text-ink-faint size-4 shrink-0" />
+                                <span className="break-words">{categoryLabel(cat.name)}</span>
+                            </span>
+                            <span className="col-span-5 text-right font-mono text-xs tabular-nums sm:order-last sm:col-span-3">
+                                {formatCurrency(cat.value)} {currencySymbol}
+                                <span className="text-ink-faint ml-2">{cat.percent}%</span>
+                            </span>
+                            <span className="bg-wash col-span-12 h-2 sm:col-span-5">
+                                <span
+                                    className="bg-accent block h-full transition-[width] duration-500"
+                                    style={{ width: `${(cat.value / max) * 100}%` }}
                                 />
-                            </div>
+                            </span>
                         </li>
                     ))}
                 </ul>
@@ -139,74 +179,58 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
         );
     }
 
-    if (view === "daily") {
-        return (
-            <div className="h-[320px] w-full">
-                <Bar
-                    data={{
-                        labels: days.map((d) => d.label),
-                        datasets: [
-                            {
-                                label: tStats("expense"),
-                                data: days.map((d) => d.expense),
-                                backgroundColor: EXPENSE_COLOR,
-                                borderRadius: 4,
-                                maxBarThickness: 18,
-                            },
-                            {
-                                label: tStats("income"),
-                                data: days.map((d) => d.income),
-                                backgroundColor: INCOME_COLOR,
-                                borderRadius: 4,
-                                maxBarThickness: 18,
-                            },
-                        ],
-                    }}
-                    options={{
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: moneyTooltip(currencySymbol) },
-                        scales,
-                    }}
-                />
-            </div>
-        );
-    }
+    const pairLegend = [
+        { label: tStats("income"), color: palette.accent },
+        { label: tStats("expense"), color: palette.muted },
+    ];
 
-    if (view === "months") {
+    if (view === "daily" || view === "months") {
+        const source =
+            view === "daily"
+                ? days.map((d) => ({ label: d.label, income: d.income, expense: d.expense }))
+                : months.map((m) => ({
+                      label: formatMonthKey(m.month, locale, "short"),
+                      income: m.income,
+                      expense: m.expense,
+                  }));
+
         return (
-            <div className="h-[320px] w-full">
-                <Bar
-                    data={{
-                        labels: months.map((month) => formatMonthKey(month.month, locale, "short")),
-                        datasets: [
-                            {
-                                label: tStats("income"),
-                                data: months.map((m) => m.income),
-                                backgroundColor: INCOME_COLOR,
-                                borderRadius: 6,
-                                maxBarThickness: 34,
-                            },
-                            {
-                                label: tStats("expense"),
-                                data: months.map((m) => m.expense),
-                                backgroundColor: EXPENSE_COLOR,
-                                borderRadius: 6,
-                                maxBarThickness: 34,
-                            },
-                        ],
-                    }}
-                    options={{
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: moneyTooltip(currencySymbol) },
-                        scales,
-                    }}
-                />
+            <div>
+                <Legend items={pairLegend} />
+                <div className="h-80 w-full">
+                    <Bar
+                        data={{
+                            labels: source.map((item) => item.label),
+                            datasets: [
+                                {
+                                    label: tStats("income"),
+                                    data: source.map((item) => item.income),
+                                    backgroundColor: palette.accent,
+                                    borderRadius: 0,
+                                    maxBarThickness: view === "daily" ? 14 : 32,
+                                    categoryPercentage: 0.7,
+                                    barPercentage: 0.9,
+                                },
+                                {
+                                    label: tStats("expense"),
+                                    data: source.map((item) => item.expense),
+                                    backgroundColor: palette.muted,
+                                    borderRadius: 0,
+                                    maxBarThickness: view === "daily" ? 14 : 32,
+                                    categoryPercentage: 0.7,
+                                    barPercentage: 0.9,
+                                },
+                            ],
+                        }}
+                        options={options}
+                    />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="h-[320px] w-full">
+        <div className="h-80 w-full">
             <Line
                 data={{
                     labels: days.map((d) => d.label),
@@ -214,28 +238,26 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
                         {
                             label: tStats("netFlow"),
                             data: cumulativeNet(days),
-                            borderColor: "#6366f1",
-                            backgroundColor: "rgba(99,102,241,0.14)",
+                            borderColor: palette.accent,
+                            backgroundColor: palette.accentWash,
                             fill: true,
-                            tension: 0.35,
+                            tension: 0,
+                            stepped: false,
                             pointRadius: 0,
                             pointHoverRadius: 4,
+                            pointHoverBackgroundColor: palette.accent,
+                            pointHoverBorderColor: palette.paper,
+                            pointHoverBorderWidth: 2,
                             borderWidth: 2,
                         },
                     ],
                 }}
-                options={{
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: moneyTooltip(currencySymbol) },
-                    scales: { ...scales, y: { ...scales.y, beginAtZero: false } },
-                }}
+                options={{ ...options, scales: { ...scales, y: { ...scales.y, beginAtZero: false } } }}
             />
         </div>
     );
 };
 
 const EmptyChart = ({ message }: { message: string }) => (
-    <div className="text-muted-foreground flex h-[240px] items-center justify-center text-sm">{message}</div>
+    <div className="text-ink-faint flex h-60 items-center justify-center text-sm">{message}</div>
 );
-
-export { CATEGORY_COLORS };

@@ -3,7 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-re
 
 import { Button, buttonVariants } from "components/ui/button";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
     return (

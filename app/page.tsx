@@ -18,6 +18,7 @@ import { Section } from "components/wrappers/section";
 const Home = () => {
     const t = useTranslations();
     const tTx = useTranslations("transactions");
+    const tSections = useTranslations("sections");
 
     useLoginToast(t);
 
@@ -27,13 +28,18 @@ const Home = () => {
                 <Navbar />
                 <OnboardingTour />
 
-                <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-24 sm:px-6">
-                    <div className="rise-stagger flex w-full flex-col gap-8">
+                <div className="sheet">
+                    <div className="shell rise-stagger flex flex-col gap-16 pt-8 pb-28 sm:pb-20 md:gap-20 md:pt-10">
                         <Total />
                         <PossibleRemaining />
                         <NextMonthIncome />
 
-                        <Section title={tTx("history")}>
+                        <Section
+                            index="03"
+                            anchor="history"
+                            title={tTx("history")}
+                            description={tSections("historyNote")}
+                        >
                             <LastSpends />
                         </Section>
 

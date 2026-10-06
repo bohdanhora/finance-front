@@ -14,7 +14,7 @@ import {
 } from "react-hook-form";
 
 import { Label } from "components/ui/label";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 const Form = FormProvider;
 
@@ -86,7 +86,7 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof LabelPri
         <Label
             data-slot="form-label"
             data-error={!!error}
-            className={twMerge("data-[error=true]:text-destructive", className)}
+            className={twMerge("data-[error=true]:text-signal", className)}
             htmlFor={formItemId}
             {...props}
         />
@@ -114,7 +114,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
         <p
             data-slot="form-description"
             id={formDescriptionId}
-            className={twMerge("text-muted-foreground text-sm", className)}
+            className={twMerge("text-ink-faint text-sm", className)}
             {...props}
         />
     );
@@ -129,12 +129,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
     }
 
     return (
-        <p
-            data-slot="form-message"
-            id={formMessageId}
-            className={twMerge("text-destructive text-sm text-red-600", className)}
-            {...props}
-        >
+        <p data-slot="form-message" id={formMessageId} className={twMerge("text-signal text-xs", className)} {...props}>
             {body}
         </p>
     );

@@ -6,12 +6,9 @@ export const RegistrationWay = () => {
     const tAuth = useTranslations("auth");
 
     return (
-        <p className="text-center text-sm text-black/55 dark:text-white/55">
+        <p className="text-ink-muted text-sm">
             {tAuth("dontHaveAccount")}{" "}
-            <Link
-                href={Routes.SEND_EMAIL_CODE}
-                className="font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >
+            <Link href={Routes.SEND_EMAIL_CODE} className="link text-accent font-medium">
                 {tAuth("registration")}
             </Link>
         </p>

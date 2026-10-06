@@ -4,7 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { GripHorizontal, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 export const CALCULATOR_TOGGLE_EVENT = "finance:toggle-calculator";
 
@@ -237,10 +237,10 @@ export const DesktopCalculator = () => {
     if (!mounted || !open) return null;
 
     const actionButton =
-        "flex h-12 items-center justify-center rounded-2xl text-lg font-semibold outline-none transition-all hover:brightness-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
-    const numberButton = "bg-white/10 text-white hover:bg-white/15";
-    const functionButton = "bg-zinc-500/55 text-white hover:bg-zinc-500/70";
-    const operationButton = "bg-indigo-600 text-white shadow-md shadow-indigo-950/30 hover:bg-indigo-500";
+        "flex h-12 items-center justify-center bg-paper font-mono text-base transition-colors outline-none active:bg-wash";
+    const numberButton = "text-ink hover:bg-surface";
+    const functionButton = "text-ink-faint text-xs hover:bg-surface hover:text-ink";
+    const operationButton = "text-accent hover:bg-accent hover:text-on-accent";
 
     return createPortal(
         <section
@@ -248,23 +248,23 @@ export const DesktopCalculator = () => {
             role="dialog"
             aria-modal="false"
             aria-label={t("title")}
-            className="pointer-events-auto fixed z-[80] hidden w-[19rem] overflow-hidden rounded-[28px] border border-white/10 bg-zinc-950 text-white shadow-[0_28px_90px_-22px_rgba(0,0,0,0.8)] ring-1 ring-black/30 select-none lg:block"
+            className="bg-paper text-ink border-rule-strong pointer-events-auto fixed z-50 hidden w-76 border select-none lg:block"
             style={position ? { left: position.x, top: position.y } : { right: 24, top: 76 }}
         >
             <div
-                className="flex h-11 touch-none cursor-grab items-center justify-between border-b border-white/8 px-3 active:cursor-grabbing"
+                className="border-rule-strong flex h-10 cursor-grab touch-none items-center justify-between border-b px-3 active:cursor-grabbing"
                 onPointerDown={startDrag}
                 onPointerMove={move}
                 onPointerUp={finishDrag}
                 onPointerCancel={finishDrag}
             >
-                <span className="flex items-center gap-2 text-xs font-medium text-zinc-400">
+                <span className="label flex items-center gap-2">
                     <GripHorizontal className="size-4" />
                     {t("title")}
                 </span>
                 <button
                     type="button"
-                    className="flex size-7 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
+                    className="text-ink-faint hover:text-ink flex size-7 items-center justify-center transition-colors"
                     aria-label={t("close")}
                     onPointerDown={(event) => event.stopPropagation()}
                     onClick={() => setOpen(false)}
@@ -274,15 +274,15 @@ export const DesktopCalculator = () => {
             </div>
 
             <div className="flex min-h-24 flex-col items-end justify-end px-5 pt-4 pb-3">
-                <span className="h-5 text-xs text-zinc-500">
+                <span className="text-ink-faint h-5 font-mono text-xs">
                     {operation && storedValue !== null ? `${formatResult(storedValue)} ${operation}` : ""}
                 </span>
-                <output className="max-w-full overflow-hidden text-right text-[2.65rem] leading-tight font-light tracking-tight text-ellipsis whitespace-nowrap">
+                <output className="figure max-w-full overflow-hidden text-right text-4xl leading-tight text-ellipsis whitespace-nowrap">
                     {display}
                 </output>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 p-3 pt-1">
+            <div className="bg-rule border-rule grid grid-cols-4 gap-px border-t">
                 <button type="button" className={twMerge(actionButton, functionButton)} onClick={clear}>
                     {display === "0" && storedValue === null ? "AC" : "C"}
                 </button>
@@ -356,7 +356,7 @@ export const DesktopCalculator = () => {
 
                 <button
                     type="button"
-                    className={twMerge(actionButton, numberButton, "col-span-2 justify-start pl-5")}
+                    className={twMerge(actionButton, numberButton, "col-span-2")}
                     onClick={() => inputDigit("0")}
                 >
                     0
@@ -364,7 +364,11 @@ export const DesktopCalculator = () => {
                 <button type="button" className={twMerge(actionButton, numberButton)} onClick={inputDecimal}>
                     .
                 </button>
-                <button type="button" className={twMerge(actionButton, operationButton)} onClick={equals}>
+                <button
+                    type="button"
+                    className={twMerge(actionButton, "bg-accent text-on-accent hover:bg-ink hover:text-paper")}
+                    onClick={equals}
+                >
                     =
                 </button>
             </div>

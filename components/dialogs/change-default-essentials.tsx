@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { useNewEssential, useRemoveEssential, useUpdateEssential } from "api/main";
 import { Textarea } from "components/ui/textarea";
 import { PencilIcon, XIcon } from "lucide-react";
@@ -36,7 +36,7 @@ import { EssentialType } from "types/transactions";
 
 const getEmptyEssentialValues = () => ({ amount: "", title: "" });
 
-export const ChangeDefaultEssentials = () => {
+export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: string }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const store = useStore();
     const userCurrency = store.userCurrency;
@@ -141,9 +141,11 @@ export const ChangeDefaultEssentials = () => {
         >
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="secondary">{t("essentials.standardPaymentsTitle")}</Button>
+                    <Button variant="ghost" size="sm">
+                        {triggerLabel ?? t("essentials.standardPaymentsTitle")}
+                    </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("essentials.standardPaymentsTitle")}</DialogTitle>
@@ -152,13 +154,10 @@ export const ChangeDefaultEssentials = () => {
                         <ul className="max-h-48 space-y-2 overflow-y-auto pr-1">
                             {arrayEssentials?.map(({ id, title, amount }) => {
                                 return (
-                                    <li
-                                        className="border-border/70 bg-muted/25 flex items-center gap-3 rounded-xl border px-3 py-2.5"
-                                        key={id}
-                                    >
+                                    <li className="border-rule flex items-center gap-3 border-b py-2.5" key={id}>
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-sm font-medium">{title}</p>
-                                            <p className="text-muted-foreground mt-0.5 text-xs tabular-nums">
+                                            <p className="text-ink-faint mt-0.5 text-xs tabular-nums">
                                                 {amount} {getCurrencySymbol(userCurrency)}
                                             </p>
                                         </div>
@@ -168,7 +167,7 @@ export const ChangeDefaultEssentials = () => {
                                                 disabled={pendings}
                                                 onClick={() => startEditing({ id, title, amount, checked: false })}
                                                 variant="ghost"
-                                                className="text-muted-foreground hover:text-foreground size-8 rounded-lg p-0"
+                                                className="text-ink-faint hover:text-ink size-8 p-0"
                                                 aria-label={t("change")}
                                             >
                                                 <PencilIcon className="size-3.5" />
@@ -178,7 +177,7 @@ export const ChangeDefaultEssentials = () => {
                                                 disabled={pendings}
                                                 onClick={() => removeEssential(id)}
                                                 variant="ghost"
-                                                className="text-muted-foreground hover:bg-red-500/10 hover:text-red-500 size-8 rounded-lg p-0"
+                                                className="text-ink-faint hover:bg-signal-wash hover:text-signal size-8 p-0"
                                             >
                                                 <XIcon className="size-3.5" />
                                             </Button>

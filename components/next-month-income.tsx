@@ -20,6 +20,7 @@ export const NextMonthIncome = () => {
     const bankStore = useBankStore();
     const t = useTranslations("possible");
     const tHints = useTranslations("hints");
+    const tSections = useTranslations("sections");
 
     const currency = bankStore.currency as CURRENCY;
     const percent = store.percentage;
@@ -54,21 +55,19 @@ export const NextMonthIncome = () => {
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);
 
-    const money = (value: number) => <AnimatedMoney value={value} symbol={userSymbol} />;
+    const money = (value: number) => (
+        <AnimatedMoney value={value} symbol={userSymbol} symbolClassName="text-ink-faint" />
+    );
     const alt = (value: number) =>
         userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={altSymbol} /> : undefined;
 
     return (
         <Section
+            index="02"
             anchor="nextMonth"
-            className="scroll-mt-24"
             title={t("nextMonth")}
-            actions={
-                <>
-                    <EssentialSpends nextMonth />
-                    <ChangeNextMonthIncome />
-                </>
-            }
+            description={tSections("nextMonthNote")}
+            actions={<ChangeNextMonthIncome />}
         >
             <StatGrid>
                 <StatCard
@@ -84,6 +83,8 @@ export const NextMonthIncome = () => {
                     secondary={alt(remainingIncome[currency])}
                 />
                 <StatCard
+                    tone="accent"
+                    className="bg-surface"
                     label={t("saveMoney", { percentage: percent })}
                     hint={tHints("saveMoney")}
                     value={money(savedMoney.default)}
@@ -98,8 +99,8 @@ export const NextMonthIncome = () => {
                 />
             </StatGrid>
 
-            <div className="mt-3">
-                <EssentialsChecklist nextMonth />
+            <div className="mt-8 lg:w-1/2 lg:pr-5">
+                <EssentialsChecklist nextMonth actions={<EssentialSpends nextMonth triggerLabel={t("editList")} />} />
             </div>
         </Section>
     );

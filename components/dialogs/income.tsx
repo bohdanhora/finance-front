@@ -22,7 +22,7 @@ import { PlusIcon } from "lucide-react";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { useSetNewTransaction } from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { TransactionEnum } from "constants/index";
@@ -104,15 +104,12 @@ export const IncomeDialogComponent = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button
-                        variant="secondary"
-                        className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-400 dark:hover:bg-emerald-400/20"
-                    >
+                    <Button variant="accent" size="lg" className="w-full">
                         <PlusIcon />
                         {t("expenses.income")}
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                         <DialogHeader>
                             <DialogTitle>{t("dialogs.enterIncome")}</DialogTitle>

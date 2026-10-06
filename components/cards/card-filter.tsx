@@ -25,7 +25,7 @@ export const CardFilter = () => {
             <SelectContent>
                 <SelectItem value={ALL_CARDS}>
                     <span className="flex items-center gap-2">
-                        <Layers className="size-4 text-indigo-500" />
+                        <Layers className="size-4 text-accent" />
                         {t("allCards")}
                     </span>
                 </SelectItem>

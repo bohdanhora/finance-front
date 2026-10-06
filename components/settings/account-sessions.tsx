@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { History, Loader2, LogOut, Monitor, MonitorSmartphone, Smartphone, Tablet, X } from "lucide-react";
 import { toast } from "react-toastify";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useClearSessionHistory, useEndOtherSessions, useRemoveSession, useSessions } from "api/account";
 import { ConnectionCard } from "components/settings/connection-card";
@@ -38,34 +38,33 @@ const SessionRow = ({ session, action }: { session: AccountSession; action: Reac
           });
 
     return (
-        <li className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+        <li className="border-rule flex items-start gap-3 border-b py-3">
             <span
                 className={twMerge(
-                    "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl",
-                    session.current
-                        ? "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400"
-                        : "bg-muted text-muted-foreground",
+                    "border-rule mt-0.5 flex size-9 shrink-0 items-center justify-center border",
+                    session.current ? "border-accent text-accent" : "text-ink-faint",
                 )}
             >
-                <Icon className="size-4.5" />
+                <Icon className="size-4" />
             </span>
             <div className="min-w-0 flex-1">
                 <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
-                    <span className="truncate">
+                    <span className="break-words">
                         {session.browser} · {session.os}
                     </span>
                     {session.current && (
-                        <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="label text-accent flex items-center gap-1.5">
+                            <span className="tick" />
                             {t("thisDevice")}
                         </span>
                     )}
                 </p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
+                <p className="text-ink-faint mt-1 font-mono text-3xs uppercase">
                     {[session.ip && `IP ${session.ip}`, t(`method.${session.method}`), activity]
                         .filter(Boolean)
                         .join(" · ")}
                 </p>
-                <p className="text-muted-foreground/80 mt-0.5 text-xs">
+                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
                     {t("signedIn", { time: formatDateTime(session.createdAt, locale) })}
                 </p>
             </div>
@@ -169,8 +168,8 @@ export const AccountSessions = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-                    <MonitorSmartphone className="size-5" />
+                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                    <MonitorSmartphone className="size-4" />
                 </span>
             }
             title={t("title")}
@@ -180,19 +179,17 @@ export const AccountSessions = () => {
             note={t("note")}
         >
             {isLoading ? (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <div className="text-ink-faint flex items-center gap-2 text-sm">
                     <Loader2 className="size-4 animate-spin" />
                     {t("loading")}
                 </div>
             ) : isError ? (
-                <p className="text-sm text-rose-600 dark:text-rose-400">{t("loadFailed")}</p>
+                <p className="text-sm text-signal">{t("loadFailed")}</p>
             ) : (
                 <div className="flex flex-col gap-5">
                     <div className="flex flex-col gap-3">
-                        <p className="text-muted-foreground text-[0.7rem] font-semibold tracking-wide uppercase">
-                            {t("activeTitle")}
-                        </p>
-                        <ul className="divide-border/70 flex flex-col divide-y">
+                        <p className="label text-ink">{t("activeTitle")}</p>
+                        <ul className="border-rule-strong flex flex-col border-t">
                             {active.map((session) => (
                                 <SessionRow key={session.id} session={session} action={endButton(session)} />
                             ))}
@@ -215,7 +212,7 @@ export const AccountSessions = () => {
 
                     <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between gap-2">
-                            <p className="text-muted-foreground flex items-center gap-1.5 text-[0.7rem] font-semibold tracking-wide uppercase">
+                            <p className="label text-ink flex items-center gap-1.5">
                                 <History className="size-3.5" />
                                 {t("recentTitle")}
                             </p>
@@ -226,16 +223,16 @@ export const AccountSessions = () => {
                                     variant="ghost"
                                     disabled={busy}
                                     onClick={() => void clear()}
-                                    className="text-muted-foreground h-7"
+                                    className="text-ink-faint h-7"
                                 >
                                     {t("clearHistory")}
                                 </Button>
                             )}
                         </div>
                         {recent.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">{t("recentEmpty")}</p>
+                            <p className="text-ink-faint text-sm">{t("recentEmpty")}</p>
                         ) : (
-                            <ul className="divide-border/70 flex flex-col divide-y">
+                            <ul className="border-rule-strong flex flex-col border-t">
                                 {recent.map((session) => (
                                     <SessionRow
                                         key={session.id}
@@ -252,7 +249,7 @@ export const AccountSessions = () => {
                                                         .mutateAsync(session.id)
                                                         .catch(() => toast.error(t("requestFailed")))
                                                 }
-                                                className="text-muted-foreground hover:text-foreground size-8 shrink-0"
+                                                className="text-ink-faint hover:text-ink size-8 shrink-0"
                                             >
                                                 <X className="size-4" />
                                             </Button>

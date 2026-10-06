@@ -96,11 +96,9 @@ const Login = () => {
 
                 <div className="auth-delayed">
                     <div className="my-6 flex items-center gap-4">
-                        <span className="h-px flex-1 bg-black/10 dark:bg-white/15" />
-                        <span className="text-[0.7rem] tracking-[0.15em] uppercase text-black/40 dark:text-white/40">
-                            {tAuth("or")}
-                        </span>
-                        <span className="h-px flex-1 bg-black/10 dark:bg-white/15" />
+                        <span className="bg-rule h-px flex-1" />
+                        <span className="label">{tAuth("or")}</span>
+                        <span className="bg-rule h-px flex-1" />
                     </div>
 
                     <GoogleAuth rememberMe={rememberMe === true} />

@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Metadata, Viewport } from "next";
 
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { ProviderTheme } from "providers/theme";
 import { ToastProvider } from "providers/toast";
@@ -21,7 +21,7 @@ const plex = IBM_Plex_Sans({
     variable: "--font-plex",
 });
 const unbounded = Unbounded({ subsets: ["latin", "cyrillic"], variable: "--font-unbounded" });
-const martian = Martian_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-martian" });
+const martian = Martian_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-martian", adjustFontFallback: false });
 
 const description = "Personal Finance App";
 
@@ -59,7 +59,7 @@ const RootLayout = async ({
         <html lang={locale} suppressHydrationWarning>
             <body
                 className={twMerge(
-                    "bg-background text-foreground text-base font-normal antialiased",
+                    "bg-paper text-ink text-base font-normal antialiased",
                     `${plex.variable} ${unbounded.variable} ${martian.variable} font-sans`,
                 )}
             >

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ArrowDownRight, ArrowUpRight, Loader2, Tag } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 import { useSavingsGoalPrice } from "api/main";
 import { CURRENCY } from "constants/index";
@@ -33,7 +33,7 @@ export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
 
     if (isFetching && !data) {
         return (
-            <p className={twMerge("text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs", className)}>
+            <p className={twMerge("text-ink-faint mt-1.5 flex items-center gap-1.5 text-xs", className)}>
                 <Loader2 className="size-3 animate-spin" />
                 {t("priceChecking")}
             </p>
@@ -41,7 +41,7 @@ export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
     }
 
     if (isError || !data || data.price === null) {
-        return <p className={twMerge("text-muted-foreground mt-1.5 text-xs", className)}>{t("priceUnavailable")}</p>;
+        return <p className={twMerge("text-ink-faint mt-1.5 text-xs", className)}>{t("priceUnavailable")}</p>;
     }
 
     const siteCurrency = data.currency ? KNOWN_CURRENCIES[data.currency.toUpperCase()] : undefined;
@@ -59,11 +59,7 @@ export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
         <p
             className={twMerge(
                 "mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs",
-                isCheaper
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : isPricier
-                      ? "text-amber-600 dark:text-amber-400"
-                      : "text-muted-foreground",
+                isCheaper ? "text-accent " : isPricier ? "text-signal " : "text-ink-faint",
                 className,
             )}
         >

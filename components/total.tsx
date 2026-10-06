@@ -12,12 +12,28 @@ import { SetTotalDialog } from "./dialogs/set-new-total";
 import { getCurrencySymbol } from "lib/currency";
 import { ALL_CARDS, balanceForFilter, cardsForFilter, creditSummary, findCardById, resolveCardFilter } from "lib/cards";
 import { formatCurrency, formatSignedCurrency } from "lib/utils";
+import { twMerge } from "lib/tw";
 import { Hint } from "./hint";
 import { CardSwitcher } from "./cards/card-switcher";
 import { CardDialog } from "./cards/card-dialog";
 import { TransferDialog } from "./cards/transfer-dialog";
 import { useCardName } from "./cards/card-face";
 import { Button } from "./ui/button";
+
+const Fact = ({
+    label,
+    children,
+    className,
+}: {
+    label: React.ReactNode;
+    children: React.ReactNode;
+    className?: string;
+}) => (
+    <div className={twMerge("border-rule flex min-w-0 flex-col gap-1 border-l pl-3", className)}>
+        <dt className="label flex items-center gap-1">{label}</dt>
+        <dd className="font-mono text-xs tabular-nums">{children}</dd>
+    </div>
+);
 
 export const Total = () => {
     const t = useTranslations("total");
@@ -43,98 +59,97 @@ export const Total = () => {
               ? cardName(selectedCard)
               : t("currentBalance");
 
-    return (
-        <header
-            data-tour="balance"
-            className="border-border bg-card relative w-full scroll-mt-24 overflow-hidden rounded-2xl border p-5 shadow-sm sm:p-6"
-        >
-            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 flex-1">
-                    <div className="-my-1.5 flex min-h-8 items-center gap-1">
-                        <p className="text-muted-foreground truncate text-[0.7rem] font-medium tracking-[0.14em] uppercase">
-                            {label}
-                        </p>
-                        {selectedCard && <SetTotalDialog card={selectedCard} />}
-                        {selectedCard && (
-                            <CardDialog
-                                card={selectedCard}
-                                trigger={
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        aria-label={tCards("editTitle")}
-                                        className="text-muted-foreground hover:text-foreground size-8 shrink-0"
-                                    >
-                                        <Settings2 className="size-4" />
-                                    </Button>
-                                }
-                            />
-                        )}
-                    </div>
+    const showConverted = userCurrency === CURRENCY.UAH && converted !== null;
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <h1 className="text-[2.5rem] leading-none font-semibold tracking-tight tabular-nums sm:text-5xl">
+    return (
+        <section data-tour="balance" className="w-full scroll-mt-24">
+            <div className="border-rule-strong flex items-center justify-between gap-3 border-b pb-3">
+                <p className="label flex min-w-0 items-center gap-2">
+                    <span className="tick" />
+                    <span className="truncate">
+                        {t("currentBalance")} · <span className="text-ink">{label}</span>
+                    </span>
+                </p>
+                {selectedCard && (
+                    <div className="-my-1 flex shrink-0 items-center">
+                        <SetTotalDialog card={selectedCard} />
+                        <CardDialog
+                            card={selectedCard}
+                            trigger={
+                                <Button variant="ghost" size="icon-sm" aria-label={tCards("editTitle")}>
+                                    <Settings2 className="size-4" />
+                                </Button>
+                            }
+                        />
+                    </div>
+                )}
+            </div>
+
+            <div className="grid gap-6 pt-6 lg:grid-cols-12 lg:items-end lg:gap-10">
+                <div className="min-w-0 lg:col-span-8">
+                    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                        <h1 className={twMerge("figure text-hero min-w-0", balance < 0 && "text-signal")}>
                             <AnimatedMoney
                                 key={active}
                                 highlight
                                 value={balance}
                                 symbol={symbol}
-                                symbolClassName="text-muted-foreground font-normal"
+                                symbolClassName="text-ink-faint"
                                 format={formatSignedCurrency}
                             />
                         </h1>
-                        <AmountDelta key={active} value={balance} symbol={getCurrencySymbol(userCurrency)} />
+                        <AmountDelta key={active} value={balance} symbol={symbol} className="font-mono text-xs" />
                     </div>
 
-                    {userCurrency === CURRENCY.UAH && converted !== null && (
-                        <p className="text-muted-foreground mt-2 text-sm tabular-nums">
-                            <AnimatedMoney
-                                prefix="≈ "
-                                value={converted}
-                                symbol={getCurrencySymbol(conversionCurrency)}
-                            />
-                        </p>
-                    )}
-
-                    {credit.hasCredit && (
-                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm tabular-nums">
-                            <span>
-                                <span className="text-muted-foreground">{tCards("ownMoney")} </span>
-                                <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                                    {formatCurrency(credit.own)} {symbol}
-                                </span>
-                            </span>
-                            <span>
-                                <span className="text-muted-foreground">{tCards("creditDebt")} </span>
-                                <span
-                                    className={
-                                        credit.debt > 0 ? "font-medium text-rose-600 dark:text-rose-400" : "font-medium"
-                                    }
-                                >
-                                    {credit.debt > 0 ? formatSignedCurrency(-credit.debt) : formatCurrency(0)} {symbol}
-                                </span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <span className="text-muted-foreground">{tCards("creditLeft")} </span>
-                                <span className="font-medium">
-                                    {formatCurrency(credit.creditLeft)} {symbol}
-                                </span>
-                                <Hint text={tCards("creditSplitHint")} />
-                            </span>
-                        </div>
+                    {(showConverted || credit.hasCredit) && (
+                        <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+                            {showConverted && (
+                                <Fact label={t("approx")}>
+                                    <AnimatedMoney
+                                        value={converted ?? 0}
+                                        symbol={getCurrencySymbol(conversionCurrency)}
+                                    />
+                                </Fact>
+                            )}
+                            {credit.hasCredit && (
+                                <>
+                                    <Fact label={tCards("ownMoney")}>
+                                        {formatCurrency(credit.own)} {symbol}
+                                    </Fact>
+                                    <Fact label={tCards("creditDebt")}>
+                                        <span className={credit.debt > 0 ? "text-signal" : undefined}>
+                                            {credit.debt > 0 ? formatSignedCurrency(-credit.debt) : formatCurrency(0)}{" "}
+                                            {symbol}
+                                        </span>
+                                    </Fact>
+                                    <Fact
+                                        label={
+                                            <>
+                                                {tCards("creditLeft")}
+                                                <Hint text={tCards("creditSplitHint")} />
+                                            </>
+                                        }
+                                    >
+                                        {formatCurrency(credit.creditLeft)} {symbol}
+                                    </Fact>
+                                </>
+                            )}
+                        </dl>
                     )}
                 </div>
 
-                <div className="grid shrink-0 auto-cols-fr grid-flow-col gap-2 sm:flex" data-tour="actions">
+                <div data-tour="actions" className="grid grid-cols-2 gap-2 lg:col-span-4 lg:grid-cols-1">
                     <IncomeDialogComponent />
                     <ExpenseDialogComponent />
-                    <TransferDialog />
+                    <div className="col-span-2 lg:col-span-1 empty:hidden">
+                        <TransferDialog />
+                    </div>
                 </div>
             </div>
 
-            <div className="relative mt-5">
+            <div className="mt-8">
                 <CardSwitcher />
             </div>
-        </header>
+        </section>
     );
 };

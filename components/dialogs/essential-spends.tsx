@@ -21,7 +21,7 @@ import { Textarea } from "ui/textarea";
 import { Checkbox } from "components/ui/checkbox";
 import { Label } from "components/ui/label";
 import { useTranslations } from "next-intl";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { PencilIcon, XIcon } from "lucide-react";
@@ -41,9 +41,10 @@ const getEmptyEssentialValues = () => ({ amount: "", title: "" });
 
 type Props = {
     nextMonth?: boolean;
+    triggerLabel?: string;
 };
 
-export const EssentialSpends = ({ nextMonth }: Props) => {
+export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
     const store = useStore();
@@ -211,11 +212,12 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
             >
                 <Form {...form}>
                     <DialogTrigger asChild>
-                        <Button variant="secondary" className="h-fit">
-                            {nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title")}
+                        <Button variant="outline" size="sm">
+                            {triggerLabel ??
+                                (nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title"))}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle>{t("dialogs.essentials.title")}</DialogTitle>
                             <DialogDescription>{t("dialogs.essentials.hint")}</DialogDescription>
@@ -224,10 +226,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                             {arrayEssentials?.map((essential) => {
                                 const { id, title, amount, checked } = essential;
                                 return (
-                                    <li
-                                        className="border-border/70 bg-muted/25 flex items-center gap-3 rounded-xl border px-3 py-2.5"
-                                        key={id}
-                                    >
+                                    <li className="border-rule flex items-center gap-3 border-b py-2.5" key={id}>
                                         <Checkbox
                                             id={id}
                                             checked={checked}
@@ -248,7 +247,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                                             >
                                                 {title}
                                             </span>
-                                            <span className="text-muted-foreground mt-0.5 block text-xs tabular-nums">
+                                            <span className="text-ink-faint mt-0.5 block text-xs tabular-nums">
                                                 {checked ? (essential.paidAmount ?? amount) : amount}{" "}
                                                 {getCurrencySymbol(userCurrency)}
                                             </span>
@@ -259,7 +258,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                                                 disabled={apiPendings || checked}
                                                 onClick={() => startEditing(essential)}
                                                 variant="ghost"
-                                                className="text-muted-foreground hover:text-foreground size-8 rounded-lg p-0"
+                                                className="text-ink-faint hover:text-ink size-8 p-0"
                                                 aria-label={t("transactions.edit")}
                                             >
                                                 <PencilIcon className="size-3.5" />
@@ -269,7 +268,7 @@ export const EssentialSpends = ({ nextMonth }: Props) => {
                                                 disabled={apiPendings || checked}
                                                 onClick={() => removeEssential(id)}
                                                 variant="ghost"
-                                                className="text-muted-foreground hover:bg-red-500/10 hover:text-red-500 size-8 rounded-lg p-0"
+                                                className="text-ink-faint hover:bg-signal-wash hover:text-signal size-8 p-0"
                                             >
                                                 <XIcon className="size-3.5" />
                                             </Button>

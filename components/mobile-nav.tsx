@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type LucideIcon } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "lib/tw";
 
 export type NavItem = {
     href: string;
@@ -16,8 +16,8 @@ export const MobileNav = ({ items }: { items: NavItem[] }) => {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] sm:hidden">
-            <div className="mx-auto flex w-full max-w-md items-stretch justify-around gap-1 px-2 py-1.5">
+        <nav className="bg-paper border-rule-strong pb-safe fixed inset-x-0 bottom-0 z-40 border-t sm:hidden">
+            <div className="divide-rule flex w-full items-stretch divide-x">
                 {items.map(({ href, label, Icon, anchor }) => {
                     const active = pathname === href;
 
@@ -28,19 +28,15 @@ export const MobileNav = ({ items }: { items: NavItem[] }) => {
                             aria-current={active ? "page" : undefined}
                             data-tour={anchor}
                             className={twMerge(
-                                "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-2xl py-1 text-[0.66rem] font-medium transition-colors duration-200",
-                                active ? "text-indigo-600 dark:text-indigo-300" : "text-muted-foreground",
+                                "relative flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-1.5 transition-colors",
+                                active ? "text-ink" : "text-ink-faint",
                             )}
                         >
-                            <span
-                                className={twMerge(
-                                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-200",
-                                    active && "bg-indigo-500/12",
-                                )}
-                            >
-                                <Icon className="size-[1.1rem]" />
+                            {active && <span className="bg-accent absolute inset-x-0 -top-px h-0.5" />}
+                            <Icon className={twMerge("size-4", active && "text-accent")} strokeWidth={1.75} />
+                            <span className="w-full truncate px-1 text-center font-mono text-3xs tracking-wide uppercase">
+                                {label}
                             </span>
-                            <span className="w-full truncate text-center">{label}</span>
                         </Link>
                     );
                 })}

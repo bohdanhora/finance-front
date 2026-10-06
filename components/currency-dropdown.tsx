@@ -3,7 +3,6 @@
 import * as React from "react";
 import Cookies from "js-cookie";
 
-import { Button } from "components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -58,9 +57,9 @@ export const CurrencyDropdown = ({ rate = 0 }: CurrencyDropdownProps) => {
     return (
         <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    className="h-9 gap-1.5 rounded-xl px-2 data-[state=open]:bg-indigo-500/10"
+                <button
+                    type="button"
+                    className="hover:bg-wash data-[state=open]:bg-wash flex h-full items-center gap-1.5 px-2.5 font-mono text-2xs uppercase transition-colors"
                     aria-label={t("currency")}
                     title={
                         rate > 0
@@ -68,16 +67,14 @@ export const CurrencyDropdown = ({ rate = 0 }: CurrencyDropdownProps) => {
                             : t("currency")
                     }
                 >
-                    <span className="text-sm font-semibold">{getCurrencySymbol(selectedCurrency)}</span>
+                    <span className="text-accent">{getCurrencySymbol(selectedCurrency)}</span>
                     {rate > 0 && (
-                        <span className="hidden whitespace-nowrap text-xs font-medium tabular-nums min-[1280px]:inline">
-                            {formatCurrency(rate)}
-                        </span>
+                        <span className="hidden whitespace-nowrap tabular-nums md:inline">{formatCurrency(rate)}</span>
                     )}
-                    <ChevronDown className="text-muted-foreground size-3" />
-                </Button>
+                    <ChevronDown className="text-ink-faint size-3" />
+                </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={10} className="w-40 rounded-xl p-1.5">
+            <DropdownMenuContent align="end" sideOffset={10} className="w-44">
                 <DropdownMenuRadioGroup value={currency} onValueChange={changeCurrency}>
                     <DropdownMenuRadioItem value={CURRENCY.USD}>{t("usd")}</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value={CURRENCY.EUR}>{t("eur")}</DropdownMenuRadioItem>

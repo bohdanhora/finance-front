@@ -60,67 +60,43 @@ export const NavbarActionsMenu = ({ logoutPending, onLogout }: NavbarActionsMenu
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-xl data-[state=open]:bg-indigo-500/10 data-[state=open]:text-indigo-600 dark:data-[state=open]:text-indigo-300"
+                    className="data-[state=open]:bg-wash data-[state=open]:text-ink"
                     aria-label={t("menu")}
                     title={t("menu")}
                 >
-                    <MoreHorizontal />
+                    <MoreHorizontal className="size-4" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                sideOffset={10}
-                className="bg-popover text-popover-foreground w-56 rounded-2xl border-border/80 p-1.5 shadow-[0_20px_60px_-18px_rgba(0,0,0,0.55)]"
-            >
-                <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2 px-2.5 py-2 text-xs font-semibold uppercase tracking-[0.08em]">
+            <DropdownMenuContent align="end" sideOffset={10} className="w-60">
+                <DropdownMenuLabel className="flex items-center gap-2">
                     <Languages className="size-3.5" />
                     {t("lang")}
                 </DropdownMenuLabel>
                 <DropdownMenuRadioGroup value={language} onValueChange={changeLanguage}>
-                    <DropdownMenuRadioItem
-                        value="ru"
-                        className="rounded-xl focus:bg-indigo-500/10 dark:focus:bg-indigo-500/10"
-                    >
+                    <DropdownMenuRadioItem value="ru">
                         {t("ru")}
-                        <span className="text-muted-foreground ml-auto text-xs font-semibold">RU</span>
+                        <span className="text-ink-faint ml-auto font-mono text-2xs">RU</span>
                     </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem
-                        value="en"
-                        className="rounded-xl focus:bg-indigo-500/10 dark:focus:bg-indigo-500/10"
-                    >
+                    <DropdownMenuRadioItem value="en">
                         {t("en")}
-                        <span className="text-muted-foreground ml-auto text-xs font-semibold">EN</span>
+                        <span className="text-ink-faint ml-auto font-mono text-2xs">EN</span>
                     </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem
-                        value="ua"
-                        className="rounded-xl focus:bg-indigo-500/10 dark:focus:bg-indigo-500/10"
-                    >
+                    <DropdownMenuRadioItem value="ua">
                         {t("ua")}
-                        <span className="text-muted-foreground ml-auto text-xs font-semibold">UA</span>
+                        <span className="text-ink-faint ml-auto font-mono text-2xs">UA</span>
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
 
                 <DropdownMenuSeparator className="my-1.5" />
-                <DropdownMenuItem
-                    className="rounded-xl px-2.5 py-2"
-                    onSelect={() => router.push(Routes.SETTINGS)}
-                >
+                <DropdownMenuItem onSelect={() => router.push(Routes.SETTINGS)}>
                     <Settings2 />
                     {t("settings")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="rounded-xl px-2.5 py-2"
-                    onSelect={() => window.dispatchEvent(new Event(TOUR_START_EVENT))}
-                >
+                <DropdownMenuItem onSelect={() => window.dispatchEvent(new Event(TOUR_START_EVENT))}>
                     <HelpCircle />
                     {tTour("replay")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                    variant="destructive"
-                    disabled={logoutPending}
-                    className="rounded-xl px-2.5 py-2"
-                    onSelect={() => void onLogout()}
-                >
+                <DropdownMenuItem variant="destructive" disabled={logoutPending} onSelect={() => void onLogout()}>
                     <LogOut />
                     {t("logout")}
                 </DropdownMenuItem>
