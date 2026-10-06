@@ -13,9 +13,12 @@ export const TOUR_START_EVENT = "finance:start-tour";
 const STEPS = [
     { anchor: "balance", key: "balance" },
     { anchor: "actions", key: "actions" },
+    { anchor: "budget", key: "budget" },
     { anchor: "essentials", key: "essentials" },
     { anchor: "nextMonth", key: "nextMonth" },
+    { anchor: "history", key: "history" },
     { anchor: "statistics", key: "statistics" },
+    { anchor: "savings", key: "savings" },
     { anchor: "streak", key: "streak" },
 ] as const;
 
@@ -25,7 +28,7 @@ const PADDING = 8;
 const CARD_WIDTH = 320;
 const GAP = 14;
 const NARROW = 640;
-const TOP_SAFE = 76;
+const TOP_SAFE = 72;
 
 const viewportHeight = () => window.visualViewport?.height ?? window.innerHeight;
 const viewportWidth = () => window.visualViewport?.width ?? window.innerWidth;
@@ -237,7 +240,7 @@ export const OnboardingTour = () => {
 
     return (
         <div
-            className="fixed inset-0 z-[100] touch-manipulation"
+            className="fixed inset-0 z-50 touch-manipulation"
             style={{ pointerEvents: "auto" }}
             role="dialog"
             aria-modal="true"
@@ -250,57 +253,45 @@ export const OnboardingTour = () => {
             />
 
             <div
-                className="pointer-events-none absolute rounded-2xl ring-2 ring-indigo-400"
+                className="outline-accent pointer-events-none absolute outline-2 transition-all duration-300"
                 style={{
                     top: ringTop,
                     left: Math.max(4, rect.left - PADDING),
                     width: Math.min(rect.width + PADDING * 2, vw - 8),
                     height: ringHeight,
-                    boxShadow: "0 0 0 9999px rgba(0,0,0,0.68)",
+                    boxShadow: "0 0 0 9999px var(--scrim)",
                 }}
             />
 
-            <div
-                ref={cardRef}
-                className="border-border bg-card absolute rounded-2xl border p-5 shadow-2xl"
-                style={cardStyle}
-            >
+            <div ref={cardRef} className="bg-paper border-rule-strong absolute border p-5" style={cardStyle}>
                 <button
                     type="button"
                     onClick={finish}
                     aria-label={t("skip")}
-                    className="text-muted-foreground hover:text-foreground absolute top-1.5 right-1.5 flex size-11 cursor-pointer items-center justify-center rounded-xl transition-colors"
+                    className="text-ink-faint hover:text-ink absolute top-2 right-2 flex size-9 items-center justify-center transition-colors"
                 >
-                    <X size={18} />
+                    <X className="size-4" />
                 </button>
 
-                <p className="text-muted-foreground mb-1 text-[0.7rem] font-medium tracking-wide uppercase">
-                    {t("step", { current: index + 1, total: steps.length })}
+                <p className="label">
+                    <span className="text-accent">{String(index + 1).padStart(2, "0")}</span> /{" "}
+                    {String(steps.length).padStart(2, "0")}
                 </p>
-                <h3 className="pr-10 text-base font-semibold">{t(`steps.${current.key}.title`)}</h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{t(`steps.${current.key}.body`)}</p>
+                <h3 className="font-display mt-2 pr-10 text-lg leading-tight font-medium tracking-tight uppercase">
+                    {t(`steps.${current.key}.title`)}
+                </h3>
+                <p className="text-ink-muted mt-2 text-sm leading-relaxed">{t(`steps.${current.key}.body`)}</p>
 
-                <div className="mt-5 flex items-center justify-between gap-3">
-                    <div className="flex gap-1.5">
-                        {steps.map((step, i) => (
-                            <span
-                                key={step.anchor}
-                                className={
-                                    i === index
-                                        ? "h-1.5 w-5 rounded-full bg-indigo-500"
-                                        : "bg-muted-foreground/30 h-1.5 w-1.5 rounded-full"
-                                }
-                            />
-                        ))}
-                    </div>
+                <div className="mt-4 flex h-1 gap-0.5" aria-hidden="true">
+                    {steps.map((step, i) => (
+                        <span key={step.anchor} className={i <= index ? "bg-accent flex-1" : "bg-wash flex-1"} />
+                    ))}
+                </div>
 
+                <div className="mt-4 flex items-center justify-end gap-3">
                     <div className="flex gap-2">
                         {index > 0 && (
-                            <Button
-                                variant="secondary"
-                                className="min-h-11 px-4"
-                                onClick={() => setIndex((i) => i - 1)}
-                            >
+                            <Button variant="outline" className="min-h-11 px-4" onClick={() => setIndex((i) => i - 1)}>
                                 {t("back")}
                             </Button>
                         )}
@@ -313,7 +304,7 @@ export const OnboardingTour = () => {
                 <button
                     type="button"
                     onClick={finish}
-                    className="text-muted-foreground hover:text-foreground mt-3 w-full cursor-pointer py-2 text-xs underline underline-offset-4 sm:hidden"
+                    className="text-ink-faint hover:text-ink mt-3 w-full py-2 font-mono text-2xs uppercase sm:hidden"
                 >
                     {t("skip")}
                 </button>
