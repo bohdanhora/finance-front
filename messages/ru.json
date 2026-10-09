@@ -330,7 +330,24 @@
         "summary": "Итоги",
         "thisMonth": "Этот месяц",
         "allTime": "За всё время",
-        "noTransactionsHint": "Добавьте первый доход или расход, и появится статистика."
+        "noTransactionsHint": "Добавьте первый доход или расход, и появится статистика.",
+        "allMonths": "Все месяцы",
+        "month": "Месяц",
+        "sort": "Сортировка",
+        "resetFilters": "Сбросить",
+        "count": "{count, plural, one {# операция} few {# операции} many {# операций} other {# операции}}",
+        "types": {
+            "all": "Все",
+            "expense": "Расходы",
+            "income": "Доходы",
+            "transfer": "Переводы"
+        },
+        "sorts": {
+            "newest": "Сначала новые",
+            "oldest": "Сначала старые",
+            "largest": "Сначала крупные",
+            "smallest": "Сначала мелкие"
+        }
     },
     "statistics": {
         "title": "Статистика",

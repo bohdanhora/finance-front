@@ -7,12 +7,12 @@ import { createDateString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
 import useStore from "store/general";
 
-import { ArrowLeftRight, Download, Pencil, Search, Trash2, X } from "lucide-react";
+import { ArrowDownUp, ArrowLeftRight, CalendarDays, Download, Pencil, Search, Trash2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
 import { twMerge } from "lib/tw";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
 import { useClearData, useDeleteTransaction, useUpdateTransaction } from "api/main";
@@ -36,6 +36,21 @@ import { CategoryIcon } from "components/categories/category-icon";
 import { getCategoryLabel } from "constants/categories";
 import { cardIdOf, findCardById, isTransfer, transactionsForCard, transferDirection } from "lib/cards";
 import { CardSwatch, useCardName } from "components/cards/card-face";
+import { listMonths, toMonthKey } from "lib/statistics";
+import { formatMonthKey } from "lib/date-locale";
+
+const TYPE_FILTERS = ["all", TransactionEnum.EXPENSE, TransactionEnum.INCOME, TransactionEnum.TRANSFER] as const;
+const SORT_ORDERS = ["newest", "oldest", "largest", "smallest"] as const;
+
+type TypeFilter = (typeof TYPE_FILTERS)[number];
+type SortOrder = (typeof SORT_ORDERS)[number];
+
+const compareBy: Record<SortOrder, (a: TransactionType, b: TransactionType) => number> = {
+    newest: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    oldest: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    largest: (a, b) => b.value - a.value,
+    smallest: (a, b) => a.value - b.value,
+};
 
 export const LastSpends = () => {
     const store = useStore();
@@ -43,6 +58,7 @@ export const LastSpends = () => {
 
     const userId = Cookies.get("userId") || "";
 
+    const locale = useLocale();
     const t = useTranslations("transactions");
     const tCategory = useTranslations("categories");
     const tErr = useTranslations("errors");
@@ -52,6 +68,9 @@ export const LastSpends = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
+    const [selectedMonth, setSelectedMonth] = useState("all");
+    const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
     const [currentPage, setCurrentPage] = useState(1);
     const [clearTotalsChck, setClearTotalsChck] = useState<CheckedState>(false);
     const [clearDialogOpen, setClearDialogOpen] = useState(false);
@@ -78,27 +97,42 @@ export const LastSpends = () => {
         [cardName, store.cards],
     );
 
+    const months = useMemo(() => listMonths(cardTransactions), [cardTransactions]);
+
+    const scopedTransactions = useMemo(
+        () =>
+            cardTransactions.filter(
+                (tx) =>
+                    (selectedMonth === "all" || toMonthKey(tx.date) === selectedMonth) &&
+                    (typeFilter === "all" || tx.transactionType === typeFilter),
+            ),
+        [cardTransactions, selectedMonth, typeFilter],
+    );
+
     const filteredTransactions = useMemo(() => {
-        return cardTransactions.filter((tx: TransactionType) => {
-            if (isTransfer(tx)) {
-                const normalized = searchTerm.toLocaleLowerCase();
-                return (
-                    selectedCategory === "all" &&
-                    (tx.description.toLocaleLowerCase().includes(normalized) ||
-                        transferLabel(tx).toLocaleLowerCase().includes(normalized))
-                );
-            }
-            const matchesCategory = selectedCategory === "all" || tx.categorie === selectedCategory;
-            const normalizedSearch = searchTerm.toLocaleLowerCase();
-            const matchesSearch =
-                tx.description.toLocaleLowerCase().includes(normalizedSearch) ||
-                categoryLabel(tx.categorie).toLocaleLowerCase().includes(normalizedSearch);
-            return matchesCategory && matchesSearch;
-        });
-    }, [cardTransactions, categoryLabel, searchTerm, selectedCategory, transferLabel]);
+        const normalized = searchTerm.toLocaleLowerCase();
+        return scopedTransactions
+            .filter((tx: TransactionType) => {
+                if (isTransfer(tx)) {
+                    return (
+                        selectedCategory === "all" &&
+                        (tx.description.toLocaleLowerCase().includes(normalized) ||
+                            transferLabel(tx).toLocaleLowerCase().includes(normalized))
+                    );
+                }
+                const matchesCategory = selectedCategory === "all" || tx.categorie === selectedCategory;
+                const matchesSearch =
+                    tx.description.toLocaleLowerCase().includes(normalized) ||
+                    categoryLabel(tx.categorie).toLocaleLowerCase().includes(normalized);
+                return matchesCategory && matchesSearch;
+            })
+            .map((tx, index) => ({ tx, index }))
+            .sort((a, b) => compareBy[sortOrder](a.tx, b.tx) || a.index - b.index)
+            .map(({ tx }) => tx);
+    }, [categoryLabel, scopedTransactions, searchTerm, selectedCategory, sortOrder, transferLabel]);
 
     const uniqueCategories = [
-        ...new Set(cardTransactions.filter((tx) => !isTransfer(tx)).map((tx) => tx.categorie)),
+        ...new Set(scopedTransactions.filter((tx) => !isTransfer(tx)).map((tx) => tx.categorie)),
     ].sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b)));
     const essentialPaymentTransactionIds = useMemo(
         () =>
@@ -110,13 +144,21 @@ export const LastSpends = () => {
         [store.essentialsArray, store.nextMonthEssentialsArray],
     );
 
-    const totalForCategory = useMemo(() => {
-        if (selectedCategory === "all") return null;
+    const filtersActive =
+        selectedMonth !== "all" || typeFilter !== "all" || selectedCategory !== "all" || searchTerm !== "";
 
-        return cardTransactions
-            .filter((tx) => !isTransfer(tx) && tx.categorie === selectedCategory)
-            .reduce((acc, tx) => acc + tx.value, 0);
-    }, [cardTransactions, selectedCategory]);
+    const filteredTotals = useMemo(
+        () =>
+            filteredTransactions.reduce(
+                (acc, tx) => {
+                    if (tx.transactionType === TransactionEnum.INCOME) acc.income += tx.value;
+                    if (tx.transactionType === TransactionEnum.EXPENSE) acc.expense += tx.value;
+                    return acc;
+                },
+                { income: 0, expense: 0 },
+            ),
+        [filteredTransactions],
+    );
 
     const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
 
@@ -127,6 +169,32 @@ export const LastSpends = () => {
 
     const handleCategoryChange = (val: string) => {
         setSelectedCategory(val);
+        setCurrentPage(1);
+    };
+
+    const handleMonthChange = (val: string) => {
+        setSelectedMonth(val);
+        setSelectedCategory("all");
+        setCurrentPage(1);
+    };
+
+    const handleTypeChange = (val: TypeFilter) => {
+        setTypeFilter(val);
+        setSelectedCategory("all");
+        setCurrentPage(1);
+    };
+
+    const handleSortChange = (val: string) => {
+        setSortOrder(val as SortOrder);
+        setCurrentPage(1);
+    };
+
+    const resetFilters = () => {
+        setSearchTerm("");
+        setSelectedCategory("all");
+        setSelectedMonth("all");
+        setTypeFilter("all");
+        setSortOrder("newest");
         setCurrentPage(1);
     };
 
@@ -197,10 +265,15 @@ export const LastSpends = () => {
     }
 
     const symbol = getCurrencySymbol(userCurrency);
+    const groupByDay = sortOrder === "newest" || sortOrder === "oldest";
     const rows = paginatedTransactions.map((tx, index) => {
         const day = createDateString(new Date(tx.date));
         const previous = paginatedTransactions[index - 1];
-        return { tx, day, showDay: !previous || createDateString(new Date(previous.date)) !== day };
+        return {
+            tx,
+            day,
+            showDay: groupByDay && (!previous || createDateString(new Date(previous.date)) !== day),
+        };
     });
 
     return (
@@ -218,7 +291,11 @@ export const LastSpends = () => {
                     />
                 </div>
                 <div className="flex gap-2">
-                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                    <Select
+                        value={selectedCategory}
+                        onValueChange={handleCategoryChange}
+                        disabled={typeFilter === TransactionEnum.TRANSFER}
+                    >
                         <SelectTrigger className="min-w-0 flex-1 md:w-48 md:flex-none">
                             <SelectValue placeholder={t("allCategories")} />
                         </SelectTrigger>
@@ -286,16 +363,87 @@ export const LastSpends = () => {
                 </div>
             </div>
 
-            {totalForCategory !== null && (
-                <p className="border-rule mt-3 flex items-baseline justify-between gap-3 border-b pb-3">
-                    <span className="label">
-                        {t("total")} · {categoryLabel(selectedCategory)}
-                    </span>
-                    <span className="figure text-lg">
-                        {selectedCategory === TransactionEnum.INCOME ? "+" : "-"}
-                        {formatCurrency(totalForCategory)} <span className="text-ink-faint">{symbol}</span>
-                    </span>
-                </p>
+            <div className="mt-2 grid grid-cols-2 gap-2 md:flex md:items-center">
+                <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                    <SelectTrigger
+                        className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:w-52"
+                        aria-label={t("month")}
+                    >
+                        <CalendarDays className="size-3.5" />
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t("allMonths")}</SelectItem>
+                        {months.map((month) => (
+                            <SelectItem key={month} value={month}>
+                                {formatMonthKey(month, locale)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={sortOrder} onValueChange={handleSortChange}>
+                    <SelectTrigger
+                        className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:order-last md:w-52"
+                        aria-label={t("sort")}
+                    >
+                        <ArrowDownUp className="size-3.5" />
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {SORT_ORDERS.map((order) => (
+                            <SelectItem key={order} value={order}>
+                                {t(`sorts.${order}`)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <div
+                    role="radiogroup"
+                    className="border-rule bg-surface col-span-2 flex h-11 min-w-0 border sm:h-10 md:flex-1"
+                >
+                    {TYPE_FILTERS.map((type) => (
+                        <button
+                            key={type}
+                            type="button"
+                            role="radio"
+                            aria-checked={typeFilter === type}
+                            onClick={() => handleTypeChange(type)}
+                            className={twMerge(
+                                "border-rule text-ink-muted hover:text-ink min-w-0 flex-1 truncate border-l px-2 font-mono text-3xs tracking-wide uppercase transition-colors first:border-l-0",
+                                typeFilter === type && "bg-accent text-on-accent hover:text-on-accent",
+                            )}
+                        >
+                            {t(`types.${type}`)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {filtersActive && (
+                <div className="border-rule mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 border-b pb-3">
+                    <span className="label">{t("count", { count: filteredTransactions.length })}</span>
+                    {filteredTotals.income > 0 && (
+                        <span className="font-mono text-sm tabular-nums">
+                            <span className="label mr-2">{t("totalIncome")}</span>
+                            <span className="text-accent">+{formatCurrency(filteredTotals.income)}</span>{" "}
+                            <span className="text-ink-faint">{symbol}</span>
+                        </span>
+                    )}
+                    {filteredTotals.expense > 0 && (
+                        <span className="font-mono text-sm tabular-nums">
+                            <span className="label mr-2">{t("totalSpend")}</span>-
+                            {formatCurrency(filteredTotals.expense)} <span className="text-ink-faint">{symbol}</span>
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="label hover:text-accent ml-auto inline-flex items-center gap-1 transition-colors"
+                    >
+                        <X className="size-3" />
+                        {t("resetFilters")}
+                    </button>
+                </div>
             )}
 
             <ul className="mt-4">
@@ -351,6 +499,7 @@ export const LastSpends = () => {
                                             <span className="truncate">
                                                 {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
                                             </span>
+                                            {!groupByDay && <span className="shrink-0">· {day}</span>}
                                             {editable && (
                                                 <Pencil className="size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                                             )}

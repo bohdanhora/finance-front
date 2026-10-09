@@ -330,7 +330,24 @@
         "summary": "Summary",
         "thisMonth": "This month",
         "allTime": "All time",
-        "noTransactionsHint": "Add the first income or expense and the statistics will appear."
+        "noTransactionsHint": "Add the first income or expense and the statistics will appear.",
+        "allMonths": "All months",
+        "month": "Month",
+        "sort": "Sort",
+        "resetFilters": "Reset",
+        "count": "{count, plural, one {# operation} other {# operations}}",
+        "types": {
+            "all": "All",
+            "expense": "Expenses",
+            "income": "Income",
+            "transfer": "Transfers"
+        },
+        "sorts": {
+            "newest": "Newest first",
+            "oldest": "Oldest first",
+            "largest": "Largest first",
+            "smallest": "Smallest first"
+        }
     },
     "statistics": {
         "title": "Statistics",
