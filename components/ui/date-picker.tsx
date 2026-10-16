@@ -7,13 +7,14 @@ import { useLocale } from "next-intl";
 
 import { Button } from "components/ui/button";
 import { Calendar } from "components/ui/calendar";
+import { Input } from "components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { twMerge } from "lib/tw";
 
 const copy = {
-    en: { placeholder: "Choose a date", clear: "Clear", today: "Today" },
-    ru: { placeholder: "Выберите дату", clear: "Очистить", today: "Сегодня" },
-    ua: { placeholder: "Оберіть дату", clear: "Очистити", today: "Сьогодні" },
+    en: { placeholder: "Choose a date", clear: "Clear", today: "Today", time: "Time" },
+    ru: { placeholder: "Выберите дату", clear: "Очистить", today: "Сегодня", time: "Время" },
+    ua: { placeholder: "Оберіть дату", clear: "Очистити", today: "Сьогодні", time: "Час" },
 } as const;
 
 const parseDateValue = (value?: string) => {
@@ -160,17 +161,49 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(({ value
 
 DatePicker.displayName = "DatePicker";
 
+const toTimeValue = (date: Date) =>
+    `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+
 const DateObjectPicker = React.forwardRef<HTMLButtonElement, DateObjectPickerProps>(
-    ({ value, onChange, ...props }, ref) => (
-        <DatePickerShell
-            ref={ref}
-            selectedDate={value}
-            onSelectDate={(date) => {
-                if (date) onChange(date);
-            }}
-            {...props}
-        />
-    ),
+    ({ value, onChange, className, ...props }, ref) => {
+        const locale = useLocale() as keyof typeof copy;
+        const current = value ?? new Date();
+
+        const changeDay = (date?: Date) => {
+            if (!date) return;
+            const next = new Date(current);
+            next.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+            onChange(next);
+        };
+
+        const changeTime = (time: string) => {
+            const [hours, minutes] = time.split(":").map(Number);
+            if (Number.isNaN(hours) || Number.isNaN(minutes)) return;
+            const next = new Date(current);
+            next.setHours(hours, minutes);
+            onChange(next);
+        };
+
+        return (
+            <div className="flex gap-2">
+                <DatePickerShell
+                    ref={ref}
+                    selectedDate={value}
+                    onSelectDate={changeDay}
+                    className={twMerge("min-w-0 flex-1", className)}
+                    {...props}
+                />
+                <Input
+                    type="time"
+                    aria-label={(copy[locale] ?? copy.en).time}
+                    value={toTimeValue(current)}
+                    onChange={(event) => changeTime(event.target.value)}
+                    disabled={props.disabled}
+                    className="w-28 shrink-0 font-mono sm:h-10"
+                />
+            </div>
+        );
+    },
 );
 
 DateObjectPicker.displayName = "DateObjectPicker";

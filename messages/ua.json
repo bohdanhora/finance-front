@@ -94,6 +94,7 @@
         "amount": "Сума",
         "category": "Категорія",
         "date": "Дата",
+        "dateTime": "Дата і час",
         "description": "Опис",
         "savingsExpenseHint": "Ця сума також потрапить у заощадження.",
         "savingsCurrency": "Валюта заощаджень",

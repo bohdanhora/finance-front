@@ -3,7 +3,7 @@
 import { useCallback, useState, useMemo } from "react";
 
 import { TransactionType, UpdateTransactionPayload } from "types/transactions";
-import { createDateString, formatCurrency } from "lib/utils";
+import { createDateString, createTimeString, formatCurrency } from "lib/utils";
 import { TransactionEnum } from "constants/index";
 import useStore from "store/general";
 
@@ -127,7 +127,10 @@ export const LastSpends = () => {
                 return matchesCategory && matchesSearch;
             })
             .map((tx, index) => ({ tx, index }))
-            .sort((a, b) => compareBy[sortOrder](a.tx, b.tx) || a.index - b.index)
+            .sort(
+                (a, b) =>
+                    compareBy[sortOrder](a.tx, b.tx) || (sortOrder === "oldest" ? b.index - a.index : a.index - b.index),
+            )
             .map(({ tx }) => tx);
     }, [categoryLabel, scopedTransactions, searchTerm, selectedCategory, sortOrder, transferLabel]);
 
@@ -458,6 +461,7 @@ export const LastSpends = () => {
                         : income
                           ? "+"
                           : "-";
+                    const time = createTimeString(tx.date);
                     const cardSkin = findCardById(store.cards, transfer ? tx.cardId : cardIdOf(tx, store.cards))?.skin;
 
                     return (
@@ -499,7 +503,11 @@ export const LastSpends = () => {
                                             <span className="truncate">
                                                 {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
                                             </span>
-                                            {!groupByDay && <span className="shrink-0">· {day}</span>}
+                                            {(!groupByDay || time) && (
+                                                <span className="shrink-0 tabular-nums">
+                                                    · {[!groupByDay && day, time].filter(Boolean).join(" ")}
+                                                </span>
+                                            )}
                                             {editable && (
                                                 <Pencil className="size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                                             )}

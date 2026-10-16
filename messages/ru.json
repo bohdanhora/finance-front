@@ -94,6 +94,7 @@
         "amount": "Сумма",
         "category": "Категория",
         "date": "Дата",
+        "dateTime": "Дата и время",
         "description": "Описание",
         "savingsExpenseHint": "Эта сумма также попадёт в накопления.",
         "savingsCurrency": "Валюта накоплений",

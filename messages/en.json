@@ -94,6 +94,7 @@
         "amount": "Amount",
         "category": "Category",
         "date": "Date",
+        "dateTime": "Date and time",
         "description": "Description",
         "savingsExpenseHint": "This amount is also added to savings.",
         "savingsCurrency": "Savings currency",

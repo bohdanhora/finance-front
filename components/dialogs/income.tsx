@@ -156,7 +156,7 @@ export const IncomeDialogComponent = () => {
                             name="date"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>{t("dialogs.date")}</FormLabel>
+                                    <FormLabel>{t("dialogs.dateTime")}</FormLabel>
                                     <FormControl>
                                         <DateObjectPicker
                                             value={field.value}

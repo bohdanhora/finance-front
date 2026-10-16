@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeftRight, Loader2 } from "lucide-react";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
 
 import { useCardTransfer } from "api/cards";
@@ -19,6 +20,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "components/ui/dialog";
+import { DateObjectPicker } from "components/ui/date-picker";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { availableOnCard, defaultCardId, findCardById, isCreditCard } from "lib/cards";
@@ -28,6 +30,7 @@ import useStore from "store/general";
 
 export const TransferDialog = () => {
     const t = useTranslations("cards");
+    const tDialogs = useTranslations("dialogs");
     const cards = useStore((state) => state.cards);
     const selectedCardId = useStore((state) => state.selectedCardId);
     const symbol = getCurrencySymbol(useStore((state) => state.userCurrency));
@@ -39,6 +42,7 @@ export const TransferDialog = () => {
     const [to, setTo] = useState("");
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
+    const [date, setDate] = useState(() => new Date());
     const [error, setError] = useState<string | null>(null);
 
     if (cards.length < 2) return null;
@@ -53,6 +57,7 @@ export const TransferDialog = () => {
             setTo(cards.find((card) => card.id !== start)?.id ?? "");
             setAmount("");
             setDescription("");
+            setDate(new Date());
             setError(null);
         }
         setOpen(next);
@@ -86,6 +91,7 @@ export const TransferDialog = () => {
                 fromCardId: source.id,
                 toCardId: destination.id,
                 amount: value,
+                date: date.toISOString(),
                 description: description.trim() || undefined,
             });
             toast.success(
@@ -143,6 +149,18 @@ export const TransferDialog = () => {
                                 setAmount(value);
                                 setError(null);
                             })}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="transfer-date">{tDialogs("dateTime")}</Label>
+                        <DateObjectPicker
+                            id="transfer-date"
+                            value={date}
+                            onChange={setDate}
+                            disabledDates={(day) =>
+                                dayjs(day).isAfter(dayjs(), "day") || dayjs(day).isBefore(dayjs("1900-01-01"), "day")
+                            }
                         />
                     </div>
 

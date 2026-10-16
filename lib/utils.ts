@@ -17,6 +17,16 @@ export const createDateString = (input: string | Date): string => {
     return date.format("DD/MM/YYYY");
 };
 
+export const createTimeString = (input: string | Date): string | null => {
+    const date = dayjs(input);
+
+    if (!date.isValid() || date.valueOf() === date.startOf("day").valueOf()) {
+        return null;
+    }
+
+    return date.format("HH:mm");
+};
+
 export const findCurrency = (currency: MonobankCurrency[], isoCode: ISO4217Codes) => {
     if (!currency.length) return null;
 

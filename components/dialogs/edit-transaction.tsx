@@ -293,7 +293,7 @@ export const EditTransactionDialog = ({ transaction, open, onOpenChange, onSubmi
                             name="date"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>{t("dialogs.date")}</FormLabel>
+                                    <FormLabel>{t("dialogs.dateTime")}</FormLabel>
                                     <FormControl>
                                         <DateObjectPicker value={field.value} onChange={field.onChange} />
                                     </FormControl>
