@@ -164,10 +164,85 @@ DatePicker.displayName = "DatePicker";
 const toTimeValue = (date: Date) =>
     `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 
+const formatTimeDraft = (raw: string) => {
+    let digits = raw.replace(/\D/g, "");
+    if (digits.length > 0 && Number(digits[0]) > 2) digits = `0${digits}`;
+    if (digits.length > 1 && Number(digits.slice(0, 2)) > 23) digits = `0${digits}`;
+    if (digits.length > 2 && Number(digits[2]) > 5) digits = `${digits.slice(0, 2)}0${digits.slice(2)}`;
+    digits = digits.slice(0, 4);
+    return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+};
+
+const parseTimeValue = (value: string) => {
+    const match = /^(\d{2}):(\d{2})$/.exec(value);
+    if (!match) return undefined;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (hours > 23 || minutes > 59) return undefined;
+    return { hours, minutes };
+};
+
+const isValidDate = (date?: Date): date is Date => !!date && !Number.isNaN(date.getTime());
+
+type TimeInputProps = {
+    value: Date;
+    onChange: (value: Date) => void;
+    disabled?: boolean;
+    label: string;
+};
+
+const TimeInput = ({ value, onChange, disabled, label }: TimeInputProps) => {
+    const [draft, setDraft] = React.useState<string | null>(null);
+
+    const commit = (hours: number, minutes: number) => {
+        const next = new Date(value);
+        next.setHours(hours, minutes, 0, 0);
+        onChange(next);
+    };
+
+    const changeDraft = (raw: string) => {
+        const formatted = formatTimeDraft(raw);
+        setDraft(formatted);
+        const parsed = parseTimeValue(formatted);
+        if (parsed) commit(parsed.hours, parsed.minutes);
+    };
+
+    const step = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+        event.preventDefault();
+        const caret = event.currentTarget.selectionStart ?? 0;
+        const delta = event.key === "ArrowUp" ? 1 : -1;
+        const total = value.getHours() * 60 + value.getMinutes() + (caret < 3 ? delta * 60 : delta);
+        const wrapped = (total + 24 * 60) % (24 * 60);
+        setDraft(null);
+        commit(Math.floor(wrapped / 60), wrapped % 60);
+        const input = event.currentTarget;
+        requestAnimationFrame(() => input.setSelectionRange(caret, caret));
+    };
+
+    return (
+        <Input
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="00:00"
+            maxLength={5}
+            aria-label={label}
+            value={draft ?? toTimeValue(value)}
+            onChange={(event) => changeDraft(event.target.value)}
+            onKeyDown={step}
+            onFocus={(event) => event.currentTarget.select()}
+            onBlur={() => setDraft(null)}
+            disabled={disabled}
+            className="w-20 shrink-0 text-center font-mono sm:h-10"
+        />
+    );
+};
+
 const DateObjectPicker = React.forwardRef<HTMLButtonElement, DateObjectPickerProps>(
     ({ value, onChange, className, ...props }, ref) => {
         const locale = useLocale() as keyof typeof copy;
-        const current = value ?? new Date();
+        const current = isValidDate(value) ? value : new Date();
 
         const changeDay = (date?: Date) => {
             if (!date) return;
@@ -176,30 +251,20 @@ const DateObjectPicker = React.forwardRef<HTMLButtonElement, DateObjectPickerPro
             onChange(next);
         };
 
-        const changeTime = (time: string) => {
-            const [hours, minutes] = time.split(":").map(Number);
-            if (Number.isNaN(hours) || Number.isNaN(minutes)) return;
-            const next = new Date(current);
-            next.setHours(hours, minutes);
-            onChange(next);
-        };
-
         return (
             <div className="flex gap-2">
                 <DatePickerShell
                     ref={ref}
-                    selectedDate={value}
+                    selectedDate={isValidDate(value) ? value : undefined}
                     onSelectDate={changeDay}
                     className={twMerge("min-w-0 flex-1", className)}
                     {...props}
                 />
-                <Input
-                    type="time"
-                    aria-label={(copy[locale] ?? copy.en).time}
-                    value={toTimeValue(current)}
-                    onChange={(event) => changeTime(event.target.value)}
+                <TimeInput
+                    value={current}
+                    onChange={onChange}
                     disabled={props.disabled}
-                    className="w-28 shrink-0 font-mono sm:h-10"
+                    label={(copy[locale] ?? copy.en).time}
                 />
             </div>
         );
