@@ -8,6 +8,7 @@ import { twMerge } from "lib/tw";
 import { getCurrencySymbol } from "lib/currency";
 import { paydayStatus, summarizeExpectedIncomes } from "lib/month-plan";
 import { formatCurrency } from "lib/utils";
+import { isForeignIncome } from "lib/expected-income";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
@@ -95,12 +96,28 @@ export const ExpectedIncomeList = () => {
                                     )}
                                 >
                                     {item.received ? "" : "+"}
-                                    {formatCurrency(
-                                        item.received ? (item.receivedAmount ?? item.amount) : item.amount,
-                                    )}{" "}
-                                    {symbol}
+                                    {item.received
+                                        ? `${formatCurrency(item.receivedAmount ?? item.amount)} ${symbol}`
+                                        : isForeignIncome(item, store.userCurrency)
+                                          ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
+                                          : `${formatCurrency(item.amount)} ${symbol}`}
                                 </span>
+                                {!item.received && isForeignIncome(item, store.userCurrency) && (
+                                    <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                        ≈ {formatCurrency(item.amount)}{" "}
+                                        {symbol}
+                                    </span>
+                                )}
+                                {item.received && isForeignIncome(item, store.userCurrency) && (
+                                    <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                        {tPossible("plannedAmount", {
+                                            amount: formatCurrency(item.currencyAmount),
+                                            currency: getCurrencySymbol(item.currency),
+                                        })}
+                                    </span>
+                                )}
                                 {item.received &&
+                                    !isForeignIncome(item, store.userCurrency) &&
                                     item.receivedAmount !== undefined &&
                                     item.receivedAmount !== item.amount && (
                                         <span className="text-ink-faint block font-mono text-3xs tabular-nums">

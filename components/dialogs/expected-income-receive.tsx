@@ -7,7 +7,10 @@ import { toast } from "react-toastify";
 import { useSetExpectedIncomeReceived } from "api/main";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
-import { roundMoney, toMoneyInput } from "lib/money";
+import { roundMoney, roundRate, toMoneyInput, toRateInput } from "lib/money";
+import { currentIncomeAmount, isForeignIncome } from "lib/expected-income";
+import { getExchangeRate } from "lib/savings";
+import { useExchangeRates } from "hooks/use-exchange-rates";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
 import { Button } from "ui/button";
@@ -34,6 +37,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     const [cardId, setCardId] = useState("");
     const tCards = useTranslations("cards");
 
+    const rates = useExchangeRates();
     const isUndo = Boolean(income?.received);
     const symbol = getCurrencySymbol(store.userCurrency);
     const numericAmount = Number(actualAmount);
@@ -41,11 +45,12 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
 
     useEffect(() => {
         if (!open || !income) return;
-        setActualAmount(toMoneyInput(income.receivedAmount ?? income.amount));
+        const { userCurrency } = useStore.getState();
+        setActualAmount(toMoneyInput(income.receivedAmount ?? currentIncomeAmount(income, userCurrency, rates)));
         setAddToBalance(true);
         setError(null);
         setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
-    }, [income, open]);
+    }, [income, open, rates]);
 
     const submit = async () => {
         if (!income) return;
@@ -77,7 +82,12 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     if (!income) return null;
 
     const receivedAmount = income.receivedAmount ?? income.amount;
-    const difference = hasValidAmount ? roundMoney(numericAmount - income.amount) : 0;
+    const foreign = isForeignIncome(income, store.userCurrency);
+    const expectedAmount = currentIncomeAmount(income, store.userCurrency, rates);
+    const difference = hasValidAmount ? roundMoney(numericAmount - expectedAmount) : 0;
+    const marketRate = foreign ? getExchangeRate(income.currency!, store.userCurrency, rates) : null;
+    const actualRate = foreign && hasValidAmount ? roundRate(numericAmount / income.currencyAmount!) : null;
+    const foreignSymbol = foreign ? getCurrencySymbol(income.currency!) : "";
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
@@ -97,8 +107,19 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                     <div className="space-y-4">
                         <div className="border-rule flex items-center justify-between gap-4 border-y py-4">
                             <span className="text-ink-faint text-sm">{t("planned")}</span>
-                            <span className="font-semibold tabular-nums">
-                                {formatCurrency(income.amount)} {symbol}
+                            <span className="text-right">
+                                <span className="block font-semibold tabular-nums">
+                                    {foreign
+                                        ? `${formatCurrency(income.currencyAmount!)} ${foreignSymbol}`
+                                        : `${formatCurrency(income.amount)} ${symbol}`}
+                                </span>
+                                {foreign && (
+                                    <span className="text-ink-faint block font-mono text-2xs tabular-nums">
+                                        ≈ {formatCurrency(expectedAmount)} {symbol}
+                                        {marketRate !== null &&
+                                            ` · 1 ${foreignSymbol} = ${toRateInput(marketRate)} ${symbol}`}
+                                    </span>
+                                )}
                             </span>
                         </div>
 
@@ -110,7 +131,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     variant="ghost"
                                     className="h-auto px-2 py-1 text-xs"
                                     onClick={() => {
-                                        setActualAmount(toMoneyInput(income.amount));
+                                        setActualAmount(toMoneyInput(expectedAmount));
                                         setError(null);
                                     }}
                                 >
@@ -140,6 +161,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     {symbol}
                                 </span>
                             </div>
+                            {foreign && <p className="text-ink-faint text-xs">{t("foreignHint", { currency: symbol })}</p>}
                             {error && <p className="text-signal text-sm">{error}</p>}
                         </div>
 
@@ -166,6 +188,15 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
 
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
+                                {actualRate !== null && (
+                                    <p className="text-ink-muted tabular-nums">
+                                        {t("actualRate", {
+                                            from: foreignSymbol,
+                                            rate: toRateInput(actualRate),
+                                            currency: symbol,
+                                        })}
+                                    </p>
+                                )}
                                 {difference < 0 && (
                                     <p className="text-signal">
                                         {t("lessThanPlanned", {

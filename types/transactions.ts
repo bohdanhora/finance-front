@@ -165,6 +165,8 @@ export type ExpectedIncome = {
     amount: number;
     day: number;
     recurring: boolean;
+    currency?: CURRENCY;
+    currencyAmount?: number;
     received: boolean;
     receivedAmount?: number;
     receivedAt?: string;
@@ -178,7 +180,7 @@ export type MonthSnapshot = {
 };
 
 export type ExpectedIncomePayload = {
-    item: Pick<ExpectedIncome, "id" | "title" | "amount" | "day" | "recurring">;
+    item: Pick<ExpectedIncome, "id" | "title" | "amount" | "day" | "recurring" | "currency" | "currencyAmount">;
 };
 
 export type ExpectedIncomeListResponse = {

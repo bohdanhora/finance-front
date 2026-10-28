@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import useStore from "store/general";
 import { Button } from "ui/button";
 import {
@@ -18,24 +18,44 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
+import { PlusIcon, XIcon } from "lucide-react";
 
 import { useTranslations } from "next-intl";
-import { twMerge } from "lib/tw";
 import { useSetNextMonthTotalAmount } from "api/main";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { roundMoney } from "lib/money";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { changeNextMonthFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
-import { CURRENCY, currencyArray } from "constants/index";
-import useBankStore from "store/bank";
+import { CURRENCY } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
+import { convertToUserCurrency } from "lib/expected-income";
+import { useExchangeRates } from "hooks/use-exchange-rates";
+import { ViewSwitcher } from "components/charts/view-switcher";
+
+type FormValues = z.infer<ReturnType<typeof changeNextMonthFormSchema>>;
+type PaymentValues = FormValues["payments"][number];
+
+const getEmptyPayment = (currency: CURRENCY): PaymentValues => ({
+    mode: "fixed",
+    amount: "",
+    rate: "",
+    hours: "",
+    currency,
+});
+
+const paymentTotal = (payment: PaymentValues) =>
+    payment.mode === "rate"
+        ? (Number(payment.rate) || 0) * (Number(payment.hours) || 0)
+        : Number(payment.amount) || 0;
 
 export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string }) => {
     const store = useStore();
-    const bankStore = useBankStore();
+    const rates = useExchangeRates();
 
     const userCurrency = useStore((state) => state.userCurrency);
+    const symbol = getCurrencySymbol(userCurrency);
 
     const { mutateAsync: setNextMonthAmountAsync, isPending } = useSetNextMonthTotalAmount();
     const [open, setOpen] = useState(false);
@@ -43,60 +63,49 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
     const tGlobal = useTranslations();
     const t = useTranslations("dialogs");
 
-    const getEmptyValues = () => ({
-        rate: "",
-        hours: "",
-        amount: "",
-        currency: userCurrency === CURRENCY.UAH ? currencyArray[0] : currencyArray[1],
-    });
+    const getEmptyValues = (): FormValues => ({ payments: [getEmptyPayment(userCurrency)] });
 
     const validationMessages = useValidationMessages();
     const formSchema = useMemo(() => changeNextMonthFormSchema(validationMessages), [validationMessages]);
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: getEmptyValues(),
     });
 
-    const byRate = form.watch("rate") !== "" || form.watch("hours") !== "";
+    const { fields, append, remove } = useFieldArray({ control: form.control, name: "payments" });
+    const payments = useWatch({ control: form.control, name: "payments" }) ?? [];
+
+    const convertedTotals = payments.map((payment) =>
+        convertToUserCurrency(paymentTotal(payment), payment.currency, userCurrency, rates),
+    );
+    const conversionUnavailable = convertedTotals.some((value) => value === null);
+    const total = roundMoney(convertedTotals.reduce<number>((sum, value) => sum + (value ?? 0), 0));
 
     const handleOpenChange = (nextOpen: boolean) => {
         form.reset(getEmptyValues());
         setOpen(nextOpen);
     };
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        const usdRate = bankStore.usd?.rateBuy ?? 0;
-        const eurRate = bankStore.eur?.rateBuy ?? 0;
-
-        const convertToUah = (value: number, currency: string): number => {
-            switch (currency) {
-                case "$":
-                    return value * usdRate;
-                case "€":
-                    return value * eurRate;
-                default:
-                    return value;
-            }
-        };
-
-        const fromRate = values.rate !== "" ? Number(values.rate) * Number(values.hours) : 0;
-        const total = fromRate + (Number(values.amount) || 0);
-        const valueInUah = convertToUah(total, values.currency || currencyArray[0]);
+    const onSubmit = async () => {
+        if (conversionUnavailable) {
+            toast.error(t("conversionUnavailable"));
+            return;
+        }
 
         try {
-            store.setNextMonthTotalAmount(valueInUah);
+            store.setNextMonthTotalAmount(total);
 
             await setNextMonthAmountAsync({
-                nextMonthTotalAmount: valueInUah,
+                nextMonthTotalAmount: total,
             });
 
             handleOpenChange(false);
 
             toast.success(
                 tGlobal("toasts.nextMonthIcomeChanged", {
-                    amount: formatCurrency(valueInUah),
-                    currency: getCurrencySymbol(userCurrency),
+                    amount: formatCurrency(total),
+                    currency: symbol,
                 }),
             );
         } catch (error) {
@@ -104,6 +113,27 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
             toast.error(t("changeNextMonthIncomeError"));
         }
     };
+
+    const decimalField = (name: `payments.${number}.${"amount" | "rate" | "hours"}`, label: string) => (
+        <FormField
+            control={form.control}
+            name={name}
+            render={({ field }) => (
+                <FormItem className="min-w-0 flex-1">
+                    <FormLabel>{label}</FormLabel>
+                    <FormControl>
+                        <Input
+                            inputMode="decimal"
+                            placeholder="0"
+                            {...field}
+                            onChange={handleDecimalInputChange(field.onChange)}
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+    );
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -119,104 +149,119 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
                             <DialogTitle>{t("expectedIncome")}</DialogTitle>
                             <DialogDescription>{t("nextMonthIncomeHint")}</DialogDescription>
                         </DialogHeader>
-                        <div className="grid w-full grid-cols-2 gap-3">
-                            <FormField
-                                control={form.control}
-                                name="rate"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("rate")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder={t("optional")}
-                                                {...field}
-                                                onChange={handleDecimalInputChange(field.onChange)}
+
+                        <ul className="max-h-96 space-y-3 overflow-y-auto">
+                            {fields.map((item, index) => {
+                                const payment = payments[index] ?? item;
+                                const paymentSymbol = getCurrencySymbol(payment.currency);
+                                const subtotal = paymentTotal(payment);
+
+                                return (
+                                    <li key={item.id} className="border-rule space-y-3 border p-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-ink-faint font-mono text-2xs uppercase">
+                                                {t("paymentNumber", { number: index + 1 })}
+                                            </span>
+                                            <ViewSwitcher
+                                                className="ml-auto"
+                                                value={payment.mode}
+                                                onChange={(mode) =>
+                                                    form.setValue(`payments.${index}.mode`, mode, {
+                                                        shouldValidate: form.formState.isSubmitted,
+                                                    })
+                                                }
+                                                options={[
+                                                    { value: "fixed", label: t("fixed") },
+                                                    { value: "rate", label: t("byRate") },
+                                                ]}
                                             />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="hours"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("hours")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder={t("optional")}
-                                                {...field}
-                                                onChange={handleDecimalInputChange(field.onChange)}
+                                            {fields.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={() => remove(index)}
+                                                    className="text-ink-faint size-8 shrink-0 p-0 hover:bg-signal-wash hover:text-signal"
+                                                    aria-label={t("removePayment")}
+                                                >
+                                                    <XIcon className="size-3.5" />
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            {payment.mode === "rate" ? (
+                                                <>
+                                                    {decimalField(`payments.${index}.rate`, t("rate"))}
+                                                    {decimalField(`payments.${index}.hours`, t("hours"))}
+                                                </>
+                                            ) : (
+                                                decimalField(`payments.${index}.amount`, t("fixedAmount"))
+                                            )}
+                                            <FormField
+                                                control={form.control}
+                                                name={`payments.${index}.currency`}
+                                                render={({ field }) => (
+                                                    <FormItem className="w-20 shrink-0">
+                                                        <FormLabel>{t("currency")}</FormLabel>
+                                                        <Select onValueChange={field.onChange} value={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger
+                                                                    className="w-full"
+                                                                    aria-label={t("currency")}
+                                                                >
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {Object.values(CURRENCY).map((value) => (
+                                                                    <SelectItem value={value} key={value}>
+                                                                        {getCurrencySymbol(value)}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
                                             />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                        </div>
+
+                                        {subtotal > 0 && (payment.mode === "rate" || payment.currency !== userCurrency) && (
+                                            <p className="text-ink-faint font-mono text-2xs tabular-nums">
+                                                = {formatCurrency(subtotal)} {paymentSymbol}
+                                                {payment.currency !== userCurrency &&
+                                                    (convertedTotals[index] !== null
+                                                        ? ` ≈ ${formatCurrency(convertedTotals[index]!)} ${symbol}`
+                                                        : ` · ${t("rateUnavailable")}`)}
+                                            </p>
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => append(getEmptyPayment(userCurrency))}
+                        >
+                            <PlusIcon className="size-3.5" />
+                            {t("addPayment")}
+                        </Button>
+
+                        <div className="border-rule-strong flex items-baseline justify-between gap-4 border-t pt-4">
+                            <span className="text-ink-faint font-mono text-2xs uppercase">{t("total")}</span>
+                            <span className="font-display text-xl font-semibold tabular-nums">
+                                {formatCurrency(total)} {symbol}
+                            </span>
                         </div>
-                        <div className="flex w-full items-end gap-3 *:first:min-w-0 *:first:flex-1 *:last:w-24 *:last:shrink-0">
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem className={twMerge(userCurrency !== CURRENCY.UAH && "col-span-2")}>
-                                        <FormLabel>{byRate ? t("additionalAmount") : t("fixedAmount")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder={byRate ? t("optional") : t("inputIncome")}
-                                                className="w-full"
-                                                {...field}
-                                                onChange={handleDecimalInputChange(field.onChange)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            {userCurrency === CURRENCY.UAH && (
-                                <FormField
-                                    control={form.control}
-                                    name="currency"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t("currency")}</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder={t("currencyPlaceholder")} />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {currencyArray.map((item) => (
-                                                        <SelectItem
-                                                            value={item}
-                                                            key={item}
-                                                            className="flex items-center justify-between gap-x-7"
-                                                        >
-                                                            {item}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
-                        </div>
+
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button variant="secondary">{t("cancel")}</Button>
                             </DialogClose>
-                            <Button
-                                type="submit"
-                                disabled={isPending}
-                                className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
-                            >
+                            <Button type="submit" disabled={isPending || total <= 0}>
                                 {t("submit")}
                             </Button>
                         </DialogFooter>

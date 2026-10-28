@@ -28,25 +28,34 @@ export const changeDefaultFormSchema = (messages: ValidationMessages) =>
     });
 
 export const changeNextMonthFormSchema = (messages: ValidationMessages) =>
-    z
-        .object({
-            rate: z.string(),
-            hours: z.string(),
-            amount: z.string(),
-            currency: z.string().optional(),
-        })
-        .superRefine(({ rate, hours, amount }, ctx) => {
-            const byRate = rate !== "" || hours !== "";
+    z.object({
+        payments: z
+            .array(
+                z
+                    .object({
+                        mode: z.enum(["fixed", "rate"]),
+                        rate: z.string(),
+                        hours: z.string(),
+                        amount: z.string(),
+                        currency: z.nativeEnum(CURRENCY, messages.currency),
+                    })
+                    .superRefine(({ mode, rate, hours, amount }, ctx) => {
+                        if (mode === "rate") {
+                            if (!amountMorethanZero(rate))
+                                ctx.addIssue({ code: "custom", path: ["rate"], message: messages.rate });
+                            if (!amountMorethanZero(hours))
+                                ctx.addIssue({ code: "custom", path: ["hours"], message: messages.hours });
+                            return;
+                        }
 
-            if (byRate && !amountMorethanZero(rate))
-                ctx.addIssue({ code: "custom", path: ["rate"], message: messages.rate });
-            if (byRate && !amountMorethanZero(hours))
-                ctx.addIssue({ code: "custom", path: ["hours"], message: messages.hours });
-            if (!byRate && !amountMorethanZero(amount))
-                ctx.addIssue({ code: "custom", path: ["amount"], message: messages.amount });
-            if (amount !== "" && !amountRegex.test(amount))
-                ctx.addIssue({ code: "custom", path: ["amount"], message: messages.amountFormat });
-        });
+                        if (!amountMorethanZero(amount))
+                            ctx.addIssue({ code: "custom", path: ["amount"], message: messages.amount });
+                        else if (!amountRegex.test(amount))
+                            ctx.addIssue({ code: "custom", path: ["amount"], message: messages.amountFormat });
+                    }),
+            )
+            .min(1),
+    });
 
 export const setPercentageFormSchema = (messages: ValidationMessages) =>
     z.object({
@@ -70,6 +79,7 @@ export const expectedIncomeFormSchema = (messages: ValidationMessages) =>
         title: titleField(messages, 80),
         day: z.string().regex(/^([1-9]|[12]\d|3[01])$/, messages.day),
         recurring: z.boolean(),
+        currency: z.nativeEnum(CURRENCY, messages.currency),
     });
 
 export const incomeFormSchema = (messages: ValidationMessages) =>

@@ -109,7 +109,7 @@
         "createCategory": "Create “{name}” category",
         "noCategories": "No categories found",
         "expectedIncome": "Expected income",
-        "nextMonthIncomeHint": "Enter a fixed amount or a rate with hours. You can add an extra amount on top.",
+        "nextMonthIncomeHint": "Add every payment you expect. Each one is a fixed amount or a rate times hours, in its own currency.",
         "rate": "Rate",
         "hours": "Hours",
         "optional": "Optional",
@@ -186,7 +186,15 @@
             "description": "With UAH you also see amounts in USD or EUR. With another currency, amounts are shown only in it.",
             "important": "Important: Once you choose a currency, it can only be changed by resetting all your saved information.",
             "choose": "Choose"
-        }
+        },
+        "paymentNumber": "Payment {number}",
+        "fixed": "Fixed",
+        "byRate": "Rate",
+        "addPayment": "Add payment",
+        "removePayment": "Remove payment",
+        "total": "Total",
+        "rateUnavailable": "rate unavailable",
+        "conversionUnavailable": "The exchange rate is unavailable. Try again later."
     },
     "categories": {
         "groceries": "Groceries",
@@ -769,8 +777,14 @@
             "undoDescriptionNoBalance": "The income becomes expected again. The balance does not change.",
             "undoConfirm": "Undo receipt",
             "undoSuccess": "The income is expected again",
-            "cancel": "Cancel"
-        }
+            "cancel": "Cancel",
+            "foreignHint": "Enter how much arrived in {currency} after the exchange.",
+            "actualRate": "Actual rate: 1 {from} = {rate} {currency}"
+        },
+        "currencyLabel": "Currency",
+        "conversionUnavailable": "The exchange rate is unavailable. Try again later.",
+        "convertedPreview": "About {amount} {currency} at today's rate. You enter the exact amount when it arrives.",
+        "foreignHint": "Converted to {currency} at the current rate."
     },
     "monobank": {
         "title": "Monobank",

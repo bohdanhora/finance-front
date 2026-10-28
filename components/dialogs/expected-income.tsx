@@ -11,7 +11,10 @@ import { twMerge } from "lib/tw";
 import { v4 as uuidv4 } from "uuid";
 
 import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
+import { CURRENCY } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
+import { convertToUserCurrency, isForeignIncome } from "lib/expected-income";
+import { useExchangeRates } from "hooks/use-exchange-rates";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { expectedIncomeFormSchema } from "schemas/other";
@@ -32,11 +35,18 @@ import {
 } from "ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { Input } from "ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
 import { Hint } from "components/hint";
 
 type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
-const getEmptyValues = (): FormValues => ({ amount: "", title: "", day: "", recurring: true });
+const getEmptyValues = (currency: CURRENCY): FormValues => ({
+    amount: "",
+    title: "",
+    day: "",
+    recurring: true,
+    currency,
+});
 
 export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }) => {
     const t = useTranslations("expectedIncome");
@@ -49,28 +59,39 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     const pending = adding || updating || removing;
 
     const symbol = getCurrencySymbol(store.userCurrency);
+    const rates = useExchangeRates();
 
     const validationMessages = useValidationMessages();
     const formSchema = useMemo(() => expectedIncomeFormSchema(validationMessages), [validationMessages]);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: getEmptyValues(),
+        defaultValues: getEmptyValues(store.userCurrency),
     });
+
+    const currency = form.watch("currency");
+    const enteredAmount = Number(form.watch("amount")) || 0;
+    const isForeign = currency !== store.userCurrency;
+    const convertedPreview =
+        isForeign && enteredAmount > 0
+            ? convertToUserCurrency(enteredAmount, currency, store.userCurrency, rates)
+            : null;
 
     const resetForm = () => {
         setEditingId(null);
-        form.reset(getEmptyValues());
+        form.reset(getEmptyValues(store.userCurrency));
     };
 
     const startEditing = (income: ExpectedIncome) => {
         setEditingId(income.id);
+        const foreign = isForeignIncome(income, store.userCurrency);
         form.reset(
             {
-                amount: toMoneyInput(income.amount),
+                amount: toMoneyInput(foreign ? income.currencyAmount! : income.amount),
                 title: income.title,
                 day: String(income.day),
                 recurring: income.recurring,
+                currency: foreign ? income.currency! : store.userCurrency,
             },
             { keepDefaultValues: true },
         );
@@ -86,12 +107,23 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     };
 
     const onSubmit = async (values: FormValues) => {
+        const foreign = values.currency !== store.userCurrency;
+        const amount = foreign
+            ? convertToUserCurrency(Number(values.amount), values.currency, store.userCurrency, rates)
+            : Number(values.amount);
+
+        if (amount === null) {
+            form.setError("amount", { message: t("conversionUnavailable") });
+            return;
+        }
+
         const item = {
             id: editingId ?? uuidv4(),
             title: values.title.trim(),
-            amount: Number(values.amount),
+            amount,
             day: Number(values.day),
             recurring: values.recurring,
+            ...(foreign && { currency: values.currency, currencyAmount: Number(values.amount) }),
         };
 
         try {
@@ -132,6 +164,8 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-medium">{income.title}</p>
                                     <p className="text-ink-faint mt-0.5 text-xs tabular-nums">
+                                        {isForeignIncome(income, store.userCurrency) &&
+                                            `${formatCurrency(income.currencyAmount)} ${getCurrencySymbol(income.currency)} ≈ `}
                                         {formatCurrency(income.amount)} {symbol} · {t("onDay", { day: income.day })}
                                         {!income.recurring && ` · ${t("oneOff")}`}
                                     </p>
@@ -165,12 +199,12 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="flex gap-3 *:first:min-w-0 *:first:flex-1 *:last:w-28 *:last:shrink-0">
+                        <div className="flex gap-3">
                             <FormField
                                 control={form.control}
                                 name="amount"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="min-w-0 flex-1">
                                         <FormLabel>{t("amountLabel")}</FormLabel>
                                         <FormControl>
                                             <Input
@@ -186,9 +220,32 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                             />
                             <FormField
                                 control={form.control}
+                                name="currency"
+                                render={({ field }) => (
+                                    <FormItem className="w-20 shrink-0">
+                                        <FormLabel>{t("currencyLabel")}</FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full" aria-label={t("currencyLabel")}>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Object.values(CURRENCY).map((value) => (
+                                                    <SelectItem key={value} value={value}>
+                                                        {getCurrencySymbol(value)}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
                                 name="day"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="w-24 shrink-0">
                                         <FormLabel>{t("dayLabel")}</FormLabel>
                                         <FormControl>
                                             <Input
@@ -213,6 +270,13 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                 )}
                             />
                         </div>
+                        {isForeign && (
+                            <p className="text-ink-faint -mt-2 font-mono text-2xs tabular-nums">
+                                {convertedPreview !== null
+                                    ? t("convertedPreview", { amount: formatCurrency(convertedPreview), currency: symbol })
+                                    : t("foreignHint", { currency: symbol })}
+                            </p>
+                        )}
                         <FormField
                             control={form.control}
                             name="title"
