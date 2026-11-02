@@ -20,7 +20,13 @@
     },
     "calculator": {
         "title": "Calculator",
-        "close": "Close calculator"
+        "close": "Close calculator",
+        "history": "History",
+        "clearHistory": "Clear",
+        "emptyHistory": "No calculations yet",
+        "copy": "Copy",
+        "copied": "Copied",
+        "useResult": "Use this result"
     },
     "api": {
         "successLogin": "Signed in",

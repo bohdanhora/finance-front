@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { GripHorizontal, X } from "lucide-react";
+import { Check, Copy, GripHorizontal, History, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { twMerge } from "lib/tw";
 
@@ -10,8 +10,11 @@ export const CALCULATOR_TOGGLE_EVENT = "finance:toggle-calculator";
 
 type Operation = "+" | "−" | "×" | "÷";
 type Position = { x: number; y: number };
+type HistoryEntry = { id: string; expression: string; result: string };
 
 const POSITION_STORAGE_KEY = "finance-calculator-position";
+const HISTORY_STORAGE_KEY = "finance-calculator-history";
+const HISTORY_LIMIT = 20;
 const SCREEN_GAP = 16;
 
 const calculate = (left: number, right: number, operation: Operation) => {
@@ -46,6 +49,23 @@ const readSavedPosition = (): Position | null => {
     return null;
 };
 
+const readSavedHistory = (): HistoryEntry[] => {
+    try {
+        const parsed = JSON.parse(window.localStorage.getItem(HISTORY_STORAGE_KEY) ?? "[]") as unknown;
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+            .filter(
+                (entry): entry is HistoryEntry =>
+                    typeof entry?.id === "string" &&
+                    typeof entry?.expression === "string" &&
+                    typeof entry?.result === "string",
+            )
+            .slice(0, HISTORY_LIMIT);
+    } catch {
+        return [];
+    }
+};
+
 export const DesktopCalculator = () => {
     const t = useTranslations("calculator");
     const panelRef = React.useRef<HTMLDivElement>(null);
@@ -58,6 +78,11 @@ export const DesktopCalculator = () => {
     const [storedValue, setStoredValue] = React.useState<number | null>(null);
     const [operation, setOperation] = React.useState<Operation | null>(null);
     const [waitingForOperand, setWaitingForOperand] = React.useState(false);
+    const [history, setHistory] = React.useState<HistoryEntry[]>([]);
+    const [historyLoaded, setHistoryLoaded] = React.useState(false);
+    const [showHistory, setShowHistory] = React.useState(false);
+    const [copiedKey, setCopiedKey] = React.useState<string | null>(null);
+    const copiedTimerRef = React.useRef<number | null>(null);
 
     const clampPosition = React.useCallback((next: Position): Position => {
         const width = panelRef.current?.offsetWidth ?? 304;
@@ -71,6 +96,8 @@ export const DesktopCalculator = () => {
 
     React.useEffect(() => {
         setMounted(true);
+        setHistory(readSavedHistory());
+        setHistoryLoaded(true);
 
         const toggle = () => setOpen((current) => !current);
         window.addEventListener(CALCULATOR_TOGGLE_EVENT, toggle);
@@ -103,6 +130,55 @@ export const DesktopCalculator = () => {
         window.addEventListener("resize", keepOnScreen);
         return () => window.removeEventListener("resize", keepOnScreen);
     }, [clampPosition, open]);
+
+    React.useEffect(() => {
+        if (!historyLoaded) return;
+        try {
+            window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        } catch {}
+    }, [history, historyLoaded]);
+
+    React.useEffect(() => {
+        if (!open) return;
+        const frame = window.requestAnimationFrame(() =>
+            setPosition((current) => (current ? clampPosition(current) : current)),
+        );
+        return () => window.cancelAnimationFrame(frame);
+    }, [clampPosition, open, showHistory]);
+
+    React.useEffect(
+        () => () => {
+            if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
+        },
+        [],
+    );
+
+    const pushHistory = React.useCallback((left: number, right: number, operation: Operation, result: number) => {
+        if (!Number.isFinite(result)) return;
+        const entry: HistoryEntry = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            expression: `${formatResult(left)} ${operation} ${formatResult(right)}`,
+            result: formatResult(result),
+        };
+        setHistory((current) => [entry, ...current].slice(0, HISTORY_LIMIT));
+    }, []);
+
+    const copyValue = React.useCallback((value: string, key: string) => {
+        if (value === "Error" || !navigator.clipboard) return;
+        navigator.clipboard
+            .writeText(value)
+            .then(() => {
+                setCopiedKey(key);
+                if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
+                copiedTimerRef.current = window.setTimeout(() => setCopiedKey(null), 1200);
+            })
+            .catch(() => {});
+    }, []);
+
+    const applyHistoryResult = React.useCallback((value: string) => {
+        setDisplay(value);
+        setWaitingForOperand(false);
+    }, []);
 
     const clear = React.useCallback(() => {
         setDisplay("0");
@@ -145,6 +221,7 @@ export const DesktopCalculator = () => {
 
             if (operation && storedValue !== null && !waitingForOperand) {
                 const result = calculate(storedValue, inputValue, operation);
+                pushHistory(storedValue, inputValue, operation, result);
                 setDisplay(formatResult(result));
                 setStoredValue(result);
             } else if (storedValue === null) {
@@ -154,17 +231,19 @@ export const DesktopCalculator = () => {
             setOperation(nextOperation);
             setWaitingForOperand(true);
         },
-        [clear, display, operation, storedValue, waitingForOperand],
+        [clear, display, operation, pushHistory, storedValue, waitingForOperand],
     );
 
     const equals = React.useCallback(() => {
         if (!operation || storedValue === null || display === "Error") return;
-        const result = calculate(storedValue, Number(display), operation);
+        const inputValue = Number(display);
+        const result = calculate(storedValue, inputValue, operation);
+        pushHistory(storedValue, inputValue, operation, result);
         setDisplay(formatResult(result));
         setStoredValue(null);
         setOperation(null);
         setWaitingForOperand(true);
-    }, [display, operation, storedValue]);
+    }, [display, operation, pushHistory, storedValue]);
 
     const toggleSign = React.useCallback(() => {
         if (display === "0" || display === "Error") return;
@@ -190,6 +269,14 @@ export const DesktopCalculator = () => {
             const target = event.target as HTMLElement | null;
             if (target?.matches("input, textarea, select, [contenteditable='true']")) return;
 
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+                if (window.getSelection()?.toString()) return;
+                copyValue(display, "display");
+                event.preventDefault();
+                return;
+            }
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+
             if (/^\d$/.test(event.key)) inputDigit(event.key);
             else if (event.key === "." || event.key === ",") inputDecimal();
             else if (event.key === "+") chooseOperation("+");
@@ -207,7 +294,7 @@ export const DesktopCalculator = () => {
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [backspace, chooseOperation, equals, inputDecimal, inputDigit, open, percent]);
+    }, [backspace, chooseOperation, copyValue, display, equals, inputDecimal, inputDigit, open, percent]);
 
     const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
         if (!position || event.button !== 0) return;
@@ -262,21 +349,52 @@ export const DesktopCalculator = () => {
                     <GripHorizontal className="size-4" />
                     {t("title")}
                 </span>
-                <button
-                    type="button"
-                    className="text-ink-faint hover:text-ink flex size-7 items-center justify-center transition-colors"
-                    aria-label={t("close")}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    onClick={() => setOpen(false)}
-                >
-                    <X className="size-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                    <button
+                        type="button"
+                        className={twMerge(
+                            "text-ink-faint hover:text-ink flex size-7 items-center justify-center transition-colors",
+                            showHistory && "text-accent hover:text-accent",
+                        )}
+                        aria-label={t("history")}
+                        aria-pressed={showHistory}
+                        title={t("history")}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={() => setShowHistory((current) => !current)}
+                    >
+                        <History className="size-4" />
+                    </button>
+                    <button
+                        type="button"
+                        className="text-ink-faint hover:text-ink flex size-7 items-center justify-center transition-colors"
+                        aria-label={t("close")}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={() => setOpen(false)}
+                    >
+                        <X className="size-4" />
+                    </button>
+                </div>
             </div>
 
             <div className="flex min-h-24 flex-col items-end justify-end px-5 pt-4 pb-3">
-                <span className="text-ink-faint h-5 font-mono text-xs">
-                    {operation && storedValue !== null ? `${formatResult(storedValue)} ${operation}` : ""}
-                </span>
+                <div className="flex h-5 w-full items-center justify-between gap-3">
+                    <button
+                        type="button"
+                        className={twMerge(
+                            "text-ink-faint hover:text-ink -ml-1 flex items-center gap-1.5 px-1 font-mono text-xs transition-colors disabled:pointer-events-none disabled:opacity-40",
+                            copiedKey === "display" && "text-accent hover:text-accent",
+                        )}
+                        disabled={display === "Error"}
+                        title={t("copy")}
+                        onClick={() => copyValue(display, "display")}
+                    >
+                        {copiedKey === "display" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                        {copiedKey === "display" ? t("copied") : t("copy")}
+                    </button>
+                    <span className="text-ink-faint truncate font-mono text-xs">
+                        {operation && storedValue !== null ? `${formatResult(storedValue)} ${operation}` : ""}
+                    </span>
+                </div>
                 <output className="figure max-w-full overflow-hidden text-right text-4xl leading-tight text-ellipsis whitespace-nowrap">
                     {display}
                 </output>
@@ -372,6 +490,60 @@ export const DesktopCalculator = () => {
                     =
                 </button>
             </div>
+
+            {showHistory && (
+                <div className="border-rule-strong border-t">
+                    <div className="border-rule flex h-9 items-center justify-between border-b px-3">
+                        <span className="label">{t("history")}</span>
+                        <button
+                            type="button"
+                            className="text-ink-faint hover:text-ink flex items-center gap-1.5 font-mono text-xs transition-colors disabled:pointer-events-none disabled:opacity-40"
+                            disabled={history.length === 0}
+                            onClick={() => setHistory([])}
+                        >
+                            <Trash2 className="size-3.5" />
+                            {t("clearHistory")}
+                        </button>
+                    </div>
+                    {history.length === 0 ? (
+                        <p className="text-ink-faint px-3 py-4 text-center font-mono text-xs">{t("emptyHistory")}</p>
+                    ) : (
+                        <ul className="divide-rule max-h-56 divide-y overflow-y-auto">
+                            {history.map((entry) => (
+                                <li key={entry.id} className="flex items-stretch">
+                                    <button
+                                        type="button"
+                                        className="hover:bg-surface flex min-w-0 flex-1 flex-col items-end px-3 py-2 text-right transition-colors"
+                                        title={t("useResult")}
+                                        onClick={() => applyHistoryResult(entry.result)}
+                                    >
+                                        <span className="text-ink-faint w-full truncate font-mono text-xs">
+                                            {entry.expression} =
+                                        </span>
+                                        <span className="figure w-full truncate text-lg">{entry.result}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={twMerge(
+                                            "text-ink-faint hover:bg-surface hover:text-ink border-rule flex w-10 shrink-0 items-center justify-center border-l transition-colors",
+                                            copiedKey === entry.id && "text-accent hover:text-accent",
+                                        )}
+                                        aria-label={t("copy")}
+                                        title={t("copy")}
+                                        onClick={() => copyValue(entry.result, entry.id)}
+                                    >
+                                        {copiedKey === entry.id ? (
+                                            <Check className="size-4" />
+                                        ) : (
+                                            <Copy className="size-4" />
+                                        )}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
         </section>,
         document.body,
     );
