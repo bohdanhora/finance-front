@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatMonthKey } from "lib/date-locale";
 import { toMonthKey } from "lib/statistics";
 import { twMerge } from "lib/tw";
-import { formatCurrency } from "lib/utils";
+import { formatCurrency, formatSignedCurrency } from "lib/utils";
 import { AnimatedMoney } from "./animated-number";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
 import { Hint } from "components/hint";
@@ -101,7 +101,12 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
                 <div className="border-rule-strong flex items-baseline justify-between gap-4 border-b py-3">
                     <dt className="label text-ink">{t("free")}</dt>
                     <dd className={twMerge("figure text-figure", overspent && "text-signal")}>
-                        <AnimatedMoney value={free} symbol={symbol} symbolClassName="text-ink-faint" />
+                        <AnimatedMoney
+                            value={free}
+                            symbol={symbol}
+                            format={formatSignedCurrency}
+                            symbolClassName="text-ink-faint"
+                        />
                     </dd>
                 </div>
             </dl>

@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { calculateSavings } from "lib/utils";
+import { calculateSavings, formatSignedCurrency } from "lib/utils";
+import { roundMoney } from "lib/money";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
 import { EssentialSpends } from "./dialogs/essential-spends";
@@ -43,7 +44,8 @@ export const NextMonthIncome = () => {
 
         const total = store.nextMonthTotalAmount;
         const remaining = total - totalEssentials;
-        const { saved, remaining: savedAfter } = calculateSavings(remaining, percent);
+        const { saved } = calculateSavings(Math.max(remaining, 0), percent);
+        const savedAfter = roundMoney(remaining - saved);
 
         return {
             plan: { income: total, essentials: totalEssentials, saved, free: savedAfter },
@@ -58,10 +60,18 @@ export const NextMonthIncome = () => {
     const altSymbol = getCurrencySymbol(currency);
 
     const money = (value: number) => (
-        <AnimatedMoney value={value} symbol={userSymbol} symbolClassName="text-ink-faint" />
+        <AnimatedMoney
+            value={value}
+            symbol={userSymbol}
+            format={formatSignedCurrency}
+            symbolClassName="text-ink-faint"
+            className={value < 0 ? "text-signal" : undefined}
+        />
     );
     const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? <AnimatedMoney value={value} symbol={altSymbol} /> : undefined;
+        userCurrency === CURRENCY.UAH ? (
+            <AnimatedMoney value={value} symbol={altSymbol} format={formatSignedCurrency} />
+        ) : undefined;
 
     return (
         <Section
