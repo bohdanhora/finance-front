@@ -18,6 +18,24 @@
         "monobank": "Монобанк",
         "settings": "Настройки"
     },
+    "rowMenu": {
+        "edit": "Изменить",
+        "remove": "Удалить",
+        "copyAmount": "Копировать сумму",
+        "copied": "Сумма скопирована",
+        "markPaid": "Отметить оплату",
+        "undoPayment": "Отменить оплату",
+        "markReceived": "Отметить получение",
+        "undoReceived": "Отменить получение"
+    },
+    "listDialog": {
+        "items": "Список",
+        "empty": "Пока пусто",
+        "newItem": "Новая запись",
+        "editing": "Редактирование",
+        "edit": "Изменить",
+        "remove": "Удалить"
+    },
     "calculator": {
         "title": "Калькулятор",
         "close": "Закрыть калькулятор",
@@ -246,6 +264,9 @@
         "thisMonth": "Этот месяц",
         "nextMonth": "Следующий месяц",
         "essentialsProgress": "Платежи: оплачено {paid} из {total}",
+        "plannedPayments": "Запланировано платежей: {total}",
+        "plannedTotal": "Запланировано",
+        "payFromMonthStart": "Отметить оплату можно с начала месяца.",
         "stillToPay": "Осталось оплатить",
         "allPaid": "Всё оплачено",
         "noEssentials": "Платежей пока нет. Добавьте аренду, коммунальные и другие регулярные счета.",

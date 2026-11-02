@@ -1,13 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
-import { PencilIcon, XIcon } from "lucide-react";
-import { twMerge } from "lib/tw";
 import { v4 as uuidv4 } from "uuid";
 
 import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
@@ -37,6 +35,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
 import { Hint } from "components/hint";
+import { ListAction, subscribeListAction } from "lib/list-actions";
+import { FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 
 type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
@@ -50,7 +50,9 @@ const getEmptyValues = (currency: CURRENCY): FormValues => ({
 
 export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }) => {
     const t = useTranslations("expectedIncome");
+    const tl = useTranslations("listDialog");
     const store = useStore();
+    const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const { mutateAsync: addIncome, isPending: adding } = useAddExpectedIncome();
@@ -59,6 +61,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     const pending = adding || updating || removing;
 
     const symbol = getCurrencySymbol(store.userCurrency);
+    const listTotal = store.expectedIncomes.reduce((sum, { amount }) => sum + amount, 0);
     const rates = useExchangeRates();
 
     const validationMessages = useValidationMessages();
@@ -134,10 +137,26 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
         } catch {}
     };
 
+    const listActionRef = useRef<(action: ListAction, id: string) => void>(() => {});
+    listActionRef.current = (action, id) => {
+        const income = store.expectedIncomes.find((item) => item.id === id);
+        if (!income) return;
+        if (action === "remove") {
+            remove(id);
+            return;
+        }
+        setOpen(true);
+        startEditing(income);
+    };
+
+    useEffect(() => subscribeListAction("expectedIncome", (action, id) => listActionRef.current(action, id)), []);
+
     return (
         <Dialog
-            onOpenChange={(open) => {
-                if (!open) resetForm();
+            open={open}
+            onOpenChange={(nextOpen) => {
+                setOpen(nextOpen);
+                if (!nextOpen) resetForm();
             }}
         >
             <DialogTrigger asChild>
@@ -145,187 +164,175 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                     {triggerLabel ?? t("title")}
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="lg:max-w-dialog-wide">
                 <DialogHeader>
                     <DialogTitle>{t("title")}</DialogTitle>
                     <DialogDescription>{t("dialogDescription")}</DialogDescription>
                 </DialogHeader>
-
-                {store.expectedIncomes.length > 0 && (
-                    <ul className="max-h-52 space-y-2 overflow-y-auto pr-1">
+                <ListDialogBody>
+                    <ListPanel
+                        label={tl("items")}
+                        summary={
+                            store.expectedIncomes.length > 0 &&
+                            `${store.expectedIncomes.length} · ${formatCurrency(listTotal)} ${symbol}`
+                        }
+                        isEmpty={store.expectedIncomes.length === 0}
+                        empty={<p className="text-ink-faint text-sm">{tl("empty")}</p>}
+                    >
                         {store.expectedIncomes.map((income) => (
-                            <li
+                            <ListRow
                                 key={income.id}
-                                className={twMerge(
-                                    "border-rule flex items-center gap-3 border-b py-2.5",
-                                    editingId === income.id && "border-accent",
-                                )}
-                            >
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-medium">{income.title}</p>
-                                    <p className="text-ink-faint mt-0.5 text-xs tabular-nums">
-                                        {isForeignIncome(income, store.userCurrency) &&
-                                            `${formatCurrency(income.currencyAmount)} ${getCurrencySymbol(income.currency)} ≈ `}
-                                        {formatCurrency(income.amount)} {symbol} · {t("onDay", { day: income.day })}
-                                        {!income.recurring && ` · ${t("oneOff")}`}
-                                    </p>
-                                </div>
-                                <div className="flex shrink-0 items-center gap-1">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        disabled={pending || income.received}
-                                        onClick={() => startEditing(income)}
-                                        className="text-ink-faint hover:text-ink size-8 p-0"
-                                        aria-label={t("edit")}
-                                    >
-                                        <PencilIcon className="size-3.5" />
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        disabled={pending || income.received}
-                                        onClick={() => remove(income.id)}
-                                        className="text-ink-faint size-8 p-0 hover:bg-signal-wash hover:text-signal"
-                                        aria-label={t("remove")}
-                                    >
-                                        <XIcon className="size-3.5" />
-                                    </Button>
-                                </div>
-                            </li>
+                                title={income.title}
+                                meta={`${isForeignIncome(income, store.userCurrency) ? `${formatCurrency(income.currencyAmount)} ${getCurrencySymbol(income.currency)} ≈ ` : ""}${formatCurrency(income.amount)} ${symbol} · ${t("onDay", { day: income.day })}${income.recurring ? "" : ` · ${t("oneOff")}`}`}
+                                muted={income.received}
+                                copyValue={toMoneyInput(income.amount)}
+                                active={editingId === income.id}
+                                disabled={pending || income.received}
+                                editLabel={t("edit")}
+                                removeLabel={t("remove")}
+                                onEdit={() => startEditing(income)}
+                                onRemove={() => remove(income.id)}
+                            />
                         ))}
-                    </ul>
-                )}
-
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="flex gap-3">
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem className="min-w-0 flex-1">
-                                        <FormLabel>{t("amountLabel")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder="40000"
-                                                {...field}
-                                                onChange={handleDecimalInputChange(field.onChange)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                    </ListPanel>
+                    <FormPanel label={editingId ? tl("editing") : tl("newItem")}>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <div className="flex gap-3">
+                                    <FormField
+                                        control={form.control}
+                                        name="amount"
+                                        render={({ field }) => (
+                                            <FormItem className="min-w-0 flex-1">
+                                                <FormLabel>{t("amountLabel")}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        inputMode="decimal"
+                                                        placeholder="40000"
+                                                        {...field}
+                                                        onChange={handleDecimalInputChange(field.onChange)}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="currency"
+                                        render={({ field }) => (
+                                            <FormItem className="w-20 shrink-0">
+                                                <FormLabel>{t("currencyLabel")}</FormLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <FormControl>
+                                                        <SelectTrigger
+                                                            className="w-full"
+                                                            aria-label={t("currencyLabel")}
+                                                        >
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {Object.values(CURRENCY).map((value) => (
+                                                            <SelectItem key={value} value={value}>
+                                                                {getCurrencySymbol(value)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="day"
+                                        render={({ field }) => (
+                                            <FormItem className="w-24 shrink-0">
+                                                <FormLabel>{t("dayLabel")}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        inputMode="numeric"
+                                                        placeholder="15"
+                                                        {...field}
+                                                        onChange={(event) => {
+                                                            const value = event.target.value;
+                                                            if (
+                                                                value === "" ||
+                                                                (/^\d{1,2}$/.test(value) &&
+                                                                    Number(value) >= 1 &&
+                                                                    Number(value) <= 31)
+                                                            ) {
+                                                                field.onChange(value);
+                                                            }
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                {isForeign && (
+                                    <p className="text-ink-faint -mt-2 font-mono text-2xs tabular-nums">
+                                        {convertedPreview !== null
+                                            ? t("convertedPreview", {
+                                                  amount: formatCurrency(convertedPreview),
+                                                  currency: symbol,
+                                              })
+                                            : t("foreignHint", { currency: symbol })}
+                                    </p>
                                 )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="currency"
-                                render={({ field }) => (
-                                    <FormItem className="w-20 shrink-0">
-                                        <FormLabel>{t("currencyLabel")}</FormLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                <FormField
+                                    control={form.control}
+                                    name="title"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t("titleLabel")}</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger className="w-full" aria-label={t("currencyLabel")}>
-                                                    <SelectValue />
-                                                </SelectTrigger>
+                                                <Input placeholder={t("titlePlaceholder")} maxLength={80} {...field} />
                                             </FormControl>
-                                            <SelectContent>
-                                                {Object.values(CURRENCY).map((value) => (
-                                                    <SelectItem key={value} value={value}>
-                                                        {getCurrencySymbol(value)}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="day"
-                                render={({ field }) => (
-                                    <FormItem className="w-24 shrink-0">
-                                        <FormLabel>{t("dayLabel")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="numeric"
-                                                placeholder="15"
-                                                {...field}
-                                                onChange={(event) => {
-                                                    const value = event.target.value;
-                                                    if (
-                                                        value === "" ||
-                                                        (/^\d{1,2}$/.test(value) &&
-                                                            Number(value) >= 1 &&
-                                                            Number(value) <= 31)
-                                                    ) {
-                                                        field.onChange(value);
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        {isForeign && (
-                            <p className="text-ink-faint -mt-2 font-mono text-2xs tabular-nums">
-                                {convertedPreview !== null
-                                    ? t("convertedPreview", { amount: formatCurrency(convertedPreview), currency: symbol })
-                                    : t("foreignHint", { currency: symbol })}
-                            </p>
-                        )}
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("titleLabel")}</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder={t("titlePlaceholder")} maxLength={80} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="recurring"
-                            render={({ field }) => (
-                                <FormItem className="border-rule flex items-center gap-3 border p-3">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={(checked) => field.onChange(checked === true)}
-                                        />
-                                    </FormControl>
-                                    <FormLabel className="cursor-pointer font-sans text-sm tracking-normal normal-case text-ink">
-                                        {t("recurring")}
-                                    </FormLabel>
-                                    <Hint text={t("recurringHint")} />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            {editingId ? (
-                                <Button type="button" variant="secondary" onClick={resetForm}>
-                                    {t("cancel")}
-                                </Button>
-                            ) : (
-                                <DialogClose asChild>
-                                    <Button type="button" variant="secondary">
-                                        {t("cancel")}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="recurring"
+                                    render={({ field }) => (
+                                        <FormItem className="border-rule flex items-center gap-3 border p-3">
+                                            <FormControl>
+                                                <Checkbox
+                                                    checked={field.value}
+                                                    onCheckedChange={(checked) => field.onChange(checked === true)}
+                                                />
+                                            </FormControl>
+                                            <FormLabel className="cursor-pointer font-sans text-sm tracking-normal normal-case text-ink">
+                                                {t("recurring")}
+                                            </FormLabel>
+                                            <Hint text={t("recurringHint")} />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter>
+                                    {editingId ? (
+                                        <Button type="button" variant="secondary" onClick={resetForm}>
+                                            {t("cancel")}
+                                        </Button>
+                                    ) : (
+                                        <DialogClose asChild>
+                                            <Button type="button" variant="secondary">
+                                                {t("cancel")}
+                                            </Button>
+                                        </DialogClose>
+                                    )}
+                                    <Button type="submit" disabled={pending}>
+                                        {editingId ? t("save") : t("submit")}
                                     </Button>
-                                </DialogClose>
-                            )}
-                            <Button type="submit" disabled={pending}>
-                                {editingId ? t("save") : t("submit")}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </FormPanel>
+                </ListDialogBody>
             </DialogContent>
         </Dialog>
     );

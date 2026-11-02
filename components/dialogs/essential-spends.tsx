@@ -17,23 +17,21 @@ import { Input } from "ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
-import { Textarea } from "ui/textarea";
 import { Checkbox } from "components/ui/checkbox";
-import { Label } from "components/ui/label";
+import { FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 import { useTranslations } from "next-intl";
-import { twMerge } from "lib/tw";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
-import { PencilIcon, XIcon } from "lucide-react";
 import { useNewEssential, useRemoveEssential, useSetEssentialPayments, useUpdateEssential } from "api/main";
 import { v4 as uuidv4 } from "uuid";
-import { handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { essentialSpendsFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
+import { ListAction, subscribeListAction } from "lib/list-actions";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EssentialType } from "types/transactions";
 import { EssentialPaymentDialog } from "./essential-payment";
 
@@ -45,6 +43,7 @@ type Props = {
 };
 
 export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
+    const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
     const store = useStore();
@@ -61,6 +60,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
         essentialPaymentsPending || removeEssentialPending || newEssentialPending || updateEssentialPending;
 
     const arrayEssentials = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
+    const listTotal = arrayEssentials.reduce((sum, { amount }) => sum + amount, 0);
 
     const validationMessages = useValidationMessages();
     const formSchema = useMemo(() => essentialSpendsFormSchema(validationMessages), [validationMessages]);
@@ -201,13 +201,33 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
 
     const paymentType = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
 
+    const listActionRef = useRef<(action: ListAction, id: string) => void>(() => {});
+    listActionRef.current = (action, id) => {
+        const essential = arrayEssentials.find((item) => item.id === id);
+        if (!essential) return;
+        if (action === "remove") {
+            removeEssential(id);
+            return;
+        }
+        setOpen(true);
+        startEditing(essential);
+    };
+
+    useEffect(
+        () =>
+            subscribeListAction(nextMonth ? "nextMonthEssentials" : "essentials", (action, id) =>
+                listActionRef.current(action, id),
+            ),
+        [nextMonth],
+    );
+
     return (
         <>
             <Dialog
-                onOpenChange={(open) => {
-                    if (!open) {
-                        resetForm();
-                    }
+                open={open}
+                onOpenChange={(nextOpen) => {
+                    setOpen(nextOpen);
+                    if (!nextOpen) resetForm();
                 }}
             >
                 <Form {...form}>
@@ -217,125 +237,122 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                 (nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title"))}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="lg:max-w-dialog-wide">
                         <DialogHeader>
-                            <DialogTitle>{t("dialogs.essentials.title")}</DialogTitle>
+                            <DialogTitle>
+                                {nextMonth ? t("dialogs.essentials.nextMonth") : t("dialogs.essentials.title")}
+                            </DialogTitle>
                             <DialogDescription>{t("dialogs.essentials.hint")}</DialogDescription>
                         </DialogHeader>
-                        <ul className="max-h-52 space-y-2 overflow-y-auto pr-1">
-                            {arrayEssentials?.map((essential) => {
-                                const { id, title, amount, checked } = essential;
-                                return (
-                                    <li className="border-rule flex items-center gap-3 border-b py-2.5" key={id}>
-                                        <Checkbox
-                                            id={id}
-                                            checked={checked}
-                                            onCheckedChange={() => setSelectedEssential(essential)}
-                                        />
-                                        <Label
-                                            htmlFor={id}
-                                            className={twMerge(
-                                                "min-w-0 flex-1 cursor-pointer",
-                                                checked && "opacity-55",
-                                            )}
+                        <ListDialogBody>
+                            <ListPanel
+                                label={t("listDialog.items")}
+                                summary={
+                                    arrayEssentials.length > 0 &&
+                                    `${arrayEssentials.length} · ${formatCurrency(listTotal)} ${getCurrencySymbol(userCurrency)}`
+                                }
+                                isEmpty={arrayEssentials.length === 0}
+                                empty={
+                                    <>
+                                        <p className="text-ink-faint text-sm">{t("listDialog.empty")}</p>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={setDefaultsEssentials}
+                                            disabled={apiPendings}
                                         >
-                                            <span
-                                                className={twMerge(
-                                                    "block truncate text-sm font-medium",
-                                                    checked && "line-through",
-                                                )}
-                                            >
-                                                {title}
-                                            </span>
-                                            <span className="text-ink-faint mt-0.5 block text-xs tabular-nums">
-                                                {checked ? (essential.paidAmount ?? amount) : amount}{" "}
-                                                {getCurrencySymbol(userCurrency)}
-                                            </span>
-                                        </Label>
-                                        <div className="flex shrink-0 items-center gap-1">
-                                            <Button
-                                                type="button"
-                                                disabled={apiPendings || checked}
-                                                onClick={() => startEditing(essential)}
-                                                variant="ghost"
-                                                className="text-ink-faint hover:text-ink size-8 p-0"
-                                                aria-label={t("transactions.edit")}
-                                            >
-                                                <PencilIcon className="size-3.5" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                disabled={apiPendings || checked}
-                                                onClick={() => removeEssential(id)}
-                                                variant="ghost"
-                                                className="text-ink-faint hover:bg-signal-wash hover:text-signal size-8 p-0"
-                                            >
-                                                <XIcon className="size-3.5" />
-                                            </Button>
-                                        </div>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                        {arrayEssentials.length <= 0 && (
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={setDefaultsEssentials}
-                                disabled={apiPendings}
+                                            {t("dialogs.essentials.fillStandard")}
+                                        </Button>
+                                    </>
+                                }
                             >
-                                {t("dialogs.essentials.fillStandard")}
-                            </Button>
-                        )}
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("dialogs.amount")}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                inputMode="decimal"
-                                                placeholder={t("dialogs.amount")}
-                                                {...field}
-                                                onChange={handleDecimalInputChange(field.onChange)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="title"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("dialogs.essentials.label")}</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder={t("dialogs.essentials.placeholder")}
-                                                className="min-h-20 resize-none"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary">{t("dialogs.cancel")}</Button>
-                                </DialogClose>
-                                <Button
-                                    disabled={apiPendings}
-                                    type="submit"
-                                    className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
-                                >
-                                    {editingId ? t("dialogs.setTotal.save") : t("dialogs.submit")}
-                                </Button>
-                            </DialogFooter>
-                        </form>
+                                {arrayEssentials.map((essential) => {
+                                    const { id, title, amount, checked } = essential;
+                                    return (
+                                        <ListRow
+                                            key={id}
+                                            htmlFor={nextMonth && !checked ? undefined : id}
+                                            leading={
+                                                nextMonth && !checked ? undefined : (
+                                                    <Checkbox
+                                                        id={id}
+                                                        checked={checked}
+                                                        onCheckedChange={() => setSelectedEssential(essential)}
+                                                    />
+                                                )
+                                            }
+                                            title={title}
+                                            meta={`${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)}`}
+                                            muted={checked}
+                                            copyValue={toMoneyInput(
+                                                checked ? (essential.paidAmount ?? amount) : amount,
+                                            )}
+                                            active={editingId === id}
+                                            disabled={apiPendings || checked}
+                                            editLabel={t("listDialog.edit")}
+                                            removeLabel={t("listDialog.remove")}
+                                            onEdit={() => startEditing(essential)}
+                                            onRemove={() => removeEssential(id)}
+                                        />
+                                    );
+                                })}
+                            </ListPanel>
+                            <FormPanel label={editingId ? t("listDialog.editing") : t("listDialog.newItem")}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="title"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.essentials.label")}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder={t("dialogs.essentials.placeholder")}
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="amount"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t("dialogs.amount")}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        inputMode="decimal"
+                                                        placeholder="0.00"
+                                                        {...field}
+                                                        onChange={handleDecimalInputChange(field.onChange)}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <DialogFooter>
+                                        {editingId ? (
+                                            <Button type="button" variant="secondary" onClick={resetForm}>
+                                                {t("dialogs.cancel")}
+                                            </Button>
+                                        ) : (
+                                            <DialogClose asChild>
+                                                <Button type="button" variant="secondary">
+                                                    {t("dialogs.cancel")}
+                                                </Button>
+                                            </DialogClose>
+                                        )}
+                                        <Button disabled={apiPendings || !form.formState.isValid} type="submit">
+                                            {editingId ? t("dialogs.setTotal.save") : t("dialogs.submit")}
+                                        </Button>
+                                    </DialogFooter>
+                                </form>
+                            </FormPanel>
+                        </ListDialogBody>
                     </DialogContent>
                 </Form>
             </Dialog>

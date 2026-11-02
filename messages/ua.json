@@ -18,6 +18,24 @@
         "monobank": "Монобанк",
         "settings": "Налаштування"
     },
+    "rowMenu": {
+        "edit": "Змінити",
+        "remove": "Видалити",
+        "copyAmount": "Копіювати суму",
+        "copied": "Суму скопійовано",
+        "markPaid": "Позначити оплату",
+        "undoPayment": "Скасувати оплату",
+        "markReceived": "Позначити отримання",
+        "undoReceived": "Скасувати отримання"
+    },
+    "listDialog": {
+        "items": "Список",
+        "empty": "Поки порожньо",
+        "newItem": "Новий запис",
+        "editing": "Редагування",
+        "edit": "Змінити",
+        "remove": "Видалити"
+    },
     "calculator": {
         "title": "Калькулятор",
         "close": "Закрити калькулятор",
@@ -246,6 +264,9 @@
         "thisMonth": "Цей місяць",
         "nextMonth": "Наступний місяць",
         "essentialsProgress": "Платежі: сплачено {paid} з {total}",
+        "plannedPayments": "Заплановано платежів: {total}",
+        "plannedTotal": "Заплановано",
+        "payFromMonthStart": "Позначити оплату можна з початку місяця.",
         "stillToPay": "Залишилось сплатити",
         "allPaid": "Все сплачено",
         "noEssentials": "Платежів поки немає. Додайте оренду, комунальні та інші регулярні рахунки.",

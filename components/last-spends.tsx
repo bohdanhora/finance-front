@@ -30,6 +30,8 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
+import { RowMenu } from "./row-menu";
+import { toMoneyInput } from "lib/money";
 import { ExportReportDialog } from "./dialogs/export-report";
 import { getCurrencySymbol } from "lib/currency";
 import { CategoryIcon } from "components/categories/category-icon";
@@ -129,7 +131,8 @@ export const LastSpends = () => {
             .map((tx, index) => ({ tx, index }))
             .sort(
                 (a, b) =>
-                    compareBy[sortOrder](a.tx, b.tx) || (sortOrder === "oldest" ? b.index - a.index : a.index - b.index),
+                    compareBy[sortOrder](a.tx, b.tx) ||
+                    (sortOrder === "oldest" ? b.index - a.index : a.index - b.index),
             )
             .map(({ tx }) => tx);
     }, [categoryLabel, scopedTransactions, searchTerm, selectedCategory, sortOrder, transferLabel]);
@@ -467,76 +470,94 @@ export const LastSpends = () => {
                     return (
                         <li key={tx.id}>
                             {showDay && <p className="label border-rule-strong mt-5 border-b pb-1.5">{day}</p>}
-                            <div className="group border-rule hover:bg-surface flex items-center gap-2 border-b py-2.5 pl-1 transition-colors">
-                                <button
-                                    type="button"
-                                    disabled={!editable}
-                                    onClick={() => {
-                                        setEditingTx(tx);
-                                        setEditOpen(true);
-                                    }}
-                                    aria-label={editable ? t("edit") : undefined}
-                                    className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
-                                >
-                                    <span
-                                        className={twMerge(
-                                            "border-rule flex size-9 shrink-0 items-center justify-center border",
-                                            income && "border-accent text-accent",
-                                        )}
-                                    >
-                                        {transfer ? (
-                                            <ArrowLeftRight className="size-4" />
-                                        ) : (
-                                            <CategoryIcon category={tx.categorie} className="size-4" />
-                                        )}
-                                    </span>
-                                    <span className="min-w-0 flex-1">
-                                        <span className="block truncate text-sm">
-                                            {transfer
-                                                ? tx.description || transferLabel(tx)
-                                                : tx.description || categoryLabel(tx.categorie)}
-                                        </span>
-                                        <span className="text-ink-faint mt-0.5 flex min-w-0 items-center gap-1.5 font-mono text-3xs uppercase">
-                                            {(showCardColumn || transfer) && (
-                                                <CardSwatch skin={cardSkin} className="size-2" />
-                                            )}
-                                            <span className="truncate">
-                                                {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
-                                            </span>
-                                            {(!groupByDay || time) && (
-                                                <span className="shrink-0 tabular-nums">
-                                                    · {[!groupByDay && day, time].filter(Boolean).join(" ")}
-                                                </span>
-                                            )}
-                                            {editable && (
-                                                <Pencil className="size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
-                                            )}
-                                        </span>
-                                    </span>
-                                    <span
-                                        className={twMerge(
-                                            "shrink-0 text-right font-mono text-sm tabular-nums",
-                                            income && "text-accent",
-                                            transfer && "text-ink-muted",
-                                        )}
-                                    >
-                                        {sign}
-                                        {formatCurrency(tx.value)} <span className="text-ink-faint">{symbol}</span>
-                                    </span>
-                                </button>
-                                {deletable ? (
+                            <RowMenu
+                                title={
+                                    transfer
+                                        ? tx.description || transferLabel(tx)
+                                        : tx.description || categoryLabel(tx.categorie)
+                                }
+                                onEdit={
+                                    editable
+                                        ? () => {
+                                              setEditingTx(tx);
+                                              setEditOpen(true);
+                                          }
+                                        : undefined
+                                }
+                                onRemove={deletable ? () => handleDeleteTransaction(tx.id) : undefined}
+                                copyValue={toMoneyInput(tx.value)}
+                            >
+                                <div className="group border-rule hover:bg-surface data-[state=open]:bg-surface flex items-center gap-2 border-b py-2.5 pl-1 transition-colors">
                                     <button
                                         type="button"
-                                        onClick={() => handleDeleteTransaction(tx.id)}
-                                        aria-label={t("delete")}
-                                        className="text-ink-faint hover:bg-signal-wash hover:text-signal inline-flex size-9 shrink-0 items-center justify-center transition-colors md:size-8 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                                        disabled={!editable}
+                                        onClick={() => {
+                                            setEditingTx(tx);
+                                            setEditOpen(true);
+                                        }}
+                                        aria-label={editable ? t("edit") : undefined}
+                                        className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
                                     >
-                                        <X className="size-3.5" />
+                                        <span
+                                            className={twMerge(
+                                                "border-rule flex size-9 shrink-0 items-center justify-center border",
+                                                income && "border-accent text-accent",
+                                            )}
+                                        >
+                                            {transfer ? (
+                                                <ArrowLeftRight className="size-4" />
+                                            ) : (
+                                                <CategoryIcon category={tx.categorie} className="size-4" />
+                                            )}
+                                        </span>
+                                        <span className="min-w-0 flex-1">
+                                            <span className="block truncate text-sm">
+                                                {transfer
+                                                    ? tx.description || transferLabel(tx)
+                                                    : tx.description || categoryLabel(tx.categorie)}
+                                            </span>
+                                            <span className="text-ink-faint mt-0.5 flex min-w-0 items-center gap-1.5 font-mono text-3xs uppercase">
+                                                {(showCardColumn || transfer) && (
+                                                    <CardSwatch skin={cardSkin} className="size-2" />
+                                                )}
+                                                <span className="truncate">
+                                                    {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
+                                                </span>
+                                                {(!groupByDay || time) && (
+                                                    <span className="shrink-0 tabular-nums">
+                                                        · {[!groupByDay && day, time].filter(Boolean).join(" ")}
+                                                    </span>
+                                                )}
+                                                {editable && (
+                                                    <Pencil className="size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+                                                )}
+                                            </span>
+                                        </span>
+                                        <span
+                                            className={twMerge(
+                                                "shrink-0 text-right font-mono text-sm tabular-nums",
+                                                income && "text-accent",
+                                                transfer && "text-ink-muted",
+                                            )}
+                                        >
+                                            {sign}
+                                            {formatCurrency(tx.value)} <span className="text-ink-faint">{symbol}</span>
+                                        </span>
                                     </button>
-                                ) : (
-                                    <span className="size-9 shrink-0 md:size-8" />
-                                )}
-                            </div>
+                                    {deletable ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteTransaction(tx.id)}
+                                            aria-label={t("delete")}
+                                            className="text-ink-faint hover:bg-signal-wash hover:text-signal inline-flex size-9 shrink-0 items-center justify-center transition-colors md:size-8 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                                        >
+                                            <X className="size-3.5" />
+                                        </button>
+                                    ) : (
+                                        <span className="size-9 shrink-0 md:size-8" />
+                                    )}
+                                </div>
+                            </RowMenu>
                         </li>
                     );
                 })}

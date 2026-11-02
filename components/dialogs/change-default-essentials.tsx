@@ -18,14 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
-import { twMerge } from "lib/tw";
 import { useNewEssential, useRemoveEssential, useUpdateEssential } from "api/main";
-import { Textarea } from "components/ui/textarea";
-import { PencilIcon, XIcon } from "lucide-react";
+import { FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
-import { handleDecimalInputChange } from "lib/utils";
+import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { changeDefaultFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
@@ -42,6 +40,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     const userCurrency = store.userCurrency;
 
     const arrayEssentials = store.defaultEssentialsArray;
+    const listTotal = arrayEssentials.reduce((sum, { amount }) => sum + amount, 0);
 
     const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } = useNewEssential();
 
@@ -51,6 +50,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     const pendings = removeEssentialPending || newEssentialPending || updateEssentialPending;
 
     const t = useTranslations("dialogs");
+    const tl = useTranslations("listDialog");
 
     const validationMessages = useValidationMessages();
     const formSchema = useMemo(() => changeDefaultFormSchema(validationMessages), [validationMessages]);
@@ -145,95 +145,88 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                         {triggerLabel ?? t("essentials.standardPaymentsTitle")}
                     </Button>
                 </DialogTrigger>
-                <DialogContent>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                        <DialogHeader>
-                            <DialogTitle>{t("essentials.standardPaymentsTitle")}</DialogTitle>
-                            <DialogDescription>{t("essentials.standardPaymentsSubtitle")}</DialogDescription>
-                        </DialogHeader>
-                        <ul className="max-h-48 space-y-2 overflow-y-auto pr-1">
-                            {arrayEssentials?.map(({ id, title, amount }) => {
-                                return (
-                                    <li className="border-rule flex items-center gap-3 border-b py-2.5" key={id}>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-medium">{title}</p>
-                                            <p className="text-ink-faint mt-0.5 text-xs tabular-nums">
-                                                {amount} {getCurrencySymbol(userCurrency)}
-                                            </p>
-                                        </div>
-                                        <div className="flex shrink-0 items-center gap-1">
-                                            <Button
-                                                type="button"
-                                                disabled={pendings}
-                                                onClick={() => startEditing({ id, title, amount, checked: false })}
-                                                variant="ghost"
-                                                className="text-ink-faint hover:text-ink size-8 p-0"
-                                                aria-label={t("change")}
-                                            >
-                                                <PencilIcon className="size-3.5" />
+                <DialogContent className="lg:max-w-dialog-wide">
+                    <DialogHeader>
+                        <DialogTitle>{t("essentials.standardPaymentsTitle")}</DialogTitle>
+                        <DialogDescription>{t("essentials.standardPaymentsSubtitle")}</DialogDescription>
+                    </DialogHeader>
+                    <ListDialogBody>
+                        <ListPanel
+                            label={tl("items")}
+                            summary={
+                                arrayEssentials.length > 0 &&
+                                `${arrayEssentials.length} · ${formatCurrency(listTotal)} ${getCurrencySymbol(userCurrency)}`
+                            }
+                            isEmpty={arrayEssentials.length === 0}
+                            empty={<p className="text-ink-faint text-sm">{tl("empty")}</p>}
+                        >
+                            {arrayEssentials.map(({ id, title, amount }) => (
+                                <ListRow
+                                    key={id}
+                                    title={title}
+                                    meta={`${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)}`}
+                                    active={editingId === id}
+                                    copyValue={toMoneyInput(amount)}
+                                    disabled={pendings}
+                                    editLabel={tl("edit")}
+                                    removeLabel={tl("remove")}
+                                    onEdit={() => startEditing({ id, title, amount, checked: false })}
+                                    onRemove={() => removeEssential(id)}
+                                />
+                            ))}
+                        </ListPanel>
+                        <FormPanel label={editingId ? tl("editing") : tl("newItem")}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="title"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t("essentials.label")}</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder={t("essentials.placeholder")} {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="amount"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t("amount")}</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    inputMode="decimal"
+                                                    placeholder="0.00"
+                                                    {...field}
+                                                    onChange={handleDecimalInputChange(field.onChange)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter>
+                                    {editingId ? (
+                                        <Button type="button" variant="secondary" onClick={resetForm}>
+                                            {t("cancel")}
+                                        </Button>
+                                    ) : (
+                                        <DialogClose asChild>
+                                            <Button type="button" variant="secondary">
+                                                {t("cancel")}
                                             </Button>
-                                            <Button
-                                                type="button"
-                                                disabled={pendings}
-                                                onClick={() => removeEssential(id)}
-                                                variant="ghost"
-                                                className="text-ink-faint hover:bg-signal-wash hover:text-signal size-8 p-0"
-                                            >
-                                                <XIcon className="size-3.5" />
-                                            </Button>
-                                        </div>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                        <FormField
-                            control={form.control}
-                            name="amount"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("amount")}</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            inputMode="decimal"
-                                            placeholder={t("amount")}
-                                            {...field}
-                                            onChange={handleDecimalInputChange(field.onChange)}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t("essentials.label")}</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder={t("essentials.placeholder")}
-                                            className="min-h-20 resize-none"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="secondary">{t("cancel")}</Button>
-                            </DialogClose>
-                            <Button
-                                disabled={pendings}
-                                type="submit"
-                                className={twMerge(!form.formState.isValid && "opacity-10 pointer-events-none")}
-                            >
-                                {editingId ? t("setTotal.save") : t("essentials.add")}
-                            </Button>
-                        </DialogFooter>
-                    </form>
+                                        </DialogClose>
+                                    )}
+                                    <Button disabled={pendings || !form.formState.isValid} type="submit">
+                                        {editingId ? t("setTotal.save") : t("essentials.add")}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </FormPanel>
+                    </ListDialogBody>
                 </DialogContent>
             </Form>
         </Dialog>

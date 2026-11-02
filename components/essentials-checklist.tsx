@@ -13,6 +13,10 @@ import { EssentialType } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
 import { EssentialPaymentDialog } from "./dialogs/essential-payment";
 import { Checkbox } from "./ui/checkbox";
+import { RowMenu } from "./row-menu";
+import { requestListAction } from "lib/list-actions";
+import { toMoneyInput } from "lib/money";
+import { CircleCheckIcon, Undo2Icon } from "lucide-react";
 
 export const SegmentBar = ({ done, total }: { done: number; total: number }) => (
     <div className="flex h-1.5 w-full gap-0.5" aria-hidden="true">
@@ -61,6 +65,7 @@ export const EssentialsChecklist = ({
     actions?: React.ReactNode;
 }) => {
     const t = useTranslations("possible");
+    const tMenu = useTranslations("rowMenu");
     const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
@@ -70,6 +75,7 @@ export const EssentialsChecklist = ({
 
     const paidCount = items.filter((item) => item.checked).length;
     const outstanding = items.reduce((sum, item) => (item.checked ? sum : sum + item.amount), 0);
+    const planOnly = nextMonth;
 
     const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
 
@@ -83,10 +89,24 @@ export const EssentialsChecklist = ({
 
     return (
         <ChecklistShell
-            title={t("essentialsProgress", { paid: paidCount, total: items.length })}
+            title={
+                planOnly
+                    ? t("plannedPayments", { total: items.length })
+                    : t("essentialsProgress", { paid: paidCount, total: items.length })
+            }
             actions={actions}
             status={
-                outstanding > 0 ? (
+                planOnly ? (
+                    <span className="flex flex-col gap-1">
+                        <span>
+                            <span className="text-ink-muted">{t("plannedTotal")}: </span>
+                            <span className="font-medium">
+                                <AnimatedMoney value={outstanding} symbol={symbol} />
+                            </span>
+                        </span>
+                        <span className="text-ink-faint font-mono text-2xs">{t("payFromMonthStart")}</span>
+                    </span>
+                ) : outstanding > 0 ? (
                     <span>
                         <span className="text-ink-muted">{t("stillToPay")}: </span>
                         <span className="font-medium">
@@ -98,49 +118,106 @@ export const EssentialsChecklist = ({
                 )
             }
         >
-            <SegmentBar done={paidCount} total={items.length} />
+            {!planOnly && <SegmentBar done={paidCount} total={items.length} />}
 
             <ul className="border-rule-strong mt-3 border-t">
                 {items.map((item) => (
-                    <li key={item.id} className="border-rule border-b">
-                        <label className="hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors">
-                            <Checkbox checked={item.checked} onCheckedChange={() => setSelectedEssential(item)} />
-                            <span className="min-w-0 flex-1">
-                                <span
-                                    className={twMerge(
-                                        "block truncate text-sm transition-colors",
-                                        item.checked && "text-ink-faint line-through",
-                                    )}
-                                >
-                                    {item.title}
-                                </span>
-                                {item.carriedFrom && !item.checked && (
-                                    <span className="text-signal mt-0.5 block font-mono text-3xs uppercase">
-                                        {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
-                                    </span>
+                    <RowMenu
+                        key={item.id}
+                        title={item.title}
+                        actions={
+                            planOnly && !item.checked
+                                ? []
+                                : [
+                                      {
+                                          key: "pay",
+                                          label: item.checked ? tMenu("undoPayment") : tMenu("markPaid"),
+                                          icon: item.checked ? <Undo2Icon /> : <CircleCheckIcon />,
+                                          onSelect: () => setSelectedEssential(item),
+                                      },
+                                  ]
+                        }
+                        onEdit={
+                            item.checked
+                                ? undefined
+                                : () =>
+                                      requestListAction(
+                                          nextMonth ? "nextMonthEssentials" : "essentials",
+                                          "edit",
+                                          item.id,
+                                      )
+                        }
+                        onRemove={
+                            item.checked
+                                ? undefined
+                                : () =>
+                                      requestListAction(
+                                          nextMonth ? "nextMonthEssentials" : "essentials",
+                                          "remove",
+                                          item.id,
+                                      )
+                        }
+                        copyValue={toMoneyInput(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}
+                    >
+                        <li className="border-rule data-[state=open]:bg-surface border-b">
+                            <label
+                                className={twMerge(
+                                    "hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors",
+                                    planOnly && !item.checked && "cursor-default",
                                 )}
-                            </span>
-                            <span className="shrink-0 text-right">
-                                <span
-                                    className={twMerge(
-                                        "block font-mono text-xs tabular-nums transition-colors",
-                                        item.checked ? "text-ink-faint" : "text-ink",
-                                    )}
-                                >
-                                    {formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}{" "}
-                                    {symbol}
-                                </span>
-                                {item.checked && item.paidAmount !== undefined && item.paidAmount !== item.amount && (
-                                    <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                        {t("plannedAmount", {
-                                            amount: formatCurrency(item.amount),
-                                            currency: symbol,
-                                        })}
+                            >
+                                {planOnly && !item.checked ? (
+                                    <span
+                                        className="flex size-4 shrink-0 items-center justify-center"
+                                        aria-hidden="true"
+                                    >
+                                        <span className="bg-ink-faint size-1.5" />
                                     </span>
+                                ) : (
+                                    <Checkbox
+                                        checked={item.checked}
+                                        onCheckedChange={() => setSelectedEssential(item)}
+                                    />
                                 )}
-                            </span>
-                        </label>
-                    </li>
+                                <span className="min-w-0 flex-1">
+                                    <span
+                                        className={twMerge(
+                                            "block truncate text-sm transition-colors",
+                                            item.checked && "text-ink-faint line-through",
+                                        )}
+                                    >
+                                        {item.title}
+                                    </span>
+                                    {item.carriedFrom && !item.checked && (
+                                        <span className="text-signal mt-0.5 block font-mono text-3xs uppercase">
+                                            {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
+                                        </span>
+                                    )}
+                                </span>
+                                <span className="shrink-0 text-right">
+                                    <span
+                                        className={twMerge(
+                                            "block font-mono text-xs tabular-nums transition-colors",
+                                            item.checked ? "text-ink-faint" : "text-ink",
+                                        )}
+                                    >
+                                        {formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}{" "}
+                                        {symbol}
+                                    </span>
+                                    {item.checked &&
+                                        item.paidAmount !== undefined &&
+                                        item.paidAmount !== item.amount && (
+                                            <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                                {t("plannedAmount", {
+                                                    amount: formatCurrency(item.amount),
+                                                    currency: symbol,
+                                                })}
+                                            </span>
+                                        )}
+                                </span>
+                            </label>
+                        </li>
+                    </RowMenu>
                 ))}
             </ul>
             <EssentialPaymentDialog

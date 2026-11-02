@@ -18,6 +18,24 @@
         "monobank": "Monobank",
         "settings": "Settings"
     },
+    "rowMenu": {
+        "edit": "Edit",
+        "remove": "Delete",
+        "copyAmount": "Copy amount",
+        "copied": "Amount copied",
+        "markPaid": "Mark as paid",
+        "undoPayment": "Undo payment",
+        "markReceived": "Mark as received",
+        "undoReceived": "Undo receipt"
+    },
+    "listDialog": {
+        "items": "Items",
+        "empty": "Nothing here yet",
+        "newItem": "New item",
+        "editing": "Editing",
+        "edit": "Edit",
+        "remove": "Delete"
+    },
     "calculator": {
         "title": "Calculator",
         "close": "Close calculator",
@@ -246,6 +264,9 @@
         "thisMonth": "This month",
         "nextMonth": "Next month",
         "essentialsProgress": "Payments: {paid} of {total} paid",
+        "plannedPayments": "Planned payments: {total}",
+        "plannedTotal": "Planned",
+        "payFromMonthStart": "Payments can be marked as paid once the month starts.",
         "stillToPay": "Left to pay",
         "allPaid": "All paid",
         "noEssentials": "No payments yet. Add rent, utilities and other regular bills.",
