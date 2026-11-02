@@ -23,6 +23,7 @@
         "lib/report/data.ts",
         "lib/report/types.ts",
         "lib/statistics.ts",
+        "lib/essential-category.ts",
         "lib/streak.ts",
         "lib/month-plan.ts",
         "lib/cards.ts",

@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 
 import { TransactionEnum } from "../constants/index";
 import { TransactionType } from "../types/transactions";
+import { isEssentialTransaction } from "./essential-category";
 
 export type MonthKey = string;
 
@@ -158,5 +159,28 @@ export const monthResult = (transactions: TransactionType[]): MonthResult => {
         kept,
         keptShare: totals.income > 0 ? (kept / totals.income) * 100 : null,
         movedToSavings,
+    };
+};
+
+export type EssentialSplit = {
+    essential: number;
+    flexible: number;
+    essentialShare: number;
+    essentialCount: number;
+    categories: CategorySlice[];
+};
+
+export const essentialSplit = (transactions: TransactionType[]): EssentialSplit => {
+    const spending = transactions.filter((tx) => isExpense(tx) && tx.categorie !== SAVINGS_CATEGORY);
+    const essentials = spending.filter(isEssentialTransaction);
+    const essential = sum(essentials);
+    const total = sum(spending);
+
+    return {
+        essential,
+        flexible: total - essential,
+        essentialShare: total > 0 ? (essential / total) * 100 : 0,
+        essentialCount: essentials.length,
+        categories: byCategory(essentials),
     };
 };

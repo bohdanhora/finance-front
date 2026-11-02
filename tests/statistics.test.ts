@@ -3,7 +3,8 @@ import test from "node:test";
 
 import { TransactionEnum } from "../constants/index";
 import { TransactionType } from "../types/transactions";
-import { monthResult } from "../lib/statistics";
+import { essentialSplit, monthResult } from "../lib/statistics";
+import { suggestEssentialCategory } from "../lib/essential-category";
 
 const expense = (value: number, categorie = "groceries"): TransactionType => ({
     id: "e" + value + categorie,
@@ -51,4 +52,35 @@ test("without income there is no share to report", () => {
 
     assert.equal(result.net, -1000);
     assert.equal(result.keptShare, null);
+});
+
+test("essential spending covers flagged payments and legacy essentials, never savings", () => {
+    const split = essentialSplit([
+        income(50000),
+        { ...expense(1100, "subscriptions"), essential: true },
+        expense(16000, "essentials"),
+        expense(2900),
+        expense(5000, "savings"),
+    ]);
+
+    assert.equal(split.essential, 17100);
+    assert.equal(split.flexible, 2900);
+    assert.equal(split.essentialCount, 2);
+    assert.equal(Math.round(split.essentialShare), 86);
+    assert.deepEqual(
+        split.categories.map((slice) => slice.name),
+        ["essentials", "subscriptions"],
+    );
+});
+
+test("bill titles suggest a category", () => {
+    assert.equal(suggestEssentialCategory("Лиза Кредит за телефон"), "credit");
+    assert.equal(suggestEssentialCategory("Netflix"), "subscriptions");
+    assert.equal(suggestEssentialCategory("OpenAI GPT"), "subscriptions");
+    assert.equal(suggestEssentialCategory("Квартплата"), "housing");
+    assert.equal(suggestEssentialCategory("Коммунальные услуги"), "utilities");
+    assert.equal(suggestEssentialCategory("Astra интернет"), "utilities");
+    assert.equal(suggestEssentialCategory("Пополнение мобильного бабушке"), "utilities");
+    assert.equal(suggestEssentialCategory("Пилатес Лиза"), "health");
+    assert.equal(suggestEssentialCategory("MyWaterShop"), null);
 });

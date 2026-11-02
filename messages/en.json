@@ -29,6 +29,10 @@
         "undoReceived": "Undo receipt"
     },
     "listDialog": {
+        "uncategorized": "{count, plural, one {# bill has no category} other {# bills have no category}}",
+        "categorize": "Pick categories",
+        "categorized": "{count, plural, one {# category set} other {# categories set}}",
+        "paidLocked": "Paid already: only the category can change, and the payment moves with it.",
         "items": "Items",
         "empty": "Nothing here yet",
         "newItem": "New item",
@@ -335,6 +339,7 @@
         "featureSavings": "Savings and goals with progress"
     },
     "transactions": {
+        "essentialMark": "essential",
         "noSpends": "No transactions yet",
         "searchPlaceholder": "Search transactions",
         "allCategories": "All categories",
@@ -386,6 +391,15 @@
         }
     },
     "statistics": {
+        "essentialsTitle": "Essential payments",
+        "essentialsDescription": "Bills you cannot skip against everything else you spent this month.",
+        "essentialSpent": "Essential",
+        "essentialSpentExplanation": "Bills paid from the essential payments list. Savings are not counted.",
+        "flexibleSpent": "Everything else",
+        "shareOfSpending": "{percent}% of spending",
+        "essentialPayments": "Bills paid",
+        "essentialCategories": "{count, plural, one {# category} other {# categories}}",
+        "largestEssentialCategory": "Biggest bill category",
         "title": "Statistics",
         "subtitle": "Income and expenses for the selected month.",
         "back": "Overview",

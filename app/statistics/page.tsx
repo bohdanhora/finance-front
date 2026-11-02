@@ -22,7 +22,8 @@ import useStore from "store/general";
 import { formatCurrency, createDateString } from "lib/utils";
 import { getCurrencySymbol } from "lib/currency";
 import { getCategoryLabel } from "constants/categories";
-import { filterByMonth, listMonths, monthResult, monthTotals, toMonthKey } from "lib/statistics";
+import { essentialSplit, filterByMonth, listMonths, monthResult, monthTotals, toMonthKey } from "lib/statistics";
+import { CategoryIcon } from "components/categories/category-icon";
 import { planForMonth } from "lib/month-plan";
 import { TransactionEnum } from "constants/index";
 import { formatMonthKey } from "lib/date-locale";
@@ -49,6 +50,7 @@ const StatisticsPage = () => {
     const inMonth = useMemo(() => filterByMonth(scopedTransactions, month), [scopedTransactions, month]);
     const totals = useMemo(() => monthTotals(inMonth), [inMonth]);
     const result = useMemo(() => monthResult(inMonth), [inMonth]);
+    const split = useMemo(() => essentialSplit(inMonth), [inMonth]);
     const previousMonth = dayjs(`${month}-01`).subtract(1, "month").format("YYYY-MM");
     const previousTotals = useMemo(
         () => monthTotals(filterByMonth(scopedTransactions, previousMonth)),
@@ -73,6 +75,17 @@ const StatisticsPage = () => {
                 .slice(0, 5),
         [inMonth],
     );
+
+    const sectionOrder = [
+        "analysis",
+        plan ? "plan" : null,
+        "keyFigures",
+        split.essential > 0 ? "essentials" : null,
+        topExpenses.length > 0 ? "top" : null,
+    ].filter(Boolean);
+    const sectionIndex = (key: string) => String(sectionOrder.indexOf(key) + 1).padStart(2, "0");
+    const essentialShare = Math.round(split.essentialShare);
+    const topEssentialCategory = split.categories[0];
 
     const shiftMonth = (delta: number) => setMonth(dayjs(`${month}-01`).add(delta, "month").format("YYYY-MM"));
 
@@ -210,12 +223,12 @@ const StatisticsPage = () => {
                     </Section>
 
                     {plan && (
-                        <Section index="02" title={t("planTitle")} description={t("planDescription")}>
+                        <Section index={sectionIndex("plan")} title={t("planTitle")} description={t("planDescription")}>
                             <MonthPlanSummary plan={plan} symbol={symbol} />
                         </Section>
                     )}
 
-                    <Section index={plan ? "03" : "02"} title={t("keyFigures")}>
+                    <Section index={sectionIndex("keyFigures")} title={t("keyFigures")}>
                         <StatGrid>
                             <StatCard
                                 label={t("averagePurchase")}
@@ -260,8 +273,65 @@ const StatisticsPage = () => {
                         </StatGrid>
                     </Section>
 
+                    {split.essential > 0 && (
+                        <Section
+                            index={sectionIndex("essentials")}
+                            title={t("essentialsTitle")}
+                            description={t("essentialsDescription")}
+                        >
+                            <div className="flex h-2 w-full gap-0.5" aria-hidden="true">
+                                <span className="bg-accent h-full" style={{ width: `${split.essentialShare}%` }} />
+                                <span className="bg-wash h-full flex-1" />
+                            </div>
+                            <StatGrid className="mt-4">
+                                <StatCard
+                                    tone="accent"
+                                    label={t("essentialSpent")}
+                                    value={animatedMoney(split.essential)}
+                                    secondary={t("shareOfSpending", { percent: essentialShare })}
+                                    hint={t("essentialSpentExplanation")}
+                                />
+                                <StatCard
+                                    label={t("flexibleSpent")}
+                                    value={animatedMoney(split.flexible)}
+                                    secondary={t("shareOfSpending", { percent: 100 - essentialShare })}
+                                />
+                                <StatCard
+                                    label={t("essentialPayments")}
+                                    value={String(split.essentialCount)}
+                                    secondary={t("essentialCategories", { count: split.categories.length })}
+                                />
+                                <StatCard
+                                    label={t("largestEssentialCategory")}
+                                    value={animatedMoney(topEssentialCategory?.value ?? 0)}
+                                    secondary={
+                                        topEssentialCategory ? categoryLabel(topEssentialCategory.name) : undefined
+                                    }
+                                />
+                            </StatGrid>
+                            <ol className="border-rule-strong mt-6 border-t">
+                                {split.categories.map((slice) => (
+                                    <li key={slice.name} className="border-rule flex items-center gap-4 border-b py-3">
+                                        <span className="border-rule flex size-8 shrink-0 items-center justify-center border">
+                                            <CategoryIcon category={slice.name} className="size-4" />
+                                        </span>
+                                        <span className="min-w-0 flex-1 truncate text-sm">
+                                            {categoryLabel(slice.name)}
+                                        </span>
+                                        <span className="text-ink-faint shrink-0 font-mono text-2xs tabular-nums">
+                                            {Math.round(slice.percent)}%
+                                        </span>
+                                        <span className="w-32 shrink-0 text-right font-mono text-sm tabular-nums">
+                                            {money(slice.value)}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ol>
+                        </Section>
+                    )}
+
                     {topExpenses.length > 0 && (
-                        <Section index={plan ? "04" : "03"} title={t("topExpenses")}>
+                        <Section index={sectionIndex("top")} title={t("topExpenses")}>
                             <ol className="border-rule-strong border-t">
                                 {topExpenses.map((tx, index) => (
                                     <li key={tx.id} className="border-rule flex items-center gap-4 border-b py-3">

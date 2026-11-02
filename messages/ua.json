@@ -29,6 +29,10 @@
         "undoReceived": "Скасувати отримання"
     },
     "listDialog": {
+        "uncategorized": "{count, plural, one {# платіж без категорії} few {# платежі без категорії} other {# платежів без категорії}}",
+        "categorize": "Підібрати категорії",
+        "categorized": "{count, plural, one {Категорію призначено: #} other {Категорій призначено: #}}",
+        "paidLocked": "Вже сплачено: можна змінити лише категорію, витрата переїде разом з нею.",
         "items": "Список",
         "empty": "Поки порожньо",
         "newItem": "Новий запис",
@@ -335,6 +339,7 @@
         "featureSavings": "Заощадження та цілі з прогресом"
     },
     "transactions": {
+        "essentialMark": "обов'язковий",
         "noSpends": "Операцій поки немає",
         "searchPlaceholder": "Пошук в операціях",
         "allCategories": "Усі категорії",
@@ -386,6 +391,15 @@
         }
     },
     "statistics": {
+        "essentialsTitle": "Обов'язкові платежі",
+        "essentialsDescription": "Платежі, які не можна пропустити, проти решти витрат за місяць.",
+        "essentialSpent": "Обов'язкові",
+        "essentialSpentExplanation": "Платежі, сплачені зі списку обов'язкових. Заощадження не враховуються.",
+        "flexibleSpent": "Решта витрат",
+        "shareOfSpending": "{percent}% витрат",
+        "essentialPayments": "Сплачено платежів",
+        "essentialCategories": "{count, plural, one {# категорія} few {# категорії} other {# категорій}}",
+        "largestEssentialCategory": "Найбільше йде на",
         "title": "Статистика",
         "subtitle": "Доходи й витрати за обраний місяць.",
         "back": "Огляд",

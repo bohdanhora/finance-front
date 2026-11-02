@@ -8,6 +8,7 @@ import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
 import { formatMonthKey } from "lib/date-locale";
 import { formatCurrency } from "lib/utils";
+import { getCategoryLabel } from "constants/categories";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
@@ -66,6 +67,7 @@ export const EssentialsChecklist = ({
 }) => {
     const t = useTranslations("possible");
     const tMenu = useTranslations("rowMenu");
+    const tCategories = useTranslations("categories");
     const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
@@ -188,6 +190,11 @@ export const EssentialsChecklist = ({
                                     >
                                         {item.title}
                                     </span>
+                                    {item.category && (
+                                        <span className="text-ink-faint mt-0.5 block font-mono text-3xs uppercase">
+                                            {getCategoryLabel(item.category, tCategories)}
+                                        </span>
+                                    )}
                                     {item.carriedFrom && !item.checked && (
                                         <span className="text-signal mt-0.5 block font-mono text-3xs uppercase">
                                             {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}

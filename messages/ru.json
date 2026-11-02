@@ -29,6 +29,10 @@
         "undoReceived": "Отменить получение"
     },
     "listDialog": {
+        "uncategorized": "{count, plural, one {# платёж без категории} few {# платежа без категории} other {# платежей без категории}}",
+        "categorize": "Подобрать категории",
+        "categorized": "{count, plural, one {Категория назначена: #} other {Категорий назначено: #}}",
+        "paidLocked": "Уже оплачено: можно поменять только категорию, трата переедет вместе с ней.",
         "items": "Список",
         "empty": "Пока пусто",
         "newItem": "Новая запись",
@@ -335,6 +339,7 @@
         "featureSavings": "Накопления и цели с прогрессом"
     },
     "transactions": {
+        "essentialMark": "обязательный",
         "noSpends": "Операций пока нет",
         "searchPlaceholder": "Поиск по операциям",
         "allCategories": "Все категории",
@@ -386,6 +391,15 @@
         }
     },
     "statistics": {
+        "essentialsTitle": "Обязательные платежи",
+        "essentialsDescription": "Платежи, которые нельзя пропустить, против остальных трат за месяц.",
+        "essentialSpent": "Обязательные",
+        "essentialSpentExplanation": "Платежи, оплаченные из списка обязательных. Накопления не учитываются.",
+        "flexibleSpent": "Остальные траты",
+        "shareOfSpending": "{percent}% расходов",
+        "essentialPayments": "Оплачено платежей",
+        "essentialCategories": "{count, plural, one {# категория} few {# категории} other {# категорий}}",
+        "largestEssentialCategory": "Больше всего уходит на",
         "title": "Статистика",
         "subtitle": "Доходы и расходы за выбранный месяц.",
         "back": "Обзор",

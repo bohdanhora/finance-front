@@ -15,16 +15,22 @@ type ListPanelProps = {
     summary?: React.ReactNode;
     empty?: React.ReactNode;
     isEmpty?: boolean;
+    toolbar?: React.ReactNode;
     children?: React.ReactNode;
 };
 
-function ListPanel({ label, summary, empty, isEmpty, children }: ListPanelProps) {
+function ListPanel({ label, summary, empty, isEmpty, toolbar, children }: ListPanelProps) {
     return (
         <div className="flex min-w-0 flex-col lg:col-span-3">
             <div className="border-rule-strong flex items-baseline justify-between gap-3 border-b pb-2">
                 <span className="label">{label}</span>
                 {summary && <span className="text-ink-muted font-mono text-xs tabular-nums">{summary}</span>}
             </div>
+            {toolbar && (
+                <div className="border-rule flex flex-wrap items-center justify-between gap-2 border-b py-2">
+                    {toolbar}
+                </div>
+            )}
             {isEmpty ? (
                 <div className="flex flex-col items-center justify-center gap-4 py-8 text-center lg:h-list">
                     {empty}
@@ -44,6 +50,7 @@ type ListRowProps = {
     active?: boolean;
     muted?: boolean;
     disabled?: boolean;
+    removeDisabled?: boolean;
     copyValue?: string;
     editLabel: string;
     removeLabel: string;
@@ -59,6 +66,7 @@ function ListRow({
     active,
     muted,
     disabled,
+    removeDisabled,
     copyValue,
     editLabel,
     removeLabel,
@@ -77,7 +85,7 @@ function ListRow({
             title={title}
             copyValue={copyValue}
             onEdit={disabled ? undefined : onEdit}
-            onRemove={disabled ? undefined : onRemove}
+            onRemove={disabled || removeDisabled ? undefined : onRemove}
         >
             <li
                 className={twMerge(
@@ -111,7 +119,7 @@ function ListRow({
                     <Button
                         type="button"
                         variant="ghost"
-                        disabled={disabled}
+                        disabled={disabled || removeDisabled}
                         onClick={onRemove}
                         className="text-ink-faint hover:bg-signal-wash hover:text-signal size-8 p-0"
                         aria-label={removeLabel}

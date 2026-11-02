@@ -25,6 +25,7 @@ export const changeDefaultFormSchema = (messages: ValidationMessages) =>
     z.object({
         amount: amountField(messages),
         title: titleField(messages),
+        category: z.string().max(64),
     });
 
 export const changeNextMonthFormSchema = (messages: ValidationMessages) =>
@@ -71,6 +72,7 @@ export const essentialSpendsFormSchema = (messages: ValidationMessages) =>
     z.object({
         amount: amountField(messages),
         title: titleField(messages),
+        category: z.string().max(64),
     });
 
 export const expectedIncomeFormSchema = (messages: ValidationMessages) =>

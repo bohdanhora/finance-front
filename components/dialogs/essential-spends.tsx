@@ -34,8 +34,11 @@ import { ListAction, subscribeListAction } from "lib/list-actions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EssentialType } from "types/transactions";
 import { EssentialPaymentDialog } from "./essential-payment";
+import { EssentialCategoryField, useCategorySuggestion } from "components/essential-category-field";
+import { getCategoryLabel } from "constants/categories";
+import { suggestEssentialCategory } from "lib/essential-category";
 
-const getEmptyEssentialValues = () => ({ amount: "", title: "" });
+const getEmptyEssentialValues = () => ({ amount: "", title: "", category: "" });
 
 type Props = {
     nextMonth?: boolean;
@@ -69,21 +72,55 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
         resolver: zodResolver(formSchema),
         defaultValues: getEmptyEssentialValues(),
     });
+    const { setTouched } = useCategorySuggestion(form);
+    const tCategories = useTranslations("categories");
+
+    const editingEssential = editingId ? arrayEssentials.find(({ id }) => id === editingId) : undefined;
+    const editingPaid = Boolean(editingEssential?.checked);
+    const uncategorized = arrayEssentials.filter(
+        (item) => !item.category && suggestEssentialCategory(item.title) !== null,
+    );
+
+    const setList = (items: EssentialType[]) => {
+        if (nextMonth) store.setNextMonthEssentialsArray(items);
+        else store.setEssentialsArray(items);
+    };
 
     const resetForm = () => {
         setEditingId(null);
+        setTouched(false);
         form.reset(getEmptyEssentialValues());
     };
 
     const startEditing = (essential: EssentialType) => {
         setEditingId(essential.id);
+        setTouched(Boolean(essential.category));
         form.reset(
             {
                 amount: toMoneyInput(essential.amount),
                 title: essential.title,
+                category: essential.category ?? "",
             },
             { keepDefaultValues: true },
         );
+    };
+
+    const categorizeAll = async () => {
+        try {
+            const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
+            for (const item of uncategorized) {
+                const res = await updateEssentialAsync({
+                    type,
+                    item: { ...item, category: suggestEssentialCategory(item.title) ?? undefined },
+                });
+                setList(res.updatedItems);
+                if (res.updatedTransactions) store.setTransactions(res.updatedTransactions);
+            }
+            toast.success(t("listDialog.categorized", { count: uncategorized.length }));
+        } catch (error) {
+            console.error(error);
+            toast.error(t("dialogs.occurred"));
+        }
     };
 
     const setDefaultsEssentials = async () => {
@@ -161,16 +198,14 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                     type,
                     item: {
                         ...essential,
-                        title: values.title,
-                        amount: Number(values.amount),
+                        title: essential.checked ? essential.title : values.title,
+                        amount: essential.checked ? essential.amount : Number(values.amount),
+                        category: values.category || undefined,
                     },
                 });
 
-                if (nextMonth) {
-                    store.setNextMonthEssentialsArray(res.updatedItems);
-                } else {
-                    store.setEssentialsArray(res.updatedItems);
-                }
+                setList(res.updatedItems);
+                if (res.updatedTransactions) store.setTransactions(res.updatedTransactions);
 
                 resetForm();
                 return;
@@ -181,6 +216,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                 title: values.title || "",
                 amount: Number(values.amount) || 0,
                 checked: false,
+                ...(values.category ? { category: values.category } : {}),
             };
             if (nextMonth) {
                 const type = EssentialsType.NEXT_MONTH;
@@ -252,6 +288,24 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                     `${arrayEssentials.length} · ${formatCurrency(listTotal)} ${getCurrencySymbol(userCurrency)}`
                                 }
                                 isEmpty={arrayEssentials.length === 0}
+                                toolbar={
+                                    uncategorized.length > 0 && (
+                                        <>
+                                            <span className="text-ink-faint text-xs">
+                                                {t("listDialog.uncategorized", { count: uncategorized.length })}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={categorizeAll}
+                                                disabled={apiPendings}
+                                            >
+                                                {t("listDialog.categorize")}
+                                            </Button>
+                                        </>
+                                    )
+                                }
                                 empty={
                                     <>
                                         <p className="text-ink-faint text-sm">{t("listDialog.empty")}</p>
@@ -283,13 +337,14 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                                 )
                                             }
                                             title={title}
-                                            meta={`${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)}`}
+                                            meta={`${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
                                             muted={checked}
                                             copyValue={toMoneyInput(
                                                 checked ? (essential.paidAmount ?? amount) : amount,
                                             )}
                                             active={editingId === id}
-                                            disabled={apiPendings || checked}
+                                            disabled={apiPendings}
+                                            removeDisabled={checked}
                                             editLabel={t("listDialog.edit")}
                                             removeLabel={t("listDialog.remove")}
                                             onEdit={() => startEditing(essential)}
@@ -309,6 +364,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                                 <FormControl>
                                                     <Input
                                                         placeholder={t("dialogs.essentials.placeholder")}
+                                                        disabled={editingPaid}
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -326,6 +382,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                                     <Input
                                                         inputMode="decimal"
                                                         placeholder="0.00"
+                                                        disabled={editingPaid}
                                                         {...field}
                                                         onChange={handleDecimalInputChange(field.onChange)}
                                                     />
@@ -334,6 +391,12 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                             </FormItem>
                                         )}
                                     />
+                                    <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
+                                    {editingPaid && (
+                                        <p className="text-ink-faint font-mono text-2xs">
+                                            {t("listDialog.paidLocked")}
+                                        </p>
+                                    )}
                                     <DialogFooter>
                                         {editingId ? (
                                             <Button type="button" variant="secondary" onClick={resetForm}>

@@ -31,8 +31,11 @@ import { getCurrencySymbol } from "lib/currency";
 
 import { useMemo, useState } from "react";
 import { EssentialType } from "types/transactions";
+import { EssentialCategoryField, useCategorySuggestion } from "components/essential-category-field";
+import { getCategoryLabel } from "constants/categories";
+import { suggestEssentialCategory } from "lib/essential-category";
 
-const getEmptyEssentialValues = () => ({ amount: "", title: "" });
+const getEmptyEssentialValues = () => ({ amount: "", title: "", category: "" });
 
 export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: string }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,21 +62,45 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
         resolver: zodResolver(formSchema),
         defaultValues: getEmptyEssentialValues(),
     });
+    const { setTouched } = useCategorySuggestion(form);
+    const tCategories = useTranslations("categories");
+    const uncategorized = arrayEssentials.filter(
+        (item) => !item.category && suggestEssentialCategory(item.title) !== null,
+    );
 
     const resetForm = () => {
         setEditingId(null);
+        setTouched(false);
         form.reset(getEmptyEssentialValues());
     };
 
     const startEditing = (essential: EssentialType) => {
         setEditingId(essential.id);
+        setTouched(Boolean(essential.category));
         form.reset(
             {
                 amount: toMoneyInput(essential.amount),
                 title: essential.title,
+                category: essential.category ?? "",
             },
             { keepDefaultValues: true },
         );
+    };
+
+    const categorizeAll = async () => {
+        try {
+            for (const item of uncategorized) {
+                const res = await updateEssentialAsync({
+                    type: EssentialsType.DEFAULT,
+                    item: { ...item, category: suggestEssentialCategory(item.title) ?? undefined },
+                });
+                store.setDefaultEssentialsArray(res.updatedItems);
+            }
+            toast.success(tl("categorized", { count: uncategorized.length }));
+        } catch (error) {
+            console.error(error);
+            toast.error(t("occurred"));
+        }
     };
 
     const removeEssential = async (id: string) => {
@@ -106,6 +133,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                         ...essential,
                         title: values.title,
                         amount: Number(values.amount),
+                        category: values.category || undefined,
                     },
                 });
                 store.setDefaultEssentialsArray(res.updatedItems);
@@ -118,6 +146,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                 title: values.title || "",
                 amount: Number(values.amount) || 0,
                 checked: false,
+                ...(values.category ? { category: values.category } : {}),
             };
             const type = EssentialsType.DEFAULT;
             const res = await newEssentialAsync({ type, item });
@@ -159,21 +188,42 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                             }
                             isEmpty={arrayEssentials.length === 0}
                             empty={<p className="text-ink-faint text-sm">{tl("empty")}</p>}
+                            toolbar={
+                                uncategorized.length > 0 && (
+                                    <>
+                                        <span className="text-ink-faint text-xs">
+                                            {tl("uncategorized", { count: uncategorized.length })}
+                                        </span>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={categorizeAll}
+                                            disabled={pendings}
+                                        >
+                                            {tl("categorize")}
+                                        </Button>
+                                    </>
+                                )
+                            }
                         >
-                            {arrayEssentials.map(({ id, title, amount }) => (
-                                <ListRow
-                                    key={id}
-                                    title={title}
-                                    meta={`${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)}`}
-                                    active={editingId === id}
-                                    copyValue={toMoneyInput(amount)}
-                                    disabled={pendings}
-                                    editLabel={tl("edit")}
-                                    removeLabel={tl("remove")}
-                                    onEdit={() => startEditing({ id, title, amount, checked: false })}
-                                    onRemove={() => removeEssential(id)}
-                                />
-                            ))}
+                            {arrayEssentials.map((essential) => {
+                                const { id, title, amount } = essential;
+                                return (
+                                    <ListRow
+                                        key={id}
+                                        title={title}
+                                        meta={`${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
+                                        active={editingId === id}
+                                        copyValue={toMoneyInput(amount)}
+                                        disabled={pendings}
+                                        editLabel={tl("edit")}
+                                        removeLabel={tl("remove")}
+                                        onEdit={() => startEditing(essential)}
+                                        onRemove={() => removeEssential(id)}
+                                    />
+                                );
+                            })}
                         </ListPanel>
                         <FormPanel label={editingId ? tl("editing") : tl("newItem")}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -208,6 +258,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                         </FormItem>
                                     )}
                                 />
+                                <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
                                 <DialogFooter>
                                     {editingId ? (
                                         <Button type="button" variant="secondary" onClick={resetForm}>

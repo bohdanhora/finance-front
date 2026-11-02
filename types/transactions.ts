@@ -144,6 +144,7 @@ export type TransactionType = {
     savingsCurrency?: CURRENCY;
     savingsAmount?: number;
     savingsOperationId?: string;
+    essential?: boolean;
     cardId?: string;
     toCardId?: string;
 };
@@ -153,6 +154,7 @@ export type EssentialType = {
     amount: number;
     title: string;
     checked: boolean;
+    category?: string;
     paidAmount?: number;
     paidAt?: string;
     paymentTransactionId?: string;
@@ -313,6 +315,7 @@ export type UpdateEssentialResponseType = {
     message: string;
     updatedItem: EssentialType;
     updatedItems: EssentialType[] | [];
+    updatedTransactions?: TransactionType[];
 };
 
 export type RequestEmailCodePayload = {

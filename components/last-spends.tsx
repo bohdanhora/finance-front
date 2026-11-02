@@ -31,6 +31,7 @@ import { Checkbox } from "./ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { EditTransactionDialog } from "./dialogs/edit-transaction";
 import { RowMenu } from "./row-menu";
+import { isEssentialTransaction } from "lib/essential-category";
 import { toMoneyInput } from "lib/money";
 import { ExportReportDialog } from "./dialogs/export-report";
 import { getCurrencySymbol } from "lib/currency";
@@ -522,6 +523,7 @@ export const LastSpends = () => {
                                                 )}
                                                 <span className="truncate">
                                                     {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
+                                                    {!transfer && isEssentialTransaction(tx) && ` · ${t("essentialMark")}`}
                                                 </span>
                                                 {(!groupByDay || time) && (
                                                     <span className="shrink-0 tabular-nums">
