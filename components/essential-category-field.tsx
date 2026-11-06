@@ -4,11 +4,12 @@ import { useEffect, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useTranslations } from "next-intl";
 
+import { CURRENCY } from "constants/index";
 import { CategoryCombobox } from "components/categories/category-combobox";
 import { FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { suggestEssentialCategory } from "lib/essential-category";
 
-export type EssentialFormValues = { title: string; amount: string; category: string };
+export type EssentialFormValues = { title: string; amount: string; category: string; currency: CURRENCY };
 
 export const useCategorySuggestion = (form: UseFormReturn<EssentialFormValues>) => {
     const touchedRef = useRef(false);

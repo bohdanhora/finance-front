@@ -17,6 +17,7 @@ import { Checkbox } from "./ui/checkbox";
 import { RowMenu } from "./row-menu";
 import { requestListAction } from "lib/list-actions";
 import { toMoneyInput } from "lib/money";
+import { isForeignAmount } from "lib/foreign-amount";
 import { CircleCheckIcon, Undo2Icon } from "lucide-react";
 
 export const SegmentBar = ({ done, total }: { done: number; total: number }) => (
@@ -208,10 +209,25 @@ export const EssentialsChecklist = ({
                                             item.checked ? "text-ink-faint" : "text-ink",
                                         )}
                                     >
-                                        {formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}{" "}
-                                        {symbol}
+                                        {isForeignAmount(item, store.userCurrency)
+                                            ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
+                                            : `${formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)} ${symbol}`}
                                     </span>
+                                    {!item.checked && isForeignAmount(item, store.userCurrency) && (
+                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                            ≈ {formatCurrency(item.amount)} {symbol}
+                                        </span>
+                                    )}
+                                    {item.checked && isForeignAmount(item, store.userCurrency) && (
+                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                            {t("paidEquivalent", {
+                                                amount: formatCurrency(item.paidAmount ?? item.amount),
+                                                currency: symbol,
+                                            })}
+                                        </span>
+                                    )}
                                     {item.checked &&
+                                        !isForeignAmount(item, store.userCurrency) &&
                                         item.paidAmount !== undefined &&
                                         item.paidAmount !== item.amount && (
                                             <span className="text-ink-faint block font-mono text-3xs tabular-nums">

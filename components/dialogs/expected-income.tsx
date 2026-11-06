@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
 import { CURRENCY } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
-import { convertToUserCurrency, isForeignIncome } from "lib/expected-income";
+import { convertToUserCurrency, isForeignAmount } from "lib/foreign-amount";
 import { useExchangeRates } from "hooks/use-exchange-rates";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
@@ -87,7 +87,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
 
     const startEditing = (income: ExpectedIncome) => {
         setEditingId(income.id);
-        const foreign = isForeignIncome(income, store.userCurrency);
+        const foreign = isForeignAmount(income, store.userCurrency);
         form.reset(
             {
                 amount: toMoneyInput(foreign ? income.currencyAmount! : income.amount),
@@ -183,7 +183,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                             <ListRow
                                 key={income.id}
                                 title={income.title}
-                                meta={`${isForeignIncome(income, store.userCurrency) ? `${formatCurrency(income.currencyAmount)} ${getCurrencySymbol(income.currency)} ≈ ` : ""}${formatCurrency(income.amount)} ${symbol} · ${t("onDay", { day: income.day })}${income.recurring ? "" : ` · ${t("oneOff")}`}`}
+                                meta={`${isForeignAmount(income, store.userCurrency) ? `${formatCurrency(income.currencyAmount)} ${getCurrencySymbol(income.currency)} ≈ ` : ""}${formatCurrency(income.amount)} ${symbol} · ${t("onDay", { day: income.day })}${income.recurring ? "" : ` · ${t("oneOff")}`}`}
                                 muted={income.received}
                                 copyValue={toMoneyInput(income.amount)}
                                 active={editingId === income.id}

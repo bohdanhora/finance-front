@@ -147,6 +147,9 @@
         "currencyPlaceholder": "Оберіть валюту",
         "occurred": "Сталася помилка. Спробуйте ще раз.",
         "essentials": {
+            "currencyLabel": "Валюта",
+            "convertedPreview": "Близько {amount} {currency} за сьогоднішнім курсом. Точну суму вкажете під час оплати.",
+            "foreignHint": "Перераховується в {currency} за поточним курсом.",
             "title": "Обов'язкові платежі",
             "nextMonth": "Платежі на наступний місяць",
             "hint": "Оренда, комунальні, кредити та інші платежі, які не можна пропустити.",
@@ -167,6 +170,7 @@
             "removeErrorRequest": "Не вдалося видалити з шаблону:",
             "removeError": "Не вдалося видалити платіж. Спробуйте ще раз.",
             "payment": {
+                "foreignHint": "Вкажіть, скільки списалося в {currency} після обміну.",
                 "title": "Оплата: {title}",
                 "description": "Вкажіть фактично сплачену суму. Спишеться лише вона.",
                 "planned": "Заплановано",
@@ -275,6 +279,7 @@
         "allPaid": "Все сплачено",
         "noEssentials": "Платежів поки немає. Додайте оренду, комунальні та інші регулярні рахунки.",
         "plannedAmount": "План: {amount} {currency}",
+        "paidEquivalent": "Сплачено: {amount} {currency}",
         "includesExpected": "Включно з {amount} очікуваного доходу",
         "carriedFrom": "Перенесено: {month}",
         "essentialsTitle": "Обов'язкові платежі",

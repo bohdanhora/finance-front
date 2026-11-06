@@ -23,7 +23,7 @@ import { FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
-import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { changeDefaultFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
@@ -34,13 +34,19 @@ import { EssentialType } from "types/transactions";
 import { EssentialCategoryField, useCategorySuggestion } from "components/essential-category-field";
 import { getCategoryLabel } from "constants/categories";
 import { suggestEssentialCategory } from "lib/essential-category";
-
-const getEmptyEssentialValues = () => ({ amount: "", title: "", category: "" });
+import {
+    EssentialAmountField,
+    getEmptyEssentialValues,
+    getEssentialFormValues,
+} from "components/essential-amount-field";
+import { useExchangeRates } from "hooks/use-exchange-rates";
+import { isForeignAmount, toStoredMoney } from "lib/foreign-amount";
 
 export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: string }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const store = useStore();
     const userCurrency = store.userCurrency;
+    const rates = useExchangeRates("sell");
 
     const arrayEssentials = store.defaultEssentialsArray;
     const listTotal = arrayEssentials.reduce((sum, { amount }) => sum + amount, 0);
@@ -60,7 +66,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: getEmptyEssentialValues(),
+        defaultValues: getEmptyEssentialValues(userCurrency),
     });
     const { setTouched } = useCategorySuggestion(form);
     const tCategories = useTranslations("categories");
@@ -71,20 +77,13 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     const resetForm = () => {
         setEditingId(null);
         setTouched(false);
-        form.reset(getEmptyEssentialValues());
+        form.reset(getEmptyEssentialValues(userCurrency));
     };
 
     const startEditing = (essential: EssentialType) => {
         setEditingId(essential.id);
         setTouched(Boolean(essential.category));
-        form.reset(
-            {
-                amount: toMoneyInput(essential.amount),
-                title: essential.title,
-                category: essential.category ?? "",
-            },
-            { keepDefaultValues: true },
-        );
+        form.reset(getEssentialFormValues(essential, userCurrency), { keepDefaultValues: true });
     };
 
     const categorizeAll = async () => {
@@ -117,6 +116,12 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        const money = toStoredMoney(Number(values.amount), values.currency, userCurrency, rates);
+        if (!money) {
+            form.setError("amount", { message: t("conversionUnavailable") });
+            return;
+        }
+
         try {
             if (editingId) {
                 const essential = arrayEssentials.find(({ id }) => id === editingId);
@@ -132,7 +137,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                     item: {
                         ...essential,
                         title: values.title,
-                        amount: Number(values.amount),
+                        ...money,
                         category: values.category || undefined,
                     },
                 });
@@ -144,7 +149,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
             const item = {
                 id: uuidv4(),
                 title: values.title || "",
-                amount: Number(values.amount) || 0,
+                ...money,
                 checked: false,
                 ...(values.category ? { category: values.category } : {}),
             };
@@ -162,11 +167,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
 
     return (
         <Dialog
-            onOpenChange={(open) => {
-                if (!open) {
-                    resetForm();
-                }
-            }}
+            onOpenChange={() => resetForm()}
         >
             <Form {...form}>
                 <DialogTrigger asChild>
@@ -213,7 +214,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                     <ListRow
                                         key={id}
                                         title={title}
-                                        meta={`${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
+                                        meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ≈ ` : ""}${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
                                         active={editingId === id}
                                         copyValue={toMoneyInput(amount)}
                                         disabled={pendings}
@@ -240,24 +241,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    control={form.control}
-                                    name="amount"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t("amount")}</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    inputMode="decimal"
-                                                    placeholder="0.00"
-                                                    {...field}
-                                                    onChange={handleDecimalInputChange(field.onChange)}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                <EssentialAmountField form={form} />
                                 <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
                                 <DialogFooter>
                                     {editingId ? (

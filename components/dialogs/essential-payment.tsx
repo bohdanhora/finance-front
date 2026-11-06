@@ -8,7 +8,10 @@ import { useSetCheckedEssential } from "api/main";
 import { EssentialsType } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
-import { roundMoney, toMoneyInput } from "lib/money";
+import { roundMoney, toMoneyInput, toRateInput } from "lib/money";
+import { useExchangeRates } from "hooks/use-exchange-rates";
+import { currentForeignAmount, isForeignAmount } from "lib/foreign-amount";
+import { getExchangeRate } from "lib/savings";
 import useStore from "store/general";
 import { EssentialType } from "types/transactions";
 import { Button } from "ui/button";
@@ -34,22 +37,25 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     const [cardId, setCardId] = useState("");
     const tCards = useTranslations("cards");
 
+    const rates = useExchangeRates("sell");
     const isUndo = Boolean(essential?.checked);
     const cardBalance = spendableOnCard(store.cards, cardId, store.totalAmount);
     const symbol = getCurrencySymbol(store.userCurrency);
     const numericAmount = Number(actualAmount);
     const hasValidAmount = actualAmount.length > 0 && Number.isFinite(numericAmount) && numericAmount > 0;
+    const plannedAmount = essential ? currentForeignAmount(essential, store.userCurrency, rates) : 0;
     const difference = useMemo(
-        () => (essential && hasValidAmount ? roundMoney(essential.amount - numericAmount) : 0),
-        [essential, hasValidAmount, numericAmount],
+        () => (essential && hasValidAmount ? roundMoney(plannedAmount - numericAmount) : 0),
+        [essential, hasValidAmount, numericAmount, plannedAmount],
     );
 
     useEffect(() => {
         if (!open || !essential) return;
-        setActualAmount(toMoneyInput(essential.paidAmount ?? essential.amount));
+        const { userCurrency } = useStore.getState();
+        setActualAmount(toMoneyInput(essential.paidAmount ?? currentForeignAmount(essential, userCurrency, rates)));
         setError(null);
         setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
-    }, [essential, open]);
+    }, [essential, open, rates]);
 
     const submit = async () => {
         if (!essential) return;
@@ -95,6 +101,9 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
     if (!essential) return null;
 
     const paidAmount = essential.paidAmount ?? essential.amount;
+    const foreign = isForeignAmount(essential, store.userCurrency);
+    const foreignSymbol = foreign ? getCurrencySymbol(essential.currency!) : "";
+    const marketRate = foreign ? getExchangeRate(essential.currency!, store.userCurrency, rates) : null;
     const currentBalance = findCardById(store.cards, cardId)?.balance ?? store.totalAmount;
     const balanceAfterPayment = roundMoney(currentBalance - (hasValidAmount ? numericAmount : 0));
 
@@ -135,8 +144,19 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                         />
                         <div className="border-rule flex items-center justify-between gap-4 border-y py-4">
                             <span className="text-ink-faint text-sm">{t("planned")}</span>
-                            <span className="font-semibold tabular-nums">
-                                {formatCurrency(essential.amount)} {symbol}
+                            <span className="text-right">
+                                <span className="block font-semibold tabular-nums">
+                                    {foreign
+                                        ? `${formatCurrency(essential.currencyAmount!)} ${foreignSymbol}`
+                                        : `${formatCurrency(essential.amount)} ${symbol}`}
+                                </span>
+                                {foreign && (
+                                    <span className="text-ink-faint block font-mono text-2xs tabular-nums">
+                                        ≈ {formatCurrency(plannedAmount)} {symbol}
+                                        {marketRate !== null &&
+                                            ` · 1 ${foreignSymbol} = ${toRateInput(marketRate)} ${symbol}`}
+                                    </span>
+                                )}
                             </span>
                         </div>
 
@@ -148,7 +168,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                     variant="ghost"
                                     className="h-auto px-2 py-1 text-xs"
                                     onClick={() => {
-                                        setActualAmount(toMoneyInput(essential.amount));
+                                        setActualAmount(toMoneyInput(plannedAmount));
                                         setError(null);
                                     }}
                                 >
@@ -178,6 +198,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                                     {symbol}
                                 </span>
                             </div>
+                            {foreign && <p className="text-ink-faint text-xs">{t("foreignHint", { currency: symbol })}</p>}
                             {error && <p className="text-signal text-sm">{error}</p>}
                         </div>
 

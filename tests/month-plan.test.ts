@@ -8,6 +8,8 @@ import {
     summarizeEssentials,
     summarizeExpectedIncomes,
 } from "../lib/month-plan";
+import { CURRENCY } from "../constants/index";
+import { currentForeignAmount, isForeignAmount, toStoredMoney } from "../lib/foreign-amount";
 import { MonthSnapshot } from "../types/transactions";
 
 const salary = (amount: number, received = false, receivedAmount?: number) => ({ amount, received, receivedAmount });
@@ -68,4 +70,40 @@ test("the current month uses live lists, a finished one its snapshot", () => {
     assert.equal(planForMonth("2026-08", "2026-09", live, history), history[0]);
     assert.equal(planForMonth("2026-07", "2026-09", live, history), null);
     assert.equal(planForMonth("2026-09", "2026-09", { essentials: [], expectedIncomes: [] }, history), null);
+});
+
+const uahRates = { usdToUah: 41.5, eurToUah: 48 };
+
+test("a bill in the main currency clears any foreign amount it had", () => {
+    assert.deepEqual(toStoredMoney(300, CURRENCY.UAH, CURRENCY.UAH, uahRates), {
+        amount: 300,
+        currency: undefined,
+        currencyAmount: undefined,
+    });
+});
+
+test("a foreign bill keeps its own amount next to the converted one", () => {
+    assert.deepEqual(toStoredMoney(20, CURRENCY.USD, CURRENCY.UAH, uahRates), {
+        amount: 830,
+        currency: CURRENCY.USD,
+        currencyAmount: 20,
+    });
+});
+
+test("a foreign bill cannot be stored without a rate", () => {
+    assert.equal(toStoredMoney(20, CURRENCY.USD, CURRENCY.UAH, { usdToUah: 0, eurToUah: 0 }), null);
+});
+
+test("a bill stops being foreign once its currency becomes the main one", () => {
+    const item = { amount: 20, currency: CURRENCY.USD, currencyAmount: 20 };
+
+    assert.equal(isForeignAmount(item, CURRENCY.USD), false);
+    assert.equal(isForeignAmount(item, CURRENCY.UAH), true);
+});
+
+test("the current amount follows today's rate and falls back to the stored one", () => {
+    const item = { amount: 800, currency: CURRENCY.USD, currencyAmount: 20 };
+
+    assert.equal(currentForeignAmount(item, CURRENCY.UAH, uahRates), 830);
+    assert.equal(currentForeignAmount(item, CURRENCY.UAH, { usdToUah: 0, eurToUah: 0 }), 800);
 });

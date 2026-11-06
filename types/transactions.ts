@@ -155,6 +155,8 @@ export type EssentialType = {
     title: string;
     checked: boolean;
     category?: string;
+    currency?: CURRENCY;
+    currencyAmount?: number;
     paidAmount?: number;
     paidAt?: string;
     paymentTransactionId?: string;

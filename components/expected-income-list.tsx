@@ -8,7 +8,7 @@ import { twMerge } from "lib/tw";
 import { getCurrencySymbol } from "lib/currency";
 import { paydayStatus, summarizeExpectedIncomes } from "lib/month-plan";
 import { formatCurrency } from "lib/utils";
-import { isForeignIncome } from "lib/expected-income";
+import { isForeignAmount } from "lib/foreign-amount";
 import useStore from "store/general";
 import { ExpectedIncome } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
@@ -120,16 +120,16 @@ export const ExpectedIncomeList = () => {
                                         {item.received ? "" : "+"}
                                         {item.received
                                             ? `${formatCurrency(item.receivedAmount ?? item.amount)} ${symbol}`
-                                            : isForeignIncome(item, store.userCurrency)
+                                            : isForeignAmount(item, store.userCurrency)
                                               ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
                                               : `${formatCurrency(item.amount)} ${symbol}`}
                                     </span>
-                                    {!item.received && isForeignIncome(item, store.userCurrency) && (
+                                    {!item.received && isForeignAmount(item, store.userCurrency) && (
                                         <span className="text-ink-faint block font-mono text-3xs tabular-nums">
                                             ≈ {formatCurrency(item.amount)} {symbol}
                                         </span>
                                     )}
-                                    {item.received && isForeignIncome(item, store.userCurrency) && (
+                                    {item.received && isForeignAmount(item, store.userCurrency) && (
                                         <span className="text-ink-faint block font-mono text-3xs tabular-nums">
                                             {tPossible("plannedAmount", {
                                                 amount: formatCurrency(item.currencyAmount),
@@ -138,7 +138,7 @@ export const ExpectedIncomeList = () => {
                                         </span>
                                     )}
                                     {item.received &&
-                                        !isForeignIncome(item, store.userCurrency) &&
+                                        !isForeignAmount(item, store.userCurrency) &&
                                         item.receivedAmount !== undefined &&
                                         item.receivedAmount !== item.amount && (
                                             <span className="text-ink-faint block font-mono text-3xs tabular-nums">

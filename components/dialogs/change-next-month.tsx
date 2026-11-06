@@ -30,7 +30,7 @@ import { changeNextMonthFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
 import { CURRENCY } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
-import { convertToUserCurrency } from "lib/expected-income";
+import { convertToUserCurrency } from "lib/foreign-amount";
 import { useExchangeRates } from "hooks/use-exchange-rates";
 import { ViewSwitcher } from "components/charts/view-switcher";
 

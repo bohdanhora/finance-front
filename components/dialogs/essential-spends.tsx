@@ -24,7 +24,7 @@ import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
 import { useNewEssential, useRemoveEssential, useSetEssentialPayments, useUpdateEssential } from "api/main";
 import { v4 as uuidv4 } from "uuid";
-import { formatCurrency, handleDecimalInputChange } from "lib/utils";
+import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { essentialSpendsFormSchema } from "schemas/other";
 import { useValidationMessages } from "lib/validation";
@@ -37,8 +37,13 @@ import { EssentialPaymentDialog } from "./essential-payment";
 import { EssentialCategoryField, useCategorySuggestion } from "components/essential-category-field";
 import { getCategoryLabel } from "constants/categories";
 import { suggestEssentialCategory } from "lib/essential-category";
-
-const getEmptyEssentialValues = () => ({ amount: "", title: "", category: "" });
+import {
+    EssentialAmountField,
+    getEmptyEssentialValues,
+    getEssentialFormValues,
+} from "components/essential-amount-field";
+import { useExchangeRates } from "hooks/use-exchange-rates";
+import { isForeignAmount, toStoredMoney } from "lib/foreign-amount";
 
 type Props = {
     nextMonth?: boolean;
@@ -51,6 +56,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
     const store = useStore();
     const userCurrency = store.userCurrency;
+    const rates = useExchangeRates("sell");
 
     const t = useTranslations();
 
@@ -70,7 +76,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: getEmptyEssentialValues(),
+        defaultValues: getEmptyEssentialValues(userCurrency),
     });
     const { setTouched } = useCategorySuggestion(form);
     const tCategories = useTranslations("categories");
@@ -89,20 +95,13 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     const resetForm = () => {
         setEditingId(null);
         setTouched(false);
-        form.reset(getEmptyEssentialValues());
+        form.reset(getEmptyEssentialValues(userCurrency));
     };
 
     const startEditing = (essential: EssentialType) => {
         setEditingId(essential.id);
         setTouched(Boolean(essential.category));
-        form.reset(
-            {
-                amount: toMoneyInput(essential.amount),
-                title: essential.title,
-                category: essential.category ?? "",
-            },
-            { keepDefaultValues: true },
-        );
+        form.reset(getEssentialFormValues(essential, userCurrency), { keepDefaultValues: true });
     };
 
     const categorizeAll = async () => {
@@ -183,6 +182,12 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        const money = editingPaid ? null : toStoredMoney(Number(values.amount), values.currency, userCurrency, rates);
+        if (!money && !editingPaid) {
+            form.setError("amount", { message: t("dialogs.conversionUnavailable") });
+            return;
+        }
+
         try {
             if (editingId) {
                 const essential = arrayEssentials.find(({ id }) => id === editingId);
@@ -199,7 +204,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                     item: {
                         ...essential,
                         title: essential.checked ? essential.title : values.title,
-                        amount: essential.checked ? essential.amount : Number(values.amount),
+                        ...money,
                         category: values.category || undefined,
                     },
                 });
@@ -214,7 +219,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
             const item = {
                 id: uuidv4(),
                 title: values.title || "",
-                amount: Number(values.amount) || 0,
+                ...(money ?? { amount: 0 }),
                 checked: false,
                 ...(values.category ? { category: values.category } : {}),
             };
@@ -263,7 +268,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                 open={open}
                 onOpenChange={(nextOpen) => {
                     setOpen(nextOpen);
-                    if (!nextOpen) resetForm();
+                    resetForm();
                 }}
             >
                 <Form {...form}>
@@ -337,7 +342,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                                 )
                                             }
                                             title={title}
-                                            meta={`${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
+                                            meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ${checked ? "·" : "≈"} ` : ""}${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
                                             muted={checked}
                                             copyValue={toMoneyInput(
                                                 checked ? (essential.paidAmount ?? amount) : amount,
@@ -372,25 +377,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={form.control}
-                                        name="amount"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>{t("dialogs.amount")}</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        inputMode="decimal"
-                                                        placeholder="0.00"
-                                                        disabled={editingPaid}
-                                                        {...field}
-                                                        onChange={handleDecimalInputChange(field.onChange)}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    <EssentialAmountField form={form} disabled={editingPaid} />
                                     <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
                                     {editingPaid && (
                                         <p className="text-ink-faint font-mono text-2xs">

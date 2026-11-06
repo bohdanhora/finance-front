@@ -147,6 +147,9 @@
         "currencyPlaceholder": "Select a currency",
         "occurred": "Something went wrong. Try again.",
         "essentials": {
+            "currencyLabel": "Currency",
+            "convertedPreview": "About {amount} {currency} at today's rate. You enter the exact amount when you pay.",
+            "foreignHint": "Converted to {currency} at the current rate.",
             "title": "Essential payments",
             "nextMonth": "Payments for next month",
             "hint": "Rent, utilities, loans and other payments you cannot skip.",
@@ -167,6 +170,7 @@
             "removeErrorRequest": "Could not remove from the template:",
             "removeError": "Could not remove the payment. Try again.",
             "payment": {
+                "foreignHint": "Enter how much left the card in {currency} after the exchange.",
                 "title": "Payment: {title}",
                 "description": "Enter the amount you actually paid. Only this amount is deducted.",
                 "planned": "Planned",
@@ -275,6 +279,7 @@
         "allPaid": "All paid",
         "noEssentials": "No payments yet. Add rent, utilities and other regular bills.",
         "plannedAmount": "Plan: {amount} {currency}",
+        "paidEquivalent": "Paid: {amount} {currency}",
         "includesExpected": "Includes {amount} of expected income",
         "carriedFrom": "Carried over from {month}",
         "essentialsTitle": "Essential payments",

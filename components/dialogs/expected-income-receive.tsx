@@ -8,7 +8,7 @@ import { useSetExpectedIncomeReceived } from "api/main";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney, roundRate, toMoneyInput, toRateInput } from "lib/money";
-import { currentIncomeAmount, isForeignIncome } from "lib/expected-income";
+import { currentForeignAmount, isForeignAmount } from "lib/foreign-amount";
 import { getExchangeRate } from "lib/savings";
 import { useExchangeRates } from "hooks/use-exchange-rates";
 import useStore from "store/general";
@@ -46,7 +46,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     useEffect(() => {
         if (!open || !income) return;
         const { userCurrency } = useStore.getState();
-        setActualAmount(toMoneyInput(income.receivedAmount ?? currentIncomeAmount(income, userCurrency, rates)));
+        setActualAmount(toMoneyInput(income.receivedAmount ?? currentForeignAmount(income, userCurrency, rates)));
         setAddToBalance(true);
         setError(null);
         setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
@@ -82,8 +82,8 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     if (!income) return null;
 
     const receivedAmount = income.receivedAmount ?? income.amount;
-    const foreign = isForeignIncome(income, store.userCurrency);
-    const expectedAmount = currentIncomeAmount(income, store.userCurrency, rates);
+    const foreign = isForeignAmount(income, store.userCurrency);
+    const expectedAmount = currentForeignAmount(income, store.userCurrency, rates);
     const difference = hasValidAmount ? roundMoney(numericAmount - expectedAmount) : 0;
     const marketRate = foreign ? getExchangeRate(income.currency!, store.userCurrency, rates) : null;
     const actualRate = foreign && hasValidAmount ? roundRate(numericAmount / income.currencyAmount!) : null;
