@@ -38,7 +38,12 @@
         "newItem": "New item",
         "editing": "Editing",
         "edit": "Edit",
-        "remove": "Delete"
+        "remove": "Delete",
+        "clearAll": "Clear all",
+        "clearConfirm": "Delete {count, plural, one {# item} other {# items}}?",
+        "cleared": "List cleared",
+        "clearedKeptPaid": "List cleared, paid bills stayed",
+        "clearedKeptReceived": "List cleared, received incomes stayed"
     },
     "calculator": {
         "title": "Calculator",

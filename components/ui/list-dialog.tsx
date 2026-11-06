@@ -1,30 +1,75 @@
 "use client";
 
 import * as React from "react";
-import { PencilIcon, XIcon } from "lucide-react";
+import { PencilIcon, Trash2Icon, XIcon } from "lucide-react";
 import { twMerge } from "lib/tw";
 import { Button } from "ui/button";
 import { RowMenu } from "components/row-menu";
+
+const CLEAR_CONFIRM_TIMEOUT_MS = 4000;
 
 function ListDialogBody({ className, ...props }: React.ComponentProps<"div">) {
     return <div className={twMerge("grid gap-6 lg:grid-cols-5", className)} {...props} />;
 }
 
+type ClearListButtonProps = {
+    label: string;
+    confirmLabel: string;
+    disabled?: boolean;
+    onClear: () => void;
+};
+
+function ClearListButton({ label, confirmLabel, disabled, onClear }: ClearListButtonProps) {
+    const [confirming, setConfirming] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!confirming) return;
+        const timer = setTimeout(() => setConfirming(false), CLEAR_CONFIRM_TIMEOUT_MS);
+        return () => clearTimeout(timer);
+    }, [confirming]);
+
+    return (
+        <Button
+            type="button"
+            variant={confirming ? "destructive" : "ghost"}
+            size="sm"
+            disabled={disabled}
+            onBlur={() => setConfirming(false)}
+            onClick={() => {
+                if (!confirming) {
+                    setConfirming(true);
+                    return;
+                }
+                setConfirming(false);
+                onClear();
+            }}
+            className={twMerge("h-6 px-2", !confirming && "text-ink-faint hover:bg-signal-wash hover:text-signal")}
+        >
+            <Trash2Icon />
+            {confirming ? confirmLabel : label}
+        </Button>
+    );
+}
+
 type ListPanelProps = {
     label: React.ReactNode;
     summary?: React.ReactNode;
+    action?: React.ReactNode;
     empty?: React.ReactNode;
     isEmpty?: boolean;
     toolbar?: React.ReactNode;
     children?: React.ReactNode;
 };
 
-function ListPanel({ label, summary, empty, isEmpty, toolbar, children }: ListPanelProps) {
+function ListPanel({ label, summary, action, empty, isEmpty, toolbar, children }: ListPanelProps) {
     return (
         <div className="flex min-w-0 flex-col lg:col-span-3">
-            <div className="border-rule-strong flex items-baseline justify-between gap-3 border-b pb-2">
+            <div className="border-rule-strong flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b pb-2">
                 <span className="label">{label}</span>
-                {summary && <span className="text-ink-muted font-mono text-xs tabular-nums">{summary}</span>}
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+                    {summary && <span className="text-ink-muted font-mono text-xs tabular-nums">{summary}</span>}
+                    {action}
+                </div>
             </div>
             {toolbar && (
                 <div className="border-rule flex flex-wrap items-center justify-between gap-2 border-b py-2">
@@ -147,4 +192,4 @@ function FormPanel({ label, children }: FormPanelProps) {
     );
 }
 
-export { FormPanel, ListDialogBody, ListPanel, ListRow };
+export { ClearListButton, FormPanel, ListDialogBody, ListPanel, ListRow };

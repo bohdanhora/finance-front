@@ -38,7 +38,12 @@
         "newItem": "Новий запис",
         "editing": "Редагування",
         "edit": "Змінити",
-        "remove": "Видалити"
+        "remove": "Видалити",
+        "clearAll": "Очистити все",
+        "clearConfirm": "Видалити {count, plural, one {# запис} few {# записи} other {# записів}}?",
+        "cleared": "Список очищено",
+        "clearedKeptPaid": "Список очищено, сплачені платежі залишилися",
+        "clearedKeptReceived": "Список очищено, отримані доходи залишилися"
     },
     "calculator": {
         "title": "Калькулятор",

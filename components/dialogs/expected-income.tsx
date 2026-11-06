@@ -36,7 +36,7 @@ import { Input } from "ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "ui/select";
 import { Hint } from "components/hint";
 import { ListAction, subscribeListAction } from "lib/list-actions";
-import { FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
+import { ClearListButton, FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 
 type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
@@ -54,14 +54,16 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     const store = useStore();
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [clearing, setClearing] = useState(false);
 
     const { mutateAsync: addIncome, isPending: adding } = useAddExpectedIncome();
     const { mutateAsync: updateIncome, isPending: updating } = useUpdateExpectedIncome();
     const { mutateAsync: removeIncome, isPending: removing } = useRemoveExpectedIncome();
-    const pending = adding || updating || removing;
+    const pending = clearing || adding || updating || removing;
 
     const symbol = getCurrencySymbol(store.userCurrency);
     const listTotal = store.expectedIncomes.reduce((sum, { amount }) => sum + amount, 0);
+    const removable = store.expectedIncomes.filter(({ received }) => !received);
     const rates = useExchangeRates();
 
     const validationMessages = useValidationMessages();
@@ -107,6 +109,22 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
             if (editingId === id) resetForm();
             toast.success(t("removed"));
         } catch {}
+    };
+
+    const clearAll = async () => {
+        const keepsReceived = removable.length < store.expectedIncomes.length;
+        resetForm();
+        setClearing(true);
+        try {
+            for (const { id } of removable) {
+                const res = await removeIncome(id);
+                store.setExpectedIncomes(res.updatedItems);
+            }
+            toast.success(tl(keepsReceived ? "clearedKeptReceived" : "cleared"));
+        } catch {
+        } finally {
+            setClearing(false);
+        }
     };
 
     const onSubmit = async (values: FormValues) => {
@@ -175,6 +193,16 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                         summary={
                             store.expectedIncomes.length > 0 &&
                             `${store.expectedIncomes.length} · ${formatCurrency(listTotal)} ${symbol}`
+                        }
+                        action={
+                            removable.length > 0 && (
+                                <ClearListButton
+                                    label={tl("clearAll")}
+                                    confirmLabel={tl("clearConfirm", { count: removable.length })}
+                                    disabled={pending}
+                                    onClear={clearAll}
+                                />
+                            )
                         }
                         isEmpty={store.expectedIncomes.length === 0}
                         empty={<p className="text-ink-faint text-sm">{tl("empty")}</p>}
