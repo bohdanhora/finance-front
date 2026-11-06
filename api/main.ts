@@ -6,6 +6,8 @@ import {
     AllTransactionsInfoResponse,
     CheckedEssentialPayload,
     CheckedEssentialResponseType,
+    ClearEssentialsPayload,
+    ClearEssentialsResponseType,
     ClearDataPayload,
     ClearDataResponseType,
     DeleteTransactionPayload,
@@ -164,6 +166,19 @@ export const useRemoveEssential = () => {
     });
 };
 
+const clearEssentials = async (payload: ClearEssentialsPayload): Promise<ClearEssentialsResponseType> => {
+    const res = await transactionsAxios.put("clear-essentials", payload);
+    return res.data;
+};
+
+export const useClearEssentials = () => {
+    return useMutation({
+        mutationKey: ["clear-essentials"],
+        mutationFn: clearEssentials,
+        onError: showAxiosError,
+    });
+};
+
 const newEssential = async (payload: NewEssentialPayload): Promise<NewEssentialResponseType> => {
     const res = await transactionsAxios.post("new-essential", payload);
     return res.data;
@@ -223,6 +238,18 @@ export const useRemoveExpectedIncome = () =>
     useMutation({
         mutationKey: ["expected-income", "remove"],
         mutationFn: removeExpectedIncome,
+        onError: showAxiosError,
+    });
+
+const clearExpectedIncomes = async (): Promise<ExpectedIncomeListResponse> => {
+    const res = await transactionsAxios.delete("expected-incomes");
+    return res.data;
+};
+
+export const useClearExpectedIncomes = () =>
+    useMutation({
+        mutationKey: ["expected-income", "clear"],
+        mutationFn: clearExpectedIncomes,
         onError: showAxiosError,
     });
 

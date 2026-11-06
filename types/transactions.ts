@@ -291,6 +291,16 @@ export type RemoveEssentialPayload = {
     id: string;
 };
 
+export type ClearEssentialsPayload = {
+    type: EssentialsType;
+};
+
+export type ClearEssentialsResponseType = {
+    message: string;
+    removedCount: number;
+    updatedItems: EssentialType[] | [];
+};
+
 export type RemoveEssentialResponseType = {
     message: string;
     removedId: string;

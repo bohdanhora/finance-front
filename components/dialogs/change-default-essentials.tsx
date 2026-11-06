@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { useTranslations } from "next-intl";
-import { useNewEssential, useRemoveEssential, useUpdateEssential } from "api/main";
+import { useClearEssentials, useNewEssential, useRemoveEssential, useUpdateEssential } from "api/main";
 import { ClearListButton, FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
 import { v4 as uuidv4 } from "uuid";
 import { EssentialsType } from "constants/index";
@@ -44,7 +44,6 @@ import { isForeignAmount, toStoredMoney } from "lib/foreign-amount";
 
 export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: string }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [clearing, setClearing] = useState(false);
     const store = useStore();
     const userCurrency = store.userCurrency;
     const rates = useExchangeRates("sell");
@@ -57,7 +56,9 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     const { mutateAsync: removeEssentialAsync, isPending: removeEssentialPending } = useRemoveEssential();
     const { mutateAsync: updateEssentialAsync, isPending: updateEssentialPending } = useUpdateEssential();
 
-    const pendings = clearing || removeEssentialPending || newEssentialPending || updateEssentialPending;
+    const { mutateAsync: clearEssentialsAsync, isPending: clearEssentialsPending } = useClearEssentials();
+
+    const pendings = clearEssentialsPending || removeEssentialPending || newEssentialPending || updateEssentialPending;
 
     const t = useTranslations("dialogs");
     const tl = useTranslations("listDialog");
@@ -117,19 +118,14 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     };
 
     const clearAll = async () => {
-        resetForm();
-        setClearing(true);
         try {
-            for (const { id } of arrayEssentials) {
-                const res = await removeEssentialAsync({ type: EssentialsType.DEFAULT, id });
-                store.setDefaultEssentialsArray(res.updatedItems);
-            }
+            const res = await clearEssentialsAsync({ type: EssentialsType.DEFAULT });
+            store.setDefaultEssentialsArray(res.updatedItems);
+            resetForm();
             toast.success(tl("cleared"));
         } catch (error) {
             console.error(t("essentials.removeErrorRequest"), error);
             toast.error(t("essentials.removeError"));
-        } finally {
-            setClearing(false);
         }
     };
 

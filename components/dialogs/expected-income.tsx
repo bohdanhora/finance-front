@@ -8,7 +8,12 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
-import { useAddExpectedIncome, useRemoveExpectedIncome, useUpdateExpectedIncome } from "api/main";
+import {
+    useAddExpectedIncome,
+    useClearExpectedIncomes,
+    useRemoveExpectedIncome,
+    useUpdateExpectedIncome,
+} from "api/main";
 import { CURRENCY } from "constants/index";
 import { getCurrencySymbol } from "lib/currency";
 import { convertToUserCurrency, isForeignAmount } from "lib/foreign-amount";
@@ -54,12 +59,12 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     const store = useStore();
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [clearing, setClearing] = useState(false);
 
     const { mutateAsync: addIncome, isPending: adding } = useAddExpectedIncome();
     const { mutateAsync: updateIncome, isPending: updating } = useUpdateExpectedIncome();
     const { mutateAsync: removeIncome, isPending: removing } = useRemoveExpectedIncome();
-    const pending = clearing || adding || updating || removing;
+    const { mutateAsync: clearIncomes, isPending: clearingIncomes } = useClearExpectedIncomes();
+    const pending = adding || updating || removing || clearingIncomes;
 
     const symbol = getCurrencySymbol(store.userCurrency);
     const listTotal = store.expectedIncomes.reduce((sum, { amount }) => sum + amount, 0);
@@ -112,19 +117,12 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     };
 
     const clearAll = async () => {
-        const keepsReceived = removable.length < store.expectedIncomes.length;
-        resetForm();
-        setClearing(true);
         try {
-            for (const { id } of removable) {
-                const res = await removeIncome(id);
-                store.setExpectedIncomes(res.updatedItems);
-            }
-            toast.success(tl(keepsReceived ? "clearedKeptReceived" : "cleared"));
-        } catch {
-        } finally {
-            setClearing(false);
-        }
+            const res = await clearIncomes();
+            store.setExpectedIncomes(res.updatedItems);
+            resetForm();
+            toast.success(tl(res.updatedItems.length > 0 ? "clearedKeptReceived" : "cleared"));
+        } catch {}
     };
 
     const onSubmit = async (values: FormValues) => {

@@ -22,7 +22,13 @@ import { ClearListButton, FormPanel, ListDialogBody, ListPanel, ListRow } from "
 import { useTranslations } from "next-intl";
 import { EssentialsType } from "constants/index";
 import { toast } from "react-toastify";
-import { useNewEssential, useRemoveEssential, useSetEssentialPayments, useUpdateEssential } from "api/main";
+import {
+    useClearEssentials,
+    useNewEssential,
+    useRemoveEssential,
+    useSetEssentialPayments,
+    useUpdateEssential,
+} from "api/main";
 import { v4 as uuidv4 } from "uuid";
 import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
@@ -54,7 +60,6 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
-    const [clearing, setClearing] = useState(false);
     const store = useStore();
     const userCurrency = store.userCurrency;
     const rates = useExchangeRates("sell");
@@ -66,8 +71,14 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     const { mutateAsync: newEssentialAsync, isPending: newEssentialPending } = useNewEssential();
     const { mutateAsync: updateEssentialAsync, isPending: updateEssentialPending } = useUpdateEssential();
 
+    const { mutateAsync: clearEssentialsAsync, isPending: clearEssentialsPending } = useClearEssentials();
+
     const apiPendings =
-        clearing || essentialPaymentsPending || removeEssentialPending || newEssentialPending || updateEssentialPending;
+        essentialPaymentsPending ||
+        removeEssentialPending ||
+        clearEssentialsPending ||
+        newEssentialPending ||
+        updateEssentialPending;
 
     const arrayEssentials = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
     const listTotal = arrayEssentials.reduce((sum, { amount }) => sum + amount, 0);
@@ -184,21 +195,15 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     };
 
     const clearAll = async () => {
-        const keepsPaid = removable.length < arrayEssentials.length;
-        if (!editingPaid) resetForm();
-        setClearing(true);
         try {
             const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
-            for (const { id } of removable) {
-                const res = await removeEssentialAsync({ type, id });
-                setList(res.updatedItems);
-            }
-            toast.success(t(keepsPaid ? "listDialog.clearedKeptPaid" : "listDialog.cleared"));
+            const res = await clearEssentialsAsync({ type });
+            setList(res.updatedItems);
+            if (!editingPaid) resetForm();
+            toast.success(t(res.updatedItems.length > 0 ? "listDialog.clearedKeptPaid" : "listDialog.cleared"));
         } catch (error) {
             console.error(error);
             toast.error(t("dialogs.occurred"));
-        } finally {
-            setClearing(false);
         }
     };
 
