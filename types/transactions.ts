@@ -366,9 +366,15 @@ export type AssistantPreferences = {
     baseUrl: string;
 };
 
+export type StatisticsPreferences = {
+    hiddenCategories: string[];
+    categoryLimits: Record<string, number>;
+};
+
 export type ConnectionsResponse = {
     assistant: AssistantPreferences | null;
     monobankToken: string | null;
+    statistics?: StatisticsPreferences | null;
 };
 
 export type StreakRecord = {

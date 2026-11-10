@@ -11,17 +11,18 @@ import {
     PointElement,
     LineElement,
     Filler,
+    type ActiveElement,
+    type ChartEvent,
     type TooltipItem,
 } from "chart.js";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { formatCurrency } from "lib/utils";
-import { byCategory, byDay, byMonth, cumulativeNet, type MonthKey } from "lib/statistics";
+import { byMonth, cumulativeNet, type MonthKey } from "lib/statistics";
+import { byBucket, granularityOf, type Granularity, type Period } from "lib/period";
 import { TransactionType } from "types/transactions";
-import { getCategoryLabel } from "constants/categories";
 import { formatMonthKey } from "lib/date-locale";
-import { CategoryIcon } from "components/categories/category-icon";
 
 ChartJS.register(Tooltip, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler);
 
@@ -84,20 +85,60 @@ type Props = {
     view: ChartView;
     transactions: TransactionType[];
     allTransactions: TransactionType[];
-    month: MonthKey;
+    period: Period;
     currencySymbol: string;
+    selectedKey?: string | null;
+    onSelectBucket?: (key: string) => void;
+    onSelectMonth?: (month: MonthKey) => void;
 };
 
-export const SpendingChart = ({ view, transactions, allTransactions, month, currencySymbol }: Props) => {
-    const tCat = useTranslations("categories");
+type Point = { key: string; label: string; income: number; expense: number };
+
+const pointerOnHover = (event: ChartEvent, elements: ActiveElement[]) => {
+    const target = event.native?.target as HTMLElement | undefined;
+    if (target) target.style.cursor = elements.length ? "pointer" : "default";
+};
+
+const bucketLabel = (key: string, granularity: Granularity, singleMonth: boolean, locale: string) => {
+    if (granularity === "month") return formatMonthKey(key, locale, "short");
+    if (singleMonth) return String(Number(key.slice(8)));
+    return `${key.slice(8)}.${key.slice(5, 7)}`;
+};
+
+export const SpendingChart = ({
+    view,
+    transactions,
+    allTransactions,
+    period,
+    currencySymbol,
+    selectedKey,
+    onSelectBucket,
+    onSelectMonth,
+}: Props) => {
     const tStats = useTranslations("statistics");
     const locale = useLocale();
     const palette = usePalette();
-    const categoryLabel = (category: string) => getCategoryLabel(category, tCat);
 
-    const categories = useMemo(() => byCategory(transactions), [transactions]);
-    const days = useMemo(() => byDay(transactions, month), [transactions, month]);
-    const months = useMemo(() => byMonth(allTransactions, month), [allTransactions, month]);
+    const granularity = granularityOf(period);
+    const singleMonth = period.start.slice(0, 7) === period.end.slice(0, 7);
+    const buckets = useMemo<Point[]>(
+        () =>
+            byBucket(transactions, period).map((point) => ({
+                ...point,
+                label: bucketLabel(point.key, granularity, singleMonth, locale),
+            })),
+        [transactions, period, granularity, singleMonth, locale],
+    );
+    const months = useMemo<Point[]>(
+        () =>
+            byMonth(allTransactions, period.end.slice(0, 7), period.kind === "year" ? 12 : 6).map((point) => ({
+                key: point.month,
+                label: formatMonthKey(point.month, locale, "short"),
+                income: point.income,
+                expense: point.expense,
+            })),
+        [allTransactions, period.end, period.kind, locale],
+    );
 
     const font = { family: "Martian Mono, IBM Plex Sans, monospace", size: 10 };
 
@@ -136,67 +177,31 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
         scales,
     };
 
-    if (view === "categories") {
-        if (!categories.length) {
-            return <EmptyChart message={tStats("noExpenses")} />;
-        }
-
-        const total = categories.reduce((sum, category) => sum + category.value, 0);
-        const max = categories[0]?.value || 1;
-
-        return (
-            <div>
-                <div className="border-rule-strong flex flex-wrap items-baseline justify-between gap-3 border-b pb-3">
-                    <span className="label">{tStats("expense")}</span>
-                    <span className="figure text-figure">
-                        {formatCurrency(total)} <span className="text-ink-faint">{currencySymbol}</span>
-                    </span>
-                </div>
-                <ul>
-                    {categories.map((cat) => (
-                        <li
-                            key={cat.name}
-                            className="border-rule grid grid-cols-12 items-center gap-x-3 gap-y-2 border-b py-3"
-                        >
-                            <span className="col-span-7 flex min-w-0 items-center gap-2.5 text-sm sm:col-span-4">
-                                <CategoryIcon category={cat.name} className="text-ink-faint size-4 shrink-0" />
-                                <span className="break-words">{categoryLabel(cat.name)}</span>
-                            </span>
-                            <span className="col-span-5 text-right font-mono text-xs tabular-nums sm:order-last sm:col-span-3">
-                                {formatCurrency(cat.value)} {currencySymbol}
-                                <span className="text-ink-faint ml-2">{cat.percent}%</span>
-                            </span>
-                            <span className="bg-wash col-span-12 h-2 sm:col-span-5">
-                                <span
-                                    className="bg-accent block h-full transition-[width] duration-500"
-                                    style={{ width: `${(cat.value / max) * 100}%` }}
-                                />
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        );
-    }
-
     const pairLegend = [
         { label: tStats("income"), color: palette.accent },
         { label: tStats("expense"), color: palette.muted },
     ];
 
     if (view === "daily" || view === "months") {
-        const source =
-            view === "daily"
-                ? days.map((d) => ({ label: d.label, income: d.income, expense: d.expense }))
-                : months.map((m) => ({
-                      label: formatMonthKey(m.month, locale, "short"),
-                      income: m.income,
-                      expense: m.expense,
-                  }));
+        const source = view === "daily" ? buckets : months;
+        const opensMonth = view === "months" || granularity === "month";
+        const select = (index: number) => {
+            const point = source[index];
+            if (!point) return;
+            if (opensMonth) onSelectMonth?.(point.key);
+            else onSelectBucket?.(point.key);
+        };
+        const colorFor = (base: string) => source.map((point) => (point.key === selectedKey ? palette.ink : base));
+        const thin = view === "daily" && granularity === "day";
 
         return (
             <div>
-                <Legend items={pairLegend} />
+                <div className="flex flex-wrap items-start justify-between gap-x-3">
+                    <Legend items={pairLegend} />
+                    <p className="text-ink-faint mb-4 font-mono text-3xs uppercase">
+                        {opensMonth ? tStats("clickMonthHint") : tStats("clickDayHint")}
+                    </p>
+                </div>
                 <div className="h-80 w-full">
                     <Bar
                         data={{
@@ -205,24 +210,30 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
                                 {
                                     label: tStats("income"),
                                     data: source.map((item) => item.income),
-                                    backgroundColor: palette.accent,
+                                    backgroundColor: colorFor(palette.accent),
                                     borderRadius: 0,
-                                    maxBarThickness: view === "daily" ? 14 : 32,
+                                    maxBarThickness: thin ? 14 : 32,
                                     categoryPercentage: 0.7,
                                     barPercentage: 0.9,
                                 },
                                 {
                                     label: tStats("expense"),
                                     data: source.map((item) => item.expense),
-                                    backgroundColor: palette.muted,
+                                    backgroundColor: colorFor(palette.muted),
                                     borderRadius: 0,
-                                    maxBarThickness: view === "daily" ? 14 : 32,
+                                    maxBarThickness: thin ? 14 : 32,
                                     categoryPercentage: 0.7,
                                     barPercentage: 0.9,
                                 },
                             ],
                         }}
-                        options={options}
+                        options={{
+                            ...options,
+                            onHover: pointerOnHover,
+                            onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
+                                if (elements[0]) select(elements[0].index);
+                            },
+                        }}
                     />
                 </div>
             </div>
@@ -233,11 +244,11 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
         <div className="h-80 w-full">
             <Line
                 data={{
-                    labels: days.map((d) => d.label),
+                    labels: buckets.map((point) => point.label),
                     datasets: [
                         {
                             label: tStats("netFlow"),
-                            data: cumulativeNet(days),
+                            data: cumulativeNet(buckets),
                             borderColor: palette.accent,
                             backgroundColor: palette.accentWash,
                             fill: true,
@@ -257,7 +268,3 @@ export const SpendingChart = ({ view, transactions, allTransactions, month, curr
         </div>
     );
 };
-
-const EmptyChart = ({ message }: { message: string }) => (
-    <div className="text-ink-faint flex h-60 items-center justify-center text-sm">{message}</div>
-);

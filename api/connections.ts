@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { transactionsAxios } from "config/axios.instances";
-import { AssistantPreferences, ConnectionsResponse } from "types/transactions";
+import { AssistantPreferences, ConnectionsResponse, StatisticsPreferences } from "types/transactions";
 
 export const CONNECTIONS_QUERY_KEY = ["connections"];
 
@@ -18,6 +18,10 @@ export const useConnections = () =>
 
 export const putAssistantPreferences = async (assistant: AssistantPreferences) => {
     await transactionsAxios.put("connections/assistant", assistant);
+};
+
+export const putStatisticsPreferences = async (statistics: StatisticsPreferences) => {
+    await transactionsAxios.put("connections/statistics", statistics);
 };
 
 export const putMonobankToken = async (token: string) => {
