@@ -64,7 +64,7 @@ type ListPanelProps = {
 function ListPanel({ label, summary, action, empty, isEmpty, toolbar, children }: ListPanelProps) {
     return (
         <div className="flex min-w-0 flex-col lg:col-span-3">
-            <div className="border-rule-strong flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b pb-2">
+            <div className="border-rule flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b pb-2">
                 <span className="label">{label}</span>
                 <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
                     {summary && <span className="text-ink-muted font-mono text-xs tabular-nums">{summary}</span>}
@@ -134,8 +134,8 @@ function ListRow({
         >
             <li
                 className={twMerge(
-                    "border-rule data-[state=open]:bg-surface flex items-center gap-3 border-b border-l-2 border-l-transparent py-3 pr-1 pl-2 transition-colors",
-                    active && "bg-surface border-l-accent",
+                    "data-[state=open]:bg-wash flex items-center gap-3 rounded-xl py-2.5 pr-1 pl-3 transition-colors hover:bg-wash",
+                    active && "bg-accent-wash",
                 )}
             >
                 {leading}
@@ -185,7 +185,7 @@ type FormPanelProps = {
 
 function FormPanel({ label, children }: FormPanelProps) {
     return (
-        <div className="border-rule lg:bg-surface flex min-w-0 flex-col gap-4 border-t pt-5 lg:col-span-2 lg:self-start lg:border lg:p-5">
+        <div className="border-rule lg:bg-paper flex min-w-0 flex-col gap-4 border-t pt-5 lg:col-span-2 lg:self-start lg:rounded-2xl lg:border lg:p-5">
             <span className="label">{label}</span>
             {children}
         </div>

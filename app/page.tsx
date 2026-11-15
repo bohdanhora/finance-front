@@ -34,12 +34,7 @@ const Home = () => {
                         <PossibleRemaining />
                         <NextMonthIncome />
 
-                        <Section
-                            index="03"
-                            anchor="history"
-                            title={tTx("history")}
-                            description={tSections("historyNote")}
-                        >
+                        <Section anchor="history" title={tTx("history")} description={tSections("historyNote")}>
                             <LastSpends />
                         </Section>
 

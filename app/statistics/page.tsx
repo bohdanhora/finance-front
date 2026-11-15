@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { X } from "lucide-react";
+import { EyeOff, X } from "lucide-react";
+import { toast } from "react-toastify";
 import { twMerge } from "lib/tw";
 
 import { PrivateProvider } from "providers/auth";
@@ -25,6 +26,8 @@ import {
     busiestDay,
     essentialSplit,
     excludeCategories,
+    excludeTransactions,
+    hiddenTransactionsIn,
     expenseCategories,
     forecastPeriod,
     monthResult,
@@ -43,7 +46,7 @@ import {
     toDateKey,
     type Period,
 } from "lib/period";
-import { CategoryIcon } from "components/categories/category-icon";
+import { CategoryBadge } from "components/categories/category-icon";
 import { planForMonth, summarizeEssentials, summarizeExpectedIncomes } from "lib/month-plan";
 import { TransactionEnum } from "constants/index";
 import { ESSENTIALS_CATEGORY } from "lib/essential-category";
@@ -82,8 +85,12 @@ const StatisticsPage = () => {
         [store.cards, store.selectedCardId, store.transactions],
     );
     const visibleTransactions = useMemo(
-        () => excludeCategories(scopedTransactions, preferences.hidden),
-        [scopedTransactions, preferences.hidden],
+        () =>
+            excludeTransactions(
+                excludeCategories(scopedTransactions, preferences.hidden),
+                preferences.hiddenTransactions,
+            ),
+        [scopedTransactions, preferences.hidden, preferences.hiddenTransactions],
     );
     const earliest = useMemo(
         () =>
@@ -95,6 +102,16 @@ const StatisticsPage = () => {
     );
 
     const periodTransactions = useMemo(() => filterByPeriod(scopedTransactions, period), [scopedTransactions, period]);
+    const hiddenInPeriod = useMemo(
+        () => hiddenTransactionsIn(periodTransactions, preferences.hiddenTransactions, preferences.hidden),
+        [periodTransactions, preferences.hiddenTransactions, preferences.hidden],
+    );
+    const hideTransaction = (id: string) => {
+        preferences.toggleTransaction(id);
+        toast.success(t("transactionHidden"));
+    };
+    const hideOrReturn = (id: string) =>
+        preferences.hiddenTransactions.has(id) ? preferences.toggleTransaction(id) : hideTransaction(id);
     const inPeriod = useMemo(() => filterByPeriod(visibleTransactions, period), [visibleTransactions, period]);
     const previousPeriod = useMemo(() => shiftPeriod(period, -1), [period]);
     const inPrevious = useMemo(
@@ -165,15 +182,6 @@ const StatisticsPage = () => {
         [inPeriod, selectedDay],
     );
 
-    const sectionOrder = [
-        "analysis",
-        plan ? "plan" : null,
-        "keyFigures",
-        split.essential > 0 ? "essentials" : null,
-        expenses.length > 0 ? "weekdays" : null,
-        expenses.length > 0 ? "top" : null,
-    ].filter(Boolean);
-    const sectionIndex = (key: string) => String(sectionOrder.indexOf(key) + 1).padStart(2, "0");
     const essentialShare = Math.round(split.essentialShare);
     const topEssentialCategory = split.categories[0];
 
@@ -253,7 +261,6 @@ const StatisticsPage = () => {
 
                 <PageShell>
                     <PageHeader
-                        index="02"
                         title={t("title")}
                         subtitle={t("subtitle")}
                         actions={
@@ -284,7 +291,6 @@ const StatisticsPage = () => {
                     </StatGrid>
 
                     <Section
-                        index="01"
                         title={t("analysisTitle")}
                         description={viewDescription[view]}
                         actions={
@@ -318,7 +324,7 @@ const StatisticsPage = () => {
                             </>
                         }
                     >
-                        <div className="border-rule w-full border p-4 sm:p-6">
+                        <div className="panel w-full p-4 sm:p-6">
                             {periodTransactions.length === 0 && view !== "months" ? (
                                 <p className="text-ink-faint py-16 text-center text-sm">{t("noData")}</p>
                             ) : view === "categories" ? (
@@ -329,6 +335,9 @@ const StatisticsPage = () => {
                                     historyTransactions={visibleTransactions}
                                     historyMonth={toMonthKey(period.end)}
                                     hidden={preferences.hidden}
+                                    hiddenTransactions={hiddenInPeriod}
+                                    onToggleTransaction={hideOrReturn}
+                                    onShowAllTransactions={preferences.showAllTransactions}
                                     limits={preferences.limits}
                                     showLimits={isMonth}
                                     onToggle={preferences.toggle}
@@ -352,7 +361,7 @@ const StatisticsPage = () => {
                                         onSelectMonth={(key) => setPeriod(periodOf("month", `${key}-01`))}
                                     />
                                     {selectedDay && view === "daily" && (
-                                        <div className="border-rule-strong mt-6 border-t">
+                                        <div className="border-rule mt-6 border-t">
                                             <div className="border-rule flex items-center justify-between gap-3 border-b py-2">
                                                 <span className="label">
                                                     {createDateString(new Date(`${selectedDay}T00:00:00`))} ·{" "}
@@ -384,17 +393,16 @@ const StatisticsPage = () => {
                                                                 key={tx.id}
                                                                 className="border-rule flex items-center gap-3 border-b py-2.5"
                                                             >
-                                                                <span className="border-rule flex size-8 shrink-0 items-center justify-center border">
-                                                                    <CategoryIcon
-                                                                        category={tx.categorie}
-                                                                        className="text-ink-faint size-4"
-                                                                    />
-                                                                </span>
+                                                                <CategoryBadge
+                                                                    category={tx.categorie}
+                                                                    className="size-8 rounded-lg"
+                                                                    iconClassName="size-4"
+                                                                />
                                                                 <div className="min-w-0 flex-1">
                                                                     <p className="truncate text-sm">
                                                                         {tx.description || categoryLabel(tx.categorie)}
                                                                     </p>
-                                                                    <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                                                                    <p className="text-ink-faint mt-0.5 text-xs">
                                                                         {categoryLabel(tx.categorie)}
                                                                     </p>
                                                                 </div>
@@ -420,12 +428,12 @@ const StatisticsPage = () => {
                     </Section>
 
                     {plan && (
-                        <Section index={sectionIndex("plan")} title={t("planTitle")} description={t("planDescription")}>
+                        <Section title={t("planTitle")} description={t("planDescription")}>
                             <MonthPlanSummary plan={plan} symbol={symbol} />
                         </Section>
                     )}
 
-                    <Section index={sectionIndex("keyFigures")} title={t("keyFigures")}>
+                    <Section title={t("keyFigures")}>
                         <StatGrid className="lg:grid-cols-3">
                             <StatCard
                                 label={t("averagePurchase")}
@@ -478,11 +486,7 @@ const StatisticsPage = () => {
                     </Section>
 
                     {split.essential > 0 && (
-                        <Section
-                            index={sectionIndex("essentials")}
-                            title={t("essentialsTitle")}
-                            description={t("essentialsDescription")}
-                        >
+                        <Section title={t("essentialsTitle")} description={t("essentialsDescription")}>
                             <div className="flex h-2 w-full gap-0.5" aria-hidden="true">
                                 <span className="bg-accent h-full" style={{ width: `${split.essentialShare}%` }} />
                                 <span className="bg-wash h-full flex-1" />
@@ -513,12 +517,14 @@ const StatisticsPage = () => {
                                     }
                                 />
                             </StatGrid>
-                            <ol className="border-rule-strong mt-6 border-t">
+                            <ol className="border-rule mt-6 border-t">
                                 {split.categories.map((slice) => (
                                     <li key={slice.name} className="border-rule flex items-center gap-4 border-b py-3">
-                                        <span className="border-rule flex size-8 shrink-0 items-center justify-center border">
-                                            <CategoryIcon category={slice.name} className="size-4" />
-                                        </span>
+                                        <CategoryBadge
+                                            category={slice.name}
+                                            className="size-9"
+                                            iconClassName="size-4"
+                                        />
                                         <span className="min-w-0 flex-1 truncate text-sm">
                                             {categoryLabel(slice.name)}
                                         </span>
@@ -535,34 +541,41 @@ const StatisticsPage = () => {
                     )}
 
                     {expenses.length > 0 && (
-                        <Section
-                            index={sectionIndex("weekdays")}
-                            title={t("weekdaysTitle")}
-                            description={t("weekdaysDescription")}
-                        >
+                        <Section title={t("weekdaysTitle")} description={t("weekdaysDescription")}>
                             <WeekdaySpending transactions={inPeriod} currencySymbol={symbol} />
                         </Section>
                     )}
 
                     {expenses.length > 0 && (
-                        <Section index={sectionIndex("top")} title={t("topExpenses")}>
-                            <ol className="border-rule-strong border-t">
+                        <Section title={t("topExpenses")}>
+                            <ol className="border-rule border-t">
                                 {topExpenses.map((tx, index) => (
-                                    <li key={tx.id} className="border-rule flex items-center gap-4 border-b py-3">
-                                        <span className="text-accent w-6 shrink-0 font-mono text-2xs">
-                                            {String(index + 1).padStart(2, "0")}
+                                    <li key={tx.id} className="group border-rule flex items-center gap-4 border-b py-3">
+                                        <span className="text-ink-faint w-4 shrink-0 text-right font-mono text-xs">
+                                            {index + 1}
                                         </span>
+                                        <CategoryBadge category={tx.categorie} />
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-sm font-medium">
                                                 {tx.description || categoryLabel(tx.categorie)}
                                             </p>
-                                            <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                                            <p className="text-ink-faint mt-0.5 text-xs">
                                                 {categoryLabel(tx.categorie)} · {createDateString(new Date(tx.date))}
                                             </p>
                                         </div>
                                         <span className="shrink-0 font-mono text-sm tabular-nums">
                                             -{money(tx.value)}
                                         </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            className="text-ink-faint shrink-0 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+                                            aria-label={t("hideTransaction")}
+                                            title={t("hideTransaction")}
+                                            onClick={() => hideTransaction(tx.id)}
+                                        >
+                                            <EyeOff className="size-4" />
+                                        </Button>
                                     </li>
                                 ))}
                             </ol>

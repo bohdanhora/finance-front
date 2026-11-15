@@ -18,7 +18,7 @@ function ContextMenuContent({ className, ...props }: React.ComponentProps<typeof
             <ContextMenuPrimitive.Content
                 data-slot="context-menu-content"
                 className={twMerge(
-                    "bg-paper text-ink border-rule-strong z-50 max-h-(--radix-context-menu-content-available-height) min-w-48 origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto border p-1",
+                    "bg-surface text-ink border-rule-strong rounded-xl shadow-xl z-50 max-h-(--radix-context-menu-content-available-height) min-w-48 origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto border p-1",
                     className,
                 )}
                 {...props}
@@ -47,7 +47,7 @@ function ContextMenuItem({
             data-slot="context-menu-item"
             data-variant={variant}
             className={twMerge(
-                "focus:bg-wash focus:text-ink data-[variant=destructive]:text-signal data-[variant=destructive]:focus:bg-signal-wash data-[variant=destructive]:*:[svg]:!text-signal [&_svg:not([class*='text-'])]:text-ink-faint relative flex min-h-11 cursor-pointer items-center gap-2.5 px-2 py-2 text-sm outline-hidden select-none sm:min-h-9 sm:py-1.5 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                "focus:bg-wash focus:text-ink data-[variant=destructive]:text-signal data-[variant=destructive]:focus:bg-signal-wash data-[variant=destructive]:*:[svg]:!text-signal [&_svg:not([class*='text-'])]:text-ink-faint relative flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm outline-hidden select-none sm:min-h-9 sm:py-1.5 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                 className,
             )}
             {...props}

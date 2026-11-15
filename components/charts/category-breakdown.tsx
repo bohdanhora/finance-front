@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, Focus, Gauge, Search, X } from "lucide-react";
 
 import { twMerge } from "lib/tw";
+import { categoryColorVar } from "lib/category-color";
 import { formatCurrency, createDateString } from "lib/utils";
 import {
     byCategory,
@@ -21,7 +22,7 @@ import {
 import { formatMonthKey } from "lib/date-locale";
 import { getCategoryLabel } from "constants/categories";
 import { TransactionEnum } from "constants/index";
-import { CategoryIcon } from "components/categories/category-icon";
+import { CategoryBadge } from "components/categories/category-icon";
 import { RowMenu } from "components/row-menu";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -42,6 +43,9 @@ type Props = {
     historyTransactions: TransactionType[];
     historyMonth: MonthKey;
     hidden: ReadonlySet<string>;
+    hiddenTransactions: TransactionType[];
+    onToggleTransaction: (id: string) => void;
+    onShowAllTransactions: () => void;
     limits: Record<string, number>;
     showLimits: boolean;
     onToggle: (category: string) => void;
@@ -105,9 +109,7 @@ const CategoryTrend = ({
                             )}
                             style={{ height: `${Math.max((point.value / max) * 44, point.value > 0 ? 2 : 0)}px` }}
                         />
-                        <span className="text-ink-faint font-mono text-3xs uppercase">
-                            {formatMonthKey(point.month, locale, "short")}
-                        </span>
+                        <span className="text-ink-faint text-xs">{formatMonthKey(point.month, locale, "short")}</span>
                     </div>
                 ))}
             </div>
@@ -154,7 +156,7 @@ const GroupList = ({
                             <p className={twMerge("truncate text-sm", !group.label && "text-ink-faint")}>
                                 {group.label || t("noDescription")}
                             </p>
-                            <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                            <p className="text-ink-faint mt-0.5 text-xs">
                                 {t("purchases", { count: group.count })} ·{" "}
                                 {group.count > 1
                                     ? t("lastPurchase", { date: createDateString(new Date(group.lastDate)) })
@@ -183,22 +185,34 @@ const PurchaseRow = ({
     tx,
     money,
     categoryLabel,
+    onHide,
+    hideLabel,
 }: {
     tx: TransactionType;
     money: (value: number) => string;
     categoryLabel: (category: string) => string;
+    onHide: (id: string) => void;
+    hideLabel: string;
 }) => (
-    <li className="border-rule flex items-center gap-3 border-b py-2.5 last:border-b-0">
-        <span className="border-rule flex size-8 shrink-0 items-center justify-center border">
-            <CategoryIcon category={tx.categorie} className="text-ink-faint size-4" />
-        </span>
+    <li className="group border-rule flex items-center gap-3 border-b py-2.5 last:border-b-0">
+        <CategoryBadge category={tx.categorie} className="size-8 rounded-lg" iconClassName="size-4" />
         <div className="min-w-0 flex-1">
             <p className="truncate text-sm">{tx.description || categoryLabel(tx.categorie)}</p>
-            <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+            <p className="text-ink-faint mt-0.5 text-xs">
                 {categoryLabel(tx.categorie)} · {createDateString(new Date(tx.date))}
             </p>
         </div>
         <span className="shrink-0 font-mono text-xs tabular-nums">-{money(tx.value)}</span>
+        <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-ink-faint shrink-0 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+            aria-label={hideLabel}
+            title={hideLabel}
+            onClick={() => onHide(tx.id)}
+        >
+            <EyeOff className="size-4" />
+        </Button>
     </li>
 );
 
@@ -209,6 +223,9 @@ export const CategoryBreakdown = ({
     historyTransactions,
     historyMonth,
     hidden,
+    hiddenTransactions,
+    onToggleTransaction,
+    onShowAllTransactions,
     limits,
     showLimits,
     onToggle,
@@ -252,6 +269,11 @@ export const CategoryBreakdown = ({
         [expenses, order],
     );
     const excluded = useMemo(() => hiddenSummary(periodTransactions, hidden), [periodTransactions, hidden]);
+    const hiddenSpent = hiddenTransactions.reduce(
+        (sum, tx) => (tx.transactionType === TransactionEnum.EXPENSE ? sum + tx.value : sum),
+        0,
+    );
+    const anythingHidden = excluded.categories.length > 0 || hiddenTransactions.length > 0;
 
     const total = categories.reduce((sum, category) => sum + category.value, 0);
     const max = categories[0]?.value || 1;
@@ -264,7 +286,7 @@ export const CategoryBreakdown = ({
 
     const empty = (
         <p className="text-ink-faint py-16 text-center text-sm">
-            {query.trim() ? t("nothingFound") : excluded.categories.length ? t("everythingHidden") : t("noExpenses")}
+            {query.trim() ? t("nothingFound") : anythingHidden ? t("everythingHidden") : t("noExpenses")}
         </p>
     );
 
@@ -302,11 +324,11 @@ export const CategoryBreakdown = ({
                 </div>
             </div>
 
-            <div className="border-rule-strong flex flex-wrap items-baseline justify-between gap-3 border-b pb-3">
+            <div className="border-rule flex flex-wrap items-baseline justify-between gap-3 border-b pb-3">
                 <span className="label">
                     {query.trim()
                         ? t("foundTotal", { count: expenses.length })
-                        : excluded.categories.length
+                        : anythingHidden
                           ? t("expenseCounted")
                           : t("expense")}
                 </span>
@@ -371,9 +393,10 @@ export const CategoryBreakdown = ({
                                                         isOpen && "text-accent rotate-180",
                                                     )}
                                                 />
-                                                <CategoryIcon
+                                                <CategoryBadge
                                                     category={cat.name}
-                                                    className="text-ink-faint size-4 shrink-0"
+                                                    className="size-8 rounded-lg"
+                                                    iconClassName="size-4"
                                                 />
                                                 <span className="break-words">{categoryLabel(cat.name)}</span>
                                             </span>
@@ -385,21 +408,24 @@ export const CategoryBreakdown = ({
                                                 </span>
                                             </span>
                                             <span className="col-span-12 flex flex-col gap-1 sm:col-span-5">
-                                                <span className="bg-wash h-2">
+                                                <span className="bg-wash h-2 overflow-hidden rounded-full">
                                                     <span
                                                         className={twMerge(
-                                                            "block h-full transition-[width] duration-500",
-                                                            over ? "bg-signal" : "bg-accent",
+                                                            "block h-full rounded-full transition-[width] duration-500",
+                                                            over && "bg-signal",
                                                         )}
                                                         style={{
                                                             width: `${Math.min((cat.value / (limit ?? max)) * 100, 100)}%`,
+                                                            backgroundColor: over
+                                                                ? undefined
+                                                                : categoryColorVar(cat.name),
                                                         }}
                                                     />
                                                 </span>
                                                 {limit !== undefined && (
                                                     <span
                                                         className={twMerge(
-                                                            "font-mono text-3xs uppercase",
+                                                            "text-2xs",
                                                             over ? "text-signal" : "text-ink-faint",
                                                         )}
                                                     >
@@ -484,7 +510,7 @@ export const CategoryBreakdown = ({
                                             >
                                                 {group.label || t("noDescription")}
                                             </p>
-                                            <p className="text-ink-faint mt-0.5 truncate font-mono text-3xs uppercase">
+                                            <p className="text-ink-faint mt-0.5 truncate text-xs">
                                                 {t("purchases", { count: group.count })} ·{" "}
                                                 {group.categories.map(categoryLabel).join(", ")}
                                             </p>
@@ -506,6 +532,8 @@ export const CategoryBreakdown = ({
                                                     tx={tx}
                                                     money={money}
                                                     categoryLabel={categoryLabel}
+                                                    onHide={onToggleTransaction}
+                                                    hideLabel={t("hideTransaction")}
                                                 />
                                             ))}
                                         </ul>
@@ -530,7 +558,14 @@ export const CategoryBreakdown = ({
                     </div>
                     <ul>
                         {purchases.slice(0, purchaseCount).map((tx) => (
-                            <PurchaseRow key={tx.id} tx={tx} money={money} categoryLabel={categoryLabel} />
+                            <PurchaseRow
+                                key={tx.id}
+                                tx={tx}
+                                money={money}
+                                categoryLabel={categoryLabel}
+                                onHide={onToggleTransaction}
+                                hideLabel={t("hideTransaction")}
+                            />
                         ))}
                     </ul>
                     {purchases.length > purchaseCount && (
@@ -546,13 +581,20 @@ export const CategoryBreakdown = ({
                 </div>
             )}
 
-            {excluded.categories.length > 0 && (
+            {anythingHidden && (
                 <div className="mt-6">
-                    <div className="border-rule-strong flex flex-wrap items-center justify-between gap-3 border-b pb-2">
+                    <div className="border-rule flex flex-wrap items-center justify-between gap-3 border-b pb-2">
                         <span className="label">
-                            {t("excludedTitle")} · {money(excluded.total)}
+                            {t("excludedTitle")} · {money(excluded.total + hiddenSpent)}
                         </span>
-                        <Button variant="link" size="sm" onClick={onShowAll}>
+                        <Button
+                            variant="link"
+                            size="sm"
+                            onClick={() => {
+                                if (excluded.categories.length) onShowAll();
+                                if (hiddenTransactions.length) onShowAllTransactions();
+                            }}
+                        >
                             {t("showAll")}
                         </Button>
                     </div>
@@ -562,7 +604,11 @@ export const CategoryBreakdown = ({
                                 key={cat.name}
                                 className="border-rule text-ink-faint flex items-center gap-3 border-b py-2"
                             >
-                                <CategoryIcon category={cat.name} className="size-4 shrink-0" />
+                                <CategoryBadge
+                                    category={cat.name}
+                                    className="size-8 rounded-lg opacity-50"
+                                    iconClassName="size-4"
+                                />
                                 <span className="min-w-0 flex-1 truncate text-sm line-through">
                                     {categoryLabel(cat.name)}
                                 </span>
@@ -579,6 +625,46 @@ export const CategoryBreakdown = ({
                             </li>
                         ))}
                     </ul>
+                    {hiddenTransactions.length > 0 && (
+                        <>
+                            <p className="label mt-4 mb-1">{t("hiddenTransactionsTitle")}</p>
+                            <ul>
+                                {hiddenTransactions.map((tx) => (
+                                    <li
+                                        key={tx.id}
+                                        className="border-rule text-ink-faint flex items-center gap-3 border-b py-2"
+                                    >
+                                        <CategoryBadge
+                                            category={tx.categorie}
+                                            className="size-8 rounded-lg opacity-50"
+                                            iconClassName="size-4"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm line-through">
+                                                {tx.description || categoryLabel(tx.categorie)}
+                                            </p>
+                                            <p className="mt-0.5 text-xs">
+                                                {categoryLabel(tx.categorie)} · {createDateString(new Date(tx.date))}
+                                            </p>
+                                        </div>
+                                        <span className="shrink-0 font-mono text-xs tabular-nums">
+                                            {tx.transactionType === TransactionEnum.EXPENSE ? "-" : "+"}
+                                            {money(tx.value)}
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            aria-label={t("showCategory")}
+                                            title={t("showCategory")}
+                                            onClick={() => onToggleTransaction(tx.id)}
+                                        >
+                                            <Eye className="size-4" />
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
                     <p className="text-ink-faint mt-2 text-xs">{t("excludedHint")}</p>
                 </div>
             )}

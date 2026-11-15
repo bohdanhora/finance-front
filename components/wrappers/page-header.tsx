@@ -1,26 +1,18 @@
 import { Hint } from "components/hint";
 
 export const PageHeader = ({
-    index,
     title,
     subtitle,
     actions,
 }: {
-    index: string;
     title: string;
     subtitle?: string;
     actions?: React.ReactNode;
 }) => (
-    <header className="border-rule-strong flex flex-col gap-5 border-b pb-5 lg:flex-row lg:items-end lg:justify-between">
+    <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-            <p className="label">
-                <span className="text-accent">{index}</span> / Finance
-            </p>
-            <div className="mt-3 flex items-center gap-3">
-                <h1 className="font-display text-3xl leading-none font-medium tracking-tight uppercase sm:text-4xl">
-                    {title}
-                    <span className="caret caret-blink" aria-hidden="true" />
-                </h1>
+            <div className="flex items-center gap-3">
+                <h1 className="font-display text-4xl leading-none font-light tracking-tight sm:text-5xl">{title}</h1>
                 {subtitle && <Hint text={subtitle} />}
             </div>
         </div>

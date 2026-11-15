@@ -75,7 +75,6 @@ export const NextMonthIncome = () => {
 
     return (
         <Section
-            index="02"
             anchor="nextMonth"
             title={t("nextMonth")}
             description={tSections("nextMonthNote")}

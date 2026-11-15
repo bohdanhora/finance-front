@@ -19,11 +19,11 @@ export const ConnectionCard = ({
     note: string;
     children: React.ReactNode;
 }) => (
-    <section className="border-rule-strong min-w-0 border-t">
-        <div className="flex items-center gap-3 py-4">
+    <section className="panel min-w-0 p-5">
+        <div className="flex items-center gap-3 pb-4">
             {mark}
             <div className="min-w-0 flex-1">
-                <h2 className="font-display flex items-center gap-2 text-lg leading-tight font-medium tracking-tight uppercase">
+                <h2 className="font-display flex items-center gap-2 text-lg leading-tight font-medium tracking-tight">
                     {title}
                     <Hint text={note} />
                 </h2>

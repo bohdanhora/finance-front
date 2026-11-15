@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "components/ui
 import { Input } from "components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useIsMobile } from "hooks/use-is-mobile";
-import { CategoryIcon } from "./category-icon";
+import { CategoryBadge } from "./category-icon";
 
 type Props = {
     value: string;
@@ -85,7 +85,7 @@ export const CategoryCombobox = ({
             className={twMerge("h-11 w-full justify-between px-3 font-normal", !value && "text-ink-faint", className)}
         >
             <span className="flex min-w-0 items-center gap-2">
-                {value && <CategoryIcon category={value} className="size-4 shrink-0" />}
+                {value && <CategoryBadge category={value} className="size-6 rounded-md" iconClassName="size-3.5" />}
                 <span className="truncate">{selectedLabel}</span>
             </span>
             <ChevronsUpDown className="text-ink-faint size-4" />
@@ -119,9 +119,9 @@ export const CategoryCombobox = ({
                     key={key}
                     type="button"
                     onClick={() => select(key)}
-                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-2.5 px-2.5 py-2.5 text-left text-sm"
+                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left text-sm"
                 >
-                    <CategoryIcon category={key} className="text-ink-faint size-4" />
+                    <CategoryBadge category={key} className="size-8 rounded-lg" iconClassName="size-4" />
                     <span className="min-w-0 flex-1 truncate">{label}</span>
                     {value === key && <Check className="size-4 text-accent" />}
                 </button>
@@ -131,7 +131,7 @@ export const CategoryCombobox = ({
                 <button
                     type="button"
                     onClick={() => select(normalizedQuery)}
-                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-2.5 border border-dashed px-2.5 py-2.5 text-left text-sm"
+                    className="hover:bg-wash flex w-full cursor-pointer items-center gap-2.5 rounded-lg border border-dashed px-2.5 py-2.5 text-left text-sm"
                 >
                     <Plus className="size-4 text-accent" />
                     <span className="truncate">{tDialogs("createCategory", { name: normalizedQuery })}</span>
@@ -153,7 +153,7 @@ export const CategoryCombobox = ({
                     onOpenAutoFocus={(event) => event.preventDefault()}
                     className="flex flex-col gap-3"
                 >
-                    <span aria-hidden="true" className="bg-rule mx-auto h-1 w-10 shrink-0" />
+                    <span aria-hidden="true" className="bg-rule mx-auto h-1 w-10 shrink-0 rounded-full" />
                     <DialogTitle className="shrink-0 text-base">{tDialogs("category")}</DialogTitle>
                     {search}
                     {list}

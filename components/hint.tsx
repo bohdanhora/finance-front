@@ -60,7 +60,7 @@ export const Hint = ({ text }: { text: string }) => {
                     id={id}
                     role="tooltip"
                     className={twMerge(
-                        "border-rule-strong bg-paper text-ink pointer-events-none absolute top-full z-50 mt-2 w-tip border p-3 font-sans text-xs leading-relaxed font-normal tracking-normal normal-case",
+                        "border-rule-strong bg-surface text-ink pointer-events-none absolute top-full z-50 mt-2 w-tip rounded-xl border p-3 shadow-xl font-sans text-xs leading-relaxed font-normal tracking-normal normal-case",
                         alignEnd ? "-right-2" : "-left-2",
                     )}
                 >

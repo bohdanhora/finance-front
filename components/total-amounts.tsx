@@ -62,11 +62,11 @@ export const TotalAmounts = () => {
     );
 
     return (
-        <Section index="04" title={t("summary")}>
+        <Section title={t("summary")}>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-80 tabular-nums">
                     <thead>
-                        <tr className="border-rule-strong border-b">
+                        <tr className="border-rule border-b">
                             <th className="w-1/3" />
                             <th className="label border-rule border-l px-3 pb-2 text-right font-normal sm:px-5">
                                 {t("totalIncome")}

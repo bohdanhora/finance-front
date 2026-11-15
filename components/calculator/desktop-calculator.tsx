@@ -324,10 +324,10 @@ export const DesktopCalculator = () => {
     if (!mounted || !open) return null;
 
     const actionButton =
-        "flex h-12 items-center justify-center bg-paper font-mono text-base transition-colors outline-none active:bg-wash";
-    const numberButton = "text-ink hover:bg-surface";
-    const functionButton = "text-ink-faint text-xs hover:bg-surface hover:text-ink";
-    const operationButton = "text-accent hover:bg-accent hover:text-on-accent";
+        "flex h-12 items-center justify-center rounded-xl bg-wash font-mono text-base transition-colors outline-none active:opacity-80";
+    const numberButton = "text-ink hover:bg-rule";
+    const functionButton = "bg-transparent text-ink-faint text-xs hover:bg-wash hover:text-ink";
+    const operationButton = "bg-accent-wash text-accent hover:bg-accent hover:text-on-accent";
 
     return createPortal(
         <section
@@ -335,11 +335,11 @@ export const DesktopCalculator = () => {
             role="dialog"
             aria-modal="false"
             aria-label={t("title")}
-            className="bg-paper text-ink border-rule-strong pointer-events-auto fixed z-50 hidden w-76 border select-none lg:block"
+            className="bg-surface text-ink border-rule-strong pointer-events-auto fixed z-50 hidden w-76 overflow-hidden rounded-3xl border shadow-2xl select-none lg:block"
             style={position ? { left: position.x, top: position.y } : { right: 24, top: 76 }}
         >
             <div
-                className="border-rule-strong flex h-10 cursor-grab touch-none items-center justify-between border-b px-3 active:cursor-grabbing"
+                className="flex h-10 cursor-grab touch-none items-center justify-between px-4 active:cursor-grabbing"
                 onPointerDown={startDrag}
                 onPointerMove={move}
                 onPointerUp={finishDrag}
@@ -395,12 +395,12 @@ export const DesktopCalculator = () => {
                         {operation && storedValue !== null ? `${formatResult(storedValue)} ${operation}` : ""}
                     </span>
                 </div>
-                <output className="figure max-w-full overflow-hidden text-right text-4xl leading-tight text-ellipsis whitespace-nowrap">
+                <output className="figure figure-light max-w-full overflow-hidden text-right text-4xl leading-tight text-ellipsis whitespace-nowrap">
                     {display}
                 </output>
             </div>
 
-            <div className="bg-rule border-rule grid grid-cols-4 gap-px border-t">
+            <div className="grid grid-cols-4 gap-1.5 p-3 pt-0">
                 <button type="button" className={twMerge(actionButton, functionButton)} onClick={clear}>
                     {display === "0" && storedValue === null ? "AC" : "C"}
                 </button>
@@ -484,7 +484,7 @@ export const DesktopCalculator = () => {
                 </button>
                 <button
                     type="button"
-                    className={twMerge(actionButton, "bg-accent text-on-accent hover:bg-ink hover:text-paper")}
+                    className={twMerge(actionButton, "bg-accent text-on-accent shadow-glow hover:opacity-90")}
                     onClick={equals}
                 >
                     =
@@ -492,7 +492,7 @@ export const DesktopCalculator = () => {
             </div>
 
             {showHistory && (
-                <div className="border-rule-strong border-t">
+                <div className="border-rule border-t">
                     <div className="border-rule flex h-9 items-center justify-between border-b px-3">
                         <span className="label">{t("history")}</span>
                         <button

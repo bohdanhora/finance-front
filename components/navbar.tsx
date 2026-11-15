@@ -106,8 +106,8 @@ export const Navbar = () => {
     return (
         <>
             {logoutPending && <Loader />}
-            <header className="bg-paper border-rule-strong sticky top-0 z-40 w-full border-b">
-                <div className="shell flex h-14 items-center justify-between gap-3">
+            <header className="bg-paper/75 border-rule sticky top-0 z-40 w-full border-b backdrop-blur-xl">
+                <div className="shell flex h-15 items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                         <Link href={Routes.HOME} aria-label="Finance" className="shrink-0">
                             <Brand wordmarkClassName="hidden sm:inline" />
@@ -116,8 +116,8 @@ export const Navbar = () => {
                     </div>
 
                     {isMobile === false && (
-                        <nav aria-label={tNav("menu")} className="flex h-full min-w-0 items-stretch">
-                            {navItems.map(({ href, label, anchor }, index) => {
+                        <nav aria-label={tNav("menu")} className="flex min-w-0 items-center gap-1">
+                            {navItems.map(({ href, label, anchor }) => {
                                 const active = pathname === href;
                                 return (
                                     <Link
@@ -126,15 +126,11 @@ export const Navbar = () => {
                                         aria-current={active ? "page" : undefined}
                                         data-tour={anchor}
                                         className={twMerge(
-                                            "relative flex items-center gap-1.5 px-3 font-mono text-2xs tracking-wide uppercase transition-colors",
-                                            active ? "text-ink" : "text-ink-faint hover:text-ink",
+                                            "flex h-9 items-center rounded-full px-3.5 text-sm transition-colors",
+                                            active ? "bg-wash text-ink" : "text-ink-muted hover:text-ink",
                                         )}
                                     >
-                                        <span className={active ? "text-accent" : undefined}>
-                                            {String(index + 1).padStart(2, "0")}
-                                        </span>
                                         {label}
-                                        {active && <span className="bg-accent absolute inset-x-3 -bottom-px h-0.5" />}
                                     </Link>
                                 );
                             })}
@@ -142,13 +138,13 @@ export const Navbar = () => {
                     )}
 
                     <div className="flex shrink-0 items-center">
-                        <div className="border-rule flex h-9 items-stretch border">
+                        <div className="border-rule flex h-9 items-stretch overflow-hidden rounded-full border">
                             <button
                                 type="button"
                                 aria-label={tNav("currency")}
                                 title={tNav("currency")}
                                 onClick={() => window.dispatchEvent(new Event("finance:open-currency-selection"))}
-                                className="hover:bg-wash flex items-center gap-1.5 px-2.5 font-mono text-2xs uppercase transition-colors"
+                                className="hover:bg-wash flex items-center gap-1.5 px-3 font-mono text-xs transition-colors"
                             >
                                 <span className="text-accent">{getCurrencySymbol(userCurrency)}</span>
                                 <span className="hidden sm:inline">{userCurrency}</span>

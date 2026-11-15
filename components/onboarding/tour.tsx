@@ -263,7 +263,11 @@ export const OnboardingTour = () => {
                 }}
             />
 
-            <div ref={cardRef} className="bg-paper border-rule-strong absolute border p-5" style={cardStyle}>
+            <div
+                ref={cardRef}
+                className="bg-surface border-rule-strong absolute rounded-2xl border p-5 shadow-2xl"
+                style={cardStyle}
+            >
                 <button
                     type="button"
                     onClick={finish}
@@ -277,7 +281,7 @@ export const OnboardingTour = () => {
                     <span className="text-accent">{String(index + 1).padStart(2, "0")}</span> /{" "}
                     {String(steps.length).padStart(2, "0")}
                 </p>
-                <h3 className="font-display mt-2 pr-10 text-lg leading-tight font-medium tracking-tight uppercase">
+                <h3 className="font-display mt-2 pr-10 text-lg leading-tight font-medium tracking-tight">
                     {t(`steps.${current.key}.title`)}
                 </h3>
                 <p className="text-ink-muted mt-2 text-sm leading-relaxed">{t(`steps.${current.key}.body`)}</p>

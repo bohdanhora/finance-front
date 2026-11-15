@@ -368,6 +368,7 @@ export type AssistantPreferences = {
 
 export type StatisticsPreferences = {
     hiddenCategories: string[];
+    hiddenTransactions: string[];
     categoryLimits: Record<string, number>;
 };
 

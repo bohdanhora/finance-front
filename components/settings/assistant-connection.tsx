@@ -111,7 +111,7 @@ const ModelPicker = ({
                     aria-expanded={open}
                     aria-controls={listId}
                     disabled={disabled}
-                    className="border-rule bg-surface hover:border-ink-faint focus-visible:border-accent flex h-11 w-full min-w-0 items-center justify-between gap-2 border px-3 text-left text-sm transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:h-10"
+                    className="border-rule bg-paper hover:border-rule-strong focus-visible:border-accent flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border px-3.5 text-left text-sm transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:h-10"
                 >
                     <span className={twMerge("min-w-0 truncate", !value && "text-ink-faint")}>
                         {value || placeholder}
@@ -331,7 +331,7 @@ export const AssistantConnection = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                <span className="bg-wash flex size-11 shrink-0 items-center justify-center rounded-xl">
                     <Sparkles className="size-4" />
                 </span>
             }

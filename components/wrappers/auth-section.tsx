@@ -13,26 +13,21 @@ export const AuthSectionWrapper = ({ children, title }: { children: React.ReactN
 
     return (
         <section className="auth-shell grid w-full lg:grid-cols-2">
-            <aside className="bg-ink text-paper dark:bg-surface dark:text-ink dark:border-rule hidden flex-col justify-between p-10 lg:flex dark:border-r xl:p-14">
-                <Brand markClassName="bg-paper dark:bg-ink" />
+            <aside className="glow-stage border-rule hidden flex-col justify-between overflow-hidden border-r p-10 lg:flex xl:p-14">
+                <Brand />
 
                 <div>
-                    <p className="font-display text-hero leading-none font-medium tracking-tight uppercase">
-                        Finance
-                        <span className="caret caret-blink" aria-hidden="true" />
-                    </p>
+                    <p className="font-display text-hero glow-text leading-none font-light tracking-tight">Finance</p>
                 </div>
 
-                <ol className="border-t border-current">
-                    {FEATURES.map((key, index) => (
-                        <li key={key} className="flex gap-4 border-b border-current/25 py-4">
-                            <span className="text-accent w-6 shrink-0 font-mono text-xs">
-                                {String(index + 1).padStart(2, "0")}
-                            </span>
-                            <span className="text-sm">{t(key)}</span>
+                <ul className="flex flex-col gap-3">
+                    {FEATURES.map((key) => (
+                        <li key={key} className="text-ink-muted flex items-center gap-3 text-sm">
+                            <span className="tick" />
+                            {t(key)}
                         </li>
                     ))}
-                </ol>
+                </ul>
             </aside>
 
             <div className="flex min-h-full flex-col lg:px-10 lg:py-10 xl:px-16">
@@ -45,10 +40,8 @@ export const AuthSectionWrapper = ({ children, title }: { children: React.ReactN
                 </div>
 
                 <div className="auth-card mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">
-                    <h1 className="font-display text-3xl leading-tight font-medium tracking-tight uppercase">
-                        {title}
-                    </h1>
-                    <div className="border-rule-strong mt-8 border-t pt-8">{children}</div>
+                    <h1 className="font-display text-3xl leading-tight font-medium tracking-tight">{title}</h1>
+                    <div className="mt-8">{children}</div>
                 </div>
             </div>
         </section>

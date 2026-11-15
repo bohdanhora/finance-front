@@ -95,7 +95,6 @@ export const PossibleRemaining = () => {
 
     return (
         <Section
-            index="01"
             title={
                 selectedCard && store.cards.length > 1
                     ? `${t("thisMonth")} · ${cardName(selectedCard)}`

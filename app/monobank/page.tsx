@@ -128,9 +128,9 @@ const MonobankPage = () => {
                 <PrivateProvider>
                     <Navbar />
                     <div className="shell pt-16 pb-28">
-                        <div className="border-rule mx-auto flex max-w-xl flex-col items-center gap-4 border border-dashed p-10 text-center">
+                        <div className="border-rule mx-auto flex max-w-xl flex-col items-center gap-4 rounded-2xl border border-dashed p-10 text-center">
                             <MonoMark className="size-14" />
-                            <h1 className="font-display text-xl font-medium tracking-tight uppercase">
+                            <h1 className="font-display text-xl font-medium tracking-tight">
                                 {t("notConnectedTitle")}
                             </h1>
                             <p className="text-ink-faint max-w-md text-sm leading-relaxed">{t("notConnectedHint")}</p>
@@ -154,7 +154,6 @@ const MonobankPage = () => {
 
                 <PageShell>
                     <PageHeader
-                        index="04"
                         title={t("title")}
                         subtitle={
                             clientInfo.data?.name ? t("connectedAs", { name: clientInfo.data.name }) : t("subtitle")
@@ -237,7 +236,7 @@ const MonobankPage = () => {
                     )}
 
                     {accounts.length > 0 && (
-                        <Section index="01" title={t("accounts")}>
+                        <Section title={t("accounts")}>
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                                 {accounts.map((item) => {
                                     const active = item.id === account?.id;
@@ -248,18 +247,18 @@ const MonobankPage = () => {
                                             type="button"
                                             onClick={() => setSelectedId(item.id)}
                                             className={twMerge(
-                                                "border-rule hover:border-rule-strong flex items-center gap-3 border p-4 text-left transition-colors",
-                                                active && "bg-ink text-paper border-ink hover:border-ink",
+                                                "border-rule bg-surface hover:border-rule-strong flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors",
+                                                active && "border-accent bg-accent-wash text-ink hover:border-accent",
                                             )}
                                         >
-                                            <span className="flex size-9 shrink-0 items-center justify-center border border-current opacity-70">
+                                            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-current/10">
                                                 <Wallet className="size-4" />
                                             </span>
                                             <span className="min-w-0 flex-1">
                                                 <span className="block truncate text-sm font-medium">
                                                     {accountLabel(item)}
                                                 </span>
-                                                <span className="block font-mono text-3xs uppercase opacity-60">
+                                                <span className="block text-xs opacity-60">
                                                     {currencyNameByCode(item.currencyCode)}
                                                 </span>
                                             </span>
@@ -275,17 +274,14 @@ const MonobankPage = () => {
                     )}
 
                     {jars.length > 0 && (
-                        <Section index="02" title={t("jars")}>
+                        <Section title={t("jars")}>
                             <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {jars.map((jar) => {
                                     const progress = jarProgress(jar);
                                     const jarSymbol = currencySymbolByCode(jar.currencyCode);
 
                                     return (
-                                        <div
-                                            key={jar.id}
-                                            className="border-rule-strong flex flex-col gap-2 border-t pt-3"
-                                        >
+                                        <div key={jar.id} className="border-rule flex flex-col gap-2 border-t pt-3">
                                             <div className="flex items-center gap-2.5">
                                                 <span className="text-accent flex shrink-0 items-center justify-center">
                                                     <Landmark className="size-4" />
@@ -299,7 +295,7 @@ const MonobankPage = () => {
                                             </p>
                                             {progress !== null && jar.goal && (
                                                 <>
-                                                    <div className="bg-wash h-1.5 w-full">
+                                                    <div className="bg-wash h-1.5 w-full overflow-hidden rounded-full">
                                                         <div
                                                             className="bg-accent h-full"
                                                             style={{ width: `${Math.max(progress, 2)}%` }}
@@ -321,7 +317,6 @@ const MonobankPage = () => {
                     )}
 
                     <Section
-                        index={jars.length > 0 ? "03" : "02"}
                         title={t("statement")}
                         actions={
                             <ViewSwitcher
@@ -362,7 +357,7 @@ const MonobankPage = () => {
                         ) : items.length > 0 ? (
                             <StatementList items={items} accountCurrency={account?.currencyCode ?? 980} />
                         ) : (
-                            <p className="text-ink-faint border-rule border border-dashed py-16 text-center text-sm">
+                            <p className="text-ink-faint border-rule rounded-2xl border border-dashed py-16 text-center text-sm">
                                 {t("noOperations")}
                             </p>
                         )}

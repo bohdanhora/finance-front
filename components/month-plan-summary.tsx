@@ -35,19 +35,19 @@ const PlanCard = ({
     <div className="flex min-w-0 flex-col">
         <h3 className="label text-ink">{title}</h3>
         {rows.length === 0 ? (
-            <p className="border-rule text-ink-faint mt-3 border border-dashed px-4 py-6 text-center text-sm">
+            <p className="border-rule text-ink-faint mt-3 rounded-2xl border border-dashed px-4 py-6 text-center text-sm">
                 {emptyLabel}
             </p>
         ) : (
             <>
                 <p className="mt-1 text-sm tabular-nums">{headline}</p>
-                <div className="bg-wash mt-3 h-1.5">
+                <div className="bg-wash mt-3 h-1.5 overflow-hidden rounded-full">
                     <div
                         className="bg-accent h-full transition-[width] duration-500"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
-                <ul className="border-rule-strong mt-3 max-h-80 overflow-y-auto border-t">
+                <ul className="border-rule mt-3 max-h-80 overflow-y-auto border-t">
                     {rows.map((row) => {
                         const differs = row.actual !== null && Math.abs(row.actual - row.planned) >= 0.01;
 

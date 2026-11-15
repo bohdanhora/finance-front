@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 
 import { CategoryKey, isDefaultCategory } from "constants/categories";
+import { categoryColorVar } from "lib/category-color";
+import { twMerge } from "lib/tw";
 
 const CATEGORY_ICONS: Record<CategoryKey, LucideIcon> = {
     groceries: ShoppingBasket,
@@ -71,3 +73,22 @@ export const CategoryIcon = ({ category, className }: { category: string; classN
     const Icon = isDefaultCategory(category) ? CATEGORY_ICONS[category] : Shapes;
     return <Icon className={className} />;
 };
+
+export const CategoryBadge = ({
+    category,
+    className,
+    iconClassName,
+    icon,
+}: {
+    category: string;
+    className?: string;
+    iconClassName?: string;
+    icon?: React.ReactNode;
+}) => (
+    <span
+        className={twMerge("hue-tile size-10", className)}
+        style={{ "--hue": categoryColorVar(category) } as React.CSSProperties}
+    >
+        {icon ?? <CategoryIcon category={category} className={twMerge("size-4.5", iconClassName)} />}
+    </span>
+);

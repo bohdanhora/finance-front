@@ -480,7 +480,7 @@
         "showAll": "Show all",
         "excludedTitle": "Not counted",
         "showCategory": "Count again",
-        "excludedHint": "Hidden categories are left out of every figure on this page, in every month, until you return them.",
+        "excludedHint": "Hidden categories and transactions are left out of every figure on this page, in every month, until you return them.",
         "hiddenCount": "{count, plural, one {# hidden} other {# hidden}}",
         "categoryFilter": "Categories",
         "categoryFilterHint": "Unchecked categories are left out of every figure and chart on this page.",
@@ -551,7 +551,10 @@
         "busiestWeekday": "Most spending",
         "weekdayShare": "{amount}, {percent}% of spending",
         "weekendShare": "Weekend share",
-        "weekendShareHint": "Saturday and Sunday"
+        "weekendShareHint": "Saturday and Sunday",
+        "hideTransaction": "Don't count this transaction",
+        "hiddenTransactionsTitle": "Hidden transactions",
+        "transactionHidden": "Transaction left out of statistics"
     },
     "savings": {
         "eyebrow": "Savings workspace",

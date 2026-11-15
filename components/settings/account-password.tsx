@@ -142,7 +142,7 @@ export const AccountPassword = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                <span className="bg-wash flex size-11 shrink-0 items-center justify-center rounded-xl">
                     <KeyRound className="size-4" />
                 </span>
             }

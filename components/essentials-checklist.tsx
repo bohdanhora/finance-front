@@ -26,7 +26,7 @@ export const SegmentBar = ({ done, total }: { done: number; total: number }) => 
             <span
                 key={index}
                 className={twMerge(
-                    "h-full flex-1 transition-colors duration-500",
+                    "h-full flex-1 rounded-full transition-colors duration-500",
                     index < done ? "bg-accent" : "bg-wash",
                 )}
             />
@@ -56,7 +56,9 @@ export const ChecklistShell = ({
 );
 
 export const ChecklistEmpty = ({ children }: { children: React.ReactNode }) => (
-    <p className="border-rule text-ink-faint border border-dashed px-4 py-6 text-center text-sm">{children}</p>
+    <p className="border-rule text-ink-faint rounded-2xl border border-dashed px-4 py-6 text-center text-sm">
+        {children}
+    </p>
 );
 
 export const EssentialsChecklist = ({
@@ -123,7 +125,7 @@ export const EssentialsChecklist = ({
         >
             {!planOnly && <SegmentBar done={paidCount} total={items.length} />}
 
-            <ul className="border-rule-strong mt-3 border-t">
+            <ul className="border-rule mt-3 border-t">
                 {items.map((item) => (
                     <RowMenu
                         key={item.id}
@@ -165,7 +167,7 @@ export const EssentialsChecklist = ({
                         <li className="border-rule data-[state=open]:bg-surface border-b">
                             <label
                                 className={twMerge(
-                                    "hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors",
+                                    "hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors",
                                     planOnly && !item.checked && "cursor-default",
                                 )}
                             >
@@ -174,7 +176,7 @@ export const EssentialsChecklist = ({
                                         className="flex size-4 shrink-0 items-center justify-center"
                                         aria-hidden="true"
                                     >
-                                        <span className="bg-ink-faint size-1.5" />
+                                        <span className="bg-ink-faint size-1.5 rounded-full" />
                                     </span>
                                 ) : (
                                     <Checkbox
@@ -192,12 +194,12 @@ export const EssentialsChecklist = ({
                                         {item.title}
                                     </span>
                                     {item.category && (
-                                        <span className="text-ink-faint mt-0.5 block font-mono text-3xs uppercase">
+                                        <span className="text-ink-faint mt-0.5 block text-xs">
                                             {getCategoryLabel(item.category, tCategories)}
                                         </span>
                                     )}
                                     {item.carriedFrom && !item.checked && (
-                                        <span className="text-signal mt-0.5 block font-mono text-3xs uppercase">
+                                        <span className="text-signal mt-0.5 block text-xs">
                                             {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
                                         </span>
                                     )}

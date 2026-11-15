@@ -2,7 +2,6 @@ import { twMerge } from "lib/tw";
 import { Hint } from "components/hint";
 
 export const Section = ({
-    index,
     title,
     description,
     actions,
@@ -10,7 +9,6 @@ export const Section = ({
     className,
     anchor,
 }: {
-    index?: string;
     title: React.ReactNode;
     description?: string;
     actions?: React.ReactNode;
@@ -20,14 +18,9 @@ export const Section = ({
 }) => {
     return (
         <section data-tour={anchor} className={twMerge("w-full scroll-mt-24", className)}>
-            <header className="border-rule-strong flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b pb-3">
-                <div className="flex min-w-0 items-baseline gap-3">
-                    {index && (
-                        <span aria-hidden="true" className="text-accent font-mono text-xs">
-                            §{index}
-                        </span>
-                    )}
-                    <h2 className="font-display min-w-0 text-lg leading-tight font-medium tracking-tight uppercase md:text-xl">
+            <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                    <h2 className="font-display min-w-0 text-xl leading-tight font-medium tracking-tight md:text-2xl">
                         {title}
                     </h2>
                     {description && (
@@ -55,7 +48,7 @@ export const StatGrid = ({
     <div
         data-tour={anchor}
         className={twMerge(
-            "border-rule grid grid-cols-2 border-t border-l lg:grid-cols-4 [&>*]:border-r [&>*]:border-b",
+            "grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4 [&>*]:rounded-panel [&>*]:border [&>*]:border-rule [&>*]:bg-surface",
             className,
         )}
     >
@@ -64,7 +57,7 @@ export const StatGrid = ({
 );
 
 export const SubHeading = ({ children, aside }: { children: React.ReactNode; aside?: React.ReactNode }) => (
-    <div className="border-rule flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-2">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pb-1">
         <h3 className="label text-ink">{children}</h3>
         {aside && <div className="text-sm tabular-nums">{aside}</div>}
     </div>

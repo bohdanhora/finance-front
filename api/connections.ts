@@ -21,7 +21,11 @@ export const putAssistantPreferences = async (assistant: AssistantPreferences) =
 };
 
 export const putStatisticsPreferences = async (statistics: StatisticsPreferences) => {
-    await transactionsAxios.put("connections/statistics", statistics);
+    const { hiddenTransactions, ...rest } = statistics;
+    await transactionsAxios.put(
+        "connections/statistics",
+        hiddenTransactions.length ? { ...rest, hiddenTransactions } : rest,
+    );
 };
 
 export const putMonobankToken = async (token: string) => {

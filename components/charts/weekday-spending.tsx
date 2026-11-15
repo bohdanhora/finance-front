@@ -66,7 +66,7 @@ export const WeekdaySpending = ({
                             {money(point.value)}
                             <span className="text-ink-faint ml-2">{t("purchases", { count: point.count })}</span>
                         </span>
-                        <span className="bg-wash col-span-12 h-2 sm:col-span-6">
+                        <span className="bg-wash col-span-12 h-2 sm:col-span-6 overflow-hidden rounded-full">
                             <span
                                 className={twMerge(
                                     "block h-full transition-[width] duration-500",

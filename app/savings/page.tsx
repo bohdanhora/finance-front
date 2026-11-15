@@ -292,7 +292,6 @@ const SavingsPage = () => {
 
                 <PageShell>
                     <PageHeader
-                        index="03"
                         title={t("title")}
                         subtitle={t("subtitle")}
                         actions={
@@ -303,7 +302,7 @@ const SavingsPage = () => {
                         }
                     />
 
-                    <StatGrid className="lg:grid-cols-3">
+                    <StatGrid className="grid-cols-1 sm:grid-cols-3">
                         <StatCard
                             label={t("saved")}
                             value={summaryValue(summary.saved, nativeSummary.saved)}
@@ -323,7 +322,6 @@ const SavingsPage = () => {
                     </StatGrid>
 
                     <Section
-                        index="01"
                         title={t("goals")}
                         actions={
                             <Button variant="outline" size="sm" onClick={openNewGoal}>
@@ -333,9 +331,9 @@ const SavingsPage = () => {
                         }
                     >
                         {store.savingsGoals.length === 0 ? (
-                            <div className="border-rule flex flex-col items-center border border-dashed px-6 py-14 text-center">
+                            <div className="border-rule flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
                                 <Target className="text-accent mb-4 size-6" strokeWidth={1.5} />
-                                <h2 className="font-display text-lg font-medium uppercase">{t("emptyGoalsTitle")}</h2>
+                                <h2 className="font-display text-lg font-medium">{t("emptyGoalsTitle")}</h2>
                                 <p className="text-ink-faint mt-1 max-w-md text-sm">{t("emptyGoalsHint")}</p>
                                 <Button className="mt-5" onClick={openNewGoal}>
                                     <Plus />
@@ -359,14 +357,14 @@ const SavingsPage = () => {
                         )}
                     </Section>
 
-                    <Section index="02" title={t("recentActivity")}>
+                    <Section title={t("recentActivity")}>
                         {recentOperations.length === 0 ? (
-                            <div className="border-rule border border-dashed px-5 py-10 text-center">
+                            <div className="border-rule rounded-2xl border border-dashed px-5 py-10 text-center">
                                 <p className="font-medium">{t("noOperations")}</p>
                                 <p className="text-ink-faint mt-1 text-sm">{t("noOperationsHint")}</p>
                             </div>
                         ) : (
-                            <ul className="border-rule-strong border-t">
+                            <ul className="border-rule border-t">
                                 {recentOperations.map((operation) => {
                                     const isDeposit = operation.type === SavingsOperationType.DEPOSIT;
                                     const isWithdrawal = operation.type === SavingsOperationType.WITHDRAWAL;
@@ -382,10 +380,12 @@ const SavingsPage = () => {
                                             className="border-rule flex items-center gap-3 border-b py-3"
                                         >
                                             <span
-                                                className={twMerge(
-                                                    "border-rule flex size-9 shrink-0 items-center justify-center border",
-                                                    isDeposit && "border-accent text-accent",
-                                                )}
+                                                className="hue-tile size-10"
+                                                style={
+                                                    {
+                                                        "--hue": isDeposit ? "var(--hue-teal)" : "var(--hue-slate)",
+                                                    } as React.CSSProperties
+                                                }
                                             >
                                                 <Icon className="size-4" />
                                             </span>
@@ -393,7 +393,7 @@ const SavingsPage = () => {
                                                 <p className="truncate text-sm font-medium">
                                                     {operation.note || t(operation.type)}
                                                 </p>
-                                                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                                                <p className="text-ink-faint mt-0.5 text-xs">
                                                     {t("sharedSavings")} · {t(operation.storage)}
                                                     {operation.destinationStorage
                                                         ? ` → ${t(operation.destinationStorage)}`
@@ -469,7 +469,7 @@ const SavingsPage = () => {
                                             aria-checked={goalDeletionMode === mode}
                                             onClick={() => setGoalDeletionMode(mode)}
                                             className={twMerge(
-                                                " border p-3 text-left transition-colors",
+                                                "rounded-xl border p-3 text-left transition-colors",
                                                 goalDeletionMode === mode
                                                     ? "border-accent bg-accent-wash"
                                                     : "border-rule hover:border-rule-strong",
@@ -490,7 +490,7 @@ const SavingsPage = () => {
                                 </div>
 
                                 {goalDeletionMode === "purchased" && (
-                                    <div className="border-rule space-y-3 border p-3.5">
+                                    <div className="border-rule space-y-3 border p-3.5 rounded-xl">
                                         <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div>
                                                 <p className="text-sm font-semibold">{t("purchaseBreakdown")}</p>
@@ -521,7 +521,10 @@ const SavingsPage = () => {
                                                 const available = Math.max(getPurchaseBalance(deduction), 0);
 
                                                 return (
-                                                    <div key={deduction.id} className="border-rule border p-3">
+                                                    <div
+                                                        key={deduction.id}
+                                                        className="border-rule border p-3 rounded-xl"
+                                                    >
                                                         <div className="grid items-end gap-2 sm:grid-cols-4">
                                                             <div className="space-y-1.5">
                                                                 <Label>{t("purchaseSource")}</Label>

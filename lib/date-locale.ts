@@ -43,3 +43,22 @@ export const formatDateTime = (value: string | Date, locale: string) =>
         hour: "2-digit",
         minute: "2-digit",
     }).format(new Date(value));
+
+export const formatDayHeading = (value: string | Date, locale: string, now = new Date()) => {
+    const date = new Date(value);
+    const intl = getIntlLocale(locale);
+    const startOf = (input: Date) => new Date(input.getFullYear(), input.getMonth(), input.getDate()).getTime();
+    const diff = Math.round((startOf(now) - startOf(date)) / 86400000);
+
+    if (diff === 0 || diff === 1) {
+        const label = new Intl.RelativeTimeFormat(intl, { numeric: "auto" }).format(-diff, "day");
+        return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+
+    return new Intl.DateTimeFormat(intl, {
+        day: "numeric",
+        month: "long",
+        weekday: "short",
+        year: date.getFullYear() === now.getFullYear() ? undefined : "numeric",
+    }).format(date);
+};

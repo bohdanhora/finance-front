@@ -32,10 +32,7 @@ export const StreakDetails = ({ record }: { record: StreakRecord }) => {
             <div className="flex items-end justify-between gap-4">
                 <div className="min-w-0">
                     <p className="label">{t(`tiers.${tier.key}.name`)}</p>
-                    <p className="figure text-hero mt-2">
-                        {record.current}
-                        <span className="caret caret-blink" aria-hidden="true" />
-                    </p>
+                    <p className="figure figure-light text-hero glow-text mt-2">{record.current}</p>
                     <p className="text-ink-muted mt-2 text-sm">{t("daysInARow", { days: record.current })}</p>
                 </div>
                 <StreakMeter tier={tier.key} className="h-14 gap-1" cellClassName="w-3" />
@@ -52,7 +49,7 @@ export const StreakDetails = ({ record }: { record: StreakRecord }) => {
                         </span>
                     )}
                 </div>
-                <div className="bg-wash h-1.5 w-full">
+                <div className="bg-wash h-1.5 w-full overflow-hidden rounded-full">
                     <div
                         className="bg-accent h-full transition-[width] duration-500"
                         style={{ width: `${progress}%` }}
@@ -80,7 +77,7 @@ export const StreakDetails = ({ record }: { record: StreakRecord }) => {
                 </div>
             </div>
 
-            <dl className="border-rule-strong border-t">
+            <dl className="border-rule border-t">
                 <div className="border-rule flex justify-between gap-4 border-b py-2.5">
                     <dt className="label">{t("best")}</dt>
                     <dd className="font-mono text-xs tabular-nums">{t("daysShort", { days: record.best })}</dd>
@@ -93,7 +90,7 @@ export const StreakDetails = ({ record }: { record: StreakRecord }) => {
                 </div>
             </dl>
 
-            <ol className="border-rule-strong border-t">
+            <ol className="border-rule border-t">
                 {STREAK_TIERS.filter((item) => item.from > 0).map((item, index) => {
                     const reached = record.current >= item.from;
                     const isCurrent = item.key === tier.key;

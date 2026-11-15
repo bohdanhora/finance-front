@@ -46,9 +46,7 @@ const getEmptyPayment = (currency: CURRENCY): PaymentValues => ({
 });
 
 const paymentTotal = (payment: PaymentValues) =>
-    payment.mode === "rate"
-        ? (Number(payment.rate) || 0) * (Number(payment.hours) || 0)
-        : Number(payment.amount) || 0;
+    payment.mode === "rate" ? (Number(payment.rate) || 0) * (Number(payment.hours) || 0) : Number(payment.amount) || 0;
 
 export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string }) => {
     const store = useStore();
@@ -157,7 +155,7 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
                                 const subtotal = paymentTotal(payment);
 
                                 return (
-                                    <li key={item.id} className="border-rule space-y-3 border p-3">
+                                    <li key={item.id} className="border-rule space-y-3 border p-3 rounded-xl">
                                         <div className="flex items-center gap-2">
                                             <span className="text-ink-faint font-mono text-2xs uppercase">
                                                 {t("paymentNumber", { number: index + 1 })}
@@ -225,15 +223,16 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
                                             />
                                         </div>
 
-                                        {subtotal > 0 && (payment.mode === "rate" || payment.currency !== userCurrency) && (
-                                            <p className="text-ink-faint font-mono text-2xs tabular-nums">
-                                                = {formatCurrency(subtotal)} {paymentSymbol}
-                                                {payment.currency !== userCurrency &&
-                                                    (convertedTotals[index] !== null
-                                                        ? ` ≈ ${formatCurrency(convertedTotals[index]!)} ${symbol}`
-                                                        : ` · ${t("rateUnavailable")}`)}
-                                            </p>
-                                        )}
+                                        {subtotal > 0 &&
+                                            (payment.mode === "rate" || payment.currency !== userCurrency) && (
+                                                <p className="text-ink-faint font-mono text-2xs tabular-nums">
+                                                    = {formatCurrency(subtotal)} {paymentSymbol}
+                                                    {payment.currency !== userCurrency &&
+                                                        (convertedTotals[index] !== null
+                                                            ? ` ≈ ${formatCurrency(convertedTotals[index]!)} ${symbol}`
+                                                            : ` · ${t("rateUnavailable")}`)}
+                                                </p>
+                                            )}
                                     </li>
                                 );
                             })}
@@ -250,7 +249,7 @@ export const ChangeNextMonthIncome = ({ triggerLabel }: { triggerLabel?: string 
                             {t("addPayment")}
                         </Button>
 
-                        <div className="border-rule-strong flex items-baseline justify-between gap-4 border-t pt-4">
+                        <div className="border-rule flex items-baseline justify-between gap-4 border-t pt-4">
                             <span className="text-ink-faint font-mono text-2xs uppercase">{t("total")}</span>
                             <span className="font-display text-xl font-semibold tabular-nums">
                                 {formatCurrency(total)} {symbol}

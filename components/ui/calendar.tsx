@@ -23,10 +23,7 @@ function CalendarDropdown({ options, value, onChange, disabled, "aria-label": ar
             <SelectTrigger
                 size="sm"
                 aria-label={ariaLabel}
-                className={twMerge(
-                    "h-9 px-2.5 font-mono text-2xs uppercase",
-                    isMonthDropdown ? "w-28 sm:w-32" : "w-20 sm:w-24",
-                )}
+                className={twMerge("h-9 px-2.5 text-xs", isMonthDropdown ? "w-28 sm:w-32" : "w-20 sm:w-24")}
             >
                 <SelectValue />
             </SelectTrigger>
@@ -81,12 +78,12 @@ function Calendar({
                 ),
                 button_previous: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-rule pointer-events-auto size-(--cell-size) border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
+                    "border-rule pointer-events-auto size-(--cell-size) rounded-lg border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
                     defaultClassNames.button_previous,
                 ),
                 button_next: twMerge(
                     buttonVariants({ variant: buttonVariant }),
-                    "border-rule pointer-events-auto size-(--cell-size) border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
+                    "border-rule pointer-events-auto size-(--cell-size) rounded-lg border p-0 select-none hover:border-rule-strong aria-disabled:opacity-40",
                     defaultClassNames.button_next,
                 ),
                 month_caption: twMerge(
@@ -107,7 +104,7 @@ function Calendar({
                     defaultClassNames.caption_label,
                 ),
                 table: "w-full border-collapse",
-                weekdays: twMerge("mt-3 flex border-b border-rule-strong pb-2", defaultClassNames.weekdays),
+                weekdays: twMerge("mt-3 flex pb-1", defaultClassNames.weekdays),
                 weekday: twMerge("label flex-1 select-none text-center", defaultClassNames.weekday),
                 week: twMerge("mt-1.5 flex w-full", defaultClassNames.week),
                 week_number_header: twMerge("select-none w-(--cell-size)", defaultClassNames.week_number_header),
@@ -182,7 +179,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
             data-range-end={modifiers.range_end}
             data-range-middle={modifiers.range_middle}
             className={twMerge(
-                "data-[selected-single=true]:bg-accent data-[selected-single=true]:text-on-accent data-[range-middle=true]:bg-wash data-[range-middle=true]:text-ink data-[range-start=true]:bg-accent data-[range-start=true]:text-on-accent data-[range-end=true]:bg-accent data-[range-end=true]:text-on-accent flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 font-sans text-sm leading-none normal-case tabular-nums tracking-normal hover:bg-wash hover:text-ink group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:outline group-data-[focused=true]/day:outline-2 group-data-[focused=true]/day:outline-accent [&>span]:text-xs [&>span]:opacity-70",
+                "data-[selected-single=true]:bg-accent data-[selected-single=true]:text-on-accent data-[range-middle=true]:bg-wash data-[range-middle=true]:text-ink data-[range-start=true]:bg-accent data-[range-start=true]:text-on-accent data-[range-end=true]:bg-accent data-[range-end=true]:text-on-accent flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-lg font-sans text-sm leading-none normal-case tabular-nums tracking-normal hover:bg-wash hover:text-ink group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:outline group-data-[focused=true]/day:outline-2 group-data-[focused=true]/day:outline-accent [&>span]:text-xs [&>span]:opacity-70",
                 defaultClassNames.day,
                 className,
             )}

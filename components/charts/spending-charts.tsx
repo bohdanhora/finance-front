@@ -39,13 +39,13 @@ type Palette = {
 };
 
 const FALLBACK: Palette = {
-    accent: "#2531e0",
-    accentWash: "#e3e5fb",
-    muted: "#868a90",
-    rule: "#cdd0d1",
-    tick: "#64686e",
-    paper: "#f0f1ee",
-    ink: "#0c0d0e",
+    accent: "#35e0c8",
+    accentWash: "#0c2a27",
+    muted: "#3a4448",
+    rule: "#1a1f23",
+    tick: "#7a868d",
+    paper: "#0d1012",
+    ink: "#f2f5f4",
 };
 
 const usePalette = () => {
@@ -59,10 +59,10 @@ const usePalette = () => {
         setPalette({
             accent: read("--accent", FALLBACK.accent),
             accentWash: read("--accent-wash", FALLBACK.accentWash),
-            muted: dark ? "#6e727a" : FALLBACK.muted,
+            muted: dark ? "#3a4448" : "#c3ccca",
             rule: read("--rule", FALLBACK.rule),
             tick: read("--ink-faint", FALLBACK.tick),
-            paper: read("--paper", FALLBACK.paper),
+            paper: read("--surface", FALLBACK.paper),
             ink: read("--ink", FALLBACK.ink),
         });
     }, [resolvedTheme]);
@@ -74,7 +74,7 @@ const Legend = ({ items }: { items: { label: string; color: string }[] }) => (
     <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2">
         {items.map((item) => (
             <li key={item.label} className="label flex items-center gap-2">
-                <span className="size-2.5" style={{ backgroundColor: item.color }} />
+                <span className="size-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                 {item.label}
             </li>
         ))}
@@ -140,15 +140,19 @@ export const SpendingChart = ({
         [allTransactions, period.end, period.kind, locale],
     );
 
-    const font = { family: "Martian Mono, IBM Plex Sans, monospace", size: 10 };
+    const monoFamily =
+        typeof document === "undefined"
+            ? ""
+            : getComputedStyle(document.body).getPropertyValue("--font-geist-mono").trim();
+    const font = { family: monoFamily ? `${monoFamily}, monospace` : "monospace", size: 10 };
 
     const tooltip = {
         backgroundColor: palette.paper,
         titleColor: palette.ink,
         bodyColor: palette.ink,
-        borderColor: palette.ink,
+        borderColor: palette.rule,
         borderWidth: 1,
-        cornerRadius: 0,
+        cornerRadius: 10,
         padding: 10,
         boxPadding: 4,
         usePointStyle: true,
@@ -161,7 +165,7 @@ export const SpendingChart = ({
     };
 
     const scales = {
-        x: { grid: { display: false }, ticks: { color: palette.tick, font }, border: { color: palette.ink } },
+        x: { grid: { display: false }, ticks: { color: palette.tick, font }, border: { color: palette.rule } },
         y: {
             grid: { color: palette.rule },
             ticks: { color: palette.tick, font },
@@ -198,7 +202,7 @@ export const SpendingChart = ({
             <div>
                 <div className="flex flex-wrap items-start justify-between gap-x-3">
                     <Legend items={pairLegend} />
-                    <p className="text-ink-faint mb-4 font-mono text-3xs uppercase">
+                    <p className="text-ink-faint mb-4 text-xs">
                         {opensMonth ? tStats("clickMonthHint") : tStats("clickDayHint")}
                     </p>
                 </div>
@@ -211,7 +215,7 @@ export const SpendingChart = ({
                                     label: tStats("income"),
                                     data: source.map((item) => item.income),
                                     backgroundColor: colorFor(palette.accent),
-                                    borderRadius: 0,
+                                    borderRadius: 6,
                                     maxBarThickness: thin ? 14 : 32,
                                     categoryPercentage: 0.7,
                                     barPercentage: 0.9,
@@ -220,7 +224,7 @@ export const SpendingChart = ({
                                     label: tStats("expense"),
                                     data: source.map((item) => item.expense),
                                     backgroundColor: colorFor(palette.muted),
-                                    borderRadius: 0,
+                                    borderRadius: 6,
                                     maxBarThickness: thin ? 14 : 32,
                                     categoryPercentage: 0.7,
                                     barPercentage: 0.9,
@@ -252,7 +256,8 @@ export const SpendingChart = ({
                             borderColor: palette.accent,
                             backgroundColor: palette.accentWash,
                             fill: true,
-                            tension: 0,
+                            tension: 0.35,
+                            cubicInterpolationMode: "monotone",
                             stepped: false,
                             pointRadius: 0,
                             pointHoverRadius: 4,

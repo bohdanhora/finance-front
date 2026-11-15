@@ -3,30 +3,24 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --radius-xs: 0;
-    --radius-sm: 0;
-    --radius-md: 0;
-    --radius-lg: 0;
-    --radius-xl: 0;
-    --radius-2xl: 0;
-    --radius-3xl: 0;
-    --radius-4xl: 0;
     --radius-card: 0.75rem;
     --radius-card-sm: 0.375rem;
+    --radius-panel: 1.125rem;
 
     --shadow-2xs: 0 0 #0000;
     --shadow-xs: 0 0 #0000;
     --shadow-sm: 0 0 #0000;
     --shadow-md: 0 0 #0000;
-    --shadow-lg: 0 0 #0000;
-    --shadow-xl: 0 0 #0000;
-    --shadow-2xl: 0 0 #0000;
+    --shadow-lg: 0 18px 48px -24px var(--shadow-tint);
+    --shadow-xl: 0 24px 64px -28px var(--shadow-tint);
+    --shadow-2xl: 0 32px 80px -32px var(--shadow-tint);
+    --shadow-glow: 0 0 24px -6px var(--accent);
 }
 
 @theme inline {
-    --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
-    --font-display: var(--font-unbounded), var(--font-plex), ui-sans-serif, sans-serif;
-    --font-mono: var(--font-martian), var(--font-plex), ui-monospace, SFMono-Regular, monospace;
+    --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
     --color-paper: var(--paper);
     --color-surface: var(--surface);
@@ -41,6 +35,9 @@
     --color-on-accent: var(--on-accent);
     --color-signal: var(--signal);
     --color-signal-wash: var(--signal-wash);
+    --color-good: var(--good);
+    --color-warn: var(--warn);
+    --color-warn-wash: var(--warn-wash);
     --color-scrim: var(--scrim);
 
     --text-3xs: 0.625rem;
@@ -51,10 +48,10 @@
     --text-body--line-height: 1.5;
     --text-figure: clamp(1.375rem, 2.4vw, 1.75rem);
     --text-figure--line-height: 1.1;
-    --text-figure--letter-spacing: -0.02em;
-    --text-hero: clamp(2.5rem, 8vw, 4.75rem);
+    --text-figure--letter-spacing: -0.025em;
+    --text-hero: clamp(3rem, 9vw, 5.5rem);
     --text-hero--line-height: 0.95;
-    --text-hero--letter-spacing: -0.035em;
+    --text-hero--letter-spacing: -0.045em;
 
     --spacing-tile: 11rem;
     --spacing-tile-lg: 13rem;
@@ -71,41 +68,75 @@
 
 :root {
     --keyboard-inset: 0px;
-    --header-height: 3.5rem;
+    --header-height: 3.75rem;
 
-    --paper: #f0f1ee;
-    --surface: #f8f8f6;
-    --wash: #e6e7e3;
-    --ink: #0c0d0e;
-    --ink-muted: #42454a;
-    --ink-faint: #64686e;
-    --rule: #cdd0d1;
-    --rule-strong: #0c0d0e;
-    --accent: #2531e0;
-    --accent-wash: #e3e5fb;
+    --paper: #f3f5f4;
+    --surface: #ffffff;
+    --wash: #e9eeec;
+    --ink: #0e1213;
+    --ink-muted: #4b5458;
+    --ink-faint: #6b767b;
+    --rule: #e0e6e4;
+    --rule-strong: #c6cfcd;
+    --accent: #08786c;
+    --accent-wash: #dcf2ee;
     --on-accent: #ffffff;
-    --signal: #c8102e;
-    --signal-wash: #f6e1e3;
-    --scrim: rgb(12 13 14 / 0.55);
+    --signal: #cf3b2f;
+    --signal-wash: #fbe6e3;
+    --good: #12805a;
+    --warn: #a86a08;
+    --warn-wash: #fbefd9;
+    --scrim: rgb(14 18 19 / 0.45);
+    --shadow-tint: rgb(14 30 28 / 0.18);
+    --glow-a: rgb(34 211 197 / 0.28);
+    --glow-b: rgb(42 143 214 / 0.22);
+    --glow-c: rgb(31 191 138 / 0.18);
+    --grain-opacity: 0.1;
+    --hue-green: #2f8a4e;
+    --hue-orange: #c2621f;
+    --hue-blue: #2f6bc4;
+    --hue-violet: #7d4fc4;
+    --hue-pink: #c2477a;
+    --hue-amber: #a07a10;
+    --hue-cyan: #12809a;
+    --hue-slate: #5e6b73;
+    --hue-teal: #08786c;
 
     color-scheme: light;
 }
 
 .dark {
-    --paper: #0c0d0f;
-    --surface: #141519;
-    --wash: #1c1d22;
-    --ink: #e8e9e5;
-    --ink-muted: #a8abb0;
-    --ink-faint: #868a91;
-    --rule: #2a2c31;
-    --rule-strong: #e8e9e5;
-    --accent: #8b95ff;
-    --accent-wash: #1b1e3d;
-    --on-accent: #0c0d0f;
-    --signal: #ff6b7d;
-    --signal-wash: #2c1418;
-    --scrim: rgb(0 0 0 / 0.7);
+    --paper: #050607;
+    --surface: #0d1012;
+    --wash: #161b1e;
+    --ink: #f2f5f4;
+    --ink-muted: #a3adb2;
+    --ink-faint: #7a868d;
+    --rule: #1a1f23;
+    --rule-strong: #2b3337;
+    --accent: #35e0c8;
+    --accent-wash: #0c2a27;
+    --on-accent: #031412;
+    --signal: #ff6f61;
+    --signal-wash: #2a1412;
+    --good: #45e0a0;
+    --warn: #f5b74e;
+    --warn-wash: #2b2111;
+    --scrim: rgb(0 0 0 / 0.72);
+    --shadow-tint: rgb(0 0 0 / 0.6);
+    --glow-a: rgb(34 211 197 / 0.5);
+    --glow-b: rgb(42 143 214 / 0.5);
+    --glow-c: rgb(31 191 138 / 0.3);
+    --grain-opacity: 0.22;
+    --hue-green: #5fd38d;
+    --hue-orange: #f2a65a;
+    --hue-blue: #5aa9f2;
+    --hue-violet: #b78cf5;
+    --hue-pink: #f27aa6;
+    --hue-amber: #e8cf5a;
+    --hue-cyan: #4fd0ee;
+    --hue-slate: #8d9aa3;
+    --hue-teal: #35e0c8;
 
     color-scheme: dark;
 }
@@ -156,6 +187,15 @@
         cursor: pointer;
     }
 
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--ink);
+        caret-color: var(--ink);
+        box-shadow: 0 0 0 1000px var(--paper) inset;
+        transition: background-color 9999s;
+    }
+
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -180,70 +220,120 @@
     .sheet {
         position: relative;
         isolation: isolate;
-    }
-
-    @media (min-width: 768px) {
-        .sheet::before,
-        .sheet::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            z-index: -1;
-            width: 1px;
-            background: var(--rule);
-            pointer-events: none;
-        }
-
-        .sheet::before {
-            left: max(1rem, calc((100% - 76rem) / 2 + 1rem));
-        }
-
-        .sheet::after {
-            right: max(1rem, calc((100% - 76rem) / 2 + 1rem));
-        }
+        overflow-x: clip;
     }
 
     .label {
         font-family: var(--font-mono);
         font-size: var(--text-2xs);
         line-height: 1.4;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--ink-faint);
     }
 
     .figure {
         font-family: var(--font-display);
-        font-weight: 500;
+        font-weight: 400;
         font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
+    }
+
+    .figure-light {
+        font-weight: 300;
+    }
+
+    .panel {
+        border: 1px solid var(--rule);
+        border-radius: var(--radius-panel);
+        background-color: var(--surface);
+    }
+
+    .hue-tile {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background-color: color-mix(in srgb, var(--hue, var(--hue-slate)) 16%, transparent);
+        color: var(--hue, var(--hue-slate));
+    }
+
+    .hue-dot {
+        display: inline-block;
+        flex-shrink: 0;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 999px;
+        background-color: var(--hue, var(--hue-slate));
+    }
+
+    .glow-stage {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .glow-stage::before {
+        content: "";
+        position: absolute;
+        top: -8rem;
+        bottom: -4rem;
+        left: calc(50% - 50vw);
+        right: calc(50% - 50vw);
+        z-index: -2;
+        pointer-events: none;
+        background:
+            radial-gradient(40% 55% at 15% 35%, var(--glow-a), transparent 70%),
+            radial-gradient(36% 50% at 85% 20%, var(--glow-b), transparent 70%),
+            radial-gradient(30% 42% at 60% 85%, var(--glow-c), transparent 70%);
+        filter: blur(36px);
+        mask-image: linear-gradient(to bottom, black 55%, transparent);
+        animation: glow-drift 20s ease-in-out infinite alternate;
+    }
+
+    .glow-stage::after {
+        content: "";
+        position: absolute;
+        top: -8rem;
+        bottom: -4rem;
+        left: calc(50% - 50vw);
+        right: calc(50% - 50vw);
+        z-index: -1;
+        pointer-events: none;
+        opacity: var(--grain-opacity);
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        mask-image: radial-gradient(60% 70% at 50% 40%, black 30%, transparent 100%);
+    }
+
+    .glow-text {
+        text-shadow: 0 0 48px var(--glow-a);
     }
 
     .link {
         text-decoration: underline;
         text-decoration-thickness: 1px;
         text-underline-offset: 0.22em;
-        text-decoration-color: var(--rule);
+        text-decoration-color: var(--rule-strong);
         transition:
-            background-color 0.15s,
             color 0.15s,
             text-decoration-color 0.15s;
     }
 
     .link:hover,
     .link:focus-visible {
-        background-color: var(--accent);
-        color: var(--on-accent);
-        text-decoration-color: transparent;
+        color: var(--accent);
+        text-decoration-color: var(--accent);
     }
 
     .tick {
         display: inline-block;
-        width: 0.375rem;
-        height: 0.375rem;
+        width: 0.4rem;
+        height: 0.4rem;
         flex-shrink: 0;
+        border-radius: 999px;
         background-color: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
     }
 
     .caret {
@@ -265,7 +355,15 @@
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
+}
 
+@keyframes glow-drift {
+    from {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+        transform: translate3d(3%, 4%, 0) scale(1.08);
+    }
 }
 
 @keyframes caret-blink {
@@ -525,8 +623,8 @@
     margin-bottom: 0.5rem;
     padding: 0.75rem 0.9rem;
     border: 1px solid var(--rule-strong);
-    border-radius: 0;
-    box-shadow: none;
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow-lg);
     background: var(--surface);
     color: var(--ink);
     font-family: var(--font-sans);

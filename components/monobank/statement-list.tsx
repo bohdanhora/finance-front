@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
 import { twMerge } from "lib/tw";
 
-import { CategoryIcon } from "components/categories/category-icon";
+import { CategoryBadge } from "components/categories/category-icon";
 import { Button } from "components/ui/button";
 import { getCategoryLabel } from "constants/categories";
 import { categoryByMcc, currencySymbolByCode, fromMinorUnits, operationConversion } from "lib/monobank";
@@ -30,7 +30,7 @@ export const StatementList = ({
 
     return (
         <div className="flex flex-col gap-3">
-            <ul className="border-rule-strong border-t">
+            <ul className="border-rule border-t">
                 {items.slice(0, visible).map((item) => {
                     const category = categoryByMcc(item.mcc);
                     const income = item.amount >= 0;
@@ -40,18 +40,11 @@ export const StatementList = ({
 
                     return (
                         <li key={item.id} className="border-rule flex items-center gap-3 border-b py-3 pl-1">
-                            <span
-                                className={twMerge(
-                                    "border-rule flex size-9 shrink-0 items-center justify-center border",
-                                    income && "border-accent text-accent",
-                                )}
-                            >
-                                <CategoryIcon category={income ? "income" : category} className="size-4" />
-                            </span>
+                            <CategoryBadge category={income ? "income" : category} />
 
                             <div className="min-w-0 flex-1">
                                 <p className="text-sm break-words">{item.description}</p>
-                                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                                <p className="text-ink-faint mt-0.5 text-xs">
                                     {getCategoryLabel(income ? "income" : category, tCat)} ·{" "}
                                     {dayjs.unix(item.time).format("DD/MM/YY HH:mm")}
                                     {item.hold ? ` · ${t("hold")}` : ""}

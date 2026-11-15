@@ -137,7 +137,7 @@ export const CardSwitcher = () => {
     };
 
     const arrowClass =
-        "bg-paper border-rule-strong text-ink hover:bg-ink hover:text-paper absolute top-1/2 z-20 hidden size-9 -translate-y-1/2 items-center justify-center border transition-colors pointer-fine:flex";
+        "bg-surface/80 border-rule-strong text-ink hover:bg-wash absolute top-1/2 z-20 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full border backdrop-blur transition-colors pointer-fine:flex";
 
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
@@ -304,7 +304,7 @@ export const CardSwitcher = () => {
                             aria-label={t("addTitle")}
                             className={twMerge(
                                 tileClass,
-                                "border-rule text-ink-faint hover:border-accent hover:text-accent rounded-card flex aspect-card flex-col items-center justify-center gap-2 border border-dashed font-mono text-2xs tracking-wide uppercase transition-colors",
+                                "border-rule-strong text-ink-muted hover:border-accent hover:text-accent hover:bg-accent-wash rounded-card flex aspect-card flex-col items-center justify-center gap-2 border border-dashed text-sm transition-colors",
                             )}
                         >
                             <Plus className="size-4" />

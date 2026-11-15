@@ -30,7 +30,7 @@ function SelectTrigger({
             data-slot="select-trigger"
             data-size={size}
             className={twMerge(
-                "border-rule bg-surface text-ink hover:border-ink-faint focus-visible:border-accent data-[state=open]:border-rule-strong data-[placeholder]:text-ink-faint [&_svg:not([class*='text-'])]:text-ink-faint aria-invalid:border-signal flex w-fit cursor-pointer items-center justify-between gap-2 border px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-11 data-[size=sm]:h-9 sm:data-[size=default]:h-10 sm:data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                "border-rule bg-paper text-ink hover:border-rule-strong focus-visible:border-accent rounded-xl data-[state=open]:border-rule-strong data-[placeholder]:text-ink-faint [&_svg:not([class*='text-'])]:text-ink-faint aria-invalid:border-signal flex w-fit cursor-pointer items-center justify-between gap-2 border px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-11 data-[size=sm]:h-9 sm:data-[size=default]:h-10 sm:data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                 className,
             )}
             {...props}
@@ -54,7 +54,7 @@ function SelectContent({
             <SelectPrimitive.Content
                 data-slot="select-content"
                 className={twMerge(
-                    "bg-paper text-ink border-rule-strong relative z-50 max-h-(--radix-select-content-available-height) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto border",
+                    "bg-surface text-ink border-rule-strong relative z-50 rounded-xl p-1 shadow-xl max-h-(--radix-select-content-available-height) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto border",
                     position === "popper" &&
                         "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
                     className,
@@ -93,7 +93,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
         <SelectPrimitive.Item
             data-slot="select-item"
             className={twMerge(
-                "focus:bg-wash data-[state=checked]:text-accent [&_svg:not([class*='text-'])]:text-ink-faint relative flex min-h-11 w-full cursor-pointer items-center gap-2 py-2 pr-8 pl-2 text-sm outline-hidden select-none sm:min-h-9 sm:py-1.5 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+                "focus:bg-wash data-[state=checked]:text-accent [&_svg:not([class*='text-'])]:text-ink-faint relative flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg py-2 pr-8 pl-2 text-sm outline-hidden select-none sm:min-h-9 sm:py-1.5 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
                 className,
             )}
             {...props}

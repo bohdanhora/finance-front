@@ -59,9 +59,9 @@ export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onEd
     const filled = Math.round((progress / 100) * segments);
 
     return (
-        <article className="border-rule-strong flex h-full flex-col border-t pt-4">
+        <article className="panel flex h-full flex-col p-5">
             <div className="flex items-start justify-between gap-3">
-                <h3 className="font-display min-w-0 pt-1 text-lg leading-tight font-medium tracking-tight break-words uppercase">
+                <h3 className="font-display min-w-0 pt-1 text-lg leading-tight font-medium tracking-tight break-words">
                     {goal.name}
                 </h3>
                 <div className="-mt-0.5 -mr-2 flex shrink-0 items-center">
@@ -90,15 +90,24 @@ export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onEd
                         </p>
                     )}
                 </div>
-                <p className={canAfford ? "figure text-accent text-3xl" : "figure text-3xl"}>
+                <p
+                    className={
+                        canAfford
+                            ? "figure figure-light text-accent glow-text text-4xl"
+                            : "figure figure-light text-4xl"
+                    }
+                >
                     {Math.round(progress)}
                     <span className="text-ink-faint text-base">%</span>
                 </p>
             </div>
 
-            <div className="mt-3 flex h-2 gap-0.5" aria-hidden="true">
+            <div className="mt-3 flex h-2 gap-1" aria-hidden="true">
                 {Array.from({ length: segments }, (_, index) => (
-                    <span key={index} className={index < filled ? "bg-accent flex-1" : "bg-wash flex-1"} />
+                    <span
+                        key={index}
+                        className={index < filled ? "bg-accent flex-1 rounded-full" : "bg-wash flex-1 rounded-full"}
+                    />
                 ))}
             </div>
 

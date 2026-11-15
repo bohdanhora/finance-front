@@ -25,7 +25,7 @@ function PopoverContent({
                 align={align}
                 sideOffset={sideOffset}
                 className={twMerge(
-                    "bg-paper text-ink border-rule-strong z-50 w-72 origin-(--radix-popover-content-transform-origin) border p-4 outline-hidden",
+                    "bg-surface text-ink border-rule-strong rounded-2xl shadow-xl z-50 w-72 origin-(--radix-popover-content-transform-origin) border p-4 outline-hidden",
                     className,
                 )}
                 {...props}

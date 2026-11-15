@@ -165,6 +165,20 @@ export const essentialSplit = (transactions: TransactionType[]): EssentialSplit 
 export const excludeCategories = (transactions: TransactionType[], hidden: ReadonlySet<string>): TransactionType[] =>
     hidden.size ? transactions.filter((tx) => !(isExpense(tx) && hidden.has(tx.categorie))) : transactions;
 
+export const excludeTransactions = (transactions: TransactionType[], hidden: ReadonlySet<string>): TransactionType[] =>
+    hidden.size ? transactions.filter((tx) => !hidden.has(tx.id)) : transactions;
+
+export const hiddenTransactionsIn = (
+    transactions: TransactionType[],
+    hiddenIds: ReadonlySet<string>,
+    hiddenCategories: ReadonlySet<string>,
+): TransactionType[] =>
+    hiddenIds.size
+        ? transactions
+              .filter((tx) => hiddenIds.has(tx.id) && !(isExpense(tx) && hiddenCategories.has(tx.categorie)))
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        : [];
+
 export type HiddenSummary = {
     categories: CategorySlice[];
     total: number;

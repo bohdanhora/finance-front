@@ -220,7 +220,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                                 disabled={coverBusy}
                                 onClick={() => fileRef.current?.click()}
                                 className={twMerge(
-                                    "border-rule text-ink-faint hover:border-accent hover:text-accent rounded-card-sm flex aspect-card flex-col items-center justify-center gap-1 border border-dashed bg-cover bg-center px-1 font-mono text-3xs uppercase outline-offset-2 transition-colors",
+                                    "border-rule text-ink-faint hover:border-accent hover:text-accent rounded-card-sm flex aspect-card flex-col items-center justify-center gap-1 border border-dashed bg-cover bg-center px-1 text-xs outline-offset-2 transition-colors",
                                     cover && "outline-accent border-transparent text-white outline-2",
                                 )}
                                 style={cover ? { backgroundImage: `url(${cover})` } : undefined}
@@ -271,7 +271,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                         />
                     </div>
 
-                    <div className="border-rule flex flex-col gap-3 border p-3">
+                    <div className="border-rule flex flex-col gap-3 border p-3 rounded-xl">
                         <div className="flex items-center gap-1.5">
                             <label className="flex cursor-pointer items-center gap-3">
                                 <Checkbox
@@ -338,7 +338,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     )}
 
                     {editing && others.length > 0 && (
-                        <div className="border-rule flex flex-col gap-3 border p-3">
+                        <div className="border-rule flex flex-col gap-3 border p-3 rounded-xl">
                             {!isPrimary && (
                                 <Button
                                     type="button"

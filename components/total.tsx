@@ -31,7 +31,7 @@ const Fact = ({
 }) => (
     <div className={twMerge("border-rule flex min-w-0 flex-col gap-1 border-l pl-3", className)}>
         <dt className="label flex items-center gap-1">{label}</dt>
-        <dd className="font-mono text-xs tabular-nums">{children}</dd>
+        <dd className="font-mono text-sm tabular-nums">{children}</dd>
     </div>
 );
 
@@ -62,8 +62,8 @@ export const Total = () => {
     const showConverted = userCurrency === CURRENCY.UAH && converted !== null;
 
     return (
-        <section data-tour="balance" className="w-full scroll-mt-24">
-            <div className="border-rule-strong flex items-center justify-between gap-3 border-b pb-3">
+        <section data-tour="balance" className="glow-stage w-full scroll-mt-24">
+            <div className="flex items-center justify-between gap-3">
                 <p className="label flex min-w-0 items-center gap-2">
                     <span className="tick" />
                     <span className="truncate">
@@ -85,10 +85,15 @@ export const Total = () => {
                 )}
             </div>
 
-            <div className="grid gap-6 pt-6 lg:grid-cols-12 lg:items-end lg:gap-10">
+            <div className="grid gap-6 pt-4 lg:grid-cols-12 lg:items-end lg:gap-10">
                 <div className="min-w-0 lg:col-span-8">
                     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                        <h1 className={twMerge("figure text-hero min-w-0", balance < 0 && "text-signal")}>
+                        <h1
+                            className={twMerge(
+                                "figure figure-light text-hero glow-text min-w-0",
+                                balance < 0 && "text-signal",
+                            )}
+                        >
                             <AnimatedMoney
                                 key={active}
                                 highlight

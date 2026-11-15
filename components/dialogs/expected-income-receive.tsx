@@ -161,11 +161,13 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     {symbol}
                                 </span>
                             </div>
-                            {foreign && <p className="text-ink-faint text-xs">{t("foreignHint", { currency: symbol })}</p>}
+                            {foreign && (
+                                <p className="text-ink-faint text-xs">{t("foreignHint", { currency: symbol })}</p>
+                            )}
                             {error && <p className="text-signal text-sm">{error}</p>}
                         </div>
 
-                        <label className="border-rule flex cursor-pointer items-start gap-3 border p-3">
+                        <label className="border-rule flex cursor-pointer items-start gap-3 border p-3 rounded-xl">
                             <Checkbox
                                 checked={addToBalance}
                                 onCheckedChange={(checked) => setAddToBalance(checked === true)}

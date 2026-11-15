@@ -37,7 +37,7 @@ export const StreakBadge = () => {
                     data-tour="streak"
                     aria-label={t("badgeLabel", { days: record.current })}
                     title={t("badgeLabel", { days: record.current })}
-                    className="border-rule hover:border-rule-strong flex h-9 shrink-0 items-center gap-2 border px-2.5 transition-colors"
+                    className="border-rule hover:border-rule-strong flex h-9 shrink-0 items-center gap-2 rounded-full border px-3 transition-colors"
                 >
                     <StreakMeter tier={tier.key} live={visitedToday} className="h-3.5" />
                     <span className="font-mono text-xs tabular-nums">{record.current}</span>

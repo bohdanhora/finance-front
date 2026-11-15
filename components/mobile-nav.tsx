@@ -16,8 +16,8 @@ export const MobileNav = ({ items }: { items: NavItem[] }) => {
     const pathname = usePathname();
 
     return (
-        <nav className="bg-paper border-rule-strong pb-safe fixed inset-x-0 bottom-0 z-40 border-t sm:hidden">
-            <div className="divide-rule flex w-full items-stretch divide-x">
+        <nav className="bg-paper/80 border-rule pb-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-xl sm:hidden">
+            <div className="flex w-full items-stretch">
                 {items.map(({ href, label, Icon, anchor }) => {
                     const active = pathname === href;
 
@@ -32,11 +32,9 @@ export const MobileNav = ({ items }: { items: NavItem[] }) => {
                                 active ? "text-ink" : "text-ink-faint",
                             )}
                         >
-                            {active && <span className="bg-accent absolute inset-x-0 -top-px h-0.5" />}
-                            <Icon className={twMerge("size-4", active && "text-accent")} strokeWidth={1.75} />
-                            <span className="w-full truncate px-1 text-center font-mono text-3xs tracking-wide uppercase">
-                                {label}
-                            </span>
+                            {active && <span className="bg-accent shadow-glow absolute top-0 h-0.5 w-8 rounded-full" />}
+                            <Icon className={twMerge("size-5", active && "text-accent")} strokeWidth={1.75} />
+                            <span className="w-full truncate px-1 text-center text-2xs">{label}</span>
                         </Link>
                     );
                 })}

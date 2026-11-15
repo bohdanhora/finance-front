@@ -20,7 +20,7 @@ export const CategoryBreakdown = ({
     const tMono = useTranslations("monobank");
 
     return (
-        <div className="border-rule-strong border-t">
+        <div className="border-rule border-t">
             {totals.map((total) => {
                 const share = spent > 0 ? Math.round((total.amount / spent) * 100) : 0;
 
@@ -38,7 +38,7 @@ export const CategoryBreakdown = ({
                                 {formatCurrency(total.amount)} {symbol}
                             </span>
                         </div>
-                        <div className="bg-wash h-1.5 w-full">
+                        <div className="bg-wash h-1.5 w-full overflow-hidden rounded-full">
                             <div className="h-full bg-accent" style={{ width: `${Math.max(share, 2)}%` }} />
                         </div>
                     </div>

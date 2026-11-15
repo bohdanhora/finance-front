@@ -38,7 +38,7 @@ export const GoogleAuth = ({ rememberMe }: { rememberMe: boolean }) => {
         <button
             type="button"
             onClick={handleClickGoogleAuth}
-            className="border-rule-strong hover:bg-wash flex h-12 w-full items-center justify-center gap-3 border text-sm font-medium transition-colors"
+            className="border-rule-strong hover:bg-wash flex h-12 w-full items-center justify-center gap-3 rounded-xl border text-sm font-medium transition-colors"
         >
             <GoogleIcon />
             <span>{tAuth("continueWithGoogle")}</span>

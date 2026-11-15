@@ -78,7 +78,7 @@ export const PeriodPicker = ({
     };
 
     const labelBox = (
-        <span className="flex min-w-0 flex-1 items-center justify-center px-2 text-center font-mono text-2xs uppercase sm:w-52 sm:flex-none">
+        <span className="flex min-w-0 flex-1 items-center justify-center px-2 text-center text-sm font-medium first-letter:uppercase sm:w-52 sm:flex-none">
             <span className="truncate">{label(period)}</span>
         </span>
     );

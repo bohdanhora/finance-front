@@ -74,7 +74,7 @@ export const ExpectedIncomeList = () => {
         >
             <SegmentBar done={summary.receivedCount} total={summary.total} />
 
-            <ul className="border-rule-strong mt-3 border-t">
+            <ul className="border-rule mt-3 border-t">
                 {items.map((item) => (
                     <RowMenu
                         key={item.id}
@@ -105,7 +105,7 @@ export const ExpectedIncomeList = () => {
                                     >
                                         {item.title}
                                     </span>
-                                    <span className="text-ink-faint mt-0.5 block font-mono text-3xs uppercase">
+                                    <span className="text-ink-faint mt-0.5 block text-xs">
                                         {statusLine(item)}
                                         {!item.recurring && ` · ${t("oneOff")}`}
                                     </span>

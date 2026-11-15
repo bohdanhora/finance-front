@@ -35,12 +35,12 @@ import { isEssentialTransaction } from "lib/essential-category";
 import { toMoneyInput } from "lib/money";
 import { ExportReportDialog } from "./dialogs/export-report";
 import { getCurrencySymbol } from "lib/currency";
-import { CategoryIcon } from "components/categories/category-icon";
+import { CategoryBadge } from "components/categories/category-icon";
 import { getCategoryLabel } from "constants/categories";
 import { cardIdOf, findCardById, isTransfer, transactionsForCard, transferDirection } from "lib/cards";
 import { CardSwatch, useCardName } from "components/cards/card-face";
 import { listMonths, toMonthKey } from "lib/statistics";
-import { formatMonthKey } from "lib/date-locale";
+import { formatDayHeading, formatMonthKey } from "lib/date-locale";
 
 const TYPE_FILTERS = ["all", TransactionEnum.EXPENSE, TransactionEnum.INCOME, TransactionEnum.TRANSFER] as const;
 const SORT_ORDERS = ["newest", "oldest", "largest", "smallest"] as const;
@@ -264,7 +264,7 @@ export const LastSpends = () => {
 
     if (!cardTransactions.length) {
         return (
-            <div className="border-rule border border-dashed px-4 py-10 text-center">
+            <div className="panel border-dashed px-4 py-10 text-center">
                 <p className="text-sm font-medium">{t("noSpends")}</p>
                 <p className="text-ink-faint mx-auto mt-1.5 max-w-sm text-sm">{t("noTransactionsHint")}</p>
             </div>
@@ -273,12 +273,20 @@ export const LastSpends = () => {
 
     const symbol = getCurrencySymbol(userCurrency);
     const groupByDay = sortOrder === "newest" || sortOrder === "oldest";
+    const daySpend = new Map<string, number>();
+    filteredTransactions.forEach((tx) => {
+        if (tx.transactionType !== TransactionEnum.EXPENSE) return;
+        const key = createDateString(new Date(tx.date));
+        daySpend.set(key, (daySpend.get(key) ?? 0) + tx.value);
+    });
     const rows = paginatedTransactions.map((tx, index) => {
         const day = createDateString(new Date(tx.date));
         const previous = paginatedTransactions[index - 1];
         return {
             tx,
             day,
+            dayHeading: formatDayHeading(tx.date, locale),
+            daySpent: daySpend.get(day) ?? 0,
             showDay: groupByDay && (!previous || createDateString(new Date(previous.date)) !== day),
         };
     });
@@ -348,7 +356,7 @@ export const LastSpends = () => {
                                 <DialogTitle>{t("clearDataConfirmation")}</DialogTitle>
                                 <DialogDescription>{t("clearDataWarning")}</DialogDescription>
                             </DialogHeader>
-                            <label className="border-rule flex cursor-pointer items-start gap-3 border p-3">
+                            <label className="border-rule flex cursor-pointer items-start gap-3 rounded-xl border p-3">
                                 <Checkbox
                                     id="clearTotals"
                                     checked={clearTotalsChck}
@@ -406,7 +414,7 @@ export const LastSpends = () => {
                 </Select>
                 <div
                     role="radiogroup"
-                    className="border-rule bg-surface col-span-2 flex h-11 min-w-0 border sm:h-10 md:flex-1"
+                    className="bg-wash col-span-2 flex h-11 min-w-0 gap-1 rounded-xl p-1 sm:h-10 md:flex-1"
                 >
                     {TYPE_FILTERS.map((type) => (
                         <button
@@ -416,8 +424,8 @@ export const LastSpends = () => {
                             aria-checked={typeFilter === type}
                             onClick={() => handleTypeChange(type)}
                             className={twMerge(
-                                "border-rule text-ink-muted hover:text-ink min-w-0 flex-1 truncate border-l px-2 font-mono text-3xs tracking-wide uppercase transition-colors first:border-l-0",
-                                typeFilter === type && "bg-accent text-on-accent hover:text-on-accent",
+                                "text-ink-muted hover:text-ink min-w-0 flex-1 truncate rounded-lg px-2 text-xs transition-colors",
+                                typeFilter === type && "bg-surface text-ink shadow-lg",
                             )}
                         >
                             {t(`types.${type}`)}
@@ -454,7 +462,7 @@ export const LastSpends = () => {
             )}
 
             <ul className="mt-4">
-                {rows.map(({ tx, day, showDay }) => {
+                {rows.map(({ tx, day, dayHeading, daySpent, showDay }) => {
                     const transfer = isTransfer(tx);
                     const income = !transfer && tx.transactionType === TransactionEnum.INCOME;
                     const locked = essentialPaymentTransactionIds.has(tx.id) || Boolean(tx.savingsOperationId);
@@ -470,7 +478,18 @@ export const LastSpends = () => {
 
                     return (
                         <li key={tx.id}>
-                            {showDay && <p className="label border-rule-strong mt-5 border-b pb-1.5">{day}</p>}
+                            {showDay && (
+                                <div className="mt-6 mb-1 flex items-baseline justify-between gap-3 px-2">
+                                    <p className="text-ink-muted text-sm font-medium first-letter:uppercase">
+                                        {dayHeading}
+                                    </p>
+                                    {daySpent > 0 && (
+                                        <p className="text-ink-faint pr-11 font-mono text-xs tabular-nums md:pr-10">
+                                            -{formatCurrency(daySpent)} {symbol}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                             <RowMenu
                                 title={
                                     transfer
@@ -488,7 +507,7 @@ export const LastSpends = () => {
                                 onRemove={deletable ? () => handleDeleteTransaction(tx.id) : undefined}
                                 copyValue={toMoneyInput(tx.value)}
                             >
-                                <div className="group border-rule hover:bg-surface data-[state=open]:bg-surface flex items-center gap-2 border-b py-2.5 pl-1 transition-colors">
+                                <div className="group hover:bg-surface data-[state=open]:bg-surface flex items-center gap-2 rounded-2xl py-2 pl-2 transition-colors">
                                     <button
                                         type="button"
                                         disabled={!editable}
@@ -499,31 +518,25 @@ export const LastSpends = () => {
                                         aria-label={editable ? t("edit") : undefined}
                                         className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
                                     >
-                                        <span
-                                            className={twMerge(
-                                                "border-rule flex size-9 shrink-0 items-center justify-center border",
-                                                income && "border-accent text-accent",
-                                            )}
-                                        >
-                                            {transfer ? (
-                                                <ArrowLeftRight className="size-4" />
-                                            ) : (
-                                                <CategoryIcon category={tx.categorie} className="size-4" />
-                                            )}
-                                        </span>
+                                        <CategoryBadge
+                                            category={transfer ? "transfers" : tx.categorie}
+                                            icon={transfer ? <ArrowLeftRight className="size-4.5" /> : undefined}
+                                        />
                                         <span className="min-w-0 flex-1">
-                                            <span className="block truncate text-sm">
+                                            <span className="block truncate text-sm font-medium">
                                                 {transfer
                                                     ? tx.description || transferLabel(tx)
                                                     : tx.description || categoryLabel(tx.categorie)}
                                             </span>
-                                            <span className="text-ink-faint mt-0.5 flex min-w-0 items-center gap-1.5 font-mono text-3xs uppercase">
+                                            <span className="text-ink-faint mt-0.5 flex min-w-0 items-center gap-1.5 text-xs">
                                                 {(showCardColumn || transfer) && (
                                                     <CardSwatch skin={cardSkin} className="size-2" />
                                                 )}
                                                 <span className="truncate">
                                                     {transfer ? tCards("betweenCards") : categoryLabel(tx.categorie)}
-                                                    {!transfer && isEssentialTransaction(tx) && ` · ${t("essentialMark")}`}
+                                                    {!transfer &&
+                                                        isEssentialTransaction(tx) &&
+                                                        ` · ${t("essentialMark")}`}
                                                 </span>
                                                 {(!groupByDay || time) && (
                                                     <span className="shrink-0 tabular-nums">
@@ -537,8 +550,8 @@ export const LastSpends = () => {
                                         </span>
                                         <span
                                             className={twMerge(
-                                                "shrink-0 text-right font-mono text-sm tabular-nums",
-                                                income && "text-accent",
+                                                "shrink-0 text-right font-mono text-sm font-medium tabular-nums",
+                                                income && "text-good",
                                                 transfer && "text-ink-muted",
                                             )}
                                         >
@@ -551,7 +564,7 @@ export const LastSpends = () => {
                                             type="button"
                                             onClick={() => handleDeleteTransaction(tx.id)}
                                             aria-label={t("delete")}
-                                            className="text-ink-faint hover:bg-signal-wash hover:text-signal inline-flex size-9 shrink-0 items-center justify-center transition-colors md:size-8 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                                            className="text-ink-faint hover:bg-signal-wash hover:text-signal inline-flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors md:size-8 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
                                         >
                                             <X className="size-3.5" />
                                         </button>
@@ -577,7 +590,7 @@ export const LastSpends = () => {
                         </PaginationItem>
                         <PaginationItem>
                             <span className="px-3 font-mono text-xs tabular-nums">
-                                {String(currentPage).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}
+                                {currentPage} / {totalPages}
                             </span>
                         </PaginationItem>
                         <PaginationItem>

@@ -20,7 +20,7 @@ const SettingsPage = () => {
                 <Navbar />
 
                 <PageShell>
-                    <PageHeader index="05" title={t("settingsTitle")} subtitle={t("settingsDescription")} />
+                    <PageHeader title={t("settingsTitle")} subtitle={t("settingsDescription")} />
 
                     <div className="grid min-w-0 grid-cols-1 items-start gap-x-10 gap-y-14 lg:grid-cols-2">
                         <AssistantConnection />

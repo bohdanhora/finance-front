@@ -19,7 +19,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
     return (
         <thead
             data-slot="table-header"
-            className={twMerge("[&_tr]:border-b [&_tr]:border-rule-strong [&_tr]:hover:bg-transparent", className)}
+            className={twMerge("[&_tr]:border-b [&_tr]:border-rule [&_tr]:hover:bg-transparent", className)}
             {...props}
         />
     );

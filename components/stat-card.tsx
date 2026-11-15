@@ -20,7 +20,7 @@ export const StatCard = ({
     className?: string;
 }) => {
     return (
-        <div className={twMerge("bg-paper relative flex min-w-0 flex-col gap-2 p-4 sm:p-5", className)}>
+        <div className={twMerge("relative flex min-w-0 flex-col gap-3 p-4 sm:p-5", className)}>
             <div className="flex min-h-5 items-start justify-between gap-2">
                 <p className="label flex min-w-0 items-center gap-1.5">
                     {tone && <span className={twMerge("tick", tone === "signal" && "bg-signal")} />}
@@ -31,8 +31,8 @@ export const StatCard = ({
             </div>
             <p
                 className={twMerge(
-                    "figure text-figure min-w-0 truncate",
-                    tone === "accent" && "text-accent",
+                    "figure figure-light text-figure min-w-0 truncate",
+                    tone === "accent" && "text-accent glow-text",
                     tone === "signal" && "text-signal",
                 )}
             >

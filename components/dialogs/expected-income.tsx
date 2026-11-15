@@ -325,7 +325,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                     control={form.control}
                                     name="recurring"
                                     render={({ field }) => (
-                                        <FormItem className="border-rule flex items-center gap-3 border p-3">
+                                        <FormItem className="border-rule flex items-center gap-3 border p-3 rounded-xl">
                                             <FormControl>
                                                 <Checkbox
                                                     checked={field.value}

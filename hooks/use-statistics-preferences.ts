@@ -8,23 +8,29 @@ import { ConnectionsResponse, StatisticsPreferences } from "types/transactions";
 
 const STORAGE_KEY = "finance:statistics-preferences";
 
-const EMPTY: StatisticsPreferences = { hiddenCategories: [], categoryLimits: {} };
+const EMPTY: StatisticsPreferences = { hiddenCategories: [], hiddenTransactions: [], categoryLimits: {} };
+
+const uniqueStrings = (value: unknown) =>
+    Array.isArray(value)
+        ? [...new Set(value.filter((item): item is string => typeof item === "string" && item.length > 0))]
+        : [];
 
 const sanitize = (value: unknown): StatisticsPreferences => {
     const source = (value && typeof value === "object" ? value : {}) as Partial<StatisticsPreferences>;
-    const hiddenCategories = Array.isArray(source.hiddenCategories)
-        ? [...new Set(source.hiddenCategories.filter((item): item is string => typeof item === "string"))]
-        : [];
+    const hiddenCategories = uniqueStrings(source.hiddenCategories);
+    const hiddenTransactions = uniqueStrings(source.hiddenTransactions);
     const categoryLimits = Object.fromEntries(
         Object.entries(source.categoryLimits && typeof source.categoryLimits === "object" ? source.categoryLimits : {})
             .map(([category, limit]): [string, number] => [category, Number(limit)])
             .filter(([, limit]) => Number.isFinite(limit) && limit > 0),
     );
-    return { hiddenCategories, categoryLimits };
+    return { hiddenCategories, hiddenTransactions, categoryLimits };
 };
 
 const isEmpty = (preferences: StatisticsPreferences) =>
-    !preferences.hiddenCategories.length && !Object.keys(preferences.categoryLimits).length;
+    !preferences.hiddenCategories.length &&
+    !preferences.hiddenTransactions.length &&
+    !Object.keys(preferences.categoryLimits).length;
 
 const readCache = (): StatisticsPreferences => {
     try {
@@ -82,6 +88,19 @@ export const useStatisticsPreferences = () => {
 
     const hidden = useMemo(() => new Set(preferences.hiddenCategories), [preferences.hiddenCategories]);
 
+    const hiddenTransactions = useMemo(() => new Set(preferences.hiddenTransactions), [preferences.hiddenTransactions]);
+
+    const toggleTransaction = useCallback(
+        (id: string) =>
+            save({
+                ...preferences,
+                hiddenTransactions: hiddenTransactions.has(id)
+                    ? preferences.hiddenTransactions.filter((item) => item !== id)
+                    : [...preferences.hiddenTransactions, id],
+            }),
+        [hiddenTransactions, preferences, save],
+    );
+
     const setHidden = useCallback(
         (hiddenCategories: string[]) => save({ ...preferences, hiddenCategories }),
         [preferences, save],
@@ -114,6 +133,9 @@ export const useStatisticsPreferences = () => {
 
     return {
         hidden,
+        hiddenTransactions,
+        toggleTransaction,
+        showAllTransactions: () => save({ ...preferences, hiddenTransactions: [] }),
         limits: preferences.categoryLimits,
         toggle,
         showOnly,

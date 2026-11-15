@@ -32,7 +32,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
 
     if (income <= 0) {
         return (
-            <div className="border-rule flex flex-col items-start gap-4 border border-dashed p-6">
+            <div className="border-rule flex flex-col items-start gap-4 rounded-2xl border border-dashed p-6">
                 <p className="label text-ink flex items-center gap-1.5">
                     {t("title", { month })}
                     <Hint text={t("empty")} />
@@ -60,7 +60,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
 
     return (
         <div className="lg:sticky lg:top-24">
-            <div className="border-rule-strong flex flex-wrap items-baseline justify-between gap-2 border-b pb-2">
+            <div className="border-rule flex flex-wrap items-baseline justify-between gap-2 border-b pb-2">
                 <h3 className="label text-ink">{t("title", { month })}</h3>
                 <span className="label">{t("days", { count: days })}</span>
             </div>
@@ -85,7 +85,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
                 ))}
             </ul>
 
-            <dl className="border-rule-strong mt-5 border-t">
+            <dl className="border-rule mt-5 border-t">
                 {rows.map((row) => (
                     <div
                         key={row.key}
@@ -98,7 +98,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
                         </dd>
                     </div>
                 ))}
-                <div className="border-rule-strong flex items-baseline justify-between gap-4 border-b py-3">
+                <div className="border-rule flex items-baseline justify-between gap-4 border-b py-3">
                     <dt className="label text-ink">{t("free")}</dt>
                     <dd className={twMerge("figure text-figure", overspent && "text-signal")}>
                         <AnimatedMoney

@@ -1,4 +1,4 @@
-import { IBM_Plex_Sans, Martian_Mono, Unbounded } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -15,13 +15,8 @@ import { ReactQueryProvider } from "providers/react-query";
 import { DesktopCalculator } from "components/calculator/desktop-calculator";
 import { KeyboardInset } from "components/keyboard-inset";
 
-const plex = IBM_Plex_Sans({
-    subsets: ["latin", "cyrillic"],
-    weight: ["400", "500", "600"],
-    variable: "--font-plex",
-});
-const unbounded = Unbounded({ subsets: ["latin", "cyrillic"], variable: "--font-unbounded" });
-const martian = Martian_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-martian", adjustFontFallback: false });
+const geist = Geist({ subsets: ["latin", "cyrillic"], variable: "--font-geist" });
+const geistMono = Geist_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-geist-mono" });
 
 const description = "Personal Finance App";
 
@@ -60,7 +55,7 @@ const RootLayout = async ({
             <body
                 className={twMerge(
                     "bg-paper text-ink text-base font-normal antialiased",
-                    `${plex.variable} ${unbounded.variable} ${martian.variable} font-sans`,
+                    `${geist.variable} ${geistMono.variable} font-sans`,
                 )}
             >
                 <NextIntlClientProvider messages={messages}>

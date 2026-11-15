@@ -267,7 +267,7 @@ export const ExportReportDialog = ({ open, onOpenChange }: Props) => {
                                     <label
                                         key={section}
                                         htmlFor={`report-${section}`}
-                                        className="border-rule hover:border-rule-strong flex cursor-pointer items-center gap-3 border px-3 py-2.5 transition-colors"
+                                        className="border-rule hover:border-rule-strong flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors"
                                     >
                                         <Checkbox
                                             id={`report-${section}`}

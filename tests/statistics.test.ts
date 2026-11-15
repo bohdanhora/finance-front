@@ -10,6 +10,8 @@ import {
     categoryHistory,
     essentialSplit,
     excludeCategories,
+    excludeTransactions,
+    hiddenTransactionsIn,
     forecastPeriod,
     groupByDescription,
     hiddenSummary,
@@ -111,6 +113,22 @@ test("hidden categories drop out of the spending totals but income stays", () =>
         total: 3500,
     });
     assert.equal(excludeCategories(month, new Set()), month);
+});
+
+test("a hidden transaction drops out on its own and is listed once", () => {
+    const rent = expense(8000, "housing");
+    const dinner = expense(1200, "restaurant");
+    const month = [income(50000), rent, dinner, expense(400)];
+    const hiddenIds = new Set([rent.id, dinner.id]);
+    const visible = excludeTransactions(month, hiddenIds);
+
+    assert.equal(visible.length, 2);
+    assert.equal(monthResult(visible).net, 49600);
+    assert.deepEqual(
+        hiddenTransactionsIn(month, hiddenIds, new Set(["restaurant"])).map((tx) => tx.id),
+        [rent.id],
+    );
+    assert.equal(excludeTransactions(month, new Set()), month);
 });
 
 test("category details group purchases by description", () => {

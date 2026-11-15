@@ -41,8 +41,8 @@ const SessionRow = ({ session, action }: { session: AccountSession; action: Reac
         <li className="border-rule flex items-start gap-3 border-b py-3">
             <span
                 className={twMerge(
-                    "border-rule mt-0.5 flex size-9 shrink-0 items-center justify-center border",
-                    session.current ? "border-accent text-accent" : "text-ink-faint",
+                    "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl",
+                    session.current ? "bg-accent-wash text-accent" : "bg-wash text-ink-faint",
                 )}
             >
                 <Icon className="size-4" />
@@ -59,12 +59,12 @@ const SessionRow = ({ session, action }: { session: AccountSession; action: Reac
                         </span>
                     )}
                 </p>
-                <p className="text-ink-faint mt-1 font-mono text-3xs uppercase">
+                <p className="text-ink-faint mt-1 text-xs">
                     {[session.ip && `IP ${session.ip}`, t(`method.${session.method}`), activity]
                         .filter(Boolean)
                         .join(" · ")}
                 </p>
-                <p className="text-ink-faint mt-0.5 font-mono text-3xs uppercase">
+                <p className="text-ink-faint mt-0.5 text-xs">
                     {t("signedIn", { time: formatDateTime(session.createdAt, locale) })}
                 </p>
             </div>
@@ -168,7 +168,7 @@ export const AccountSessions = () => {
     return (
         <ConnectionCard
             mark={
-                <span className="border-rule-strong flex size-11 shrink-0 items-center justify-center border">
+                <span className="bg-wash flex size-11 shrink-0 items-center justify-center rounded-xl">
                     <MonitorSmartphone className="size-4" />
                 </span>
             }
@@ -189,7 +189,7 @@ export const AccountSessions = () => {
                 <div className="flex flex-col gap-5">
                     <div className="flex flex-col gap-3">
                         <p className="label text-ink">{t("activeTitle")}</p>
-                        <ul className="border-rule-strong flex flex-col border-t">
+                        <ul className="border-rule flex flex-col border-t">
                             {active.map((session) => (
                                 <SessionRow key={session.id} session={session} action={endButton(session)} />
                             ))}
@@ -232,7 +232,7 @@ export const AccountSessions = () => {
                         {recent.length === 0 ? (
                             <p className="text-ink-faint text-sm">{t("recentEmpty")}</p>
                         ) : (
-                            <ul className="border-rule-strong flex flex-col border-t">
+                            <ul className="border-rule flex flex-col border-t">
                                 {recent.map((session) => (
                                     <SessionRow
                                         key={session.id}
