@@ -10,7 +10,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from "ui/dialog";
 
 import { StreakMeter } from "./streak-meter";
 
-export const StreakDetails = ({ record }: { record: StreakRecord }) => {
+export const StreakDetails = ({ record, withHeader = true }: { record: StreakRecord; withHeader?: boolean }) => {
     const t = useTranslations("streak");
     const locale = useLocale();
 
@@ -24,10 +24,12 @@ export const StreakDetails = ({ record }: { record: StreakRecord }) => {
 
     return (
         <>
-            <DialogHeader>
-                <DialogTitle>{t("title")}</DialogTitle>
-                <DialogDescription>{t("subtitle")}</DialogDescription>
-            </DialogHeader>
+            {withHeader && (
+                <DialogHeader>
+                    <DialogTitle>{t("title")}</DialogTitle>
+                    <DialogDescription>{t("subtitle")}</DialogDescription>
+                </DialogHeader>
+            )}
 
             <div className="flex items-end justify-between gap-4">
                 <div className="min-w-0">

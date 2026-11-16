@@ -11,6 +11,7 @@ export const useStreak = () => {
     const setStreak = useStore((state) => state.setStreak);
 
     const [reached, setReached] = useState<number | null>(null);
+    const [frozen, setFrozen] = useState(0);
     const { mutateAsync: recordVisit } = useRecordStreakVisit();
 
     const reportedDay = useRef<string | null>(null);
@@ -24,6 +25,7 @@ export const useStreak = () => {
             const result = await recordVisit({ day });
             setStreak(result.streak);
             if (result.reached) setReached(result.reached);
+            if (result.frozen) setFrozen(result.frozen);
         } catch {
             reportedDay.current = null;
         }
@@ -40,7 +42,10 @@ export const useStreak = () => {
         return () => document.removeEventListener("visibilitychange", onVisible);
     }, [sync]);
 
-    const clearMilestone = useCallback(() => setReached(null), []);
+    const clearMilestone = useCallback(() => {
+        setReached(null);
+        setFrozen(0);
+    }, []);
 
-    return { record: streak, reached, clearMilestone };
+    return { record: streak, reached, frozen, clearMilestone };
 };

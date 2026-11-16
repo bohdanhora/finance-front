@@ -29,7 +29,7 @@ import { CALCULATOR_TOGGLE_EVENT } from "./calculator/desktop-calculator";
 import { NavbarActionsMenu } from "./navbar-actions-menu";
 import { MobileNav, type NavItem } from "./mobile-nav";
 import { useIsMobile } from "hooks/use-is-mobile";
-import { StreakBadge } from "./streak/streak-badge";
+import { PetBadge } from "./pet/pet-badge";
 import { Brand } from "./brand";
 
 export const Navbar = () => {
@@ -112,7 +112,7 @@ export const Navbar = () => {
                         <Link href={Routes.HOME} aria-label="Finance" className="shrink-0">
                             <Brand wordmarkClassName="hidden sm:inline" />
                         </Link>
-                        <StreakBadge />
+                        <PetBadge />
                     </div>
 
                     {isMobile === false && (

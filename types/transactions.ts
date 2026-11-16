@@ -394,6 +394,7 @@ export type StreakVisitResponse = {
     message: string;
     streak: StreakRecord;
     reached: number | null;
+    frozen?: number;
 };
 
 export type ChangeCurrencyPayload = {

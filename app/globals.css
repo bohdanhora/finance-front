@@ -649,3 +649,146 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+.pet-blink,
+.pet-breathe,
+.pet-hop,
+.pet-z,
+.pet-ear-left {
+    transform-box: fill-box;
+}
+
+.pet-blink {
+    transform-origin: center;
+    animation: pet-blink 4.6s infinite;
+}
+
+.pet-breathe {
+    transform-origin: center bottom;
+    animation: pet-breathe 3.2s ease-in-out infinite;
+}
+
+.pet-hop {
+    transform-origin: center bottom;
+    animation: pet-hop 1.6s ease-in-out infinite;
+}
+
+.pet-ear-left {
+    transform-origin: right bottom;
+    animation: pet-ear 6s ease-in-out infinite;
+}
+
+.pet-z {
+    animation: pet-z 2.4s ease-in-out infinite;
+}
+
+.pet-z-late {
+    animation-delay: 1.2s;
+}
+
+@keyframes pet-blink {
+    0%,
+    92%,
+    100% {
+        transform: scaleY(1);
+    }
+    95% {
+        transform: scaleY(0.1);
+    }
+}
+
+@keyframes pet-breathe {
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(1.03);
+    }
+}
+
+@keyframes pet-hop {
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+    75% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pet-ear {
+    0%,
+    88%,
+    100% {
+        transform: rotate(0deg);
+    }
+    92% {
+        transform: rotate(-6deg);
+    }
+    96% {
+        transform: rotate(2deg);
+    }
+}
+
+@keyframes pet-z {
+    0% {
+        opacity: 0;
+        transform: translate(0, 4px);
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(6px, -10px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pet-blink,
+    .pet-breathe,
+    .pet-hop,
+    .pet-ear-left,
+    .pet-z {
+        animation: none;
+    }
+}
+
+.pet-nudge {
+    animation: pet-nudge 2.4s ease-in-out infinite;
+}
+
+@keyframes pet-nudge {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 var(--accent);
+    }
+    50% {
+        box-shadow: 0 0 0 4px transparent;
+    }
+}
+
+.pet-wave {
+    transform-box: view-box;
+    transform-origin: 66px 150px;
+    animation: pet-wave 1.4s ease-in-out infinite;
+}
+
+@keyframes pet-wave {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-14deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pet-wave,
+    .pet-nudge {
+        animation: none;
+    }
+}

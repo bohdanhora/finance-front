@@ -1200,5 +1200,105 @@
             "savings": "Savings",
             "free": "Spending"
         }
+    },
+    "pet": {
+        "title": "Companion",
+        "subtitle": "Keep good money habits, earn coins and dress up your companion.",
+        "pickTitle": "Choose your companion",
+        "pickSubtitle": "It will live next to your streak and cheer for you. You can switch any time and keep everything you bought.",
+        "chooseCharacter": "Choose",
+        "saveCharacter": "Save",
+        "changeCharacter": "Change companion",
+        "nameLabel": "Name",
+        "rename": "Rename",
+        "save": "Save",
+        "coins": "Coins",
+        "freezes": "Streak freezes",
+        "howToEarn": "How to earn coins",
+        "multiplierNote": "Daily visits pay x1.5 from 7 days in a row, x2 from 30 and x3 from 100. Each reward counts once a day.",
+        "views": {
+            "home": "Companion",
+            "shop": "Shop",
+            "streak": "Streak"
+        },
+        "slots": {
+            "head": "Hats",
+            "eyes": "Glasses",
+            "neck": "Neck",
+            "background": "Scenes",
+            "extras": "Useful"
+        },
+        "wear": "Wear",
+        "takeOff": "Take off",
+        "worn": "On",
+        "buyFor": "Buy {item} for {price} coins",
+        "species": {
+            "bulldog": {
+                "name": "French bulldog",
+                "trait": "Loyal and a bit stubborn",
+                "defaultName": "Dumpling"
+            },
+            "monkey": {
+                "name": "Monkey",
+                "trait": "Curious and playful",
+                "defaultName": "Banana"
+            },
+            "sphynx": {
+                "name": "Sphynx cat",
+                "trait": "Calm and proud",
+                "defaultName": "Pharaoh"
+            }
+        },
+        "moods": {
+            "happy": "{name} is happy: you logged money today.",
+            "calm": "{name} is doing fine. Log an expense or income to make them happy.",
+            "sad": "{name} misses you. A few days without records, come back and log something.",
+            "sleepy": "{name} is asleep. See you in the morning."
+        },
+        "guide": {
+            "visit": "Open the app",
+            "log": "Log an expense or income that day",
+            "save": "Put money into savings",
+            "bills": "Pay every essential bill this month",
+            "streak": "Streak of 7, 30 and 100 days"
+        },
+        "rewards": {
+            "welcome": "welcome bonus",
+            "visit": "daily visit",
+            "log": "records today",
+            "save": "savings",
+            "bills": "all bills paid",
+            "streak": "{days} days in a row"
+        },
+        "grantedToast": "+{amount} coins: {reasons}",
+        "frozenToast": "A streak freeze saved your streak{count, plural, one {} other { (# used)}}.",
+        "freeze": {
+            "title": "Streak freeze",
+            "body": "Protects your streak if you miss a day. Used automatically.",
+            "owned": "{count} of {limit} in stock",
+            "full": "Full"
+        },
+        "items": {
+            "cap": "Baseball cap",
+            "beanie": "Beanie",
+            "party": "Party hat",
+            "beret": "Beret",
+            "chef": "Chef hat",
+            "cowboy": "Cowboy hat",
+            "tophat": "Top hat",
+            "shades": "Sunglasses",
+            "round": "Round glasses",
+            "hearts": "Heart glasses",
+            "monocle": "Monocle",
+            "bandana": "Bandana",
+            "bowtie": "Bow tie",
+            "scarf": "Scarf",
+            "chain": "Gold chain",
+            "room": "Cozy room",
+            "park": "Park",
+            "beach": "Beach",
+            "night": "Night city",
+            "space": "Space"
+        }
     }
 }
