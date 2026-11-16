@@ -205,7 +205,7 @@ export const EssentialPaymentDialog = ({ essential, type, open, onOpenChange }: 
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
                                 {difference > 0 && (
-                                    <p className="text-accent">
+                                    <p className="text-good">
                                         {t("saved", { amount: formatCurrency(difference), currency: symbol })}
                                     </p>
                                 )}

@@ -11,7 +11,7 @@ export const CARD_SKINS: Record<CardSkin, CardSkinStyle> = {
     [CardSkin.DEFAULT]: {
         id: CardSkin.DEFAULT,
         brand: null,
-        color: "#2531e0",
+        color: "#0f5c55",
         wordmark: "font-mono text-2xs tracking-wide uppercase",
     },
     [CardSkin.MONOBANK]: {

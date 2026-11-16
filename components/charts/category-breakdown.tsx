@@ -67,7 +67,7 @@ const Delta = ({ delta, money }: { delta?: CategoryDelta; money: (value: number)
     const Icon = up ? ArrowUp : ArrowDown;
     return (
         <span
-            className={twMerge("inline-flex items-center gap-0.5", up ? "text-signal" : "text-accent")}
+            className={twMerge("inline-flex items-center gap-0.5", up ? "text-signal" : "text-good")}
             title={t("deltaHint", { amount: money(delta.previous) })}
         >
             <Icon className="size-3" />
@@ -118,7 +118,7 @@ const CategoryTrend = ({
                 <p className="mt-1">
                     {average > 0 ? t("usualMonth", { amount: money(average) }) : t("noHistory")}
                     {difference !== null && difference !== 0 && (
-                        <span className={twMerge("ml-2", difference > 0 ? "text-signal" : "text-accent")}>
+                        <span className={twMerge("ml-2", difference > 0 ? "text-signal" : "text-good")}>
                             {difference > 0
                                 ? t("aboveUsual", { percent: difference })
                                 : t("belowUsual", { percent: Math.abs(difference) })}

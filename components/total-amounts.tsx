@@ -49,7 +49,7 @@ export const TotalAmounts = () => {
 
     const cell = (value: { default: number } & Partial<Record<CURRENCY, number>>, income: boolean) => (
         <td className="border-rule border-l px-3 py-4 text-right align-top sm:px-5">
-            <span className={income ? "figure text-accent text-lg sm:text-xl" : "figure text-lg sm:text-xl"}>
+            <span className={income ? "figure text-good text-lg sm:text-xl" : "figure text-lg sm:text-xl"}>
                 {income ? "+" : "-"}
                 <AnimatedMoney value={value.default} symbol={userSymbol} symbolClassName="text-ink-faint" />
             </span>

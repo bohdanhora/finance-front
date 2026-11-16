@@ -440,7 +440,7 @@ export const LastSpends = () => {
                     {filteredTotals.income > 0 && (
                         <span className="font-mono text-sm tabular-nums">
                             <span className="label mr-2">{t("totalIncome")}</span>
-                            <span className="text-accent">+{formatCurrency(filteredTotals.income)}</span>{" "}
+                            <span className="text-good">+{formatCurrency(filteredTotals.income)}</span>{" "}
                             <span className="text-ink-faint">{symbol}</span>
                         </span>
                     )}

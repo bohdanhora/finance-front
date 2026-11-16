@@ -411,7 +411,7 @@ const SavingsPage = () => {
                                             <span
                                                 className={twMerge(
                                                     "shrink-0 font-mono text-sm tabular-nums",
-                                                    isDeposit && "text-accent",
+                                                    isDeposit && "text-good",
                                                 )}
                                             >
                                                 {isDeposit ? "+" : isWithdrawal ? "-" : ""}

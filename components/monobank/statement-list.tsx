@@ -55,7 +55,7 @@ export const StatementList = ({
                             </div>
 
                             <div className="shrink-0 text-right">
-                                <p className={twMerge("font-mono text-sm tabular-nums", income && "text-accent")}>
+                                <p className={twMerge("font-mono text-sm tabular-nums", income && "text-good")}>
                                     {income ? "+" : "-"}
                                     {formatCurrency(fromMinorUnits(Math.abs(item.amount)))} {symbol}
                                 </p>
@@ -71,7 +71,7 @@ export const StatementList = ({
                                     </p>
                                 )}
                                 {cashback > 0 && (
-                                    <p className="text-accent font-mono text-3xs tabular-nums">
+                                    <p className="text-good font-mono text-3xs tabular-nums">
                                         {t("cashbackEarned", { amount: `${formatCurrency(cashback)} ${symbol}` })}
                                     </p>
                                 )}

@@ -211,7 +211,7 @@ const StatisticsPage = () => {
                     value={Math.abs(result.net)}
                     symbol={symbol}
                     prefix={result.net > 0 ? "+" : result.net < 0 ? "-" : undefined}
-                    className={twMerge(result.net > 0 && "text-accent ", result.net < 0 && "text-signal ")}
+                    className={twMerge(result.net > 0 && "text-good ", result.net < 0 && "text-signal ")}
                 />
             }
             secondary={
@@ -409,7 +409,7 @@ const StatisticsPage = () => {
                                                                 <span
                                                                     className={twMerge(
                                                                         "shrink-0 font-mono text-xs tabular-nums",
-                                                                        isIncome && "text-accent",
+                                                                        isIncome && "text-good",
                                                                     )}
                                                                 >
                                                                     {isIncome ? "+" : "-"}

@@ -59,7 +59,7 @@ export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
         <p
             className={twMerge(
                 "mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs",
-                isCheaper ? "text-accent " : isPricier ? "text-signal " : "text-ink-faint",
+                isCheaper ? "text-good " : isPricier ? "text-signal " : "text-ink-faint",
                 className,
             )}
         >

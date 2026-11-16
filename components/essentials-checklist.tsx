@@ -119,7 +119,7 @@ export const EssentialsChecklist = ({
                         </span>
                     </span>
                 ) : (
-                    <span className="text-accent">{t("allPaid")}</span>
+                    <span className="text-good">{t("allPaid")}</span>
                 )
             }
         >

@@ -25,7 +25,7 @@ export const AnimatedNumber = ({
         <span
             className={twMerge(
                 "tabular-nums transition-colors duration-500",
-                highlight && direction === "up" && "text-accent ",
+                highlight && direction === "up" && "text-good ",
                 highlight && direction === "down" && "text-signal ",
                 className,
             )}
@@ -94,7 +94,7 @@ export const AmountDelta = ({ value, symbol, className }: { value: number; symbo
             aria-hidden="true"
             className={twMerge(
                 "amount-delta text-sm font-semibold tabular-nums",
-                grew ? "text-accent " : "text-signal ",
+                grew ? "text-good " : "text-signal ",
                 className,
             )}
         >

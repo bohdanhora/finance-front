@@ -63,7 +63,7 @@ export const ExpectedIncomeList = () => {
                 summary.pending > 0 ? (
                     <span>
                         <span className="text-ink-muted">{t("stillToCome")}: </span>
-                        <span className="text-accent font-medium">
+                        <span className="text-good font-medium">
                             +<AnimatedMoney value={summary.pending} symbol={symbol} />
                         </span>
                     </span>
@@ -114,7 +114,7 @@ export const ExpectedIncomeList = () => {
                                     <span
                                         className={twMerge(
                                             "block font-mono text-xs tabular-nums transition-colors",
-                                            item.received ? "text-ink-faint" : "text-accent",
+                                            item.received ? "text-ink-faint" : "text-good",
                                         )}
                                     >
                                         {item.received ? "" : "+"}

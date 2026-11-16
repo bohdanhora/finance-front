@@ -92,7 +92,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
                         className="border-rule flex items-baseline justify-between gap-4 border-b py-2.5"
                     >
                         <dt className="text-ink-muted text-sm">{row.label}</dt>
-                        <dd className={twMerge("font-mono text-xs tabular-nums", row.sign === "+" && "text-accent")}>
+                        <dd className={twMerge("font-mono text-xs tabular-nums", row.sign === "+" && "text-good")}>
                             {row.sign}
                             {formatCurrency(row.value)} {symbol}
                         </dd>

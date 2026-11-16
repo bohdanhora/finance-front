@@ -208,7 +208,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                     </p>
                                 )}
                                 {difference > 0 && (
-                                    <p className="text-accent">
+                                    <p className="text-good">
                                         {t("moreThanPlanned", { amount: formatCurrency(difference), currency: symbol })}
                                     </p>
                                 )}

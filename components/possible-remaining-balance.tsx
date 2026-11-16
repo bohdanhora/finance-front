@@ -85,7 +85,7 @@ export const PossibleRemaining = () => {
         pendingIncome > 0 ? (
             <>
                 {converted && <span className="block">{converted}</span>}
-                <span className="text-accent mt-0.5 block">
+                <span className="text-good mt-0.5 block">
                     {t("includesExpected", { amount: `${formatCurrency(pendingIncome)} ${userSymbol}` })}
                 </span>
             </>
