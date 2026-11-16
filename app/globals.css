@@ -863,6 +863,16 @@
     min-height: 32px;
 }
 
+.dialog-frame::-webkit-scrollbar-track {
+    margin-block: 1.5rem;
+}
+
+@media (max-width: 639px) {
+    .dialog-frame::-webkit-scrollbar-track {
+        margin-block: 1.5rem 0.5rem;
+    }
+}
+
 .dialog-tall {
     scrollbar-gutter: stable;
 }
