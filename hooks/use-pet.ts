@@ -59,6 +59,8 @@ export const usePet = (onGranted?: (rewards: PetReward[]) => void) => {
         pet: query.data?.pet ?? null,
         catalog: query.data?.catalog ?? [],
         freeze: query.data?.freeze ?? { price: 60, limit: 2 },
+        achievements: query.data?.achievements ?? [],
+        achievementRewards: query.data?.achievementRewards ?? [20, 50, 100],
         mood,
         loading: query.isLoading,
     };

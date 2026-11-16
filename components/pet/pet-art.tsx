@@ -383,6 +383,153 @@ const Hat = ({ id }: { id: string }) => {
                     <path d="M-18 -52 L-18 -26" stroke="#3f3f46" strokeWidth={4} strokeLinecap="round" />
                 </g>
             );
+        case "bunny":
+            return (
+                <g>
+                    {[-1, 1].map((side) => (
+                        <g key={side} transform={`rotate(${side * 12} ${side * 16} 0)`}>
+                            <ellipse
+                                cx={side * 16}
+                                cy={-34}
+                                rx={10}
+                                ry={30}
+                                fill="#fff"
+                                stroke="#d6d3d1"
+                                strokeWidth={3}
+                            />
+                            <ellipse cx={side * 16} cy={-32} rx={5} ry={22} fill="#fda4af" />
+                        </g>
+                    ))}
+                </g>
+            );
+        case "flowers":
+            return (
+                <g>
+                    <path d="M-40 2 Q0 -14 40 2" fill="none" stroke="#4d7c0f" strokeWidth={4} strokeLinecap="round" />
+                    {[
+                        [-36, 0, "#f472b6"],
+                        [-18, -7, "#fde047"],
+                        [0, -9, "#fb7185"],
+                        [18, -7, "#c4b5fd"],
+                        [36, 0, "#fde047"],
+                    ].map(([x, y, color]) => (
+                        <g key={`${x}`} transform={`translate(${x} ${y})`}>
+                            {[0, 72, 144, 216, 288].map((angle) => (
+                                <circle
+                                    key={angle}
+                                    cx={Math.cos((Number(angle) * Math.PI) / 180) * 5}
+                                    cy={Math.sin((Number(angle) * Math.PI) / 180) * 5}
+                                    r={4.5}
+                                    fill={String(color)}
+                                />
+                            ))}
+                            <circle r={3} fill="#f59e0b" />
+                        </g>
+                    ))}
+                </g>
+            );
+        case "headphones":
+            return (
+                <g>
+                    <path
+                        d="M-50 40 C-52 -36 52 -36 50 40"
+                        fill="none"
+                        stroke="#1f2937"
+                        strokeWidth={8}
+                        strokeLinecap="round"
+                    />
+                    <rect
+                        x={-62}
+                        y={26}
+                        width={20}
+                        height={34}
+                        rx={9}
+                        fill="#ef4444"
+                        stroke="#991b1b"
+                        strokeWidth={3}
+                    />
+                    <rect x={42} y={26} width={20} height={34} rx={9} fill="#ef4444" stroke="#991b1b" strokeWidth={3} />
+                </g>
+            );
+        case "viking":
+            return (
+                <g>
+                    {[-1, 1].map((side) => (
+                        <path
+                            key={side}
+                            d={`M${side * 32} -12 C${side * 52} -18 ${side * 58} -42 ${side * 48} -56 C${side * 46} -38 ${side * 38} -28 ${side * 24} -24 Z`}
+                            fill="#f5f5f4"
+                            stroke="#a8a29e"
+                            strokeWidth={3}
+                            strokeLinejoin="round"
+                        />
+                    ))}
+                    <path d="M-38 4 C-38 -38 38 -38 38 4 Z" fill="#9ca3af" />
+                    <path d="M-4 -34 L4 -34 L4 2 L-4 2 Z" fill="#78716c" />
+                    <rect x={-40} y={-6} width={80} height={12} rx={5} fill="#78716c" />
+                    {[-28, -14, 14, 28].map((x) => (
+                        <circle key={x} cx={x} cy={0} r={2.4} fill="#e7e5e4" />
+                    ))}
+                </g>
+            );
+        case "wizard":
+            return (
+                <g>
+                    <path d="M-34 2 Q-12 -22 -2 -70 Q10 -44 34 2 Z" fill="#4338ca" />
+                    <path
+                        d="M-2 -70 Q8 -74 14 -64"
+                        fill="none"
+                        stroke="#4338ca"
+                        strokeWidth={6}
+                        strokeLinecap="round"
+                    />
+                    {[
+                        [-12, -18],
+                        [8, -32],
+                        [-2, -48],
+                        [14, -10],
+                    ].map(([x, y]) => (
+                        <path
+                            key={`${x}${y}`}
+                            d={`M${x} ${y - 4} L${x + 1.4} ${y - 1.2} L${x + 4.4} ${y - 1} L${x + 2} ${y + 1} L${x + 2.8} ${y + 4} L${x} ${y + 2.4} L${x - 2.8} ${y + 4} L${x - 2} ${y + 1} L${x - 4.4} ${y - 1} L${x - 1.4} ${y - 1.2} Z`}
+                            fill="#fde047"
+                        />
+                    ))}
+                    <ellipse cx={0} cy={3} rx={46} ry={8} fill="#3730a3" />
+                </g>
+            );
+        case "halo":
+            return (
+                <g fill="none">
+                    <ellipse cx={0} cy={-26} rx={32} ry={9} stroke="#fef08a" strokeWidth={12} opacity={0.35} />
+                    <ellipse cx={0} cy={-26} rx={32} ry={9} stroke="#facc15" strokeWidth={5} />
+                    <path d="M-20 -32 Q-6 -36 8 -35" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" />
+                </g>
+            );
+        case "crown":
+            return (
+                <g>
+                    <path
+                        d="M-36 4 L-38 -30 L-20 -12 L0 -40 L20 -12 L38 -30 L36 4 Z"
+                        fill="#facc15"
+                        stroke="#b45309"
+                        strokeWidth={3}
+                        strokeLinejoin="round"
+                    />
+                    <rect x={-37} y={-6} width={74} height={11} rx={4} fill="#eab308" />
+                    <circle cx={-20} cy={0} r={3.6} fill="#ef4444" />
+                    <circle cx={0} cy={0} r={4.4} fill="#3b82f6" />
+                    <circle cx={20} cy={0} r={3.6} fill="#22c55e" />
+                    {[
+                        [-38, -30],
+                        [0, -40],
+                        [38, -30],
+                    ].map(([x, y]) => (
+                        <circle key={x} cx={x} cy={y} r={4} fill="#fde68a" stroke="#b45309" strokeWidth={2} />
+                    ))}
+                    <path d="M-26 -14 L-22 -24" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" opacity={0.8} />
+                </g>
+            );
         default:
             return null;
     }
@@ -424,6 +571,67 @@ const Glasses = ({ id }: { id: string }) => {
                 <g fill="none" stroke="#d4a017" strokeWidth={3.5}>
                     <circle cx={20} cy={0} r={16} fill="#fff" fillOpacity={0.15} />
                     <path d="M34 8 Q46 30 36 52" strokeWidth={2} strokeDasharray="3 3" />
+                </g>
+            );
+        case "stars":
+            return (
+                <g fill="#facc15" stroke="#b45309" strokeWidth={2} strokeLinejoin="round">
+                    {[-20, 20].map((x) => (
+                        <path
+                            key={x}
+                            d={`M${x} -15 L${x + 4.6} -5 L${x + 15} -4.2 L${x + 7} 3 L${x + 9.4} 13.6 L${x} 8 L${x - 9.4} 13.6 L${x - 7} 3 L${x - 15} -4.2 L${x - 4.6} -5 Z`}
+                        />
+                    ))}
+                    <path d="M-5 -3 Q0 -6 5 -3" fill="none" />
+                </g>
+            );
+        case "pixel":
+            return (
+                <g fill="#111827">
+                    <rect x={-40} y={-8} width={80} height={5} />
+                    <rect x={-36} y={-3} width={28} height={6} />
+                    <rect x={8} y={-3} width={28} height={6} />
+                    <rect x={-32} y={3} width={20} height={5} />
+                    <rect x={12} y={3} width={20} height={5} />
+                    <rect x={-32} y={-3} width={5} height={5} fill="#fff" />
+                    <rect x={12} y={-3} width={5} height={5} fill="#fff" />
+                </g>
+            );
+        case "vr":
+            return (
+                <g>
+                    <path d="M-40 0 L-56 4 M40 0 L56 4" stroke="#374151" strokeWidth={5} strokeLinecap="round" />
+                    <rect
+                        x={-40}
+                        y={-15}
+                        width={80}
+                        height={30}
+                        rx={13}
+                        fill="#1f2937"
+                        stroke="#0b1220"
+                        strokeWidth={3}
+                    />
+                    <rect x={-32} y={-8} width={64} height={14} rx={7} fill="#22d3ee" opacity={0.85} />
+                    <path d="M-26 -4 L-10 -4" stroke="#ecfeff" strokeWidth={3} strokeLinecap="round" />
+                </g>
+            );
+        case "laser":
+            return (
+                <g>
+                    {[-20, 20].map((x) => (
+                        <g key={x}>
+                            <path
+                                d={`M${x} 0 L${x + 60} 70`}
+                                stroke="#f87171"
+                                strokeWidth={9}
+                                opacity={0.3}
+                                strokeLinecap="round"
+                            />
+                            <path d={`M${x} 0 L${x + 60} 70`} stroke="#fecaca" strokeWidth={3} strokeLinecap="round" />
+                            <circle cx={x} cy={0} r={9} fill="#ef4444" opacity={0.45} />
+                            <circle cx={x} cy={0} r={5} fill="#fee2e2" />
+                        </g>
+                    ))}
                 </g>
             );
         default:
@@ -480,6 +688,89 @@ const Neckwear = ({ id }: { id: string }) => {
                         strokeWidth={2}
                         strokeLinecap="round"
                     />
+                </g>
+            );
+        case "tie":
+            return (
+                <g>
+                    <path d="M-7 -4 L7 -4 L5 6 L-5 6 Z" fill="#1e3a8a" />
+                    <path d="M-5 6 L5 6 L10 34 L0 44 L-10 34 Z" fill="#2563eb" />
+                    <path d="M-7 16 L7 12 M-9 26 L9 22" stroke="#93c5fd" strokeWidth={2.5} strokeLinecap="round" />
+                </g>
+            );
+        case "lei":
+            return (
+                <g>
+                    {[-36, -24, -12, 0, 12, 24, 36].map((x, index) => (
+                        <circle
+                            key={x}
+                            cx={x}
+                            cy={-4 + Math.abs(x) * -0.18 + 10}
+                            r={7}
+                            fill={["#f472b6", "#fde047", "#fb923c", "#f472b6", "#fde047", "#fb923c", "#f472b6"][index]}
+                            stroke="#fff"
+                            strokeWidth={1.5}
+                        />
+                    ))}
+                </g>
+            );
+        case "medal":
+            return (
+                <g>
+                    <path d="M-14 -6 L-4 22 L4 22 L14 -6 L6 -6 L0 10 L-6 -6 Z" fill="#dc2626" />
+                    <path d="M-6 -6 L0 10 L6 -6 Z" fill="#2563eb" />
+                    <circle cx={0} cy={30} r={12} fill="#facc15" stroke="#b45309" strokeWidth={2.5} />
+                    <path
+                        d="M0 23 L2 28 L7 28.4 L3.2 31.6 L4.4 36.6 L0 33.8 L-4.4 36.6 L-3.2 31.6 L-7 28.4 L-2 28 Z"
+                        fill="#fff7cc"
+                    />
+                </g>
+            );
+        case "pearls":
+            return (
+                <g>
+                    {Array.from({ length: 13 }, (_, index) => {
+                        const x = -42 + index * 7;
+                        return (
+                            <g key={x}>
+                                <circle
+                                    cx={x}
+                                    cy={8 - (x * x) / 260}
+                                    r={4}
+                                    fill="#fafaf9"
+                                    stroke="#d6d3d1"
+                                    strokeWidth={1.2}
+                                />
+                                <circle cx={x - 1.2} cy={6.6 - (x * x) / 260} r={1.2} fill="#fff" />
+                            </g>
+                        );
+                    })}
+                </g>
+            );
+        case "diamond":
+            return (
+                <g>
+                    <path
+                        d="M-36 -6 Q0 22 36 -6"
+                        fill="none"
+                        stroke="#e5e7eb"
+                        strokeWidth={3.5}
+                        strokeDasharray="4 2"
+                    />
+                    <path
+                        d="M-12 10 L12 10 L18 18 L0 40 L-18 18 Z"
+                        fill="#a5f3fc"
+                        stroke="#0e7490"
+                        strokeWidth={2.5}
+                        strokeLinejoin="round"
+                    />
+                    <path
+                        d="M-18 18 L18 18 M-6 10 L-4 18 L0 40 M6 10 L4 18 L0 40"
+                        stroke="#0e7490"
+                        strokeWidth={1.5}
+                        fill="none"
+                    />
+                    <path d="M-10 14 L-6 14" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" />
                 </g>
             );
         default:
@@ -563,6 +854,183 @@ const Scene = ({ id }: { id: string }) => {
                     <circle cx={160} cy={58} r={20} fill="#f472b6" />
                     <ellipse cx={160} cy={58} rx={32} ry={7} fill="none" stroke="#fbcfe8" strokeWidth={3} />
                     <circle cx={34} cy={70} r={10} fill="#60a5fa" />
+                </>
+            );
+        case "sunset":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#fdba74" />
+                    <rect width={200} height={60} fill="#fb7185" />
+                    <rect y={60} width={200} height={40} fill="#fda4af" />
+                    <circle cx={100} cy={130} r={42} fill="#fde68a" />
+                    <rect y={130} width={200} height={70} fill="#7c3aed" />
+                    <path
+                        d="M40 146 L160 146 M60 160 L140 160 M78 174 L122 174"
+                        stroke="#fde68a"
+                        strokeWidth={4}
+                        strokeLinecap="round"
+                    />
+                </>
+            );
+        case "city":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#bae6fd" />
+                    <circle cx={34} cy={40} r={14} fill="#fef08a" />
+                    {[
+                        [0, 96, 34, "#64748b"],
+                        [30, 70, 30, "#475569"],
+                        [62, 104, 26, "#94a3b8"],
+                        [124, 80, 30, "#475569"],
+                        [156, 60, 44, "#64748b"],
+                    ].map(([x, y, w, color]) => (
+                        <g key={`${x}`}>
+                            <rect x={Number(x)} y={Number(y)} width={Number(w)} height={200} fill={String(color)} />
+                            {[0, 1, 2, 3, 4].map((row) => (
+                                <rect
+                                    key={row}
+                                    x={Number(x) + 6}
+                                    y={Number(y) + 8 + row * 16}
+                                    width={Number(w) - 12}
+                                    height={6}
+                                    rx={1}
+                                    fill="#e0f2fe"
+                                    opacity={0.7}
+                                />
+                            ))}
+                        </g>
+                    ))}
+                    <rect y={176} width={200} height={24} fill="#334155" />
+                </>
+            );
+        case "mountains":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#dbeafe" />
+                    <path d="M-10 170 L60 60 L130 170 Z" fill="#64748b" />
+                    <path d="M60 60 L44 86 L54 82 L62 92 L70 82 L78 86 Z" fill="#fff" />
+                    <path d="M70 180 L150 70 L230 180 Z" fill="#475569" />
+                    <path d="M150 70 L134 92 L144 88 L152 98 L160 88 L168 92 Z" fill="#fff" />
+                    <rect y={160} width={200} height={40} fill="#4ade80" />
+                </>
+            );
+        case "aurora":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#0b1026" />
+                    <path
+                        d="M-10 70 Q40 30 90 64 T210 50 L210 96 Q160 120 110 96 T-10 110 Z"
+                        fill="#34d399"
+                        opacity={0.55}
+                    />
+                    <path
+                        d="M-10 40 Q60 10 120 40 T210 30 L210 56 Q150 80 100 60 T-10 72 Z"
+                        fill="#a78bfa"
+                        opacity={0.45}
+                    />
+                    <Stars
+                        points={[
+                            [20, 20, 1.3],
+                            [70, 16, 1],
+                            [150, 18, 1.4],
+                            [184, 70, 1],
+                            [40, 120, 1.1],
+                        ]}
+                    />
+                    <path d="M0 170 L40 140 L70 162 L110 128 L150 160 L200 136 L200 200 L0 200 Z" fill="#111a3a" />
+                </>
+            );
+        case "underwater":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#0e7490" />
+                    <rect width={200} height={70} fill="#22d3ee" opacity={0.35} />
+                    {[
+                        [30, 60, 5],
+                        [40, 40, 3],
+                        [168, 90, 6],
+                        [176, 64, 3.5],
+                        [152, 40, 2.5],
+                    ].map(([x, y, r]) => (
+                        <circle key={`${x}${y}`} cx={x} cy={y} r={r} fill="none" stroke="#cffafe" strokeWidth={2} />
+                    ))}
+                    <path
+                        d="M20 200 Q10 170 22 150 Q30 136 22 118"
+                        fill="none"
+                        stroke="#22c55e"
+                        strokeWidth={6}
+                        strokeLinecap="round"
+                    />
+                    <path
+                        d="M180 200 Q192 172 180 150"
+                        fill="none"
+                        stroke="#16a34a"
+                        strokeWidth={6}
+                        strokeLinecap="round"
+                    />
+                    <rect y={176} width={200} height={24} fill="#fcd34d" />
+                </>
+            );
+        case "neon":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#1a0b2e" />
+                    <circle cx={100} cy={96} r={44} fill="#f472b6" />
+                    {[82, 94, 106, 118].map((y, index) => (
+                        <rect key={y} x={50} y={y} width={100} height={3 + index} fill="#1a0b2e" />
+                    ))}
+                    <rect y={120} width={200} height={80} fill="#2e1065" />
+                    {[130, 144, 162, 186].map((y) => (
+                        <path key={y} d={`M0 ${y} L200 ${y}`} stroke="#22d3ee" strokeWidth={1.5} opacity={0.8} />
+                    ))}
+                    {[-120, -60, 0, 60, 120].map((offset) => (
+                        <path
+                            key={offset}
+                            d={`M100 120 L${100 + offset * 2} 200`}
+                            stroke="#22d3ee"
+                            strokeWidth={1.5}
+                            opacity={0.8}
+                        />
+                    ))}
+                </>
+            );
+        case "vault":
+            return (
+                <>
+                    <rect width={200} height={200} fill="#3b2a12" />
+                    <circle cx={100} cy={64} r={44} fill="none" stroke="#a16207" strokeWidth={8} />
+                    <circle cx={100} cy={64} r={8} fill="#a16207" />
+                    {[0, 60, 120].map((angle) => (
+                        <path
+                            key={angle}
+                            d="M100 64 L100 30"
+                            stroke="#a16207"
+                            strokeWidth={5}
+                            strokeLinecap="round"
+                            transform={`rotate(${angle} 100 64)`}
+                        />
+                    ))}
+                    <ellipse cx={100} cy={196} rx={130} ry={46} fill="#eab308" />
+                    {[
+                        [24, 162],
+                        [52, 150],
+                        [150, 152],
+                        [176, 164],
+                        [12, 182],
+                        [190, 186],
+                        [80, 160],
+                        [124, 158],
+                    ].map(([x, y]) => (
+                        <g key={`${x}${y}`}>
+                            <ellipse cx={x} cy={y} rx={11} ry={6} fill="#facc15" stroke="#a16207" strokeWidth={2} />
+                            <path
+                                d={`M${x - 4} ${y - 1} L${x + 2} ${y - 2}`}
+                                stroke="#fff7cc"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                            />
+                        </g>
+                    ))}
                 </>
             );
         default:

@@ -1219,6 +1219,7 @@
         "views": {
             "home": "Companion",
             "shop": "Shop",
+            "achievements": "Awards",
             "streak": "Streak"
         },
         "slots": {
@@ -1268,7 +1269,8 @@
             "log": "records today",
             "save": "savings",
             "bills": "all bills paid",
-            "streak": "{days} days in a row"
+            "streak": "{days} days in a row",
+            "achievement": "{name}, {tier}"
         },
         "grantedToast": "+{amount} coins: {reasons}",
         "frozenToast": "A streak freeze saved your streak{count, plural, one {} other { (# used)}}.",
@@ -1298,7 +1300,109 @@
             "park": "Park",
             "beach": "Beach",
             "night": "Night city",
-            "space": "Space"
+            "space": "Space",
+            "bunny": "Bunny ears",
+            "flowers": "Flower crown",
+            "headphones": "Headphones",
+            "viking": "Viking helmet",
+            "wizard": "Wizard hat",
+            "halo": "Halo",
+            "crown": "Royal crown",
+            "stars": "Star glasses",
+            "pixel": "Pixel glasses",
+            "vr": "VR headset",
+            "laser": "Laser eyes",
+            "tie": "Tie",
+            "lei": "Flower lei",
+            "medal": "Gold medal",
+            "pearls": "Pearl necklace",
+            "diamond": "Diamond pendant",
+            "sunset": "Sunset",
+            "city": "City",
+            "mountains": "Mountains",
+            "aurora": "Northern lights",
+            "underwater": "Under the sea",
+            "neon": "Neon dream",
+            "vault": "Gold vault"
+        },
+        "achievements": {
+            "all": "All awards",
+            "progress": "{unlocked} of {total} levels",
+            "toNext": "{left} to the next level",
+            "tiers": {
+                "0": "Not started",
+                "1": "Bronze",
+                "2": "Silver",
+                "3": "Gold"
+            },
+            "items": {
+                "chronicler": {
+                    "name": "Chronicler",
+                    "body": "Every expense and income you write down.",
+                    "stat": "{value, plural, one {# record} other {# records}}"
+                },
+                "diary": {
+                    "name": "Diary",
+                    "body": "Days on which you logged at least one record.",
+                    "stat": "{value, plural, one {# day} other {# days}}"
+                },
+                "steady": {
+                    "name": "Steady",
+                    "body": "Your best streak of days in a row.",
+                    "stat": "{value, plural, one {# day} other {# days}}"
+                },
+                "saver": {
+                    "name": "Piggy bank",
+                    "body": "Times you put money into savings.",
+                    "stat": "{value, plural, one {# deposit} other {# deposits}}"
+                },
+                "dreamer": {
+                    "name": "Dreamer",
+                    "body": "Savings goals you set for yourself.",
+                    "stat": "{value, plural, one {# goal} other {# goals}}"
+                },
+                "debtfree": {
+                    "name": "Debt free",
+                    "body": "Months in which every essential bill was paid.",
+                    "stat": "{value, plural, one {# month} other {# months}}"
+                },
+                "surplus": {
+                    "name": "In the plus",
+                    "body": "Finished months where income beat spending.",
+                    "stat": "{value, plural, one {# month} other {# months}}"
+                },
+                "earner": {
+                    "name": "Earner",
+                    "body": "Income records of any kind.",
+                    "stat": "{value, plural, one {# income} other {# incomes}}"
+                },
+                "analyst": {
+                    "name": "Analyst",
+                    "body": "Different spending categories you use.",
+                    "stat": "{value, plural, one {# category} other {# categories}}"
+                },
+                "collector": {
+                    "name": "Card holder",
+                    "body": "Cards and accounts you keep in the app.",
+                    "stat": "{value, plural, one {# card} other {# cards}}"
+                },
+                "dandy": {
+                    "name": "Dandy",
+                    "body": "Items bought for your companion.",
+                    "stat": "{value, plural, one {# item} other {# items}}"
+                },
+                "wealthy": {
+                    "name": "Coin hoarder",
+                    "body": "Coins earned over all time.",
+                    "stat": "{value, plural, one {# coin} other {# coins}}"
+                }
+            }
+        },
+        "rarity": {
+            "common": "Common",
+            "rare": "Rare",
+            "epic": "Epic",
+            "legendary": "Legendary"
         }
     }
 }

@@ -846,3 +846,23 @@
         animation: none;
     }
 }
+
+@media (min-width: 640px) {
+    .dialog-tall {
+        height: min(46rem, calc(90dvh - var(--keyboard-inset, 0px)));
+        align-content: start;
+    }
+}
+
+.dialog-frame::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dialog-frame::-webkit-scrollbar-thumb {
+    border-width: 2px;
+    min-height: 32px;
+}
+
+.dialog-tall {
+    scrollbar-gutter: stable;
+}

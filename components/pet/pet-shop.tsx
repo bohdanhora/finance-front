@@ -7,13 +7,27 @@ import { Check, Snowflake } from "lucide-react";
 import { useBuyPetItem, useEquipPetItem } from "api/pet";
 import { PET_SHOP_TABS } from "lib/pet";
 import { twMerge } from "lib/tw";
-import { Pet, PetItem, PetSlot, PetSpecies } from "types/pet";
+import { Pet, PetItem, PetRarity, PetSlot, PetSpecies } from "types/pet";
 import { Button } from "ui/button";
 
 import { Coin } from "./coin";
 import { PetArt } from "./pet-art";
 
 type Tab = PetSlot | "extras";
+
+const RARITY_TEXT: Record<PetRarity, string> = {
+    common: "text-ink-faint",
+    rare: "text-sky-400",
+    epic: "text-violet-400",
+    legendary: "text-amber-400",
+};
+
+const RARITY_CARD: Record<PetRarity, string> = {
+    common: "border-rule",
+    rare: "border-sky-400/30",
+    epic: "border-violet-400/50",
+    legendary: "border-amber-400/70 shadow-lg shadow-amber-400/10",
+};
 
 const ItemCard = ({ item, pet, species }: { item: PetItem; pet: Pet; species: PetSpecies }) => {
     const t = useTranslations("pet");
@@ -28,7 +42,8 @@ const ItemCard = ({ item, pet, species }: { item: PetItem; pet: Pet; species: Pe
     return (
         <li
             className={twMerge(
-                "border-rule bg-wash flex flex-col gap-2 rounded-2xl border p-2",
+                "bg-wash flex flex-col gap-2 rounded-2xl border p-2",
+                RARITY_CARD[item.rarity],
                 worn && "border-accent",
             )}
         >
@@ -38,9 +53,14 @@ const ItemCard = ({ item, pet, species }: { item: PetItem; pet: Pet; species: Pe
                 className="aspect-square w-full"
                 title={t(`items.${item.id}`)}
             />
-            <div className="flex min-h-9 items-center justify-between gap-2 px-1">
-                <span className="min-w-0 truncate text-sm font-medium">{t(`items.${item.id}`)}</span>
-                {worn && <Check className="text-accent size-4 shrink-0" />}
+            <div className="flex min-h-11 items-start justify-between gap-2 px-1">
+                <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium">{t(`items.${item.id}`)}</span>
+                    <span className={twMerge("label block text-3xs", RARITY_TEXT[item.rarity])}>
+                        {t(`rarity.${item.rarity}`)}
+                    </span>
+                </span>
+                {worn && <Check className="text-accent mt-0.5 size-4 shrink-0" />}
             </div>
             {owned ? (
                 <Button
@@ -113,7 +133,7 @@ export const PetShop = ({
 }) => {
     const t = useTranslations("pet");
     const [tab, setTab] = useState<Tab>("head");
-    const items = catalog.filter((item) => item.slot === tab);
+    const items = catalog.filter((item) => item.slot === tab).sort((a, b) => a.price - b.price);
 
     return (
         <div className="grid gap-4">

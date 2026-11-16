@@ -18,10 +18,11 @@ import { PetArt } from "./pet-art";
 import { PetHome } from "./pet-home";
 import { PetPicker } from "./pet-picker";
 import { PetShop } from "./pet-shop";
+import { PetAchievements } from "./pet-achievements";
 
-type View = "home" | "shop" | "streak";
+type View = "home" | "shop" | "achievements" | "streak";
 
-const VIEWS: View[] = ["home", "shop", "streak"];
+const VIEWS: View[] = ["home", "shop", "achievements", "streak"];
 
 export const PetBadge = () => {
     const t = useTranslations("pet");
@@ -31,13 +32,22 @@ export const PetBadge = () => {
     const onGranted = useCallback(
         (rewards: PetReward[]) => {
             const total = rewards.reduce((sum, reward) => sum + reward.amount, 0);
-            const reasons = rewards.map((reward) => t(`rewards.${reward.kind}`, { days: reward.days ?? 0 })).join(", ");
+            const reasons = rewards
+                .map((reward) =>
+                    reward.kind === "achievement" && reward.achievement
+                        ? t("rewards.achievement", {
+                              name: t(`achievements.items.${reward.achievement}.name`),
+                              tier: t(`achievements.tiers.${reward.tier ?? 1}`),
+                          })
+                        : t(`rewards.${reward.kind}`, { days: reward.days ?? 0 }),
+                )
+                .join(", ");
             toast.success(t("grantedToast", { amount: total, reasons }));
         },
         [t],
     );
 
-    const { pet, catalog, freeze, mood } = usePet(onGranted);
+    const { pet, catalog, freeze, mood, achievements, achievementRewards } = usePet(onGranted);
 
     const [open, setOpen] = useState(false);
     const [view, setView] = useState<View>("home");
@@ -106,7 +116,10 @@ export const PetBadge = () => {
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-dialog-wide">
+            <DialogContent
+                className="dialog-tall sm:max-w-dialog-wide"
+                onOpenAutoFocus={(event) => event.preventDefault()}
+            >
                 {choosing && pet ? (
                     <>
                         <DialogHeader>
@@ -150,6 +163,9 @@ export const PetBadge = () => {
                         )}
                         {pet && species && view === "shop" && (
                             <PetShop pet={pet} species={species} catalog={catalog} freeze={freeze} />
+                        )}
+                        {view === "achievements" && (
+                            <PetAchievements achievements={achievements} rewards={achievementRewards} />
                         )}
                         {view === "streak" && <StreakDetails record={record} withHeader={false} />}
                     </>
