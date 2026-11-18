@@ -272,6 +272,7 @@ export const CardSwitcher = () => {
                                         creditLimit={creditLimitOf(card)}
                                         symbol={symbol}
                                         cover={card.cover}
+                                        personal={card.personal}
                                     />
                                 </SortableCard>
                             );
@@ -289,6 +290,7 @@ export const CardSwitcher = () => {
                                             creditLimit={creditLimitOf(draggedCard)}
                                             symbol={symbol}
                                             cover={draggedCard.cover}
+                                            personal={draggedCard.personal}
                                         />
                                     </div>
                                 )}

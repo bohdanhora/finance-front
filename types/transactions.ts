@@ -77,6 +77,7 @@ export type Card = {
     balance: number;
     creditLimit?: number;
     cover?: string;
+    personal?: boolean;
     createdAt: string;
 };
 
@@ -93,6 +94,7 @@ export type CreateCardPayload = {
     balance?: number;
     creditLimit?: number;
     cover?: string;
+    personal?: boolean;
 };
 
 export type UpdateCardPayload = {
@@ -101,6 +103,7 @@ export type UpdateCardPayload = {
     skin?: CardSkin;
     creditLimit?: number;
     cover?: string | null;
+    personal?: boolean;
 };
 
 export type CardTransferPayload = {
@@ -161,6 +164,8 @@ export type EssentialType = {
     paidAt?: string;
     paymentTransactionId?: string;
     carriedFrom?: string;
+    day?: number;
+    fundedBy?: string;
 };
 
 export type ExpectedIncome = {
@@ -175,6 +180,7 @@ export type ExpectedIncome = {
     receivedAmount?: number;
     receivedAt?: string;
     transactionId?: string;
+    cardId?: string;
 };
 
 export type MonthSnapshot = {
@@ -184,7 +190,10 @@ export type MonthSnapshot = {
 };
 
 export type ExpectedIncomePayload = {
-    item: Pick<ExpectedIncome, "id" | "title" | "amount" | "day" | "recurring" | "currency" | "currencyAmount">;
+    item: Pick<
+        ExpectedIncome,
+        "id" | "title" | "amount" | "day" | "recurring" | "currency" | "currencyAmount" | "cardId"
+    >;
 };
 
 export type ExpectedIncomeListResponse = {
@@ -248,6 +257,7 @@ export type NewTransactionPaymentsPayload = {
     savingsStorage?: SavingsStorage;
     savingsCurrency?: CURRENCY;
     savingsAmount?: number;
+    cardId?: string;
 };
 
 export type NewTransactionResponseType = {

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { getIntlLocale } from "lib/date-locale";
 import {
     customPeriod,
+    cyclePeriod,
     periodOf,
     shiftPeriod,
     toDateKey,
@@ -20,7 +21,7 @@ import {
     type PeriodKind,
 } from "lib/period";
 
-const KINDS: PeriodKind[] = ["week", "month", "quarter", "year", "custom"];
+const KINDS: PeriodKind[] = ["cycle", "week", "month", "quarter", "year", "custom"];
 
 export const usePeriodLabel = () => {
     const t = useTranslations("statistics");
@@ -50,10 +51,12 @@ export const PeriodPicker = ({
     period,
     onChange,
     earliest,
+    payday,
 }: {
     period: Period;
     onChange: (period: Period) => void;
     earliest?: string;
+    payday?: number;
 }) => {
     const t = useTranslations("statistics");
     const label = usePeriodLabel();
@@ -74,6 +77,10 @@ export const PeriodPicker = ({
             return;
         }
         const anchor = today >= period.start && today <= period.end ? today : period.start;
+        if (kind === "cycle") {
+            if (payday) onChange(cyclePeriod(payday, anchor));
+            return;
+        }
         onChange(periodOf(kind as CalendarKind, anchor));
     };
 
@@ -86,11 +93,11 @@ export const PeriodPicker = ({
     return (
         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
             <Select value={period.kind} onValueChange={(value) => changeKind(value as PeriodKind)}>
-                <SelectTrigger aria-label={t("periodKind")} className="w-full sm:w-36">
+                <SelectTrigger aria-label={t("periodKind")} className="w-full sm:w-52">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                    {KINDS.map((kind) => (
+                    {KINDS.filter((kind) => kind !== "cycle" || payday).map((kind) => (
                         <SelectItem key={kind} value={kind}>
                             {t(`period.${kind}`)}
                         </SelectItem>

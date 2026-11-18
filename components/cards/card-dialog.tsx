@@ -52,6 +52,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
     const fileRef = useRef<HTMLInputElement>(null);
     const [balance, setBalance] = useState("");
     const [isCredit, setIsCredit] = useState(false);
+    const [personal, setPersonal] = useState(false);
     const [limit, setLimit] = useState("");
     const [debt, setDebt] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -75,6 +76,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
             setBalance("");
             setDebt("");
             setIsCredit(card ? isCreditCard(card) : false);
+            setPersonal(Boolean(card?.personal));
             setLimit(card && isCreditCard(card) ? String(creditLimitOf(card)) : "");
             setError(null);
             setMoveTo(others[0]?.id ?? "");
@@ -100,6 +102,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     name: name.trim(),
                     skin,
                     creditLimit,
+                    personal,
                     ...(cover !== (card.cover ?? null) ? { cover } : {}),
                 });
                 toast.success(t("savedToast"));
@@ -109,6 +112,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                     skin,
                     balance: startBalance,
                     creditLimit,
+                    ...(personal ? { personal } : {}),
                     ...(cover ? { cover } : {}),
                 });
                 setSelectedCardId(response.card.id);
@@ -182,6 +186,7 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                             creditLimit={creditLimit}
                             symbol={symbol}
                             cover={cover ?? undefined}
+                            personal={personal}
                         />
                     </div>
 
@@ -269,6 +274,14 @@ export const CardDialog = ({ card, trigger }: { card?: Card; trigger: ReactNode 
                             value={name}
                             onChange={(event) => setName(event.target.value)}
                         />
+                    </div>
+
+                    <div className="border-rule flex items-center gap-1.5 rounded-xl border p-3">
+                        <label className="flex cursor-pointer items-center gap-3">
+                            <Checkbox checked={personal} onCheckedChange={(checked) => setPersonal(checked === true)} />
+                            <span className="text-sm font-medium">{t("personalCard")}</span>
+                        </label>
+                        <Hint text={t("personalCardHint")} />
                     </div>
 
                     <div className="border-rule flex flex-col gap-3 border p-3 rounded-xl">

@@ -1,5 +1,7 @@
 "use client";
 
+import { usePlanMeta } from "./essential-plan-fields";
+import { paydayStatus } from "lib/month-plan";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { twMerge } from "lib/tw";
@@ -71,6 +73,7 @@ export const EssentialsChecklist = ({
     const t = useTranslations("possible");
     const tMenu = useTranslations("rowMenu");
     const tCategories = useTranslations("categories");
+    const planMeta = usePlanMeta();
     const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
@@ -83,6 +86,7 @@ export const EssentialsChecklist = ({
     const planOnly = nextMonth;
 
     const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
+    const ordered = [...items].sort((a, b) => (a.day ?? 32) - (b.day ?? 32));
 
     if (!items.length) {
         return (
@@ -126,7 +130,7 @@ export const EssentialsChecklist = ({
             {!planOnly && <SegmentBar done={paidCount} total={items.length} />}
 
             <ul className="border-rule mt-3 border-t">
-                {items.map((item) => (
+                {ordered.map((item) => (
                     <RowMenu
                         key={item.id}
                         title={item.title}
@@ -193,11 +197,27 @@ export const EssentialsChecklist = ({
                                     >
                                         {item.title}
                                     </span>
-                                    {item.category && (
+                                    {(item.category || item.day || item.fundedBy) && (
                                         <span className="text-ink-faint mt-0.5 block text-xs">
-                                            {getCategoryLabel(item.category, tCategories)}
+                                            {getCategoryLabel(item.category || "essentials", tCategories)}
+                                            {planMeta(item)}
                                         </span>
                                     )}
+                                    {!planOnly &&
+                                        !item.checked &&
+                                        item.day &&
+                                        paydayStatus(item.day) !== "upcoming" && (
+                                            <span
+                                                className={twMerge(
+                                                    "mt-0.5 block text-xs",
+                                                    paydayStatus(item.day) === "late" ? "text-signal" : "text-accent",
+                                                )}
+                                            >
+                                                {paydayStatus(item.day) === "late"
+                                                    ? t("billOverdue", { day: item.day })
+                                                    : t("billDueToday")}
+                                            </span>
+                                        )}
                                     {item.carriedFrom && !item.checked && (
                                         <span className="text-signal mt-0.5 block text-xs">
                                             {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}

@@ -6,6 +6,7 @@ import { TransactionType } from "../types/transactions";
 import {
     byBucket,
     customPeriod,
+    cyclePeriod,
     elapsedDays,
     filterByPeriod,
     granularityOf,
@@ -75,5 +76,17 @@ test("long periods are bucketed by month, short ones by day", () => {
             ["2026-11", 150],
             ["2026-12", 70],
         ],
+    );
+});
+
+test("a pay cycle runs from one payday to the day before the next", () => {
+    const period = cyclePeriod(30, new Date(2026, 10, 18));
+
+    assert.deepEqual([period.start, period.end], ["2026-10-30", "2026-11-29"]);
+    assert.deepEqual([shiftPeriod(period, 1).start, shiftPeriod(period, 1).end], ["2026-11-30", "2026-12-29"]);
+    assert.deepEqual([shiftPeriod(period, -1).start, shiftPeriod(period, -1).end], ["2026-09-30", "2026-10-29"]);
+    assert.deepEqual(
+        [cyclePeriod(31, new Date(2027, 1, 28)).start, cyclePeriod(31, new Date(2027, 1, 28)).end],
+        ["2027-02-28", "2027-03-30"],
     );
 });

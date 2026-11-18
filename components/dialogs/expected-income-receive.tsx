@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 
-import { useSetExpectedIncomeReceived } from "api/main";
+import { useSetExpectedIncomeReceived, useSetNewTransaction } from "api/main";
+import { useCardTransfer } from "api/cards";
+import { v4 as uuidv4 } from "uuid";
+import { CURRENCY, TransactionEnum } from "constants/index";
+import { SavingsStorage } from "types/transactions";
+import { AllocationChoice, creditCardsToRepay, IncomeAllocation } from "components/income-allocation";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency, formatSignedCurrency, handleDecimalInputChange } from "lib/utils";
 import { roundMoney, roundRate, toMoneyInput, toRateInput } from "lib/money";
@@ -36,6 +41,10 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     const [error, setError] = useState<string | null>(null);
     const [cardId, setCardId] = useState("");
     const tCards = useTranslations("cards");
+    const [choice, setChoice] = useState<AllocationChoice>({ payOff: true, save: "" });
+    const transfer = useCardTransfer();
+    const { mutateAsync: addTransaction } = useSetNewTransaction();
+    const [settling, setSettling] = useState(false);
 
     const rates = useExchangeRates();
     const isUndo = Boolean(income?.received);
@@ -49,7 +58,9 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
         setActualAmount(toMoneyInput(income.receivedAmount ?? currentForeignAmount(income, userCurrency, rates)));
         setAddToBalance(true);
         setError(null);
-        setCardId(defaultCardId(useStore.getState().selectedCardId, useStore.getState().cards));
+        const cards = useStore.getState().cards;
+        setCardId(findCardById(cards, income.cardId)?.id ?? defaultCardId(useStore.getState().selectedCardId, cards));
+        setChoice({ payOff: true, save: "" });
     }, [income, open, rates]);
 
     const submit = async () => {
@@ -72,11 +83,59 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
             store.applyServerUpdate(response);
             store.setTransactions(response.updatedTransactions);
 
+            if (!isUndo && addToBalance && cardId) await settle();
+
             toast.success(
                 isUndo ? t("undoSuccess") : t("success", { amount: formatCurrency(numericAmount), currency: symbol }),
             );
             onOpenChange(false);
         } catch {}
+    };
+
+    const settle = async () => {
+        setSettling(true);
+        try {
+            const cards = useStore.getState().cards;
+            let left = Math.max(0, findCardById(cards, cardId)?.balance ?? 0);
+
+            if (choice.payOff) {
+                for (const card of creditCardsToRepay(cards, cardId)) {
+                    const pay = roundMoney(Math.min(-card.balance, left));
+                    if (pay <= 0) break;
+                    await transfer.mutateAsync({
+                        fromCardId: cardId,
+                        toCardId: card.id,
+                        amount: pay,
+                        date: new Date().toISOString(),
+                        description: t("payOffDescription"),
+                    });
+                    left = roundMoney(left - pay);
+                }
+            }
+
+            const save = roundMoney(Math.min(Number(choice.save) || 0, left));
+            if (save > 0) {
+                const { userCurrency } = useStore.getState();
+                const response = await addTransaction({
+                    transactionType: TransactionEnum.EXPENSE,
+                    id: uuidv4(),
+                    value: save,
+                    date: new Date(),
+                    categorie: "savings",
+                    description: t("saveDescription", { title: income?.title ?? "" }),
+                    savingsStorage: SavingsStorage.CARD,
+                    savingsCurrency: userCurrency as CURRENCY,
+                    cardId,
+                });
+                store.applyServerUpdate(response);
+                store.setTransactions(response.updatedItems);
+                store.setSavingsOperations(response.updatedSavingsOperations);
+            }
+        } catch {
+            toast.error(t("settleFailed"));
+        } finally {
+            setSettling(false);
+        }
     };
 
     if (!income) return null;
@@ -88,9 +147,13 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
     const marketRate = foreign ? getExchangeRate(income.currency!, store.userCurrency, rates) : null;
     const actualRate = foreign && hasValidAmount ? roundRate(numericAmount / income.currencyAmount!) : null;
     const foreignSymbol = foreign ? getCurrencySymbol(income.currency!) : "";
+    const payOffAmount = choice.payOff
+        ? creditCardsToRepay(store.cards, cardId).reduce((total, card) => total + -card.balance, 0)
+        : 0;
+    const settledAmount = roundMoney(payOffAmount + (Number(choice.save) || 0));
 
     return (
-        <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
+        <Dialog open={open} onOpenChange={(nextOpen) => !isPending && !settling && onOpenChange(nextOpen)}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{isUndo ? t("undoTitle") : t("title", { title: income.title })}</DialogTitle>
@@ -188,6 +251,17 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                             />
                         )}
 
+                        {addToBalance && hasValidAmount && (
+                            <IncomeAllocation
+                                income={income}
+                                amount={numericAmount}
+                                cardId={cardId}
+                                symbol={symbol}
+                                choice={choice}
+                                onChange={setChoice}
+                            />
+                        )}
+
                         {hasValidAmount && (
                             <div className="space-y-1 text-sm">
                                 {actualRate !== null && (
@@ -218,7 +292,8 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                                             amount: formatSignedCurrency(
                                                 roundMoney(
                                                     (findCardById(store.cards, cardId)?.balance ?? store.totalAmount) +
-                                                        numericAmount,
+                                                        numericAmount -
+                                                        settledAmount,
                                                 ),
                                             ),
                                             currency: symbol,
@@ -235,7 +310,7 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                         type="button"
                         variant="secondary"
                         className="flex-1 sm:flex-none"
-                        disabled={isPending}
+                        disabled={isPending || settling}
                         onClick={() => onOpenChange(false)}
                     >
                         {t("cancel")}
@@ -244,10 +319,10 @@ export const ExpectedIncomeReceiveDialog = ({ income, open, onOpenChange }: Prop
                         type="button"
                         variant={isUndo ? "destructive" : "default"}
                         className="flex-1 sm:flex-none"
-                        disabled={isPending}
+                        disabled={isPending || settling}
                         onClick={() => void submit()}
                     >
-                        {isPending ? t("saving") : isUndo ? t("undoConfirm") : t("confirm")}
+                        {isPending || settling ? t("saving") : isUndo ? t("undoConfirm") : t("confirm")}
                     </Button>
                 </DialogFooter>
             </DialogContent>

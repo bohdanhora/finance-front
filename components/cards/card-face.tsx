@@ -35,6 +35,7 @@ export const CardFace = ({
     className,
     showBalance = true,
     compact = false,
+    personal = false,
 }: {
     skin: CardSkin;
     name: string;
@@ -45,6 +46,7 @@ export const CardFace = ({
     className?: string;
     showBalance?: boolean;
     compact?: boolean;
+    personal?: boolean;
 }) => {
     const t = useTranslations("cards");
     const style = skinOf(skin);
@@ -82,9 +84,18 @@ export const CardFace = ({
                 >
                     {branded ? style.brand : name}
                 </span>
-                {isCredit && !compact && (
-                    <span className="shrink-0 rounded-sm border border-white/60 px-1 py-px font-mono text-3xs leading-none uppercase">
-                        {t("creditBadge")}
+                {(isCredit || personal) && !compact && (
+                    <span className="flex shrink-0 gap-1">
+                        {personal && (
+                            <span className="rounded-sm border border-white/60 px-1 py-px font-mono text-3xs leading-none uppercase">
+                                {t("personalBadge")}
+                            </span>
+                        )}
+                        {isCredit && (
+                            <span className="rounded-sm border border-white/60 px-1 py-px font-mono text-3xs leading-none uppercase">
+                                {t("creditBadge")}
+                            </span>
+                        )}
                     </span>
                 )}
             </div>

@@ -49,6 +49,7 @@ import {
     getEssentialFormValues,
 } from "components/essential-amount-field";
 import { useExchangeRates } from "hooks/use-exchange-rates";
+import { EssentialPlanFields, planFieldsFromForm, usePlanMeta } from "components/essential-plan-fields";
 import { isForeignAmount, toStoredMoney } from "lib/foreign-amount";
 
 type Props = {
@@ -93,6 +94,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
     });
     const { setTouched } = useCategorySuggestion(form);
     const tCategories = useTranslations("categories");
+    const planMeta = usePlanMeta();
 
     const editingEssential = editingId ? arrayEssentials.find(({ id }) => id === editingId) : undefined;
     const editingPaid = Boolean(editingEssential?.checked);
@@ -232,6 +234,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                         title: essential.checked ? essential.title : values.title,
                         ...money,
                         category: values.category || undefined,
+                        ...planFieldsFromForm(values),
                     },
                 });
 
@@ -248,6 +251,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                 ...(money ?? { amount: 0 }),
                 checked: false,
                 ...(values.category ? { category: values.category } : {}),
+                ...planFieldsFromForm(values),
             };
             if (nextMonth) {
                 const type = EssentialsType.NEXT_MONTH;
@@ -378,7 +382,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                                 )
                                             }
                                             title={title}
-                                            meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ${checked ? "·" : "≈"} ` : ""}${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
+                                            meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ${checked ? "·" : "≈"} ` : ""}${formatCurrency(checked ? (essential.paidAmount ?? amount) : amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}${planMeta(essential)}`}
                                             muted={checked}
                                             copyValue={toMoneyInput(
                                                 checked ? (essential.paidAmount ?? amount) : amount,
@@ -415,6 +419,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                     />
                                     <EssentialAmountField form={form} disabled={editingPaid} />
                                     <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
+                                    <EssentialPlanFields form={form} />
                                     {editingPaid && (
                                         <p className="text-ink-faint font-mono text-2xs">
                                             {t("listDialog.paidLocked")}

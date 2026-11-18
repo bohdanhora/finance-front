@@ -27,6 +27,8 @@ export const changeDefaultFormSchema = (messages: ValidationMessages) =>
         title: titleField(messages),
         category: z.string().max(64),
         currency: z.nativeEnum(CURRENCY, messages.currency),
+        day: z.string().regex(/^$|^([1-9]|[12]\d|3[01])$/, messages.day),
+        fundedBy: z.string(),
     });
 
 export const changeNextMonthFormSchema = (messages: ValidationMessages) =>
@@ -75,6 +77,8 @@ export const essentialSpendsFormSchema = (messages: ValidationMessages) =>
         title: titleField(messages),
         category: z.string().max(64),
         currency: z.nativeEnum(CURRENCY, messages.currency),
+        day: z.string().regex(/^$|^([1-9]|[12]\d|3[01])$/, messages.day),
+        fundedBy: z.string(),
     });
 
 export const expectedIncomeFormSchema = (messages: ValidationMessages) =>

@@ -196,7 +196,12 @@
                 "returnToBalance": "Returns to balance",
                 "undoConfirm": "Undo payment",
                 "undoSuccess": "{amount} {currency} returned to your balance"
-            }
+            },
+            "dueDay": "Due day",
+            "fundedBy": "Paid from",
+            "fundedByAny": "Any income",
+            "dueOn": "on the {day}",
+            "fromIncome": "from {title}"
         },
         "percent": {
             "title": "Savings rate",
@@ -289,7 +294,10 @@
         "carriedFrom": "Carried over from {month}",
         "essentialsTitle": "Essential payments",
         "editList": "Edit",
-        "template": "Monthly template"
+        "template": "Monthly template",
+        "billOverdue": "Overdue since the {day}",
+        "billDueToday": "Due today",
+        "fromRecurring": "From your recurring incomes"
     },
     "auth": {
         "login": "Sign in",
@@ -522,7 +530,8 @@
             "month": "Month",
             "quarter": "Quarter",
             "year": "Year",
-            "custom": "Custom"
+            "custom": "Custom",
+            "cycle": "Payday to payday"
         },
         "previousPeriod": "Previous period",
         "nextPeriod": "Next period",
@@ -718,7 +727,7 @@
             },
             "budget": {
                 "title": "Safe to spend",
-                "body": "What you can spend until the next salary, with unpaid payments and savings already held back. The bar below shows whether you spend faster than planned."
+                "body": "What you can spend until the next salary, with unpaid payments already held back. The bar and the chart below show whether the money lasts until payday."
             },
             "history": {
                 "title": "Transactions",
@@ -773,7 +782,7 @@
         "remainingAfterEssentials": "Balance plus expected income minus unpaid payments.",
         "dailySpendingAvailable": "The amount left after payments divided by the days left in the month.",
         "totalMoneyIncome": "Income you expect next month.",
-        "nextRemainingAfterEssentials": "Expected income minus next month payments.",
+        "nextRemainingAfterEssentials": "Expected income minus next month payments and credit card debt.",
         "saveMoney": "The chosen share of the remainder to put aside.",
         "saveMoneyAfterPercent": "What is left to spend next month after savings."
     },
@@ -917,12 +926,28 @@
             "undoSuccess": "The income is expected again",
             "cancel": "Cancel",
             "foreignHint": "Enter how much arrived in {currency} after the exchange.",
-            "actualRate": "Actual rate: 1 {from} = {rate} {currency}"
+            "actualRate": "Actual rate: 1 {from} = {rate} {currency}",
+            "payOffDescription": "Credit card payoff",
+            "saveDescription": "Put aside from {title}",
+            "settleFailed": "The income is saved, but the payoff or saving did not go through. Check the cards."
         },
         "currencyLabel": "Currency",
         "conversionUnavailable": "The exchange rate is unavailable. Try again later.",
         "convertedPreview": "About {amount} {currency} at today's rate. You enter the exact amount when it arrives.",
-        "foreignHint": "Converted to {currency} at the current rate."
+        "foreignHint": "Converted to {currency} at the current rate.",
+        "allocation": {
+            "title": "Where this money goes",
+            "bills": "Payments from this income: {count}",
+            "noBills": "No payment is linked to this income yet. Pick it in a payment's \"Paid from\" field.",
+            "payOff": "Pay off credit cards",
+            "save": "Put aside right away",
+            "saveTenPercent": "10%",
+            "saveHint": "Saving first, before spending, works better than saving what is left.",
+            "free": "Free to spend",
+            "short": "This income does not cover everything you picked."
+        },
+        "covers": "Covers {count} payments · {amount}",
+        "cardField": "Arrives on card"
     },
     "monobank": {
         "title": "Monobank",
@@ -1139,7 +1164,10 @@
         "coverHint": "Upload an image from your computer or phone. It is cropped to the card shape.",
         "coverNotImage": "This file is not an image. Choose JPG, PNG or WebP.",
         "coverTooBig": "The image is too large. Choose another one.",
-        "coverUnreadable": "Could not open the image. Choose another file."
+        "coverUnreadable": "Could not open the image. Choose another file.",
+        "personalCard": "Personal card",
+        "personalCardHint": "Left out of the shared budget. Its salary, the payments that salary covers and its spending get their own daily limit when you pick this card.",
+        "personalBadge": "Personal"
     },
     "sessions": {
         "title": "Sessions and sign-ins",
@@ -1180,7 +1208,7 @@
         "requestFailed": "Something went wrong. Try again."
     },
     "sections": {
-        "thisMonthNote": "Daily limit until the next salary, with payments and savings already held back.",
+        "thisMonthNote": "Daily limit until the next salary, with payments already held back.",
         "nextMonthNote": "Expected income, payments and savings for next month.",
         "historyNote": "All income, expenses and transfers. Tap a row to edit it."
     },
@@ -1198,8 +1226,11 @@
         "legend": {
             "essentials": "Payments",
             "savings": "Savings",
-            "free": "Spending"
-        }
+            "free": "Spending",
+            "debt": "Credit cards"
+        },
+        "debt": "Credit card payoff",
+        "overspentWithDebt": "Payments and credit card payoff exceed the income by {amount}."
     },
     "pet": {
         "title": "Companion",
@@ -1417,17 +1448,27 @@
         "paceTitle": "Pace since {date}",
         "spent": "Spent {amount}",
         "plannedByNow": "plan for today {amount}",
-        "paceOver": "Spending faster than planned by {amount}. Slow down, or the money runs out before payday.",
-        "paceOnTrack": "Right on plan.",
-        "paceUnder": "{amount} under plan, keep it up.",
-        "onCards": "On cards",
+        "paceOver": "You spend {pace} a day on average, while the limit until payday is {limit}. Slow down, or the money runs out early.",
+        "paceOnTrack": "You spend {pace} a day on average, within the {limit} limit.",
+        "paceUnder": "You spend {pace} a day on average with a {limit} limit. Keep it up.",
+        "onCards": "Own money on cards",
         "incoming": "Still coming",
         "bills": "Payments until payday",
-        "savings": "To savings",
         "hintUntilPayday": "Counted to the biggest recurring expected income. Without one, to the end of the month.",
-        "hintAvailable": "Money on all cards plus income due before payday, minus unpaid payments and what is still to be saved this cycle. When payday falls in next month, next month's payments are held back too.",
+        "hintAvailable": "Your own money on the cards plus income due before payday, minus payments due before it. Credit card debt is not taken out: it gets repaid from the next salary.",
         "hintPerDay": "Safe to spend divided by the days until payday.",
         "hintLeftToday": "Today's share minus what was already spent today. Whatever you don't spend moves to the next days.",
-        "hintPace": "Everyday spending since the last payday against an even pace. Payments, savings and transfers are not counted."
+        "hintPace": "Everyday spending since the last payday against an even pace. Payments, savings and transfers are not counted.",
+        "debtNote": "Credit card debt of {amount} is not taken out here: it gets repaid from the salary on {date}.",
+        "debtNoteNoPayday": "Credit card debt of {amount} is not taken out here: it gets repaid from the next income.",
+        "forecastTitle": "Balance until payday",
+        "forecastPlan": "On plan",
+        "forecastPace": "At current pace",
+        "runsOut": "At the current pace ({pace} a day) the money runs out on {date}, {days} days before payday.",
+        "lastsUntilPayday": "At the current pace ({pace} a day) the money lasts until payday with {left} to spare.",
+        "dipWarning": "On {date} the balance dips to {amount} because of payments. Move a payment or keep money aside.",
+        "personalTitle": "Personal budget · {card}",
+        "personalNote": "A personal card: its own salary, the payments that salary covers and the card's spending. It is left out of the shared budget.",
+        "hintForecast": "On plan: the balance if you spend exactly the daily limit. Current pace: if you keep spending like since the last payday. Payments and income land on their days."
     }
 }

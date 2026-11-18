@@ -2,13 +2,14 @@ import dayjs, { type Dayjs } from "dayjs";
 
 import { TransactionType } from "../types/transactions";
 
-export type PeriodKind = "week" | "month" | "quarter" | "year" | "custom";
-export type CalendarKind = Exclude<PeriodKind, "custom">;
+export type PeriodKind = "week" | "month" | "quarter" | "year" | "cycle" | "custom";
+export type CalendarKind = Exclude<PeriodKind, "custom" | "cycle">;
 
 export type Period = {
     kind: PeriodKind;
     start: string;
     end: string;
+    payday?: number;
 };
 
 export const DATE_FORMAT = "YYYY-MM-DD";
@@ -35,6 +36,18 @@ export const periodOf = (kind: CalendarKind, date: string | Date | Dayjs = new D
     return { kind, start: toDateKey(start), end: toDateKey(start.add(amount, unit).subtract(1, "day")) };
 };
 
+const paydayIn = (month: Dayjs, day: number) => month.date(Math.min(day, month.daysInMonth()));
+
+export const cyclePeriod = (payday: number, date: string | Date | Dayjs = new Date()): Period => {
+    const day = dayjs(date).startOf("day");
+    const month = day.startOf("month");
+    const thisPayday = paydayIn(month, payday);
+    const start = day.isBefore(thisPayday) ? paydayIn(month.subtract(1, "month"), payday) : thisPayday;
+    const end = paydayIn(start.startOf("month").add(1, "month"), payday).subtract(1, "day");
+
+    return { kind: "cycle", start: toDateKey(start), end: toDateKey(end), payday };
+};
+
 export const customPeriod = (from: string, to: string): Period => {
     const [start, end] = [toDateKey(from), toDateKey(to)].sort();
     return { kind: "custom", start, end };
@@ -43,6 +56,15 @@ export const customPeriod = (from: string, to: string): Period => {
 export const periodDays = (period: Period) => dayjs(period.end).diff(dayjs(period.start), "day") + 1;
 
 export const shiftPeriod = (period: Period, delta: number): Period => {
+    if (period.kind === "cycle") {
+        let next = period;
+        for (let step = 0; step < Math.abs(delta); step += 1) {
+            const anchor = delta > 0 ? dayjs(next.end).add(1, "day") : dayjs(next.start).subtract(1, "day");
+            next = cyclePeriod(period.payday ?? dayjs(period.start).date(), anchor);
+        }
+        return next;
+    }
+
     if (period.kind === "custom") {
         const length = periodDays(period) * delta;
         return {

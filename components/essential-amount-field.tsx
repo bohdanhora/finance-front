@@ -21,6 +21,8 @@ export const getEmptyEssentialValues = (currency: CURRENCY): EssentialFormValues
     title: "",
     category: "",
     currency,
+    day: "",
+    fundedBy: "",
 });
 
 export const getEssentialFormValues = (essential: EssentialType, userCurrency: CURRENCY): EssentialFormValues => {
@@ -31,6 +33,8 @@ export const getEssentialFormValues = (essential: EssentialType, userCurrency: C
         title: essential.title,
         category: essential.category ?? "",
         currency: foreign ? essential.currency! : userCurrency,
+        day: essential.day ? String(essential.day) : "",
+        fundedBy: essential.fundedBy ?? "",
     };
 };
 

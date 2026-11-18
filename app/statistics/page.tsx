@@ -55,6 +55,7 @@ import { CardFilter } from "components/cards/card-filter";
 import { CategoryBreakdown } from "components/charts/category-breakdown";
 import { CategoryFilter } from "components/charts/category-filter";
 import { PeriodPicker } from "components/charts/period-picker";
+import { findMainIncome } from "lib/pay-cycle";
 import { WeekdaySpending } from "components/charts/weekday-spending";
 import { useStatisticsPreferences } from "hooks/use-statistics-preferences";
 
@@ -266,7 +267,12 @@ const StatisticsPage = () => {
                         actions={
                             <>
                                 <CardFilter />
-                                <PeriodPicker period={period} onChange={setPeriod} earliest={earliest} />
+                                <PeriodPicker
+                                    period={period}
+                                    onChange={setPeriod}
+                                    earliest={earliest}
+                                    payday={findMainIncome(store.expectedIncomes)?.day}
+                                />
                             </>
                         }
                     />

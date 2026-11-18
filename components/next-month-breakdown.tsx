@@ -14,6 +14,7 @@ import { Hint } from "components/hint";
 type Props = {
     income: number;
     essentials: number;
+    debt: number;
     saved: number;
     free: number;
     percent: number;
@@ -22,7 +23,7 @@ type Props = {
 
 const share = (part: number, whole: number) => (whole > 0 ? Math.max(0, Math.min(100, (part / whole) * 100)) : 0);
 
-export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, symbol }: Props) => {
+export const NextMonthBreakdown = ({ income, essentials, debt, saved, free, percent, symbol }: Props) => {
     const t = useTranslations("nextPlan");
     const locale = useLocale();
 
@@ -42,12 +43,14 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
         );
     }
 
-    const overspent = essentials > income;
+    const committed = essentials + debt;
+    const overspent = committed > income;
     const spendable = Math.max(free, 0);
     const perDay = spendable / days;
 
     const segments = [
         { key: "essentials", value: Math.min(essentials, income), className: "bg-ink-faint" },
+        { key: "debt", value: Math.min(debt, Math.max(income - essentials, 0)), className: "bg-warn" },
         { key: "savings", value: Math.max(saved, 0), className: "bg-accent" },
         { key: "free", value: spendable, className: "bg-ink" },
     ];
@@ -55,6 +58,7 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
     const rows = [
         { key: "income", label: t("income"), value: income, sign: "+" },
         { key: "essentials", label: t("essentials"), value: essentials, sign: "-" },
+        { key: "debt", label: t("debt"), value: debt, sign: "-" },
         { key: "savings", label: t("savings", { percent }), value: Math.max(saved, 0), sign: "-" },
     ];
 
@@ -77,27 +81,31 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
                     ))}
             </div>
             <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                {segments.map((segment) => (
-                    <li key={segment.key} className="label flex items-center gap-1.5">
-                        <span className={twMerge("size-2", segment.className)} />
-                        {t(`legend.${segment.key}`)} {Math.round(share(segment.value, income))}%
-                    </li>
-                ))}
+                {segments
+                    .filter((segment) => segment.key !== "debt" || debt > 0)
+                    .map((segment) => (
+                        <li key={segment.key} className="label flex items-center gap-1.5">
+                            <span className={twMerge("size-2", segment.className)} />
+                            {t(`legend.${segment.key}`)} {Math.round(share(segment.value, income))}%
+                        </li>
+                    ))}
             </ul>
 
             <dl className="border-rule mt-5 border-t">
-                {rows.map((row) => (
-                    <div
-                        key={row.key}
-                        className="border-rule flex items-baseline justify-between gap-4 border-b py-2.5"
-                    >
-                        <dt className="text-ink-muted text-sm">{row.label}</dt>
-                        <dd className={twMerge("font-mono text-xs tabular-nums", row.sign === "+" && "text-good")}>
-                            {row.sign}
-                            {formatCurrency(row.value)} {symbol}
-                        </dd>
-                    </div>
-                ))}
+                {rows
+                    .filter((row) => row.key !== "debt" || debt > 0)
+                    .map((row) => (
+                        <div
+                            key={row.key}
+                            className="border-rule flex items-baseline justify-between gap-4 border-b py-2.5"
+                        >
+                            <dt className="text-ink-muted text-sm">{row.label}</dt>
+                            <dd className={twMerge("font-mono text-xs tabular-nums", row.sign === "+" && "text-good")}>
+                                {row.sign}
+                                {formatCurrency(row.value)} {symbol}
+                            </dd>
+                        </div>
+                    ))}
                 <div className="border-rule flex items-baseline justify-between gap-4 border-b py-3">
                     <dt className="label text-ink">{t("free")}</dt>
                     <dd className={twMerge("figure text-figure", overspent && "text-signal")}>
@@ -113,7 +121,9 @@ export const NextMonthBreakdown = ({ income, essentials, saved, free, percent, s
 
             {overspent ? (
                 <p className="border-signal text-signal mt-4 border-l-2 py-1 pl-3 text-sm">
-                    {t("overspent", { amount: `${formatCurrency(essentials - income)} ${symbol}` })}
+                    {t(debt > 0 ? "overspentWithDebt" : "overspent", {
+                        amount: `${formatCurrency(committed - income)} ${symbol}`,
+                    })}
                 </p>
             ) : (
                 <div className="mt-4 grid grid-cols-2 gap-px">

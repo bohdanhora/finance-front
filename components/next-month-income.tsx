@@ -6,6 +6,7 @@ import useBankStore from "store/bank";
 import useStore from "store/general";
 import { calculateSavings, formatSignedCurrency } from "lib/utils";
 import { roundMoney } from "lib/money";
+import { creditSummary } from "lib/cards";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
 import { CURRENCY } from "constants/index";
 import { EssentialSpends } from "./dialogs/essential-spends";
@@ -36,25 +37,37 @@ export const NextMonthIncome = () => {
         [bankStore.eur?.rateBuy, bankStore.usd?.rateBuy],
     );
 
-    const { plan, totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
+    const { fromRecurring, plan, totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
         const totalEssentials = store.nextMonthEssentialsArray.reduce(
             (sum, item) => (!item.checked ? sum + item.amount : sum),
             0,
         );
 
-        const total = store.nextMonthTotalAmount;
-        const remaining = total - totalEssentials;
+        const debt = creditSummary(store.cards.filter((card) => !card.personal)).debt;
+        const recurring = roundMoney(
+            store.expectedIncomes.filter((item) => item.recurring).reduce((sum, item) => sum + item.amount, 0),
+        );
+        const total = store.nextMonthTotalAmount > 0 ? store.nextMonthTotalAmount : recurring;
+        const remaining = roundMoney(total - totalEssentials - debt);
         const { saved } = calculateSavings(Math.max(remaining, 0), percent);
         const savedAfter = roundMoney(remaining - saved);
 
         return {
-            plan: { income: total, essentials: totalEssentials, saved, free: savedAfter },
+            fromRecurring: store.nextMonthTotalAmount <= 0 && recurring > 0,
+            plan: { income: total, essentials: totalEssentials, debt, saved, free: savedAfter },
             totalIncome: convertToAllCurrencies(total, rates),
             remainingIncome: convertToAllCurrencies(remaining, rates),
             savedMoney: convertToAllCurrencies(saved, rates),
             savedMoneyRemaining: convertToAllCurrencies(savedAfter, rates),
         };
-    }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, percent, rates]);
+    }, [
+        store.nextMonthTotalAmount,
+        store.nextMonthEssentialsArray,
+        store.expectedIncomes,
+        store.cards,
+        percent,
+        rates,
+    ]);
 
     const userSymbol = getCurrencySymbol(userCurrency);
     const altSymbol = getCurrencySymbol(currency);
@@ -85,7 +98,7 @@ export const NextMonthIncome = () => {
                     label={t("totalMoneyIncome")}
                     hint={tHints("totalMoneyIncome")}
                     value={money(totalIncome.default)}
-                    secondary={alt(totalIncome[currency])}
+                    secondary={fromRecurring ? t("fromRecurring") : alt(totalIncome[currency])}
                 />
                 <StatCard
                     label={t("remainingAfterEssentials")}

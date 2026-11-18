@@ -48,7 +48,7 @@ const FALLBACK: Palette = {
     ink: "#f2f5f4",
 };
 
-const usePalette = () => {
+export const usePalette = () => {
     const { resolvedTheme } = useTheme();
     const [palette, setPalette] = useState<Palette>(FALLBACK);
 
@@ -70,7 +70,7 @@ const usePalette = () => {
     return palette;
 };
 
-const Legend = ({ items }: { items: { label: string; color: string }[] }) => (
+export const Legend = ({ items }: { items: { label: string; color: string }[] }) => (
     <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2">
         {items.map((item) => (
             <li key={item.label} className="label flex items-center gap-2">

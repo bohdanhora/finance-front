@@ -9,7 +9,14 @@ import { CategoryCombobox } from "components/categories/category-combobox";
 import { FormField, FormItem, FormLabel, FormMessage } from "ui/form";
 import { suggestEssentialCategory } from "lib/essential-category";
 
-export type EssentialFormValues = { title: string; amount: string; category: string; currency: CURRENCY };
+export type EssentialFormValues = {
+    title: string;
+    amount: string;
+    category: string;
+    currency: CURRENCY;
+    day: string;
+    fundedBy: string;
+};
 
 export const useCategorySuggestion = (form: UseFormReturn<EssentialFormValues>) => {
     const touchedRef = useRef(false);

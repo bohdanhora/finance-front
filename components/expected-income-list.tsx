@@ -20,6 +20,9 @@ import { RowMenu } from "./row-menu";
 import { requestListAction } from "lib/list-actions";
 import { toMoneyInput } from "lib/money";
 import { CircleCheckIcon, Undo2Icon } from "lucide-react";
+import { allocationFor } from "lib/pay-cycle";
+import { findCardById } from "lib/cards";
+import { useCardName } from "./cards/card-face";
 
 export const ExpectedIncomeList = () => {
     const t = useTranslations("expectedIncome");
@@ -27,6 +30,7 @@ export const ExpectedIncomeList = () => {
     const tMenu = useTranslations("rowMenu");
     const store = useStore();
     const [selectedIncome, setSelectedIncome] = useState<ExpectedIncome | null>(null);
+    const cardName = useCardName();
 
     const items = store.expectedIncomes;
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -40,6 +44,23 @@ export const ExpectedIncomeList = () => {
     }
 
     const summary = summarizeExpectedIncomes(items);
+
+    const coverage = (item: ExpectedIncome) => {
+        const allocation = allocationFor(item, item.amount, {
+            current: store.essentialsArray,
+            next: store.nextMonthEssentialsArray,
+            template: store.defaultEssentialsArray,
+        });
+        if (!allocation.bills.length) return null;
+        return (
+            <span className="text-ink-faint mt-0.5 block text-xs">
+                {t("covers", {
+                    count: allocation.bills.length,
+                    amount: `${formatCurrency(allocation.billsTotal)} ${symbol}`,
+                })}
+            </span>
+        );
+    };
 
     const statusLine = (item: ExpectedIncome) => {
         if (item.received) {
@@ -108,7 +129,11 @@ export const ExpectedIncomeList = () => {
                                     <span className="text-ink-faint mt-0.5 block text-xs">
                                         {statusLine(item)}
                                         {!item.recurring && ` · ${t("oneOff")}`}
+                                        {store.cards.length > 1 &&
+                                            findCardById(store.cards, item.cardId) &&
+                                            ` · ${cardName(findCardById(store.cards, item.cardId))}`}
                                     </span>
+                                    {!item.received && coverage(item)}
                                 </span>
                                 <span className="shrink-0 text-right">
                                     <span

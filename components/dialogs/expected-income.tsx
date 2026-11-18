@@ -42,6 +42,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "u
 import { Hint } from "components/hint";
 import { ListAction, subscribeListAction } from "lib/list-actions";
 import { ClearListButton, FormPanel, ListDialogBody, ListPanel, ListRow } from "ui/list-dialog";
+import { CardSelect } from "components/cards/card-select";
+import { findCardById } from "lib/cards";
 
 type FormValues = z.infer<ReturnType<typeof expectedIncomeFormSchema>>;
 
@@ -59,6 +61,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
     const store = useStore();
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [incomeCard, setIncomeCard] = useState("");
 
     const { mutateAsync: addIncome, isPending: adding } = useAddExpectedIncome();
     const { mutateAsync: updateIncome, isPending: updating } = useUpdateExpectedIncome();
@@ -89,11 +92,13 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
 
     const resetForm = () => {
         setEditingId(null);
+        setIncomeCard(store.cards[0]?.id ?? "");
         form.reset(getEmptyValues(store.userCurrency));
     };
 
     const startEditing = (income: ExpectedIncome) => {
         setEditingId(income.id);
+        setIncomeCard(findCardById(store.cards, income.cardId)?.id ?? store.cards[0]?.id ?? "");
         const foreign = isForeignAmount(income, store.userCurrency);
         form.reset(
             {
@@ -142,6 +147,7 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
             amount,
             day: Number(values.day),
             recurring: values.recurring,
+            ...(incomeCard && store.cards.length > 1 ? { cardId: incomeCard } : {}),
             ...(foreign && { currency: values.currency, currencyAmount: Number(values.amount) }),
         };
 
@@ -320,6 +326,12 @@ export const ExpectedIncomeDialog = ({ triggerLabel }: { triggerLabel?: string }
                                             <FormMessage />
                                         </FormItem>
                                     )}
+                                />
+                                <CardSelect
+                                    id="expected-income-card"
+                                    label={t("cardField")}
+                                    value={incomeCard || store.cards[0]?.id || ""}
+                                    onChange={setIncomeCard}
                                 />
                                 <FormField
                                     control={form.control}

@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { changeDefaultFormSchema } from "schemas/other";
+import { EssentialPlanFields, planFieldsFromForm, usePlanMeta } from "components/essential-plan-fields";
 import { useValidationMessages } from "lib/validation";
 import { getCurrencySymbol } from "lib/currency";
 
@@ -72,6 +73,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     });
     const { setTouched } = useCategorySuggestion(form);
     const tCategories = useTranslations("categories");
+    const planMeta = usePlanMeta();
     const uncategorized = arrayEssentials.filter(
         (item) => !item.category && suggestEssentialCategory(item.title) !== null,
     );
@@ -153,6 +155,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                         title: values.title,
                         ...money,
                         category: values.category || undefined,
+                        ...planFieldsFromForm(values),
                     },
                 });
                 store.setDefaultEssentialsArray(res.updatedItems);
@@ -166,6 +169,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                 ...money,
                 checked: false,
                 ...(values.category ? { category: values.category } : {}),
+                ...planFieldsFromForm(values),
             };
             const type = EssentialsType.DEFAULT;
             const res = await newEssentialAsync({ type, item });
@@ -180,9 +184,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
     };
 
     return (
-        <Dialog
-            onOpenChange={() => resetForm()}
-        >
+        <Dialog onOpenChange={() => resetForm()}>
             <Form {...form}>
                 <DialogTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -238,7 +240,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                     <ListRow
                                         key={id}
                                         title={title}
-                                        meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ≈ ` : ""}${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}`}
+                                        meta={`${isForeignAmount(essential, userCurrency) ? `${formatCurrency(essential.currencyAmount)} ${getCurrencySymbol(essential.currency)} ≈ ` : ""}${formatCurrency(amount)} ${getCurrencySymbol(userCurrency)} · ${getCategoryLabel(essential.category || "essentials", tCategories)}${planMeta(essential)}`}
                                         active={editingId === id}
                                         copyValue={toMoneyInput(amount)}
                                         disabled={pendings}
@@ -267,6 +269,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                 />
                                 <EssentialAmountField form={form} />
                                 <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
+                                <EssentialPlanFields form={form} />
                                 <DialogFooter>
                                     {editingId ? (
                                         <Button type="button" variant="secondary" onClick={resetForm}>
