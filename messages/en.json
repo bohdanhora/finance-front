@@ -717,8 +717,8 @@
                 "body": "Days in a row you opened the app. The scale grows at 10, 50 and 100 days."
             },
             "budget": {
-                "title": "Daily limit",
-                "body": "How much you can spend per day until the month ends. The highlighted figure already accounts for unpaid payments."
+                "title": "Safe to spend",
+                "body": "What you can spend until the next salary, with unpaid payments and savings already held back. The bar below shows whether you spend faster than planned."
             },
             "history": {
                 "title": "Transactions",
@@ -1180,7 +1180,7 @@
         "requestFailed": "Something went wrong. Try again."
     },
     "sections": {
-        "thisMonthNote": "Daily spending limit until the end of the month after essential payments.",
+        "thisMonthNote": "Daily limit until the next salary, with payments and savings already held back.",
         "nextMonthNote": "Expected income, payments and savings for next month.",
         "historyNote": "All income, expenses and transfers. Tap a row to edit it."
     },
@@ -1404,5 +1404,30 @@
             "epic": "Epic",
             "legendary": "Legendary"
         }
+    },
+    "payCycle": {
+        "untilPayday": "Days to payday",
+        "paydayOn": "Payday {date}",
+        "monthEnd": "Until the end of the month",
+        "available": "Safe to spend",
+        "perDay": "Per day",
+        "leftToday": "Left for today",
+        "spentToday": "Spent today {amount}",
+        "short": "Not enough until payday",
+        "paceTitle": "Pace since {date}",
+        "spent": "Spent {amount}",
+        "plannedByNow": "plan for today {amount}",
+        "paceOver": "Spending faster than planned by {amount}. Slow down, or the money runs out before payday.",
+        "paceOnTrack": "Right on plan.",
+        "paceUnder": "{amount} under plan, keep it up.",
+        "onCards": "On cards",
+        "incoming": "Still coming",
+        "bills": "Payments until payday",
+        "savings": "To savings",
+        "hintUntilPayday": "Counted to the biggest recurring expected income. Without one, to the end of the month.",
+        "hintAvailable": "Money on all cards plus income due before payday, minus unpaid payments and what is still to be saved this cycle. When payday falls in next month, next month's payments are held back too.",
+        "hintPerDay": "Safe to spend divided by the days until payday.",
+        "hintLeftToday": "Today's share minus what was already spent today. Whatever you don't spend moves to the next days.",
+        "hintPace": "Everyday spending since the last payday against an even pace. Payments, savings and transfers are not counted."
     }
 }

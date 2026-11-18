@@ -2,12 +2,14 @@
 
 import useStore from "store/general";
 import { useMemo } from "react";
-import { calculateDailyBudget, formatCurrency, formatSignedCurrency } from "lib/utils";
-import { projectRemaining, summarizeExpectedIncomes } from "lib/month-plan";
+import { formatCurrency, formatSignedCurrency } from "lib/utils";
+import { safeToSpend } from "lib/pay-cycle";
+import { convertSavingsCurrency } from "lib/savings";
 import { useTranslations } from "next-intl";
 import useBankStore from "store/bank";
 import { CURRENCY } from "constants/index";
 import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
+import { useExchangeRates } from "hooks/use-exchange-rates";
 import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeDefaultEssentials } from "./dialogs/change-default-essentials";
 import { Section, StatGrid } from "./wrappers/section";
@@ -15,52 +17,60 @@ import { StatCard } from "./stat-card";
 import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
 import { ExpectedIncomeList } from "./expected-income-list";
-import { ALL_CARDS, balanceForFilter, findCardById, resolveCardFilter } from "lib/cards";
-import { useCardName } from "./cards/card-face";
+import { PayCyclePanel } from "./pay-cycle-panel";
 
 export const PossibleRemaining = () => {
     const t = useTranslations("possible");
-    const tHints = useTranslations("hints");
+    const tCycle = useTranslations("payCycle");
     const tSections = useTranslations("sections");
     const store = useStore();
     const bankStore = useBankStore();
+    const exchangeRates = useExchangeRates();
 
-    const cardName = useCardName();
     const userCurrency = store.userCurrency;
-    const activeCard = resolveCardFilter(store.selectedCardId, store.cards);
-    const selectedCard = activeCard === ALL_CARDS ? null : findCardById(store.cards, activeCard);
-    const baseAmount = balanceForFilter(activeCard, store.cards, store.totalAmount);
-
     const eurRate = bankStore.eur?.rateBuy || 0;
     const usdRate = bankStore.usd?.rateBuy || 0;
     const rates = useMemo(() => ({ [CURRENCY.EUR]: eurRate, [CURRENCY.USD]: usdRate }), [eurRate, usdRate]);
 
-    const {
-        totalEssentials,
-        dailyAfterEssentials,
-        dailyBudget,
-        daysLeft,
-        pendingIncome,
-        dailyBudgetToCurrency,
-        essentialsConverted,
-        essentialsDailyConverted,
-    } = useMemo(() => {
-        const remainingAfterEssentials = projectRemaining(baseAmount, store.expectedIncomes, store.essentialsArray);
+    const savingsPlan = useMemo(
+        () =>
+            store.savingsGoals.reduce(
+                (total, goal) =>
+                    total +
+                    (convertSavingsCurrency(
+                        goal.monthlyContribution || 0,
+                        goal.currency,
+                        userCurrency,
+                        exchangeRates,
+                    ) ?? 0),
+                0,
+            ),
+        [store.savingsGoals, userCurrency, exchangeRates],
+    );
 
-        const { dailyBudget: dailyFull, daysLeft } = calculateDailyBudget(baseAmount);
-        const { dailyBudget: dailyAfterEssentials } = calculateDailyBudget(remainingAfterEssentials);
-
-        return {
-            totalEssentials: remainingAfterEssentials,
-            dailyAfterEssentials,
-            dailyBudget: dailyFull,
-            daysLeft,
-            pendingIncome: summarizeExpectedIncomes(store.expectedIncomes).pending,
-            dailyBudgetToCurrency: convertToAllCurrencies(dailyFull, rates),
-            essentialsConverted: convertToAllCurrencies(remainingAfterEssentials, rates),
-            essentialsDailyConverted: convertToAllCurrencies(dailyAfterEssentials, rates),
-        };
-    }, [baseAmount, store.essentialsArray, store.expectedIncomes, rates]);
+    const result = useMemo(
+        () =>
+            safeToSpend({
+                balance: store.totalAmount,
+                incomes: store.expectedIncomes,
+                bills: {
+                    current: store.essentialsArray,
+                    next: store.nextMonthEssentialsArray,
+                    template: store.defaultEssentialsArray,
+                },
+                transactions: store.transactions,
+                savingsPlan,
+            }),
+        [
+            store.totalAmount,
+            store.expectedIncomes,
+            store.essentialsArray,
+            store.nextMonthEssentialsArray,
+            store.defaultEssentialsArray,
+            store.transactions,
+            savingsPlan,
+        ],
+    );
 
     const currency = bankStore.currency as CURRENCY;
     const currencySymbol = getCurrencySymbol(currency);
@@ -77,54 +87,53 @@ export const PossibleRemaining = () => {
     );
     const alt = (value: number) =>
         userCurrency === CURRENCY.UAH ? (
-            <AnimatedMoney value={value} symbol={currencySymbol} format={formatSignedCurrency} />
+            <AnimatedMoney
+                value={convertToAllCurrencies(value, rates)[currency] ?? 0}
+                symbol={currencySymbol}
+                format={formatSignedCurrency}
+            />
         ) : undefined;
 
-    const converted = alt(essentialsConverted[currency] ?? 0);
-    const remainingSecondary =
-        pendingIncome > 0 ? (
-            <>
-                {converted && <span className="block">{converted}</span>}
-                <span className="text-good mt-0.5 block">
-                    {t("includesExpected", { amount: `${formatCurrency(pendingIncome)} ${userSymbol}` })}
-                </span>
-            </>
-        ) : (
-            converted
-        );
+    const { cycle } = result;
 
     return (
-        <Section
-            title={
-                selectedCard && store.cards.length > 1
-                    ? `${t("thisMonth")} · ${cardName(selectedCard)}`
-                    : t("thisMonth")
-            }
-            description={tSections("thisMonthNote")}
-        >
+        <Section title={t("thisMonth")} description={tSections("thisMonthNote")}>
             <StatGrid anchor="budget">
-                <StatCard label={t("daysLeft")} value={String(daysLeft)} hint={tHints("daysLeft")} />
                 <StatCard
-                    label={t("dailyBudget")}
-                    hint={tHints("dailyBudget")}
-                    value={money(dailyBudget)}
-                    secondary={alt(dailyBudgetToCurrency[currency] ?? 0)}
+                    label={cycle.anchored ? tCycle("untilPayday") : t("daysLeft")}
+                    hint={tCycle("hintUntilPayday")}
+                    value={String(cycle.daysLeft)}
+                    secondary={
+                        cycle.anchored ? tCycle("paydayOn", { date: cycle.end.format("DD.MM") }) : tCycle("monthEnd")
+                    }
                 />
                 <StatCard
-                    label={t("remainingAfterEssentials")}
-                    hint={tHints("remainingAfterEssentials")}
-                    value={money(totalEssentials)}
-                    secondary={remainingSecondary}
-                />
-                <StatCard
-                    tone="accent"
+                    tone={result.short ? "signal" : "accent"}
                     className="bg-surface"
-                    label={t("dailySpendingAvailable")}
-                    hint={tHints("dailySpendingAvailable")}
-                    value={money(dailyAfterEssentials)}
-                    secondary={alt(essentialsDailyConverted[currency] ?? 0)}
+                    label={tCycle("available")}
+                    hint={tCycle("hintAvailable")}
+                    value={money(result.available)}
+                    secondary={
+                        result.short ? <span className="text-signal">{tCycle("short")}</span> : alt(result.available)
+                    }
+                />
+                <StatCard
+                    label={tCycle("perDay")}
+                    hint={tCycle("hintPerDay")}
+                    value={money(result.perDay)}
+                    secondary={alt(result.perDay)}
+                />
+                <StatCard
+                    label={tCycle("leftToday")}
+                    hint={tCycle("hintLeftToday")}
+                    value={money(result.leftToday)}
+                    secondary={tCycle("spentToday", {
+                        amount: `${formatCurrency(result.spentToday)} ${userSymbol}`,
+                    })}
                 />
             </StatGrid>
+
+            <PayCyclePanel result={result} symbol={userSymbol} />
 
             <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10">
                 <ExpectedIncomeList />
