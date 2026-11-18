@@ -7,6 +7,10 @@ import { roundMoney } from "./money";
 
 const SAVINGS_CATEGORY = "savings";
 const PACE_TOLERANCE = 0.05;
+const PACE_WINDOW_DAYS = 14;
+const BIG_PURCHASE_MIN_COUNT = 5;
+const BIG_PURCHASE_MEDIAN_FACTOR = 3;
+const BIG_PURCHASE_DAILY_FACTOR = 2;
 
 export type CycleIncome = Pick<ExpectedIncome, "id" | "amount" | "day" | "recurring" | "received"> &
     Partial<Pick<ExpectedIncome, "cardId" | "title">>;
@@ -175,6 +179,59 @@ export const scopeBudget = (
     };
 };
 
+export type TypicalPace = {
+    perDay: number;
+    days: number;
+    bigCount: number;
+    bigTotal: number;
+};
+
+const median = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+
+export const typicalPace = (transactions: CycleTransaction[], today: Date = new Date()): TypicalPace => {
+    const day = dayjs(today).startOf("day");
+    const earliest = transactions.reduce<Dayjs | null>((min, tx) => {
+        const date = dayjs(tx.date).startOf("day");
+        return !min || date.isBefore(min) ? date : min;
+    }, null);
+    const windowStart = day.subtract(PACE_WINDOW_DAYS, "day");
+    const from = earliest && earliest.isAfter(windowStart) ? earliest : windowStart;
+    const days = Math.max(0, day.diff(from, "day"));
+
+    if (days === 0) {
+        return { perDay: flexibleSpending(transactions, day, today), days: 0, bigCount: 0, bigTotal: 0 };
+    }
+
+    const purchases = transactions
+        .filter((tx) => isFlexibleSpend(tx) && !dayjs(tx.date).isBefore(from) && dayjs(tx.date).isBefore(day))
+        .map((tx) => tx.value);
+    const total = purchases.reduce((sum, value) => sum + value, 0);
+    const threshold =
+        purchases.length >= BIG_PURCHASE_MIN_COUNT
+            ? Math.max(median(purchases) * BIG_PURCHASE_MEDIAN_FACTOR, (total / days) * BIG_PURCHASE_DAILY_FACTOR)
+            : Infinity;
+    const big = purchases.filter((value) => value > threshold);
+    const bigTotal = big.reduce((sum, value) => sum + value, 0);
+
+    return {
+        perDay: roundMoney((total - bigTotal) / days),
+        days,
+        bigCount: big.length,
+        bigTotal: roundMoney(bigTotal),
+    };
+};
+
+export type AfterPayday = {
+    salary: number;
+    debt: number;
+    left: number;
+    atPace: number;
+};
+
 export type PaceStatus = "under" | "onTrack" | "over";
 
 export type ProjectionPoint = { date: Dayjs; plan: number; pace: number };
@@ -190,8 +247,9 @@ export type SafeToSpend = {
     spentToday: number;
     leftToday: number;
     spentInCycle: number;
-    plannedByNow: number;
     dailyPace: number;
+    typical: TypicalPace;
+    afterPayday: AfterPayday | null;
     dailyLimit: number;
     pace: PaceStatus;
     short: boolean;
@@ -254,19 +312,36 @@ export const safeToSpend = ({ scope, today = new Date() }: { scope: BudgetScope;
     const billsLeft = billsInCycle(bills, cycle, today);
     const available = roundMoney(own + incoming - billsLeft);
 
-    const spentToday = flexibleSpending(transactions, dayjs(today).startOf("day"), today);
+    const dayStart = dayjs(today).startOf("day");
+    const creditIds = new Set(
+        cards.filter((card) => (card.creditLimit ?? 0) > 0 || card.balance < 0).map((card) => card.id),
+    );
+    const fallbackCard = cards[0]?.id ?? "";
+    const spentToday = flexibleSpending(transactions, dayStart, today);
+    const spentTodayOwn = flexibleSpending(
+        transactions.filter((tx) => !creditIds.has(tx.cardId ?? fallbackCard)),
+        dayStart,
+        today,
+    );
     const spentInCycle = flexibleSpending(transactions, cycle.start, today);
-    const spentBeforeToday = roundMoney(spentInCycle - spentToday);
 
-    const todayLimit = Math.max(0, available + spentToday) / cycle.daysLeft;
-    const budget = Math.max(0, available + spentInCycle);
-    const plannedByNow = roundMoney((budget * Math.min(cycle.daysElapsed, cycle.daysTotal)) / cycle.daysTotal);
+    const todayLimit = Math.max(0, available + spentTodayOwn) / cycle.daysLeft;
     const perDay = roundMoney(Math.max(0, available) / cycle.daysLeft);
-    const pastDays = cycle.daysElapsed - 1;
-    const dailyPace = roundMoney(pastDays > 0 ? spentBeforeToday / pastDays : spentToday);
+    const typical = typicalPace(transactions, today);
+    const dailyPace = typical.perDay;
+
+    const main = cycle.anchored ? incomes.find((income) => income.id === cycle.mainIncomeId) : undefined;
+    const debt = creditDebt(cards);
+    const afterPayday = main
+        ? (() => {
+              const left = roundMoney(available + main.amount - debt);
+              const stillToSpend = Math.max(0, dailyPace - spentToday) + dailyPace * (cycle.daysLeft - 1);
+              return { salary: main.amount, debt, left, atPace: roundMoney(left - stillToSpend) };
+          })()
+        : null;
 
     const projection = projectCycle({
-        start: roundMoney(own + spentToday),
+        start: roundMoney(own + spentTodayOwn),
         cycle,
         incomes,
         bills,
@@ -283,7 +358,7 @@ export const safeToSpend = ({ scope, today = new Date() }: { scope: BudgetScope;
     return {
         cycle,
         own,
-        debt: creditDebt(cards),
+        debt,
         incoming,
         bills: billsLeft,
         available,
@@ -291,8 +366,9 @@ export const safeToSpend = ({ scope, today = new Date() }: { scope: BudgetScope;
         spentToday,
         leftToday: roundMoney(todayLimit - spentToday),
         spentInCycle,
-        plannedByNow,
         dailyPace,
+        typical,
+        afterPayday,
         dailyLimit: roundMoney(todayLimit),
         pace:
             dailyPace > todayLimit * (1 + PACE_TOLERANCE)

@@ -10,6 +10,7 @@ import {
     safeToSpend,
     scopeBudget,
     SHARED_SCOPE,
+    typicalPace,
 } from "../lib/pay-cycle";
 
 const income = (id: string, amount: number, day: number, received = false, extra: { cardId?: string } = {}) => ({
@@ -165,7 +166,7 @@ test("the plan line lands on zero at payday and the pace line shows when money r
             cards: [{ id: "a", balance: 10000 }],
             incomes: [mine()],
             bills: { current: [bill(4000, false, { day: 25 })], next: [], template: [] },
-            transactions: [spend(21000, "2026-11-05T10:00:00")],
+            transactions: [spend(14000, "2026-11-06T10:00:00")],
         }),
         today,
     });
@@ -229,3 +230,52 @@ test("a salary shows which bills it covers until it comes again", () => {
 });
 
 const roundTwo = (value: number) => Math.round(value * 100) / 100;
+
+test("the typical pace leaves out big one-off purchases and old spending", () => {
+    const today = new Date(2026, 10, 18, 12);
+    const pace = typicalPace(
+        [
+            spend(30000, "2026-11-01T10:00:00"),
+            spend(400, "2026-11-05T10:00:00"),
+            spend(600, "2026-11-08T10:00:00"),
+            spend(500, "2026-11-10T10:00:00"),
+            spend(25000, "2026-11-12T10:00:00"),
+            spend(700, "2026-11-14T10:00:00"),
+            spend(600, "2026-11-17T10:00:00"),
+            spend(900, "2026-11-18T10:00:00"),
+        ],
+        today,
+    );
+
+    assert.equal(pace.days, 14);
+    assert.equal(pace.bigCount, 1);
+    assert.equal(pace.bigTotal, 25000);
+    assert.equal(pace.perDay, roundTwo(2800 / 14));
+});
+
+test("after payday shows what is left once the salary pays off the credit cards", () => {
+    const today = new Date(2026, 10, 18, 12);
+    const result = safeToSpend({
+        scope: shared({
+            cards: [
+                { id: "own", balance: 9556 },
+                { id: "credit", balance: -81967, creditLimit: 100000 },
+            ],
+            incomes: [income("main", 102000, 30)],
+            bills: { current: [bill(3560)], next: [], template: [] },
+            transactions: [
+                spend(3000, "2026-11-18T10:00:00", { cardId: "credit" }),
+                spend(14000, "2026-11-05T10:00:00", { cardId: "credit" }),
+                spend(7000, "2026-11-10T10:00:00", { cardId: "own" }),
+            ],
+        }),
+        today,
+    });
+
+    assert.equal(result.available, 5996);
+    assert.equal(result.dailyLimit, roundTwo(5996 / 12));
+    assert.equal(result.leftToday, roundTwo(5996 / 12 - 3000));
+    assert.equal(result.dailyPace, roundTwo(21000 / 13));
+    assert.equal(result.afterPayday?.left, 26029);
+    assert.equal(result.afterPayday?.atPace, roundTwo(26029 - roundTwo(21000 / 13) * 11));
+});

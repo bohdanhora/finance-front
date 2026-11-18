@@ -20,8 +20,8 @@ export const PayCyclePanel = ({ result, symbol }: { result: SafeToSpend; symbol:
     const t = useTranslations("payCycle");
     const money = (value: number) => `${formatSignedCurrency(value)} ${symbol}`;
 
-    const budget = Math.max(0, result.available + result.spentInCycle);
     const tone = PACE_TONE[result.pace];
+    const scale = Math.max(result.dailyPace, result.dailyLimit) * 1.25;
     const payday = result.cycle.end.format("DD.MM");
 
     const parts = [
@@ -34,6 +34,15 @@ export const PayCyclePanel = ({ result, symbol }: { result: SafeToSpend; symbol:
         pace: `${formatCurrency(result.dailyPace)} ${symbol}`,
         limit: `${formatCurrency(result.dailyLimit)} ${symbol}`,
     };
+    const big = result.typical.bigCount > 0;
+    const paceSource = big
+        ? t("typicalSourceBig", {
+              days: result.typical.days,
+              count: result.typical.bigCount,
+              amount: money(result.typical.bigTotal),
+          })
+        : t("typicalSource", { days: result.typical.days });
+    const after = result.afterPayday;
     const paceMessage =
         result.pace === "over"
             ? t("paceOver", paceValues)
@@ -59,31 +68,12 @@ export const PayCyclePanel = ({ result, symbol }: { result: SafeToSpend; symbol:
             <div className="grid gap-5 lg:grid-cols-2 lg:gap-10">
                 <div className="min-w-0">
                     <p className="label flex items-center gap-1.5">
-                        <span className="min-w-0">{t("paceTitle", { date: result.cycle.start.format("DD.MM") })}</span>
-                        <Hint text={t("hintPace")} />
-                    </p>
-                    <p className="mt-2 text-sm tabular-nums">
-                        <span className="font-medium">{t("spent", { amount: money(result.spentInCycle) })}</span>
-                        <span className="text-ink-faint">
-                            {" "}
-                            · {t("plannedByNow", { amount: money(result.plannedByNow) })}
+                        <span className="min-w-0">
+                            {result.cycle.anchored ? t("untilTitle", { date: payday }) : t("available")}
                         </span>
+                        <Hint text={t("hintAvailable")} />
                     </p>
-                    <div className="bg-wash relative mt-3 h-2 rounded-full">
-                        <div
-                            className={twMerge("h-full rounded-full transition-[width] duration-500", tone.bar)}
-                            style={{ width: `${share(result.spentInCycle, budget)}%` }}
-                        />
-                        <span
-                            className="bg-ink absolute -top-1 h-4 w-0.5 rounded-full"
-                            style={{ left: `${share(result.plannedByNow, budget)}%` }}
-                        />
-                    </div>
-                    <p className={twMerge("mt-2 text-sm", tone.text)}>{paceMessage}</p>
-                </div>
-
-                <div className="min-w-0">
-                    <ul className="border-rule border-t text-sm lg:border-t-0">
+                    <ul className="border-rule mt-2 border-t text-sm">
                         {parts.map((part) => (
                             <li key={part.label} className="border-rule flex justify-between gap-4 border-b py-1.5">
                                 <span className="text-ink-muted min-w-0">{part.label}</span>
@@ -100,12 +90,86 @@ export const PayCyclePanel = ({ result, symbol }: { result: SafeToSpend; symbol:
                             </span>
                         </li>
                     </ul>
-                    {result.debt > 0 && (
-                        <p className="border-warn text-ink-muted mt-2 border-l-2 py-0.5 pl-3 text-xs">
-                            {result.cycle.anchored
-                                ? t("debtNote", { amount: money(result.debt), date: payday })
-                                : t("debtNoteNoPayday", { amount: money(result.debt) })}
+                    <div className="border-rule mt-5 border-t pt-4">
+                        <p className="label flex items-center gap-1.5">
+                            <span className="min-w-0">{t("paceTitle")}</span>
+                            <Hint text={t("hintPace")} />
                         </p>
+                        <p className="mt-2 text-sm tabular-nums">
+                            <span className="font-medium">{t("typical", { amount: money(result.dailyPace) })}</span>
+                            <span className="text-ink-faint">
+                                {" "}
+                                · {t("limitPerDay", { amount: money(result.dailyLimit) })}
+                            </span>
+                        </p>
+                        <div className="bg-wash relative mt-3 h-2 rounded-full">
+                            <div
+                                className={twMerge("h-full rounded-full transition-[width] duration-500", tone.bar)}
+                                style={{ width: `${share(result.dailyPace, scale)}%` }}
+                            />
+                            <span
+                                className="bg-ink absolute -top-1 h-4 w-0.5 rounded-full"
+                                style={{ left: `${share(result.dailyLimit, scale)}%` }}
+                            />
+                        </div>
+                        <p className="text-ink-faint mt-1.5 text-xs">{paceSource}</p>
+                        <p className={twMerge("mt-2 text-sm", tone.text)}>{paceMessage}</p>
+                    </div>
+                </div>
+
+                <div className="min-w-0">
+                    {after ? (
+                        <div>
+                            <p className="label flex items-center gap-1.5">
+                                <span className="min-w-0">{t("afterTitle", { date: payday })}</span>
+                                <Hint text={t("hintAfter")} />
+                            </p>
+                            <ul className="border-rule mt-2 border-t text-sm">
+                                {[
+                                    { label: t("available"), value: result.available, sign: "" },
+                                    { label: t("salary", { date: payday }), value: after.salary, sign: "+" },
+                                    { label: t("payOffCards"), value: after.debt, sign: "-" },
+                                ]
+                                    .filter((part, index) => index < 2 || part.value > 0)
+                                    .map((part) => (
+                                        <li
+                                            key={part.label}
+                                            className="border-rule flex justify-between gap-4 border-b py-1.5"
+                                        >
+                                            <span className="text-ink-muted min-w-0">{part.label}</span>
+                                            <span className="font-mono text-xs tabular-nums">
+                                                {part.sign}
+                                                {money(part.value)}
+                                            </span>
+                                        </li>
+                                    ))}
+                                <li className="flex justify-between gap-4 py-1.5 font-medium">
+                                    <span className="min-w-0">{t("afterLeft")}</span>
+                                    <span
+                                        className={twMerge(
+                                            "font-mono text-xs tabular-nums",
+                                            after.left < 0 && "text-signal",
+                                        )}
+                                    >
+                                        {money(after.left)}
+                                    </span>
+                                </li>
+                            </ul>
+                            <p
+                                className={twMerge(
+                                    "mt-2 border-l-2 py-0.5 pl-3 text-xs",
+                                    after.atPace < 0 ? "border-signal text-signal" : "border-rule text-ink-muted",
+                                )}
+                            >
+                                {t("afterNote", { pace: money(result.dailyPace), left: money(after.atPace) })}
+                            </p>
+                        </div>
+                    ) : (
+                        result.debt > 0 && (
+                            <p className="border-warn text-ink-muted mt-2 border-l-2 py-0.5 pl-3 text-xs">
+                                {t("debtNoteNoPayday", { amount: money(result.debt) })}
+                            </p>
+                        )
                     )}
                 </div>
             </div>
