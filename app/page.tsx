@@ -11,6 +11,7 @@ import { OnboardingTour } from "components/onboarding/tour";
 import { Total } from "components/total";
 import { PossibleRemaining } from "components/possible-remaining-balance";
 import { NextMonthIncome } from "components/next-month-income";
+import { FinancialHealth } from "components/health/financial-health";
 import { LastSpends } from "components/last-spends";
 import { TotalAmounts } from "components/total-amounts";
 import { Section } from "components/wrappers/section";
@@ -33,6 +34,7 @@ const Home = () => {
                         <Total />
                         <PossibleRemaining />
                         <NextMonthIncome />
+                        <FinancialHealth />
 
                         <Section anchor="history" title={tTx("history")} description={tSections("historyNote")}>
                             <LastSpends />

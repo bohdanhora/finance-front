@@ -20,7 +20,16 @@ import { useTheme } from "next-themes";
 
 import { formatCurrency } from "lib/utils";
 import { byMonth, cumulativeNet, type MonthKey } from "lib/statistics";
-import { byBucket, granularityOf, type Granularity, type Period } from "lib/period";
+import {
+    byBucket,
+    filterByPeriod,
+    granularityOf,
+    shiftPeriod,
+    toDateKey,
+    type Granularity,
+    type Period,
+} from "lib/period";
+import { TransactionEnum } from "constants/index";
 import { TransactionType } from "types/transactions";
 import { formatMonthKey } from "lib/date-locale";
 
@@ -129,15 +138,31 @@ export const SpendingChart = ({
             })),
         [transactions, period, granularity, singleMonth, locale],
     );
-    const months = useMemo<Point[]>(
-        () =>
-            byMonth(allTransactions, period.end.slice(0, 7), period.kind === "year" ? 12 : 6).map((point) => ({
-                key: point.month,
-                label: formatMonthKey(point.month, locale, "short"),
-                income: point.income,
-                expense: point.expense,
-            })),
-        [allTransactions, period.end, period.kind, locale],
+    const months = useMemo<Point[]>(() => {
+        if (period.kind === "cycle") {
+            return Array.from({ length: 6 }, (_, index) => shiftPeriod(period, index - 5)).map((cycle) => {
+                const totals = filterByPeriod(allTransactions, cycle);
+                const total = (type: TransactionEnum) =>
+                    totals.filter((tx) => tx.transactionType === type).reduce((acc, tx) => acc + tx.value, 0);
+                return {
+                    key: cycle.start,
+                    label: `${cycle.start.slice(8)}.${cycle.start.slice(5, 7)}`,
+                    income: total(TransactionEnum.INCOME),
+                    expense: total(TransactionEnum.EXPENSE),
+                };
+            });
+        }
+        return byMonth(allTransactions, period.end.slice(0, 7), period.kind === "year" ? 12 : 6).map((point) => ({
+            key: point.month,
+            label: formatMonthKey(point.month, locale, "short"),
+            income: point.income,
+            expense: point.expense,
+        }));
+    }, [allTransactions, period, locale]);
+    const today = toDateKey(new Date());
+    const elapsedBuckets = useMemo(
+        () => (granularity === "day" ? buckets.filter((point) => point.key <= today) : buckets),
+        [buckets, granularity, today],
     );
 
     const monoFamily =
@@ -203,7 +228,9 @@ export const SpendingChart = ({
                 <div className="flex flex-wrap items-start justify-between gap-x-3">
                     <Legend items={pairLegend} />
                     <p className="text-ink-faint mb-4 text-xs">
-                        {opensMonth ? tStats("clickMonthHint") : tStats("clickDayHint")}
+                        {opensMonth
+                            ? tStats(period.kind === "cycle" && view === "months" ? "clickCycleHint" : "clickMonthHint")
+                            : tStats("clickDayHint")}
                     </p>
                 </div>
                 <div className="h-80 w-full">
@@ -248,11 +275,11 @@ export const SpendingChart = ({
         <div className="h-80 w-full">
             <Line
                 data={{
-                    labels: buckets.map((point) => point.label),
+                    labels: elapsedBuckets.map((point) => point.label),
                     datasets: [
                         {
                             label: tStats("netFlow"),
-                            data: cumulativeNet(buckets),
+                            data: cumulativeNet(elapsedBuckets),
                             borderColor: palette.accent,
                             backgroundColor: palette.accentWash,
                             fill: true,

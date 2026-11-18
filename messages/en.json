@@ -447,7 +447,7 @@
         "keyFigures": "Key figures",
         "averagePurchase": "Average purchase",
         "averagePurchaseHint": "Expense transactions: {count}",
-        "averagePurchaseExplanation": "All expenses for the month divided by the number of expense transactions.",
+        "averagePurchaseExplanation": "Everyday purchases divided by their number. Payments and savings are left out so rent does not skew it.",
         "averagePerDay": "Average per day",
         "averagePerDayHint": "Over {count} days",
         "averagePerDayExplanation": "Expenses divided by the days passed in the period, or by all its days once it is over.",
@@ -552,7 +552,7 @@
         "forecastNoIncome": "No income expected",
         "busiestDay": "Most expensive day",
         "medianPurchase": "Typical purchase",
-        "medianPurchaseHint": "Median of all purchases",
+        "medianPurchaseHint": "Median of everyday purchases",
         "medianPurchaseExplanation": "Half of the purchases cost less and half cost more. Unlike the average, one big bill does not move it.",
         "versusPreviousPeriod": "Vs previous period",
         "weekdaysTitle": "Days of the week",
@@ -563,7 +563,10 @@
         "weekendShareHint": "Saturday and Sunday",
         "hideTransaction": "Don't count this transaction",
         "hiddenTransactionsTitle": "Hidden transactions",
-        "transactionHidden": "Transaction left out of statistics"
+        "transactionHidden": "Transaction left out of statistics",
+        "compareCycles": "Compare cycles",
+        "cyclesDescription": "Income and expenses of the last six pay cycles, payday to payday.",
+        "clickCycleHint": "Click a cycle to open it"
     },
     "savings": {
         "eyebrow": "Savings workspace",
@@ -1470,5 +1473,73 @@
         "personalTitle": "Personal budget · {card}",
         "personalNote": "A personal card: its own salary, the payments that salary covers and the card's spending. It is left out of the shared budget.",
         "hintForecast": "On plan: the balance if you spend exactly the daily limit. Current pace: if you keep spending like since the last payday. Payments and income land on their days."
+    },
+    "health": {
+        "title": "Financial health",
+        "description": "Safety cushion, credit card debt and subscriptions: the three things that decide how much money problems hurt.",
+        "savingsLink": "Savings goals are just a calculator here and never count against your budget.",
+        "savingsLinkCta": "Open savings",
+        "cushion": {
+            "title": "Safety cushion",
+            "hint": "Money that covers essential life if income stops: payments from the template plus average groceries and pharmacy of the last three months. Aim for 3 to 6 months. Counted from everything in Savings.",
+            "empty": "Add your regular payments to the monthly template and the app will count the cushion you need.",
+            "months": "{months} months",
+            "three": "3 mo · {amount}",
+            "six": "6 mo · {amount}",
+            "need": "One month of essential life: {amount} ({bills} payments + {living} food and pharmacy).",
+            "missing": "{amount} more to reach 3 months. Put aside a fixed sum on every payday.",
+            "enough": "3 months covered. Next step: 6 months, then invest what is above.",
+            "full": "6 months covered. Money above this can work harder elsewhere."
+        },
+        "debt": {
+            "title": "Credit card debt",
+            "hint": "Debt on all shared credit cards at the start of each pay cycle, rebuilt from transactions. Debt that grows every cycle means spending is ahead of income, only delayed.",
+            "none": "No credit card debt. Keep it that way: pay the cards off in full every payday.",
+            "chart": "Credit card debt at the start of each pay cycle",
+            "now": "now",
+            "growing": "Up {amount} since the last payday. Spending is running ahead of income.",
+            "growingLong": "Growing {cycles} cycles in a row, up {amount} since the last payday. You spend more than you earn, just later. Cut flexible spending until it stops.",
+            "shrinking": "Down {amount} since the last payday. Good, keep paying it off.",
+            "flat": "Steady since the last payday. Try to pay it off in full from the next salary."
+        },
+        "subscriptions": {
+            "title": "Subscriptions",
+            "hint": "Payments in the Subscriptions category plus subscription spending that repeats in different months.",
+            "empty": "No subscriptions found. Put regular services in the Subscriptions category to see them here.",
+            "yearly": "{amount} a year",
+            "monthly": "{amount} a month · {count} services",
+            "perYear": " /yr",
+            "advice": "Once a quarter, cancel whatever you did not use last month. Each one is a yearly sum, not a small monthly fee."
+        },
+        "limits": {
+            "title": "Category limits until payday",
+            "hint": "Your limits from Statistics against spending since the last payday. The mark shows where you should be today.",
+            "empty": "No limits yet.",
+            "setUp": "Set limits in Statistics",
+            "over": "Over the limit by {amount}.",
+            "ahead": "Ahead of pace: {left} left for {days} days."
+        },
+        "review": {
+            "button": "Cycle review",
+            "title": "Last cycle review",
+            "description": "From payday to payday, {range}.",
+            "empty": "Not enough data for the last cycle yet.",
+            "income": "Income",
+            "spending": "Spending",
+            "saved": "Put aside",
+            "kept": "Kept",
+            "verdictGreat": "Excellent: more than a fifth of the income stayed with you.",
+            "verdictGood": "Good: you kept at least a tenth. Aim for 20%.",
+            "verdictThin": "Almost everything was spent. Put aside a fixed sum right on payday next time.",
+            "verdictLoss": "You spent more than you earned. The gap came from savings or credit cards.",
+            "spentMore": "Spending is up {percent}% ({amount}) on the cycle before.",
+            "spentLess": "Spending is down {percent}% ({amount}) on the cycle before.",
+            "grew": "Grew the most",
+            "overLimits": "Over the limit",
+            "bannerTitle": "A new pay cycle has started",
+            "bannerText": "Last cycle you kept {amount}. See where the money went.",
+            "open": "Show",
+            "dismiss": "Hide"
+        }
     }
 }

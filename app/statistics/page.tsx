@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { EyeOff, X } from "lucide-react";
 import { toast } from "react-toastify";
@@ -35,6 +35,8 @@ import {
     toMonthKey,
 } from "lib/statistics";
 import {
+    containsDate,
+    cyclePeriod,
     elapsedDays,
     filterByPeriod,
     granularityOf,
@@ -49,7 +51,8 @@ import {
 import { CategoryBadge } from "components/categories/category-icon";
 import { planForMonth, summarizeEssentials, summarizeExpectedIncomes } from "lib/month-plan";
 import { TransactionEnum } from "constants/index";
-import { ESSENTIALS_CATEGORY } from "lib/essential-category";
+import { ESSENTIALS_CATEGORY, isEssentialTransaction } from "lib/essential-category";
+import dayjs from "dayjs";
 import { statisticsTransactions } from "lib/cards";
 import { CardFilter } from "components/cards/card-filter";
 import { CategoryBreakdown } from "components/charts/category-breakdown";
@@ -60,6 +63,11 @@ import { WeekdaySpending } from "components/charts/weekday-spending";
 import { useStatisticsPreferences } from "hooks/use-statistics-preferences";
 
 const TOP_PAGE = 5;
+
+const paydayDate = (day: number) => {
+    const month = dayjs().startOf("month");
+    return month.date(Math.min(day, month.daysInMonth())).toDate();
+};
 
 const StatisticsPage = () => {
     const t = useTranslations("statistics");
@@ -75,7 +83,14 @@ const StatisticsPage = () => {
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
     const [topCount, setTopCount] = useState(TOP_PAGE);
 
+    const payday = findMainIncome(store.expectedIncomes)?.day;
+    const periodTouched = useRef(false);
+    useEffect(() => {
+        if (payday && !periodTouched.current) setPeriodState(cyclePeriod(payday));
+    }, [payday]);
+
     const setPeriod = (next: Period) => {
+        periodTouched.current = true;
         setPeriodState(next);
         setSelectedDay(null);
         setTopCount(TOP_PAGE);
@@ -121,6 +136,18 @@ const StatisticsPage = () => {
     );
 
     const totals = useMemo(() => monthTotals(inPeriod), [inPeriod]);
+    const purchases = useMemo(
+        () =>
+            monthTotals(
+                inPeriod.filter(
+                    (tx) =>
+                        tx.transactionType === TransactionEnum.EXPENSE &&
+                        tx.categorie !== "savings" &&
+                        !isEssentialTransaction(tx),
+                ),
+            ),
+        [inPeriod],
+    );
     const result = useMemo(() => monthResult(inPeriod), [inPeriod]);
     const split = useMemo(() => essentialSplit(inPeriod), [inPeriod]);
     const previousTotals = useMemo(() => monthTotals(inPrevious), [inPrevious]);
@@ -145,7 +172,7 @@ const StatisticsPage = () => {
     const daysInCalculation = elapsedDays(period);
     const forecast = useMemo(() => {
         if (!ongoing || daysInCalculation === 0) return null;
-        const live = monthKey === currentMonth;
+        const live = monthKey === currentMonth || period.kind === "cycle";
         const essentials = live
             ? store.essentialsArray.filter((item) => !preferences.hidden.has(item.category ?? ESSENTIALS_CATEGORY))
             : [];
@@ -154,7 +181,13 @@ const StatisticsPage = () => {
             elapsed: daysInCalculation,
             total: totalDays,
             outstandingPayments: summarizeEssentials(essentials).outstanding,
-            pendingIncome: live ? summarizeExpectedIncomes(store.expectedIncomes).pending : 0,
+            pendingIncome: live
+                ? period.kind === "cycle"
+                    ? store.expectedIncomes
+                          .filter((item) => !item.received && containsDate(period, paydayDate(item.day)))
+                          .reduce((total, item) => total + item.amount, 0)
+                    : summarizeExpectedIncomes(store.expectedIncomes).pending
+                : 0,
         });
     }, [
         ongoing,
@@ -166,6 +199,7 @@ const StatisticsPage = () => {
         preferences.hidden,
         inPeriod,
         totalDays,
+        period,
     ]);
 
     const expenses = useMemo(
@@ -199,7 +233,7 @@ const StatisticsPage = () => {
     const viewDescription: Record<ChartView, string> = {
         categories: t("categoriesDescription"),
         daily: granularityOf(period) === "month" ? t("monthlyDescription") : t("dailyDescription"),
-        months: t("monthsDescription"),
+        months: period.kind === "cycle" ? t("cyclesDescription") : t("monthsDescription"),
         trend: t("trendDescription"),
     };
 
@@ -271,7 +305,7 @@ const StatisticsPage = () => {
                                     period={period}
                                     onChange={setPeriod}
                                     earliest={earliest}
-                                    payday={findMainIncome(store.expectedIncomes)?.day}
+                                    payday={payday}
                                 />
                             </>
                         }
@@ -323,7 +357,10 @@ const StatisticsPage = () => {
                                                     ? t("spendingByMonth")
                                                     : t("spendingByDay"),
                                         },
-                                        { value: "months", label: t("compareMonths") },
+                                        {
+                                            value: "months",
+                                            label: period.kind === "cycle" ? t("compareCycles") : t("compareMonths"),
+                                        },
                                         { value: "trend", label: t("balanceByDay") },
                                     ]}
                                 />
@@ -345,7 +382,7 @@ const StatisticsPage = () => {
                                     onToggleTransaction={hideOrReturn}
                                     onShowAllTransactions={preferences.showAllTransactions}
                                     limits={preferences.limits}
-                                    showLimits={isMonth}
+                                    showLimits={isMonth || period.kind === "cycle"}
                                     onToggle={preferences.toggle}
                                     onShowOnly={showOnlyCategory}
                                     onShowAll={preferences.showAll}
@@ -364,7 +401,13 @@ const StatisticsPage = () => {
                                         onSelectBucket={(key) =>
                                             setSelectedDay((current) => (current === key ? null : key))
                                         }
-                                        onSelectMonth={(key) => setPeriod(periodOf("month", `${key}-01`))}
+                                        onSelectMonth={(key) =>
+                                            setPeriod(
+                                                key.length > 7 && payday
+                                                    ? cyclePeriod(payday, key)
+                                                    : periodOf("month", `${key}-01`),
+                                            )
+                                        }
                                     />
                                     {selectedDay && view === "daily" && (
                                         <div className="border-rule mt-6 border-t">
@@ -443,13 +486,13 @@ const StatisticsPage = () => {
                         <StatGrid className="lg:grid-cols-3">
                             <StatCard
                                 label={t("averagePurchase")}
-                                value={animatedMoney(totals.averageExpense)}
-                                secondary={t("averagePurchaseHint", { count: expenses.length })}
+                                value={animatedMoney(purchases.averageExpense)}
+                                secondary={t("averagePurchaseHint", { count: purchases.count })}
                                 hint={t("averagePurchaseExplanation")}
                             />
                             <StatCard
                                 label={t("medianPurchase")}
-                                value={animatedMoney(totals.medianExpense)}
+                                value={animatedMoney(purchases.medianExpense)}
                                 secondary={t("medianPurchaseHint")}
                                 hint={t("medianPurchaseExplanation")}
                             />
@@ -479,11 +522,11 @@ const StatisticsPage = () => {
                             />
                             <StatCard
                                 label={t("largestExpense")}
-                                value={animatedMoney(totals.largestExpense ? totals.largestExpense.value : 0)}
+                                value={animatedMoney(purchases.largestExpense ? purchases.largestExpense.value : 0)}
                                 secondary={
-                                    totals.largestExpense
-                                        ? totals.largestExpense.description ||
-                                          categoryLabel(totals.largestExpense.categorie)
+                                    purchases.largestExpense
+                                        ? purchases.largestExpense.description ||
+                                          categoryLabel(purchases.largestExpense.categorie)
                                         : undefined
                                 }
                             />

@@ -1,7 +1,7 @@
 "use client";
 
 import useStore from "store/general";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { formatCurrency, formatSignedCurrency } from "lib/utils";
 import { safeToSpend, scopeBudget, SHARED_SCOPE } from "lib/pay-cycle";
 import { findCardById, resolveCardFilter } from "lib/cards";
@@ -17,12 +17,17 @@ import { AnimatedMoney } from "./animated-number";
 import { EssentialsChecklist } from "./essentials-checklist";
 import { ExpectedIncomeList } from "./expected-income-list";
 import { PayCyclePanel } from "./pay-cycle-panel";
+import { CategoryLimits } from "./health/category-limits";
+import { CycleReview, CycleReviewBanner } from "./health/cycle-review";
+import { Button } from "ui/button";
+import { TransactionType } from "types/transactions";
 import { useCardName } from "./cards/card-face";
 
 export const PossibleRemaining = () => {
     const t = useTranslations("possible");
     const tCycle = useTranslations("payCycle");
     const tSections = useTranslations("sections");
+    const tHealth = useTranslations("health");
     const store = useStore();
     const bankStore = useBankStore();
     const cardName = useCardName();
@@ -35,23 +40,22 @@ export const PossibleRemaining = () => {
     const selectedCard = findCardById(store.cards, resolveCardFilter(store.selectedCardId, store.cards));
     const personalCard = selectedCard?.personal ? selectedCard : null;
 
-    const result = useMemo(
+    const [reviewOpen, setReviewOpen] = useState(false);
+    const scope = useMemo(
         () =>
-            safeToSpend({
-                scope: scopeBudget(
-                    {
-                        cards: store.cards,
-                        incomes: store.expectedIncomes,
-                        bills: {
-                            current: store.essentialsArray,
-                            next: store.nextMonthEssentialsArray,
-                            template: store.defaultEssentialsArray,
-                        },
-                        transactions: store.transactions,
+            scopeBudget(
+                {
+                    cards: store.cards,
+                    incomes: store.expectedIncomes,
+                    bills: {
+                        current: store.essentialsArray,
+                        next: store.nextMonthEssentialsArray,
+                        template: store.defaultEssentialsArray,
                     },
-                    personalCard?.id ?? SHARED_SCOPE,
-                ),
-            }),
+                    transactions: store.transactions,
+                },
+                personalCard?.id ?? SHARED_SCOPE,
+            ),
         [
             store.cards,
             store.expectedIncomes,
@@ -62,6 +66,8 @@ export const PossibleRemaining = () => {
             personalCard?.id,
         ],
     );
+    const result = useMemo(() => safeToSpend({ scope }), [scope]);
+    const scopedTransactions = scope.transactions as TransactionType[];
 
     const currency = bankStore.currency as CURRENCY;
     const currencySymbol = getCurrencySymbol(currency);
@@ -91,7 +97,18 @@ export const PossibleRemaining = () => {
         <Section
             title={personalCard ? tCycle("personalTitle", { card: cardName(personalCard) }) : t("thisMonth")}
             description={personalCard ? tCycle("personalNote") : tSections("thisMonthNote")}
+            actions={
+                <Button variant="outline" size="sm" onClick={() => setReviewOpen(true)}>
+                    {tHealth("review.button")}
+                </Button>
+            }
         >
+            <CycleReviewBanner
+                cycle={cycle}
+                transactions={scopedTransactions}
+                symbol={userSymbol}
+                onOpen={() => setReviewOpen(true)}
+            />
             <StatGrid anchor="budget">
                 <StatCard
                     label={cycle.anchored ? tCycle("untilPayday") : t("daysLeft")}
@@ -128,6 +145,14 @@ export const PossibleRemaining = () => {
             </StatGrid>
 
             <PayCyclePanel result={result} symbol={userSymbol} />
+            <CategoryLimits cycle={cycle} transactions={scopedTransactions} symbol={userSymbol} />
+            <CycleReview
+                cycle={cycle}
+                transactions={scopedTransactions}
+                symbol={userSymbol}
+                open={reviewOpen}
+                onOpenChange={setReviewOpen}
+            />
 
             <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10">
                 <ExpectedIncomeList />
