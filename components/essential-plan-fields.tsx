@@ -19,7 +19,13 @@ export const planFieldsFromForm = (
     fundedBy: values.fundedBy || undefined,
 });
 
-export const EssentialPlanFields = ({ form }: { form: UseFormReturn<EssentialFormValues> }) => {
+export const EssentialPlanFields = ({
+    form,
+    recurringOnly = false,
+}: {
+    form: UseFormReturn<EssentialFormValues>;
+    recurringOnly?: boolean;
+}) => {
     const t = useTranslations("dialogs.essentials");
     const incomes = useStore((state) => state.expectedIncomes);
 
@@ -60,11 +66,13 @@ export const EssentialPlanFields = ({ form }: { form: UseFormReturn<EssentialFor
                             </FormControl>
                             <SelectContent>
                                 <SelectItem value={NO_SOURCE}>{t("fundedByAny")}</SelectItem>
-                                {incomes.map((income) => (
-                                    <SelectItem key={income.id} value={income.id}>
-                                        {income.title}
-                                    </SelectItem>
-                                ))}
+                                {incomes
+                                    .filter((income) => !recurringOnly || income.recurring || income.id === field.value)
+                                    .map((income) => (
+                                        <SelectItem key={income.id} value={income.id}>
+                                            {income.title}
+                                        </SelectItem>
+                                    ))}
                             </SelectContent>
                         </Select>
                     </FormItem>

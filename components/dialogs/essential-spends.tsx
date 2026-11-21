@@ -419,7 +419,7 @@ export const EssentialSpends = ({ nextMonth, triggerLabel }: Props) => {
                                     />
                                     <EssentialAmountField form={form} disabled={editingPaid} />
                                     <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
-                                    <EssentialPlanFields form={form} />
+                                    <EssentialPlanFields form={form} recurringOnly={Boolean(nextMonth)} />
                                     {editingPaid && (
                                         <p className="text-ink-faint font-mono text-2xs">
                                             {t("listDialog.paidLocked")}

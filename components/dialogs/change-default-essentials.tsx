@@ -269,7 +269,7 @@ export const ChangeDefaultEssentials = ({ triggerLabel }: { triggerLabel?: strin
                                 />
                                 <EssentialAmountField form={form} />
                                 <EssentialCategoryField form={form} onPick={() => setTouched(true)} />
-                                <EssentialPlanFields form={form} />
+                                <EssentialPlanFields form={form} recurringOnly />
                                 <DialogFooter>
                                     {editingId ? (
                                         <Button type="button" variant="secondary" onClick={resetForm}>

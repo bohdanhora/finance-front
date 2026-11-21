@@ -20,7 +20,10 @@ import { RowMenu } from "./row-menu";
 import { requestListAction } from "lib/list-actions";
 import { toMoneyInput } from "lib/money";
 import { isForeignAmount } from "lib/foreign-amount";
-import { CircleCheckIcon, Undo2Icon } from "lucide-react";
+import { CalendarArrowUpIcon, CircleCheckIcon, LayoutTemplateIcon, Undo2Icon } from "lucide-react";
+import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
+import { useNewEssential, useRemoveEssential } from "api/main";
 
 export const SegmentBar = ({ done, total }: { done: number; total: number }) => (
     <div className="flex h-1.5 w-full gap-0.5" aria-hidden="true">
@@ -72,11 +75,14 @@ export const EssentialsChecklist = ({
 }) => {
     const t = useTranslations("possible");
     const tMenu = useTranslations("rowMenu");
+    const tDialogs = useTranslations("dialogs");
     const tCategories = useTranslations("categories");
     const planMeta = usePlanMeta();
     const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
+    const { mutateAsync: newEssentialAsync } = useNewEssential();
+    const { mutateAsync: removeEssentialAsync } = useRemoveEssential();
 
     const items = nextMonth ? store.nextMonthEssentialsArray : store.essentialsArray;
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -87,6 +93,69 @@ export const EssentialsChecklist = ({
 
     const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
     const ordered = [...items].sort((a, b) => (a.day ?? 32) - (b.day ?? 32));
+
+    const sameTitle = (list: EssentialType[], item: EssentialType) =>
+        list.some((other) => other.title.trim().toLowerCase() === item.title.trim().toLowerCase());
+
+    const planCopy = (item: EssentialType): EssentialType => ({
+        id: uuidv4(),
+        title: item.title,
+        amount: item.amount,
+        checked: false,
+        ...(item.category ? { category: item.category } : {}),
+        ...(item.currency && item.currencyAmount
+            ? { currency: item.currency, currencyAmount: item.currencyAmount }
+            : {}),
+        ...(item.day ? { day: item.day } : {}),
+        ...(item.fundedBy ? { fundedBy: item.fundedBy } : {}),
+    });
+
+    const addToTemplate = async (item: EssentialType) => {
+        try {
+            const res = await newEssentialAsync({ type: EssentialsType.DEFAULT, item: planCopy(item) });
+            store.setDefaultEssentialsArray(res.updatedItems);
+            toast.success(t("addedToTemplate"));
+        } catch (error) {
+            console.error(error);
+            toast.error(tDialogs("occurred"));
+        }
+    };
+
+    const moveToNextMonth = async (item: EssentialType) => {
+        try {
+            const added = await newEssentialAsync({ type: EssentialsType.NEXT_MONTH, item: planCopy(item) });
+            store.setNextMonthEssentialsArray(added.updatedItems);
+            const removed = await removeEssentialAsync({ type: EssentialsType.THIS_MONTH, id: item.id });
+            store.setEssentialsArray(removed.updatedItems);
+            toast.success(t("movedToNextMonth"));
+        } catch (error) {
+            console.error(error);
+            toast.error(tDialogs("occurred"));
+        }
+    };
+
+    const planActions = (item: EssentialType) => [
+        ...(!nextMonth && !item.checked
+            ? [
+                  {
+                      key: "next-month",
+                      label: t("moveToNextMonth"),
+                      icon: <CalendarArrowUpIcon />,
+                      onSelect: () => moveToNextMonth(item),
+                  },
+              ]
+            : []),
+        ...(sameTitle(store.defaultEssentialsArray, item)
+            ? []
+            : [
+                  {
+                      key: "template",
+                      label: t("addToTemplate"),
+                      icon: <LayoutTemplateIcon />,
+                      onSelect: () => addToTemplate(item),
+                  },
+              ]),
+    ];
 
     if (!items.length) {
         return (
@@ -134,8 +203,8 @@ export const EssentialsChecklist = ({
                     <RowMenu
                         key={item.id}
                         title={item.title}
-                        actions={
-                            planOnly && !item.checked
+                        actions={[
+                            ...(planOnly && !item.checked
                                 ? []
                                 : [
                                       {
@@ -144,8 +213,9 @@ export const EssentialsChecklist = ({
                                           icon: item.checked ? <Undo2Icon /> : <CircleCheckIcon />,
                                           onSelect: () => setSelectedEssential(item),
                                       },
-                                  ]
-                        }
+                                  ]),
+                            ...planActions(item),
+                        ]}
                         onEdit={
                             item.checked
                                 ? undefined
