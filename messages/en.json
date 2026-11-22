@@ -54,7 +54,8 @@
         "emptyHistory": "No calculations yet",
         "copy": "Copy",
         "copied": "Copied",
-        "useResult": "Use this result"
+        "useResult": "Use this result",
+        "backspace": "Delete digit"
     },
     "api": {
         "successLogin": "Signed in",

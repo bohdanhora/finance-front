@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Check, Copy, GripHorizontal, History, Trash2, X } from "lucide-react";
+import { Check, Copy, Delete, GripHorizontal, History, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { twMerge } from "lib/tw";
 
@@ -180,12 +180,22 @@ export const DesktopCalculator = () => {
         setWaitingForOperand(false);
     }, []);
 
-    const clear = React.useCallback(() => {
+    const clearAll = React.useCallback(() => {
         setDisplay("0");
         setStoredValue(null);
         setOperation(null);
         setWaitingForOperand(false);
     }, []);
+
+    const canClearEntry = display !== "0" && display !== "Error" && !waitingForOperand;
+
+    const clear = React.useCallback(() => {
+        if (!canClearEntry) {
+            clearAll();
+            return;
+        }
+        setDisplay("0");
+    }, [canClearEntry, clearAll]);
 
     const inputDigit = React.useCallback(
         (digit: string) => {
@@ -215,7 +225,7 @@ export const DesktopCalculator = () => {
         (nextOperation: Operation) => {
             const inputValue = Number(display);
             if (!Number.isFinite(inputValue)) {
-                clear();
+                clearAll();
                 return;
             }
 
@@ -231,7 +241,7 @@ export const DesktopCalculator = () => {
             setOperation(nextOperation);
             setWaitingForOperand(true);
         },
-        [clear, display, operation, pushHistory, storedValue, waitingForOperand],
+        [clearAll, display, operation, pushHistory, storedValue, waitingForOperand],
     );
 
     const equals = React.useCallback(() => {
@@ -245,18 +255,18 @@ export const DesktopCalculator = () => {
         setWaitingForOperand(true);
     }, [display, operation, pushHistory, storedValue]);
 
-    const toggleSign = React.useCallback(() => {
-        if (display === "0" || display === "Error") return;
-        setDisplay((current) => (current.startsWith("-") ? current.slice(1) : `-${current}`));
-    }, [display]);
-
     const percent = React.useCallback(() => {
         if (display === "Error") return;
         setDisplay(formatResult(Number(display) / 100));
     }, [display]);
 
     const backspace = React.useCallback(() => {
-        if (display === "Error" || waitingForOperand) return;
+        if (display === "Error") {
+            setDisplay("0");
+            setWaitingForOperand(false);
+            return;
+        }
+        if (waitingForOperand) return;
         setDisplay((current) =>
             current.length <= 1 || (current.length === 2 && current.startsWith("-")) ? "0" : current.slice(0, -1),
         );
@@ -286,6 +296,7 @@ export const DesktopCalculator = () => {
             else if (event.key === "Enter" || event.key === "=") equals();
             else if (event.key === "%") percent();
             else if (event.key === "Backspace") backspace();
+            else if (event.key === "Delete") clear();
             else if (event.key === "Escape") setOpen(false);
             else return;
 
@@ -294,7 +305,7 @@ export const DesktopCalculator = () => {
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [backspace, chooseOperation, copyValue, display, equals, inputDecimal, inputDigit, open, percent]);
+    }, [backspace, chooseOperation, clear, copyValue, display, equals, inputDecimal, inputDigit, open, percent]);
 
     const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
         if (!position || event.button !== 0) return;
@@ -402,10 +413,21 @@ export const DesktopCalculator = () => {
 
             <div className="grid grid-cols-4 gap-1.5 p-3 pt-0">
                 <button type="button" className={twMerge(actionButton, functionButton)} onClick={clear}>
-                    {display === "0" && storedValue === null ? "AC" : "C"}
+                    {canClearEntry ? "C" : "AC"}
                 </button>
-                <button type="button" className={twMerge(actionButton, functionButton)} onClick={toggleSign}>
-                    ±
+                <button
+                    type="button"
+                    className={twMerge(
+                        actionButton,
+                        functionButton,
+                        "disabled:pointer-events-none disabled:opacity-40",
+                    )}
+                    aria-label={t("backspace")}
+                    title={t("backspace")}
+                    disabled={!canClearEntry && display !== "Error"}
+                    onClick={backspace}
+                >
+                    <Delete className="size-4" />
                 </button>
                 <button type="button" className={twMerge(actionButton, functionButton)} onClick={percent}>
                     %
