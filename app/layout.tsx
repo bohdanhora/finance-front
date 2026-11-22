@@ -25,6 +25,8 @@ export const metadata: Metadata = {
     metadataBase: new URL("https://finance-front-zeta.vercel.app"),
     title: "Finance App",
     description,
+    applicationName: "Finance App",
+    appleWebApp: { capable: true, title: "Finance", statusBarStyle: "black-translucent" },
     openGraph: {
         type: "website",
         url: "/",
@@ -41,6 +43,10 @@ export const viewport: Viewport = {
     maximumScale: 5,
     viewportFit: "cover",
     interactiveWidget: "resizes-content",
+    themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#f3f5f4" },
+        { media: "(prefers-color-scheme: dark)", color: "#050607" },
+    ],
 };
 
 const RootLayout = async ({
