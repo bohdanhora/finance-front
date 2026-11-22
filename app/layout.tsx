@@ -15,6 +15,7 @@ import { ReactQueryProvider } from "providers/react-query";
 import { DesktopCalculator } from "components/calculator/desktop-calculator";
 import { KeyboardInset } from "components/keyboard-inset";
 import { Backdrop } from "components/backdrop";
+import { ServiceWorker } from "components/service-worker";
 
 const geist = Geist({ subsets: ["latin", "cyrillic"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin", "cyrillic"], variable: "--font-geist-mono" });
@@ -74,6 +75,7 @@ const RootLayout = async ({
                                 <KeyboardInset />
                                 <DesktopCalculator />
                                 <ToastProvider />
+                                <ServiceWorker />
                             </ProviderTheme>
                         </ReactQueryProvider>
                     </ValidationProvider>
