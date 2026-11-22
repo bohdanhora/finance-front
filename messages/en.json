@@ -705,7 +705,16 @@
         "create": "Create",
         "ratesUnavailable": "Exchange rates unavailable",
         "addLink": "Add a product link",
-        "coveredBySavings": "Covered by savings: {amount}"
+        "coveredBySavings": "Covered by savings: {amount}",
+        "links": "Links",
+        "linksHint": "Up to 5 links from different shops. We show the current price for each.",
+        "addLinkField": "Add link",
+        "removeLink": "Remove link",
+        "dragToReorder": "Drag to change importance",
+        "priority": "Importance {position}",
+        "goalsHint": "Most important first. Drag cards by the handle to change the order.",
+        "goalNote": "Note",
+        "goalNotePlaceholder": "For example, size M, black"
     },
     "tour": {
         "title": "Guide",

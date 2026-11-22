@@ -13,6 +13,7 @@ import { SavingsGoal } from "types/transactions";
 
 type Props = {
     goal: SavingsGoal;
+    url: string;
     rates: { usdToUah: number; eurToUah: number };
     className?: string;
 };
@@ -25,11 +26,9 @@ const KNOWN_CURRENCIES: Record<string, CURRENCY> = {
 
 const MEANINGFUL_DIFFERENCE = 0.5;
 
-export const SavingsPriceNote = ({ goal, rates, className }: Props) => {
+export const SavingsPriceNote = ({ goal, url, rates, className }: Props) => {
     const t = useTranslations("savings");
-    const { data, isFetching, isError } = useSavingsGoalPrice(goal.url);
-
-    if (!goal.url) return null;
+    const { data, isFetching, isError } = useSavingsGoalPrice(url);
 
     if (isFetching && !data) {
         return (

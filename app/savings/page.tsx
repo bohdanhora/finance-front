@@ -11,7 +11,7 @@ import { useDeleteSavingsGoal, useDeleteSavingsOperation } from "api/main";
 import { Navbar } from "components/navbar";
 import { SavingsGoalDialog } from "components/savings/goal-dialog";
 import { SavingsOperationDialog } from "components/savings/operation-dialog";
-import { SavingsGoalCard } from "components/savings/goal-card";
+import { SortableGoals } from "components/savings/sortable-goals";
 import { StatCard } from "components/stat-card";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -323,6 +323,7 @@ const SavingsPage = () => {
 
                     <Section
                         title={t("goals")}
+                        description={store.savingsGoals.length > 1 ? t("goalsHint") : undefined}
                         actions={
                             <Button variant="outline" size="sm" onClick={openNewGoal}>
                                 <Plus />
@@ -341,19 +342,14 @@ const SavingsPage = () => {
                                 </Button>
                             </div>
                         ) : (
-                            <div className="grid gap-x-10 gap-y-12 md:grid-cols-2">
-                                {store.savingsGoals.map((goal) => (
-                                    <SavingsGoalCard
-                                        key={goal.id}
-                                        goal={goal}
-                                        operations={store.savingsOperations}
-                                        rates={rates}
-                                        displayCurrency={bank.currency as CURRENCY}
-                                        onEdit={openEditGoal}
-                                        onDelete={openGoalDelete}
-                                    />
-                                ))}
-                            </div>
+                            <SortableGoals
+                                goals={store.savingsGoals}
+                                operations={store.savingsOperations}
+                                rates={rates}
+                                displayCurrency={bank.currency as CURRENCY}
+                                onEdit={openEditGoal}
+                                onDelete={openGoalDelete}
+                            />
                         )}
                     </Section>
 

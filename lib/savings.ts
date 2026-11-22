@@ -1,5 +1,5 @@
 import { CURRENCY } from "../constants/index";
-import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
+import { SavingsGoal, SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
 import { roundMoney } from "./money";
 
 type ExchangeRates = {
@@ -63,6 +63,11 @@ export const normalizeGoalUrl = (value: string): string | null => {
         return null;
     }
 };
+
+export const GOAL_LINKS_LIMIT = 5;
+
+export const goalLinks = (goal: Pick<SavingsGoal, "links" | "url">): string[] =>
+    goal.links?.length ? goal.links : goal.url ? [goal.url] : [];
 
 export const getUrlHost = (value: string): string => {
     try {

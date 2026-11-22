@@ -354,6 +354,18 @@ export const useUpdateSavingsGoal = () =>
         onError: showAxiosError,
     });
 
+const reorderSavingsGoals = async (ids: string[]): Promise<SavingsMutationResponse> => {
+    const res = await transactionsAxios.put("savings/goals/order", { ids });
+    return res.data;
+};
+
+export const useReorderSavingsGoals = () =>
+    useMutation({
+        mutationKey: ["savings-goal", "reorder"],
+        mutationFn: reorderSavingsGoals,
+        onError: showAxiosError,
+    });
+
 const deleteSavingsGoal = async ({ id, data }: DeleteSavingsGoalRequest): Promise<SavingsMutationResponse> => {
     const res = await transactionsAxios.delete(`savings/goals/${encodeURIComponent(id)}`, { data });
     return res.data;

@@ -19,6 +19,8 @@ export type SavingsGoal = {
     monthlyContribution: number;
     targetDate?: string;
     url?: string;
+    links?: string[];
+    note?: string;
     createdAt: string;
 };
 

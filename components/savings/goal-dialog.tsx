@@ -2,12 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { Calculator, CalendarDays } from "lucide-react";
+import { Calculator, CalendarDays, Link2, Plus, X } from "lucide-react";
 
 import { useAddSavingsGoal, useUpdateSavingsGoal } from "api/main";
 import { CURRENCY } from "constants/index";
@@ -28,7 +28,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { calculateSavingsPace, getSavingsBalance, normalizeGoalUrl } from "lib/savings";
+import { GOAL_LINKS_LIMIT, calculateSavingsPace, getSavingsBalance, goalLinks, normalizeGoalUrl } from "lib/savings";
+import { Textarea } from "components/ui/textarea";
+import { Label } from "components/ui/label";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
@@ -44,9 +46,14 @@ const getGoalSchema = (messages: ValidationMessages) =>
             .refine((value) => value === "" || Number(value) >= 0, { message: messages.amount }),
         currency: z.nativeEnum(CURRENCY, messages.currency),
         targetDate: z.string(),
-        url: z.string().refine((value) => value.trim() === "" || normalizeGoalUrl(value) !== null, {
-            message: messages.url,
-        }),
+        links: z.array(
+            z.object({
+                value: z.string().refine((value) => value.trim() === "" || normalizeGoalUrl(value) !== null, {
+                    message: messages.url,
+                }),
+            }),
+        ),
+        note: z.string().max(1000),
     });
 
 type GoalFormValues = z.infer<ReturnType<typeof getGoalSchema>>;
@@ -57,7 +64,8 @@ const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
     monthlyContribution: "",
     currency,
     targetDate: "",
-    url: "",
+    links: [{ value: "" }],
+    note: "",
 });
 
 type Props = {
@@ -86,6 +94,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
         mode: "onChange",
         defaultValues: getEmptyValues(userCurrency),
     });
+    const links = useFieldArray({ control: form.control, name: "links" });
 
     const targetAmount = Number(form.watch("targetAmount")) || 0;
     const targetDate = form.watch("targetDate");
@@ -124,7 +133,8 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                       monthlyContribution: goal.monthlyContribution ? toMoneyInput(goal.monthlyContribution) : "",
                       currency: goal.currency,
                       targetDate: goal.targetDate?.slice(0, 10) ?? "",
-                      url: goal.url ?? "",
+                      links: goalLinks(goal).length ? goalLinks(goal).map((value) => ({ value })) : [{ value: "" }],
+                      note: goal.note ?? "",
                   }
                 : getEmptyValues(userCurrency),
         );
@@ -136,6 +146,13 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
     };
 
     const onSubmit = async (values: GoalFormValues) => {
+        const normalizedLinks = [
+            ...new Set(
+                values.links
+                    .map(({ value }) => normalizeGoalUrl(value))
+                    .filter((value): value is string => Boolean(value)),
+            ),
+        ];
         const item: SavingsGoal = {
             id: goal?.id ?? uuidv4(),
             name: values.name.trim(),
@@ -143,7 +160,9 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
             monthlyContribution: Number(values.monthlyContribution) || 0,
             currency: values.currency,
             targetDate: values.targetDate || undefined,
-            url: normalizeGoalUrl(values.url) ?? undefined,
+            url: normalizedLinks[0],
+            links: normalizedLinks.length ? normalizedLinks : undefined,
+            note: values.note.trim() || undefined,
             createdAt: goal?.createdAt ?? new Date().toISOString(),
         };
 
@@ -267,20 +286,76 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                             />
                         </div>
 
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-1.5">
+                                <Label>{t("links")}</Label>
+                                <Hint text={t("linksHint")} />
+                            </div>
+                            {links.fields.map((link, index) => (
+                                <FormField
+                                    key={link.id}
+                                    control={form.control}
+                                    name={`links.${index}.value`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="relative">
+                                                <Link2 className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                                <FormControl>
+                                                    <Input
+                                                        inputMode="url"
+                                                        autoComplete="off"
+                                                        placeholder={t("goalUrlPlaceholder")}
+                                                        className="pr-11 pl-9"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                {(links.fields.length > 1 || field.value) && (
+                                                    <button
+                                                        type="button"
+                                                        aria-label={t("removeLink")}
+                                                        title={t("removeLink")}
+                                                        onClick={() =>
+                                                            links.fields.length > 1
+                                                                ? links.remove(index)
+                                                                : form.setValue(`links.${index}.value`, "", {
+                                                                      shouldValidate: true,
+                                                                  })
+                                                        }
+                                                        className="text-ink-faint hover:text-signal hover:bg-signal-wash absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg transition-colors"
+                                                    >
+                                                        <X className="size-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                            {links.fields.length < GOAL_LINKS_LIMIT && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => links.append({ value: "" })}
+                                >
+                                    <Plus />
+                                    {t("addLinkField")}
+                                </Button>
+                            )}
+                        </div>
+
                         <FormField
                             control={form.control}
-                            name="url"
+                            name="note"
                             render={({ field }) => (
                                 <FormItem>
-                                    <div className="flex items-center gap-1.5">
-                                        <FormLabel>{t("goalUrl")}</FormLabel>
-                                        <Hint text={t("goalUrlHint")} />
-                                    </div>
+                                    <FormLabel>{t("goalNote")}</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            inputMode="url"
-                                            autoComplete="off"
-                                            placeholder={t("goalUrlPlaceholder")}
+                                        <Textarea
+                                            maxLength={1000}
+                                            placeholder={t("goalNotePlaceholder")}
+                                            className="min-h-20 resize-none"
                                             {...field}
                                         />
                                     </FormControl>
