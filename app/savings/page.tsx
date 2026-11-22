@@ -32,7 +32,7 @@ import { CURRENCY } from "constants/index";
 import { formatCurrency } from "lib/utils";
 import { toMoneyInput } from "lib/money";
 import { AnimatedMoney } from "components/animated-number";
-import { getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
+import { convertSavingsCurrency, getSavingsBalance, getSavingsNativeBalance } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { GetDataProvider } from "providers/get-data";
 import { PrivateProvider } from "providers/auth";
@@ -108,6 +108,33 @@ const SavingsPage = () => {
             cash: byStorage(SavingsStorage.CASH),
         };
     }, [store.savingsOperations]);
+
+    const goalsSummary = useMemo(() => {
+        const native = Object.fromEntries(SAVINGS_CURRENCIES.map((currency) => [currency, 0])) as Record<
+            CURRENCY,
+            number
+        >;
+        let total: number | null = 0;
+
+        store.savingsGoals.forEach((goal) => {
+            native[goal.currency] += goal.targetAmount;
+            const converted = convertSavingsCurrency(goal.targetAmount, goal.currency, store.userCurrency, rates);
+            total = converted === null || total === null ? null : total + converted;
+        });
+
+        return { native, total: total as number | null };
+    }, [rates, store.savingsGoals, store.userCurrency]);
+
+    const goalsHintText = () => {
+        const count = t("goalsCount", { count: store.savingsGoals.length });
+        if (goalsSummary.total === null || summary.saved === null) return count;
+        const missing = Math.max(goalsSummary.total - summary.saved, 0);
+        const status =
+            missing > 0
+                ? `${t("remaining")}: ${formatCurrency(missing)} ${getCurrencySymbol(store.userCurrency)}`
+                : t("canAfford");
+        return `${count} · ${status}`;
+    };
 
     const nativeMoney = (value: number, currency: CURRENCY) =>
         `${formatCurrency(value)} ${getCurrencySymbol(currency)}`;
@@ -302,7 +329,13 @@ const SavingsPage = () => {
                         }
                     />
 
-                    <StatGrid className="grid-cols-1 sm:grid-cols-3">
+                    <StatGrid
+                        className={
+                            store.savingsGoals.length
+                                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                                : "grid-cols-1 sm:grid-cols-3"
+                        }
+                    >
                         <StatCard
                             label={t("saved")}
                             value={summaryValue(summary.saved, nativeSummary.saved)}
@@ -319,6 +352,13 @@ const SavingsPage = () => {
                             value={summaryValue(summary.cash, nativeSummary.cash)}
                             secondary={summaryDetails(t("cashHint"), nativeSummary.cash)}
                         />
+                        {store.savingsGoals.length > 0 && (
+                            <StatCard
+                                label={t("goalsTotal")}
+                                value={summaryValue(goalsSummary.total, goalsSummary.native)}
+                                secondary={summaryDetails(goalsHintText(), goalsSummary.native)}
+                            />
+                        )}
                     </StatGrid>
 
                     <Section

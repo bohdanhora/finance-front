@@ -714,7 +714,8 @@
         "priority": "Importance {position}",
         "goalsHint": "Most important first. Drag cards by the handle to change the order.",
         "goalNote": "Note",
-        "goalNotePlaceholder": "For example, size M, black"
+        "goalNotePlaceholder": "For example, size M, black",
+        "goalsTotal": "Goals total"
     },
     "tour": {
         "title": "Guide",
