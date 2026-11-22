@@ -7,7 +7,7 @@ import { CurrencyDropdown } from "./currency-dropdown";
 import { findCurrency } from "lib/utils";
 import { CURRENCY, ISO4217Codes } from "constants/index";
 import { Loader } from "./loader";
-import { BarChart3, Calculator, CreditCard, LayoutDashboard, PiggyBank } from "lucide-react";
+import { BarChart3, Calculator, CreditCard, LayoutDashboard, PiggyBank, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
@@ -94,6 +94,7 @@ export const Navbar = () => {
 
     const navItems: NavItem[] = [
         { href: Routes.HOME, label: tNav("dashboard"), Icon: LayoutDashboard },
+        { href: Routes.OPERATIONS, label: tNav("operations"), Icon: ReceiptText },
         { href: Routes.STATISTICS, label: tNav("statistics"), Icon: BarChart3, anchor: "statistics" },
         { href: Routes.SAVINGS, label: tNav("savings"), Icon: PiggyBank, anchor: "savings" },
         ...(monobankConnected ? [{ href: Routes.MONOBANK, label: tNav("monobank"), Icon: CreditCard }] : []),

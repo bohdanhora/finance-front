@@ -19,6 +19,7 @@ import { CardDialog } from "./cards/card-dialog";
 import { TransferDialog } from "./cards/transfer-dialog";
 import { useCardName } from "./cards/card-face";
 import { Button } from "./ui/button";
+import { useDialogHotkeys } from "hooks/use-dialog-hotkeys";
 
 const Fact = ({
     label,
@@ -42,6 +43,7 @@ export const Total = () => {
     const store = useStore();
     const bankStore = useBankStore();
     const cardName = useCardName();
+    useDialogHotkeys();
 
     const userCurrency = store.userCurrency;
     const active = resolveCardFilter(store.selectedCardId, store.cards);

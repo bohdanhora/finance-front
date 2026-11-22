@@ -16,9 +16,9 @@ const manifest = (): MetadataRoute.Manifest => ({
         { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
+        { name: "Transactions", url: "/operations" },
         { name: "Statistics", url: "/statistics" },
         { name: "Savings", url: "/savings" },
-        { name: "Settings", url: "/settings" },
     ],
 });
 

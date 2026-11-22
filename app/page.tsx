@@ -10,16 +10,11 @@ import { Navbar } from "components/navbar";
 import { OnboardingTour } from "components/onboarding/tour";
 import { Total } from "components/total";
 import { PossibleRemaining } from "components/possible-remaining-balance";
+import { RecentOperations } from "components/recent-operations";
 import { NextMonthIncome } from "components/next-month-income";
-import { FinancialHealth } from "components/health/financial-health";
-import { LastSpends } from "components/last-spends";
-import { TotalAmounts } from "components/total-amounts";
-import { Section } from "components/wrappers/section";
 
 const Home = () => {
     const t = useTranslations();
-    const tTx = useTranslations("transactions");
-    const tSections = useTranslations("sections");
 
     useLoginToast(t);
 
@@ -32,15 +27,8 @@ const Home = () => {
                 <div className="sheet">
                     <div className="shell rise-stagger flex flex-col gap-16 pt-8 pb-28 sm:pb-20 md:gap-20 md:pt-10">
                         <Total />
-                        <PossibleRemaining />
+                        <PossibleRemaining recent={<RecentOperations />} />
                         <NextMonthIncome />
-                        <FinancialHealth />
-
-                        <Section anchor="history" title={tTx("history")} description={tSections("historyNote")}>
-                            <LastSpends />
-                        </Section>
-
-                        <TotalAmounts />
                     </div>
                 </div>
             </PrivateProvider>

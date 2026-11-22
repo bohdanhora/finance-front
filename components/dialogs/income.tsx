@@ -104,7 +104,7 @@ export const IncomeDialogComponent = () => {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <Form {...form}>
                 <DialogTrigger asChild>
-                    <Button variant="accent" size="lg" className="w-full">
+                    <Button variant="accent" size="lg" className="w-full" data-hotkey="income">
                         <PlusIcon />
                         {t("expenses.income")}
                     </Button>

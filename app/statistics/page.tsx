@@ -61,6 +61,8 @@ import { PeriodPicker } from "components/charts/period-picker";
 import { findMainIncome } from "lib/pay-cycle";
 import { WeekdaySpending } from "components/charts/weekday-spending";
 import { useStatisticsPreferences } from "hooks/use-statistics-preferences";
+import { FinancialHealth } from "components/health/financial-health";
+import { TotalAmounts } from "components/total-amounts";
 
 const TOP_PAGE = 5;
 
@@ -640,6 +642,8 @@ const StatisticsPage = () => {
                             )}
                         </Section>
                     )}
+                    <FinancialHealth />
+                    <TotalAmounts />
                 </PageShell>
             </PrivateProvider>
         </GetDataProvider>

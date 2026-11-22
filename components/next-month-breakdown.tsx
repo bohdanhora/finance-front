@@ -19,11 +19,23 @@ type Props = {
     free: number;
     percent: number;
     symbol: string;
+    incomeNote?: string;
+    savingsAction?: React.ReactNode;
 };
 
 const share = (part: number, whole: number) => (whole > 0 ? Math.max(0, Math.min(100, (part / whole) * 100)) : 0);
 
-export const NextMonthBreakdown = ({ income, essentials, debt, saved, free, percent, symbol }: Props) => {
+export const NextMonthBreakdown = ({
+    income,
+    essentials,
+    debt,
+    saved,
+    free,
+    percent,
+    symbol,
+    incomeNote,
+    savingsAction,
+}: Props) => {
     const t = useTranslations("nextPlan");
     const locale = useLocale();
 
@@ -63,7 +75,7 @@ export const NextMonthBreakdown = ({ income, essentials, debt, saved, free, perc
     ];
 
     return (
-        <div className="lg:sticky lg:top-24">
+        <div>
             <div className="border-rule flex flex-wrap items-baseline justify-between gap-2 border-b pb-2">
                 <h3 className="label text-ink">{t("title", { month })}</h3>
                 <span className="label">{t("days", { count: days })}</span>
@@ -99,7 +111,13 @@ export const NextMonthBreakdown = ({ income, essentials, debt, saved, free, perc
                             key={row.key}
                             className="border-rule flex items-baseline justify-between gap-4 border-b py-2.5"
                         >
-                            <dt className="text-ink-muted text-sm">{row.label}</dt>
+                            <dt className="text-ink-muted flex items-center gap-2 text-sm">
+                                {row.label}
+                                {row.key === "income" && incomeNote && (
+                                    <span className="text-ink-faint text-xs">{incomeNote}</span>
+                                )}
+                                {row.key === "savings" && savingsAction}
+                            </dt>
                             <dd className={twMerge("font-mono text-xs tabular-nums", row.sign === "+" && "text-good")}>
                                 {row.sign}
                                 {formatCurrency(row.value)} {symbol}

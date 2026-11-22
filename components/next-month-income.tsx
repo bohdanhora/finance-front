@@ -2,42 +2,26 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import useBankStore from "store/bank";
 import useStore from "store/general";
-import { calculateSavings, formatSignedCurrency } from "lib/utils";
+import { calculateSavings } from "lib/utils";
 import { roundMoney } from "lib/money";
 import { creditSummary } from "lib/cards";
-import { convertToAllCurrencies, getCurrencySymbol } from "lib/currency";
-import { CURRENCY } from "constants/index";
+import { getCurrencySymbol } from "lib/currency";
 import { EssentialSpends } from "./dialogs/essential-spends";
 import { ChangeNextMonthIncome } from "./dialogs/change-next-month";
 import { Percentage } from "./dialogs/percentage";
-import { Section, StatGrid } from "./wrappers/section";
-import { StatCard } from "./stat-card";
-import { AnimatedMoney } from "./animated-number";
+import { Section } from "./wrappers/section";
 import { EssentialsChecklist } from "./essentials-checklist";
 import { NextMonthBreakdown } from "./next-month-breakdown";
 
 export const NextMonthIncome = () => {
     const store = useStore();
-    const bankStore = useBankStore();
     const t = useTranslations("possible");
-    const tHints = useTranslations("hints");
     const tSections = useTranslations("sections");
 
-    const currency = bankStore.currency as CURRENCY;
     const percent = store.percentage;
-    const userCurrency = store.userCurrency;
 
-    const rates = useMemo(
-        () => ({
-            [CURRENCY.EUR]: bankStore.eur?.rateBuy || 0,
-            [CURRENCY.USD]: bankStore.usd?.rateBuy || 0,
-        }),
-        [bankStore.eur?.rateBuy, bankStore.usd?.rateBuy],
-    );
-
-    const { fromRecurring, plan, totalIncome, remainingIncome, savedMoney, savedMoneyRemaining } = useMemo(() => {
+    const { fromRecurring, plan } = useMemo(() => {
         const totalEssentials = store.nextMonthEssentialsArray.reduce(
             (sum, item) => (!item.checked ? sum + item.amount : sum),
             0,
@@ -50,41 +34,12 @@ export const NextMonthIncome = () => {
         const total = store.nextMonthTotalAmount > 0 ? store.nextMonthTotalAmount : recurring;
         const remaining = roundMoney(total - totalEssentials - debt);
         const { saved } = calculateSavings(Math.max(remaining, 0), percent);
-        const savedAfter = roundMoney(remaining - saved);
 
         return {
             fromRecurring: store.nextMonthTotalAmount <= 0 && recurring > 0,
-            plan: { income: total, essentials: totalEssentials, debt, saved, free: savedAfter },
-            totalIncome: convertToAllCurrencies(total, rates),
-            remainingIncome: convertToAllCurrencies(remaining, rates),
-            savedMoney: convertToAllCurrencies(saved, rates),
-            savedMoneyRemaining: convertToAllCurrencies(savedAfter, rates),
+            plan: { income: total, essentials: totalEssentials, debt, saved, free: roundMoney(remaining - saved) },
         };
-    }, [
-        store.nextMonthTotalAmount,
-        store.nextMonthEssentialsArray,
-        store.expectedIncomes,
-        store.cards,
-        percent,
-        rates,
-    ]);
-
-    const userSymbol = getCurrencySymbol(userCurrency);
-    const altSymbol = getCurrencySymbol(currency);
-
-    const money = (value: number) => (
-        <AnimatedMoney
-            value={value}
-            symbol={userSymbol}
-            format={formatSignedCurrency}
-            symbolClassName="text-ink-faint"
-            className={value < 0 ? "text-signal" : undefined}
-        />
-    );
-    const alt = (value: number) =>
-        userCurrency === CURRENCY.UAH ? (
-            <AnimatedMoney value={value} symbol={altSymbol} format={formatSignedCurrency} />
-        ) : undefined;
+    }, [store.nextMonthTotalAmount, store.nextMonthEssentialsArray, store.expectedIncomes, store.cards, percent]);
 
     return (
         <Section
@@ -93,39 +48,22 @@ export const NextMonthIncome = () => {
             description={tSections("nextMonthNote")}
             actions={<ChangeNextMonthIncome />}
         >
-            <StatGrid>
-                <StatCard
-                    label={t("totalMoneyIncome")}
-                    hint={tHints("totalMoneyIncome")}
-                    value={money(totalIncome.default)}
-                    secondary={fromRecurring ? t("fromRecurring") : alt(totalIncome[currency])}
-                />
-                <StatCard
-                    label={t("remainingAfterEssentials")}
-                    hint={tHints("nextRemainingAfterEssentials")}
-                    value={money(remainingIncome.default)}
-                    secondary={alt(remainingIncome[currency])}
-                />
-                <StatCard
-                    tone="accent"
-                    className="bg-surface"
-                    label={t("saveMoney", { percentage: percent })}
-                    hint={tHints("saveMoney")}
-                    value={money(savedMoney.default)}
-                    secondary={alt(savedMoney[currency])}
-                    action={<Percentage />}
-                />
-                <StatCard
-                    label={t("saveMoneyAfterPercent")}
-                    hint={tHints("saveMoneyAfterPercent")}
-                    value={money(savedMoneyRemaining.default)}
-                    secondary={alt(savedMoneyRemaining[currency])}
-                />
-            </StatGrid>
-
-            <div className="mt-8 grid items-start gap-10 lg:grid-cols-2">
-                <EssentialsChecklist nextMonth actions={<EssentialSpends nextMonth triggerLabel={t("editList")} />} />
-                <NextMonthBreakdown {...plan} percent={percent} symbol={userSymbol} />
+            <div className="grid items-start gap-10 lg:grid-cols-12">
+                <div className="min-w-0 lg:col-span-7">
+                    <NextMonthBreakdown
+                        {...plan}
+                        percent={percent}
+                        symbol={getCurrencySymbol(store.userCurrency)}
+                        incomeNote={fromRecurring ? t("fromRecurring") : undefined}
+                        savingsAction={<Percentage />}
+                    />
+                </div>
+                <div className="min-w-0 lg:col-span-5">
+                    <EssentialsChecklist
+                        nextMonth
+                        actions={<EssentialSpends nextMonth triggerLabel={t("editList")} />}
+                    />
+                </div>
             </div>
         </Section>
     );

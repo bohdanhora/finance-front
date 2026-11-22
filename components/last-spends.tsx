@@ -55,7 +55,8 @@ const compareBy: Record<SortOrder, (a: TransactionType, b: TransactionType) => n
     smallest: (a, b) => a.value - b.value,
 };
 
-export const LastSpends = () => {
+export const LastSpends = ({ limit }: { limit?: number } = {}) => {
+    const compact = limit !== undefined;
     const store = useStore();
     const userCurrency = store.userCurrency;
 
@@ -243,10 +244,11 @@ export const LastSpends = () => {
     };
 
     const paginatedTransactions = useMemo(() => {
+        if (limit !== undefined) return filteredTransactions.slice(0, limit);
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
         return filteredTransactions.slice(start, end);
-    }, [filteredTransactions, currentPage]);
+    }, [filteredTransactions, currentPage, limit]);
 
     const handleDeleteTransaction = async (transactionId: string) => {
         const res = await deleteTransaction({ transactionId: transactionId });
@@ -293,175 +295,184 @@ export const LastSpends = () => {
 
     return (
         <div className="w-full">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                <div className="relative min-w-0 flex-1">
-                    <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                    <Input
-                        type="search"
-                        enterKeyHint="search"
-                        placeholder={t("searchPlaceholder")}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="pl-9"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <Select
-                        value={selectedCategory}
-                        onValueChange={handleCategoryChange}
-                        disabled={typeFilter === TransactionEnum.TRANSFER}
-                    >
-                        <SelectTrigger className="min-w-0 flex-1 md:w-48 md:flex-none">
-                            <SelectValue placeholder={t("allCategories")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">{t("all")}</SelectItem>
-                            {uniqueCategories.map((cat) => (
-                                <SelectItem key={cat} value={cat}>
-                                    {categoryLabel(cat)}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Button
-                        variant="outline"
-                        onClick={() => setReportDialogOpen(true)}
-                        className="h-11 sm:h-10"
-                        aria-label={t("exportPdf")}
-                        title={t("exportPdf")}
-                    >
-                        <Download className="size-3.5" />
-                        <span className="hidden lg:inline">{t("exportPdf")}</span>
-                    </Button>
-                    <ExportReportDialog open={reportDialogOpen} onOpenChange={setReportDialogOpen} />
-                    <Dialog
-                        open={clearDialogOpen}
-                        onOpenChange={(nextOpen) => {
-                            if (!nextOpen) setClearTotalsChck(false);
-                            setClearDialogOpen(nextOpen);
-                        }}
-                    >
-                        <DialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="hover:bg-signal-wash hover:text-signal h-11 sm:h-10"
-                                aria-label={t("clearDataTitle")}
-                                title={t("clearDataTitle")}
+            {!compact && (
+                <>
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                        <div className="relative min-w-0 flex-1">
+                            <Search className="text-ink-faint pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                            <Input
+                                type="search"
+                                enterKeyHint="search"
+                                placeholder={t("searchPlaceholder")}
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                className="pl-9"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Select
+                                value={selectedCategory}
+                                onValueChange={handleCategoryChange}
+                                disabled={typeFilter === TransactionEnum.TRANSFER}
                             >
-                                <Trash2 className="size-3.5" />
+                                <SelectTrigger className="min-w-0 flex-1 md:w-48 md:flex-none">
+                                    <SelectValue placeholder={t("allCategories")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t("all")}</SelectItem>
+                                    {uniqueCategories.map((cat) => (
+                                        <SelectItem key={cat} value={cat}>
+                                            {categoryLabel(cat)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button
+                                variant="outline"
+                                onClick={() => setReportDialogOpen(true)}
+                                className="h-11 sm:h-10"
+                                aria-label={t("exportPdf")}
+                                title={t("exportPdf")}
+                            >
+                                <Download className="size-3.5" />
+                                <span className="hidden lg:inline">{t("exportPdf")}</span>
                             </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>{t("clearDataConfirmation")}</DialogTitle>
-                                <DialogDescription>{t("clearDataWarning")}</DialogDescription>
-                            </DialogHeader>
-                            <label className="border-rule flex cursor-pointer items-start gap-3 rounded-xl border p-3">
-                                <Checkbox
-                                    id="clearTotals"
-                                    checked={clearTotalsChck}
-                                    className="mt-0.5"
-                                    onCheckedChange={(checked) => setClearTotalsChck(checked)}
-                                />
-                                <span className="text-sm leading-relaxed">{t("clearTotalsLabel")}</span>
-                            </label>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary">{t("cancel")}</Button>
-                                </DialogClose>
-                                <Button variant="destructive" disabled={clearDataPending} onClick={clearDataHandle}>
-                                    {t("clearDataTitle")}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
+                            <ExportReportDialog open={reportDialogOpen} onOpenChange={setReportDialogOpen} />
+                            <Dialog
+                                open={clearDialogOpen}
+                                onOpenChange={(nextOpen) => {
+                                    if (!nextOpen) setClearTotalsChck(false);
+                                    setClearDialogOpen(nextOpen);
+                                }}
+                            >
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="hover:bg-signal-wash hover:text-signal h-11 sm:h-10"
+                                        aria-label={t("clearDataTitle")}
+                                        title={t("clearDataTitle")}
+                                    >
+                                        <Trash2 className="size-3.5" />
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>{t("clearDataConfirmation")}</DialogTitle>
+                                        <DialogDescription>{t("clearDataWarning")}</DialogDescription>
+                                    </DialogHeader>
+                                    <label className="border-rule flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                                        <Checkbox
+                                            id="clearTotals"
+                                            checked={clearTotalsChck}
+                                            className="mt-0.5"
+                                            onCheckedChange={(checked) => setClearTotalsChck(checked)}
+                                        />
+                                        <span className="text-sm leading-relaxed">{t("clearTotalsLabel")}</span>
+                                    </label>
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="secondary">{t("cancel")}</Button>
+                                        </DialogClose>
+                                        <Button
+                                            variant="destructive"
+                                            disabled={clearDataPending}
+                                            onClick={clearDataHandle}
+                                        >
+                                            {t("clearDataTitle")}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                    </div>
 
-            <div className="mt-2 grid grid-cols-2 gap-2 md:flex md:items-center">
-                <Select value={selectedMonth} onValueChange={handleMonthChange}>
-                    <SelectTrigger
-                        className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:w-52"
-                        aria-label={t("month")}
-                    >
-                        <CalendarDays className="size-3.5" />
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">{t("allMonths")}</SelectItem>
-                        {months.map((month) => (
-                            <SelectItem key={month} value={month}>
-                                {formatMonthKey(month, locale)}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={sortOrder} onValueChange={handleSortChange}>
-                    <SelectTrigger
-                        className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:order-last md:w-52"
-                        aria-label={t("sort")}
-                    >
-                        <ArrowDownUp className="size-3.5" />
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {SORT_ORDERS.map((order) => (
-                            <SelectItem key={order} value={order}>
-                                {t(`sorts.${order}`)}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <div
-                    role="radiogroup"
-                    className="bg-wash col-span-2 flex h-11 min-w-0 gap-1 rounded-xl p-1 sm:h-10 md:flex-1"
-                >
-                    {TYPE_FILTERS.map((type) => (
-                        <button
-                            key={type}
-                            type="button"
-                            role="radio"
-                            aria-checked={typeFilter === type}
-                            onClick={() => handleTypeChange(type)}
-                            className={twMerge(
-                                "text-ink-muted hover:text-ink min-w-0 flex-1 truncate rounded-lg px-2 text-xs transition-colors",
-                                typeFilter === type && "bg-surface text-ink shadow-lg",
-                            )}
+                    <div className="mt-2 grid grid-cols-2 gap-2 md:flex md:items-center">
+                        <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                            <SelectTrigger
+                                className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:w-52"
+                                aria-label={t("month")}
+                            >
+                                <CalendarDays className="size-3.5" />
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">{t("allMonths")}</SelectItem>
+                                {months.map((month) => (
+                                    <SelectItem key={month} value={month}>
+                                        {formatMonthKey(month, locale)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={sortOrder} onValueChange={handleSortChange}>
+                            <SelectTrigger
+                                className="w-full min-w-0 *:data-[slot=select-value]:flex-1 md:order-last md:w-52"
+                                aria-label={t("sort")}
+                            >
+                                <ArrowDownUp className="size-3.5" />
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {SORT_ORDERS.map((order) => (
+                                    <SelectItem key={order} value={order}>
+                                        {t(`sorts.${order}`)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <div
+                            role="radiogroup"
+                            className="bg-wash col-span-2 flex h-11 min-w-0 gap-1 rounded-xl p-1 sm:h-10 md:flex-1"
                         >
-                            {t(`types.${type}`)}
-                        </button>
-                    ))}
-                </div>
-            </div>
+                            {TYPE_FILTERS.map((type) => (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={typeFilter === type}
+                                    onClick={() => handleTypeChange(type)}
+                                    className={twMerge(
+                                        "text-ink-muted hover:text-ink min-w-0 flex-1 truncate rounded-lg px-2 text-xs transition-colors",
+                                        typeFilter === type && "bg-surface text-ink shadow-lg",
+                                    )}
+                                >
+                                    {t(`types.${type}`)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
-            {filtersActive && (
-                <div className="border-rule mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 border-b pb-3">
-                    <span className="label">{t("count", { count: filteredTransactions.length })}</span>
-                    {filteredTotals.income > 0 && (
-                        <span className="font-mono text-sm tabular-nums">
-                            <span className="label mr-2">{t("totalIncome")}</span>
-                            <span className="text-good">+{formatCurrency(filteredTotals.income)}</span>{" "}
-                            <span className="text-ink-faint">{symbol}</span>
-                        </span>
+                    {filtersActive && (
+                        <div className="border-rule mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 border-b pb-3">
+                            <span className="label">{t("count", { count: filteredTransactions.length })}</span>
+                            {filteredTotals.income > 0 && (
+                                <span className="font-mono text-sm tabular-nums">
+                                    <span className="label mr-2">{t("totalIncome")}</span>
+                                    <span className="text-good">+{formatCurrency(filteredTotals.income)}</span>{" "}
+                                    <span className="text-ink-faint">{symbol}</span>
+                                </span>
+                            )}
+                            {filteredTotals.expense > 0 && (
+                                <span className="font-mono text-sm tabular-nums">
+                                    <span className="label mr-2">{t("totalSpend")}</span>-
+                                    {formatCurrency(filteredTotals.expense)}{" "}
+                                    <span className="text-ink-faint">{symbol}</span>
+                                </span>
+                            )}
+                            <button
+                                type="button"
+                                onClick={resetFilters}
+                                className="label hover:text-accent ml-auto inline-flex items-center gap-1 transition-colors"
+                            >
+                                <X className="size-3" />
+                                {t("resetFilters")}
+                            </button>
+                        </div>
                     )}
-                    {filteredTotals.expense > 0 && (
-                        <span className="font-mono text-sm tabular-nums">
-                            <span className="label mr-2">{t("totalSpend")}</span>-
-                            {formatCurrency(filteredTotals.expense)} <span className="text-ink-faint">{symbol}</span>
-                        </span>
-                    )}
-                    <button
-                        type="button"
-                        onClick={resetFilters}
-                        className="label hover:text-accent ml-auto inline-flex items-center gap-1 transition-colors"
-                    >
-                        <X className="size-3" />
-                        {t("resetFilters")}
-                    </button>
-                </div>
+                </>
             )}
 
-            <ul className="mt-4">
+            <ul className={compact ? undefined : "mt-4"}>
                 {rows.map(({ tx, day, dayHeading, daySpent, showDay }) => {
                     const transfer = isTransfer(tx);
                     const income = !transfer && tx.transactionType === TransactionEnum.INCOME;
@@ -582,7 +593,7 @@ export const LastSpends = () => {
                 <p className="text-ink-faint border-rule border-b py-8 text-center text-sm">{t("noMatchingTx")}</p>
             )}
 
-            {totalPages > 1 && (
+            {!compact && totalPages > 1 && (
                 <Pagination className="mt-5">
                     <PaginationContent>
                         <PaginationItem>

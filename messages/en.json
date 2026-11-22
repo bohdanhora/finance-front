@@ -16,7 +16,8 @@
         "calculator": "Calculator",
         "menu": "Menu",
         "monobank": "Monobank",
-        "settings": "Settings"
+        "settings": "Settings",
+        "operations": "Transactions"
     },
     "rowMenu": {
         "edit": "Edit",
@@ -301,7 +302,11 @@
         "moveToNextMonth": "Move to next month",
         "addToTemplate": "Add to month template",
         "movedToNextMonth": "Moved to next month",
-        "addedToTemplate": "Added to the month template"
+        "addedToTemplate": "Added to the month template",
+        "showPaid": "Show paid ({count})",
+        "hidePaid": "Hide paid",
+        "showPlanned": "{count} more",
+        "hidePlanned": "Show less"
     },
     "auth": {
         "login": "Sign in",
@@ -410,7 +415,9 @@
             "oldest": "Oldest first",
             "largest": "Largest first",
             "smallest": "Smallest first"
-        }
+        },
+        "recent": "Recent transactions",
+        "allOperations": "All transactions"
     },
     "statistics": {
         "essentialsTitle": "Essential payments",
@@ -954,7 +961,9 @@
             "short": "This income does not cover everything you picked."
         },
         "covers": "Covers {count} payments · {amount}",
-        "cardField": "Arrives on card"
+        "cardField": "Arrives on card",
+        "showReceived": "Show received ({count})",
+        "hideReceived": "Hide received"
     },
     "monobank": {
         "title": "Monobank",

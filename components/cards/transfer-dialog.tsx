@@ -108,7 +108,7 @@ export const TransferDialog = () => {
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="lg" className="w-full">
+                <Button variant="outline" size="lg" className="w-full" data-hotkey="transfer">
                     <ArrowLeftRight />
                     {t("transfer")}
                 </Button>

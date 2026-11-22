@@ -14,7 +14,7 @@ import { ExpectedIncome } from "types/transactions";
 import { AnimatedMoney } from "./animated-number";
 import { ExpectedIncomeDialog } from "./dialogs/expected-income";
 import { ExpectedIncomeReceiveDialog } from "./dialogs/expected-income-receive";
-import { ChecklistEmpty, ChecklistShell, SegmentBar } from "./essentials-checklist";
+import { ChecklistEmpty, ChecklistShell, ChecklistToggle, SegmentBar } from "./essentials-checklist";
 import { Checkbox } from "./ui/checkbox";
 import { RowMenu } from "./row-menu";
 import { requestListAction } from "lib/list-actions";
@@ -30,6 +30,7 @@ export const ExpectedIncomeList = () => {
     const tMenu = useTranslations("rowMenu");
     const store = useStore();
     const [selectedIncome, setSelectedIncome] = useState<ExpectedIncome | null>(null);
+    const [expanded, setExpanded] = useState(false);
     const cardName = useCardName();
 
     const items = store.expectedIncomes;
@@ -44,6 +45,7 @@ export const ExpectedIncomeList = () => {
     }
 
     const summary = summarizeExpectedIncomes(items);
+    const visible = expanded ? items : items.filter((item) => !item.received);
 
     const coverage = (item: ExpectedIncome) => {
         const allocation = allocationFor(item, item.amount, {
@@ -95,90 +97,99 @@ export const ExpectedIncomeList = () => {
         >
             <SegmentBar done={summary.receivedCount} total={summary.total} />
 
-            <ul className="border-rule mt-3 border-t">
-                {items.map((item) => (
-                    <RowMenu
-                        key={item.id}
-                        title={item.title}
-                        actions={[
-                            {
-                                key: "receive",
-                                label: item.received ? tMenu("undoReceived") : tMenu("markReceived"),
-                                icon: item.received ? <Undo2Icon /> : <CircleCheckIcon />,
-                                onSelect: () => setSelectedIncome(item),
-                            },
-                        ]}
-                        onEdit={item.received ? undefined : () => requestListAction("expectedIncome", "edit", item.id)}
-                        onRemove={
-                            item.received ? undefined : () => requestListAction("expectedIncome", "remove", item.id)
-                        }
-                        copyValue={toMoneyInput(item.received ? (item.receivedAmount ?? item.amount) : item.amount)}
-                    >
-                        <li className="border-rule data-[state=open]:bg-surface border-b">
-                            <label className="hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors">
-                                <Checkbox checked={item.received} onCheckedChange={() => setSelectedIncome(item)} />
-                                <span className="min-w-0 flex-1">
-                                    <span
-                                        className={twMerge(
-                                            "block truncate text-sm transition-colors",
-                                            item.received && "text-ink-faint",
-                                        )}
-                                    >
-                                        {item.title}
-                                    </span>
-                                    <span className="text-ink-faint mt-0.5 block text-xs">
-                                        {statusLine(item)}
-                                        {!item.recurring && ` · ${t("oneOff")}`}
-                                        {store.cards.length > 1 &&
-                                            findCardById(store.cards, item.cardId) &&
-                                            ` · ${cardName(findCardById(store.cards, item.cardId))}`}
-                                    </span>
-                                    {!item.received && coverage(item)}
-                                </span>
-                                <span className="shrink-0 text-right">
-                                    <span
-                                        className={twMerge(
-                                            "block font-mono text-xs tabular-nums transition-colors",
-                                            item.received ? "text-ink-faint" : "text-good",
-                                        )}
-                                    >
-                                        {item.received ? "" : "+"}
-                                        {item.received
-                                            ? `${formatCurrency(item.receivedAmount ?? item.amount)} ${symbol}`
-                                            : isForeignAmount(item, store.userCurrency)
-                                              ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
-                                              : `${formatCurrency(item.amount)} ${symbol}`}
-                                    </span>
-                                    {!item.received && isForeignAmount(item, store.userCurrency) && (
-                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                            ≈ {formatCurrency(item.amount)} {symbol}
+            {visible.length > 0 && (
+                <ul className="border-rule mt-3 border-t">
+                    {visible.map((item) => (
+                        <RowMenu
+                            key={item.id}
+                            title={item.title}
+                            actions={[
+                                {
+                                    key: "receive",
+                                    label: item.received ? tMenu("undoReceived") : tMenu("markReceived"),
+                                    icon: item.received ? <Undo2Icon /> : <CircleCheckIcon />,
+                                    onSelect: () => setSelectedIncome(item),
+                                },
+                            ]}
+                            onEdit={
+                                item.received ? undefined : () => requestListAction("expectedIncome", "edit", item.id)
+                            }
+                            onRemove={
+                                item.received ? undefined : () => requestListAction("expectedIncome", "remove", item.id)
+                            }
+                            copyValue={toMoneyInput(item.received ? (item.receivedAmount ?? item.amount) : item.amount)}
+                        >
+                            <li className="border-rule data-[state=open]:bg-surface border-b">
+                                <label className="hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 px-1 py-2.5 transition-colors">
+                                    <Checkbox checked={item.received} onCheckedChange={() => setSelectedIncome(item)} />
+                                    <span className="min-w-0 flex-1">
+                                        <span
+                                            className={twMerge(
+                                                "block truncate text-sm transition-colors",
+                                                item.received && "text-ink-faint",
+                                            )}
+                                        >
+                                            {item.title}
                                         </span>
-                                    )}
-                                    {item.received && isForeignAmount(item, store.userCurrency) && (
-                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                            {tPossible("plannedAmount", {
-                                                amount: formatCurrency(item.currencyAmount),
-                                                currency: getCurrencySymbol(item.currency),
-                                            })}
+                                        <span className="text-ink-faint mt-0.5 block text-xs">
+                                            {statusLine(item)}
+                                            {!item.recurring && ` · ${t("oneOff")}`}
+                                            {store.cards.length > 1 &&
+                                                findCardById(store.cards, item.cardId) &&
+                                                ` · ${cardName(findCardById(store.cards, item.cardId))}`}
                                         </span>
-                                    )}
-                                    {item.received &&
-                                        !isForeignAmount(item, store.userCurrency) &&
-                                        item.receivedAmount !== undefined &&
-                                        item.receivedAmount !== item.amount && (
+                                        {!item.received && coverage(item)}
+                                    </span>
+                                    <span className="shrink-0 text-right">
+                                        <span
+                                            className={twMerge(
+                                                "block font-mono text-xs tabular-nums transition-colors",
+                                                item.received ? "text-ink-faint" : "text-good",
+                                            )}
+                                        >
+                                            {item.received ? "" : "+"}
+                                            {item.received
+                                                ? `${formatCurrency(item.receivedAmount ?? item.amount)} ${symbol}`
+                                                : isForeignAmount(item, store.userCurrency)
+                                                  ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
+                                                  : `${formatCurrency(item.amount)} ${symbol}`}
+                                        </span>
+                                        {!item.received && isForeignAmount(item, store.userCurrency) && (
+                                            <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                                ≈ {formatCurrency(item.amount)} {symbol}
+                                            </span>
+                                        )}
+                                        {item.received && isForeignAmount(item, store.userCurrency) && (
                                             <span className="text-ink-faint block font-mono text-3xs tabular-nums">
                                                 {tPossible("plannedAmount", {
-                                                    amount: formatCurrency(item.amount),
-                                                    currency: symbol,
+                                                    amount: formatCurrency(item.currencyAmount),
+                                                    currency: getCurrencySymbol(item.currency),
                                                 })}
                                             </span>
                                         )}
-                                </span>
-                            </label>
-                        </li>
-                    </RowMenu>
-                ))}
-            </ul>
+                                        {item.received &&
+                                            !isForeignAmount(item, store.userCurrency) &&
+                                            item.receivedAmount !== undefined &&
+                                            item.receivedAmount !== item.amount && (
+                                                <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                                    {tPossible("plannedAmount", {
+                                                        amount: formatCurrency(item.amount),
+                                                        currency: symbol,
+                                                    })}
+                                                </span>
+                                            )}
+                                    </span>
+                                </label>
+                            </li>
+                        </RowMenu>
+                    ))}
+                </ul>
+            )}
+            {summary.receivedCount > 0 && (
+                <ChecklistToggle open={expanded} onClick={() => setExpanded((value) => !value)}>
+                    {expanded ? t("hideReceived") : t("showReceived", { count: summary.receivedCount })}
+                </ChecklistToggle>
+            )}
             <ExpectedIncomeReceiveDialog
                 income={selectedIncome}
                 open={Boolean(selectedIncome)}

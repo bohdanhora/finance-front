@@ -16,7 +16,8 @@
         "calculator": "Калькулятор",
         "menu": "Меню",
         "monobank": "Монобанк",
-        "settings": "Налаштування"
+        "settings": "Налаштування",
+        "operations": "Операції"
     },
     "rowMenu": {
         "edit": "Змінити",
@@ -301,7 +302,11 @@
         "moveToNextMonth": "Перенести на наступний місяць",
         "addToTemplate": "Додати до шаблону місяця",
         "movedToNextMonth": "Перенесено на наступний місяць",
-        "addedToTemplate": "Додано до шаблону місяця"
+        "addedToTemplate": "Додано до шаблону місяця",
+        "showPaid": "Показати оплачені ({count})",
+        "hidePaid": "Сховати оплачені",
+        "showPlanned": "Ще {count}",
+        "hidePlanned": "Згорнути"
     },
     "auth": {
         "login": "Вхід",
@@ -410,7 +415,9 @@
             "oldest": "Спочатку старі",
             "largest": "Спочатку великі",
             "smallest": "Спочатку дрібні"
-        }
+        },
+        "recent": "Останні операції",
+        "allOperations": "Усі операції"
     },
     "statistics": {
         "essentialsTitle": "Обов'язкові платежі",
@@ -954,7 +961,9 @@
             "short": "Цього доходу не вистачає на все обране."
         },
         "covers": "Покриває платежів: {count} · {amount}",
-        "cardField": "Надходить на картку"
+        "cardField": "Надходить на картку",
+        "showReceived": "Показати отримані ({count})",
+        "hideReceived": "Сховати отримані"
     },
     "monobank": {
         "title": "Монобанк",

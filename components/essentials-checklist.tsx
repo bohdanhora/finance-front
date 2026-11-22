@@ -20,10 +20,12 @@ import { RowMenu } from "./row-menu";
 import { requestListAction } from "lib/list-actions";
 import { toMoneyInput } from "lib/money";
 import { isForeignAmount } from "lib/foreign-amount";
-import { CalendarArrowUpIcon, CircleCheckIcon, LayoutTemplateIcon, Undo2Icon } from "lucide-react";
+import { CalendarArrowUpIcon, ChevronDownIcon, CircleCheckIcon, LayoutTemplateIcon, Undo2Icon } from "lucide-react";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { useNewEssential, useRemoveEssential } from "api/main";
+
+const PLAN_PREVIEW = 4;
 
 export const SegmentBar = ({ done, total }: { done: number; total: number }) => (
     <div className="flex h-1.5 w-full gap-0.5" aria-hidden="true">
@@ -60,6 +62,26 @@ export const ChecklistShell = ({
     </div>
 );
 
+export const ChecklistToggle = ({
+    open,
+    onClick,
+    children,
+}: {
+    open: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+}) => (
+    <button
+        type="button"
+        aria-expanded={open}
+        onClick={onClick}
+        className="text-ink-muted hover:text-ink mt-2 inline-flex items-center gap-1.5 px-1 py-1.5 text-xs transition-colors"
+    >
+        <ChevronDownIcon className={twMerge("size-3.5 transition-transform", open && "rotate-180")} />
+        {children}
+    </button>
+);
+
 export const ChecklistEmpty = ({ children }: { children: React.ReactNode }) => (
     <p className="border-rule text-ink-faint rounded-2xl border border-dashed px-4 py-6 text-center text-sm">
         {children}
@@ -81,6 +103,7 @@ export const EssentialsChecklist = ({
     const locale = useLocale();
     const store = useStore();
     const [selectedEssential, setSelectedEssential] = useState<EssentialType | null>(null);
+    const [expanded, setExpanded] = useState(false);
     const { mutateAsync: newEssentialAsync } = useNewEssential();
     const { mutateAsync: removeEssentialAsync } = useRemoveEssential();
 
@@ -93,6 +116,11 @@ export const EssentialsChecklist = ({
 
     const type = nextMonth ? EssentialsType.NEXT_MONTH : EssentialsType.THIS_MONTH;
     const ordered = [...items].sort((a, b) => (a.day ?? 32) - (b.day ?? 32));
+    const visible = expanded
+        ? ordered
+        : planOnly
+          ? ordered.slice(0, PLAN_PREVIEW)
+          : ordered.filter((item) => !item.checked);
 
     const sameTitle = (list: EssentialType[], item: EssentialType) =>
         list.some((other) => other.title.trim().toLowerCase() === item.title.trim().toLowerCase());
@@ -198,143 +226,158 @@ export const EssentialsChecklist = ({
         >
             {!planOnly && <SegmentBar done={paidCount} total={items.length} />}
 
-            <ul className="border-rule mt-3 border-t">
-                {ordered.map((item) => (
-                    <RowMenu
-                        key={item.id}
-                        title={item.title}
-                        actions={[
-                            ...(planOnly && !item.checked
-                                ? []
-                                : [
-                                      {
-                                          key: "pay",
-                                          label: item.checked ? tMenu("undoPayment") : tMenu("markPaid"),
-                                          icon: item.checked ? <Undo2Icon /> : <CircleCheckIcon />,
-                                          onSelect: () => setSelectedEssential(item),
-                                      },
-                                  ]),
-                            ...planActions(item),
-                        ]}
-                        onEdit={
-                            item.checked
-                                ? undefined
-                                : () =>
-                                      requestListAction(
-                                          nextMonth ? "nextMonthEssentials" : "essentials",
-                                          "edit",
-                                          item.id,
-                                      )
-                        }
-                        onRemove={
-                            item.checked
-                                ? undefined
-                                : () =>
-                                      requestListAction(
-                                          nextMonth ? "nextMonthEssentials" : "essentials",
-                                          "remove",
-                                          item.id,
-                                      )
-                        }
-                        copyValue={toMoneyInput(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}
-                    >
-                        <li className="border-rule data-[state=open]:bg-surface border-b">
-                            <label
-                                className={twMerge(
-                                    "hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors",
-                                    planOnly && !item.checked && "cursor-default",
-                                )}
-                            >
-                                {planOnly && !item.checked ? (
-                                    <span
-                                        className="flex size-4 shrink-0 items-center justify-center"
-                                        aria-hidden="true"
-                                    >
-                                        <span className="bg-ink-faint size-1.5 rounded-full" />
-                                    </span>
-                                ) : (
-                                    <Checkbox
-                                        checked={item.checked}
-                                        onCheckedChange={() => setSelectedEssential(item)}
-                                    />
-                                )}
-                                <span className="min-w-0 flex-1">
-                                    <span
-                                        className={twMerge(
-                                            "block truncate text-sm transition-colors",
-                                            item.checked && "text-ink-faint line-through",
-                                        )}
-                                    >
-                                        {item.title}
-                                    </span>
-                                    {(item.category || item.day || item.fundedBy) && (
-                                        <span className="text-ink-faint mt-0.5 block text-xs">
-                                            {getCategoryLabel(item.category || "essentials", tCategories)}
-                                            {planMeta(item)}
-                                        </span>
+            {visible.length > 0 && (
+                <ul className="border-rule mt-3 border-t">
+                    {visible.map((item) => (
+                        <RowMenu
+                            key={item.id}
+                            title={item.title}
+                            actions={[
+                                ...(planOnly && !item.checked
+                                    ? []
+                                    : [
+                                          {
+                                              key: "pay",
+                                              label: item.checked ? tMenu("undoPayment") : tMenu("markPaid"),
+                                              icon: item.checked ? <Undo2Icon /> : <CircleCheckIcon />,
+                                              onSelect: () => setSelectedEssential(item),
+                                          },
+                                      ]),
+                                ...planActions(item),
+                            ]}
+                            onEdit={
+                                item.checked
+                                    ? undefined
+                                    : () =>
+                                          requestListAction(
+                                              nextMonth ? "nextMonthEssentials" : "essentials",
+                                              "edit",
+                                              item.id,
+                                          )
+                            }
+                            onRemove={
+                                item.checked
+                                    ? undefined
+                                    : () =>
+                                          requestListAction(
+                                              nextMonth ? "nextMonthEssentials" : "essentials",
+                                              "remove",
+                                              item.id,
+                                          )
+                            }
+                            copyValue={toMoneyInput(item.checked ? (item.paidAmount ?? item.amount) : item.amount)}
+                        >
+                            <li className="border-rule data-[state=open]:bg-surface border-b">
+                                <label
+                                    className={twMerge(
+                                        "hover:bg-surface flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors",
+                                        planOnly && !item.checked && "cursor-default",
                                     )}
-                                    {!planOnly &&
-                                        !item.checked &&
-                                        item.day &&
-                                        paydayStatus(item.day) !== "upcoming" && (
-                                            <span
-                                                className={twMerge(
-                                                    "mt-0.5 block text-xs",
-                                                    paydayStatus(item.day) === "late" ? "text-signal" : "text-accent",
-                                                )}
-                                            >
-                                                {paydayStatus(item.day) === "late"
-                                                    ? t("billOverdue", { day: item.day })
-                                                    : t("billDueToday")}
+                                >
+                                    {planOnly && !item.checked ? (
+                                        <span
+                                            className="flex size-4 shrink-0 items-center justify-center"
+                                            aria-hidden="true"
+                                        >
+                                            <span className="bg-ink-faint size-1.5 rounded-full" />
+                                        </span>
+                                    ) : (
+                                        <Checkbox
+                                            checked={item.checked}
+                                            onCheckedChange={() => setSelectedEssential(item)}
+                                        />
+                                    )}
+                                    <span className="min-w-0 flex-1">
+                                        <span
+                                            className={twMerge(
+                                                "block truncate text-sm transition-colors",
+                                                item.checked && "text-ink-faint line-through",
+                                            )}
+                                        >
+                                            {item.title}
+                                        </span>
+                                        {(item.category || item.day || item.fundedBy) && (
+                                            <span className="text-ink-faint mt-0.5 block text-xs">
+                                                {getCategoryLabel(item.category || "essentials", tCategories)}
+                                                {planMeta(item)}
                                             </span>
                                         )}
-                                    {item.carriedFrom && !item.checked && (
-                                        <span className="text-signal mt-0.5 block text-xs">
-                                            {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
-                                        </span>
-                                    )}
-                                </span>
-                                <span className="shrink-0 text-right">
-                                    <span
-                                        className={twMerge(
-                                            "block font-mono text-xs tabular-nums transition-colors",
-                                            item.checked ? "text-ink-faint" : "text-ink",
+                                        {!planOnly &&
+                                            !item.checked &&
+                                            item.day &&
+                                            paydayStatus(item.day) !== "upcoming" && (
+                                                <span
+                                                    className={twMerge(
+                                                        "mt-0.5 block text-xs",
+                                                        paydayStatus(item.day) === "late"
+                                                            ? "text-signal"
+                                                            : "text-accent",
+                                                    )}
+                                                >
+                                                    {paydayStatus(item.day) === "late"
+                                                        ? t("billOverdue", { day: item.day })
+                                                        : t("billDueToday")}
+                                                </span>
+                                            )}
+                                        {item.carriedFrom && !item.checked && (
+                                            <span className="text-signal mt-0.5 block text-xs">
+                                                {t("carriedFrom", { month: formatMonthKey(item.carriedFrom, locale) })}
+                                            </span>
                                         )}
-                                    >
-                                        {isForeignAmount(item, store.userCurrency)
-                                            ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
-                                            : `${formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)} ${symbol}`}
                                     </span>
-                                    {!item.checked && isForeignAmount(item, store.userCurrency) && (
-                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                            ≈ {formatCurrency(item.amount)} {symbol}
+                                    <span className="shrink-0 text-right">
+                                        <span
+                                            className={twMerge(
+                                                "block font-mono text-xs tabular-nums transition-colors",
+                                                item.checked ? "text-ink-faint" : "text-ink",
+                                            )}
+                                        >
+                                            {isForeignAmount(item, store.userCurrency)
+                                                ? `${formatCurrency(item.currencyAmount)} ${getCurrencySymbol(item.currency)}`
+                                                : `${formatCurrency(item.checked ? (item.paidAmount ?? item.amount) : item.amount)} ${symbol}`}
                                         </span>
-                                    )}
-                                    {item.checked && isForeignAmount(item, store.userCurrency) && (
-                                        <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                            {t("paidEquivalent", {
-                                                amount: formatCurrency(item.paidAmount ?? item.amount),
-                                                currency: symbol,
-                                            })}
-                                        </span>
-                                    )}
-                                    {item.checked &&
-                                        !isForeignAmount(item, store.userCurrency) &&
-                                        item.paidAmount !== undefined &&
-                                        item.paidAmount !== item.amount && (
+                                        {!item.checked && isForeignAmount(item, store.userCurrency) && (
                                             <span className="text-ink-faint block font-mono text-3xs tabular-nums">
-                                                {t("plannedAmount", {
-                                                    amount: formatCurrency(item.amount),
+                                                ≈ {formatCurrency(item.amount)} {symbol}
+                                            </span>
+                                        )}
+                                        {item.checked && isForeignAmount(item, store.userCurrency) && (
+                                            <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                                {t("paidEquivalent", {
+                                                    amount: formatCurrency(item.paidAmount ?? item.amount),
                                                     currency: symbol,
                                                 })}
                                             </span>
                                         )}
-                                </span>
-                            </label>
-                        </li>
-                    </RowMenu>
-                ))}
-            </ul>
+                                        {item.checked &&
+                                            !isForeignAmount(item, store.userCurrency) &&
+                                            item.paidAmount !== undefined &&
+                                            item.paidAmount !== item.amount && (
+                                                <span className="text-ink-faint block font-mono text-3xs tabular-nums">
+                                                    {t("plannedAmount", {
+                                                        amount: formatCurrency(item.amount),
+                                                        currency: symbol,
+                                                    })}
+                                                </span>
+                                            )}
+                                    </span>
+                                </label>
+                            </li>
+                        </RowMenu>
+                    ))}
+                </ul>
+            )}
+            {planOnly
+                ? ordered.length > PLAN_PREVIEW && (
+                      <ChecklistToggle open={expanded} onClick={() => setExpanded((value) => !value)}>
+                          {expanded ? t("hidePlanned") : t("showPlanned", { count: ordered.length - PLAN_PREVIEW })}
+                      </ChecklistToggle>
+                  )
+                : paidCount > 0 && (
+                      <ChecklistToggle open={expanded} onClick={() => setExpanded((value) => !value)}>
+                          {expanded ? t("hidePaid") : t("showPaid", { count: paidCount })}
+                      </ChecklistToggle>
+                  )}
             <EssentialPaymentDialog
                 essential={selectedEssential}
                 type={type}

@@ -23,7 +23,7 @@ import { Button } from "ui/button";
 import { TransactionType } from "types/transactions";
 import { useCardName } from "./cards/card-face";
 
-export const PossibleRemaining = () => {
+export const PossibleRemaining = ({ recent }: { recent?: React.ReactNode }) => {
     const t = useTranslations("possible");
     const tCycle = useTranslations("payCycle");
     const tSections = useTranslations("sections");
@@ -144,8 +144,34 @@ export const PossibleRemaining = () => {
                 />
             </StatGrid>
 
-            <PayCyclePanel result={result} symbol={userSymbol} />
-            <CategoryLimits cycle={cycle} transactions={scopedTransactions} symbol={userSymbol} />
+            <div className="mt-8 grid items-start gap-10 lg:grid-cols-12">
+                {recent && <div className="min-w-0 lg:col-span-7">{recent}</div>}
+                <div
+                    className={
+                        recent
+                            ? "flex min-w-0 flex-col gap-8 lg:col-span-5"
+                            : "grid gap-8 lg:col-span-12 lg:grid-cols-2 lg:gap-10"
+                    }
+                >
+                    <ExpectedIncomeList />
+
+                    <div data-tour="essentials">
+                        <EssentialsChecklist
+                            actions={
+                                <>
+                                    <EssentialSpends triggerLabel={t("editList")} />
+                                    <ChangeDefaultEssentials triggerLabel={t("template")} />
+                                </>
+                            }
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-7">
+                <PayCyclePanel result={result} symbol={userSymbol} />
+                <CategoryLimits cycle={cycle} transactions={scopedTransactions} symbol={userSymbol} />
+            </div>
             <CycleReview
                 cycle={cycle}
                 transactions={scopedTransactions}
@@ -153,21 +179,6 @@ export const PossibleRemaining = () => {
                 open={reviewOpen}
                 onOpenChange={setReviewOpen}
             />
-
-            <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10">
-                <ExpectedIncomeList />
-
-                <div data-tour="essentials">
-                    <EssentialsChecklist
-                        actions={
-                            <>
-                                <EssentialSpends triggerLabel={t("editList")} />
-                                <ChangeDefaultEssentials triggerLabel={t("template")} />
-                            </>
-                        }
-                    />
-                </div>
-            </div>
         </Section>
     );
 };
