@@ -68,6 +68,7 @@
 
 :root {
     --keyboard-inset: 0px;
+    --visual-height: 100dvh;
     --header-height: 3.75rem;
 
     --paper: #f3f5f4;
@@ -528,14 +529,17 @@
 
 .dialog-frame {
     top: calc(50% - var(--keyboard-inset, 0px) / 2);
-    max-height: calc(90dvh - var(--keyboard-inset, 0px));
+    max-height: min(calc(90dvh - var(--keyboard-inset, 0px)), calc(var(--visual-height, 100dvh) - 2rem));
 }
 
 @media (max-width: 639px) {
     .dialog-frame {
         top: auto;
         bottom: var(--keyboard-inset, 0px);
-        max-height: calc(92dvh - var(--keyboard-inset, 0px));
+        max-height: min(
+            calc(92dvh - var(--keyboard-inset, 0px)),
+            calc(var(--visual-height, 100dvh) - max(0.75rem, env(safe-area-inset-top)))
+        );
         padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
 }
@@ -849,7 +853,7 @@
 
 @media (min-width: 640px) {
     .dialog-tall {
-        height: min(46rem, calc(90dvh - var(--keyboard-inset, 0px)));
+        height: min(46rem, calc(90dvh - var(--keyboard-inset, 0px)), calc(var(--visual-height, 100dvh) - 2rem));
         align-content: start;
     }
 }

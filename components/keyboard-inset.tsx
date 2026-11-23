@@ -10,7 +10,8 @@ export const KeyboardInset = () => {
         if (!viewport) return;
 
         const root = document.documentElement;
-        let previous = 0;
+        let previousInset = 0;
+        let previousHeight = 0;
 
         const revealFocusedField = () => {
             const active = document.activeElement as HTMLElement | null;
@@ -20,13 +21,19 @@ export const KeyboardInset = () => {
         };
 
         const update = () => {
+            const height = Math.round(viewport.height);
+            if (height !== previousHeight) {
+                root.style.setProperty("--visual-height", `${height}px`);
+                previousHeight = height;
+            }
+
             const raw = window.innerHeight - viewport.height - viewport.offsetTop;
             const inset = raw < 80 ? 0 : Math.round(raw);
-            if (inset === previous) return;
+            if (inset === previousInset) return;
 
             root.style.setProperty("--keyboard-inset", `${inset}px`);
             if (inset > 0) revealFocusedField();
-            previous = inset;
+            previousInset = inset;
         };
 
         update();
@@ -37,6 +44,7 @@ export const KeyboardInset = () => {
             viewport.removeEventListener("resize", update);
             viewport.removeEventListener("scroll", update);
             root.style.setProperty("--keyboard-inset", "0px");
+            root.style.removeProperty("--visual-height");
         };
     }, []);
 

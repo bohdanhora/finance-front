@@ -354,6 +354,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                     <FormControl>
                                         <Textarea
                                             maxLength={1000}
+                                            autoComplete="off"
                                             placeholder={t("goalNotePlaceholder")}
                                             className="min-h-20 resize-none"
                                             {...field}
