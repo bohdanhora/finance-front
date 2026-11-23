@@ -319,6 +319,96 @@ const streamFromOpenAI = async (options: StreamOptions, reply: Reply) => {
     }
 };
 
+const responsesTools = (): OpenAI.Responses.FunctionTool[] =>
+    ASSISTANT_TOOLS.map((tool) => ({
+        type: "function" as const,
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parameters as Record<string, unknown>,
+        strict: false,
+    }));
+
+const streamFromResponses = async (options: StreamOptions, reply: Reply) => {
+    const { connection, instructions, snapshot, messages, signal } = options;
+    const client = openaiClient(connection);
+    const history: OpenAI.Responses.ResponseInputItem[] = toTurns(messages).map((turn) => ({
+        role: turn.role,
+        content: turn.content,
+    }));
+
+    let tools = options.tools;
+    let system = `${instructions}\n\n${snapshot}`;
+    let input: OpenAI.Responses.ResponseInputItem[] = history;
+    let previous: string | undefined;
+
+    for (let round = 0; round < MAX_ROUNDS; round += 1) {
+        const last = round === MAX_ROUNDS - 1;
+        let calls: OpenAI.Responses.ResponseFunctionToolCall[] = [];
+
+        const run = async () => {
+            const stream = await client.responses.create(
+                {
+                    model: connection.model,
+                    stream: true,
+                    instructions: system,
+                    input,
+                    ...(previous ? { previous_response_id: previous } : {}),
+                    ...(tools ? { tools: responsesTools(), ...(last ? { tool_choice: "none" as const } : {}) } : {}),
+                },
+                { signal },
+            );
+
+            for await (const event of stream) {
+                if (event.type === "response.output_text.delta") reply.push(event.delta);
+                if (event.type === "response.completed") {
+                    previous = event.response.id;
+                    calls = event.response.output.filter(
+                        (item): item is OpenAI.Responses.ResponseFunctionToolCall => item.type === "function_call",
+                    );
+                }
+                if (event.type === "response.failed") {
+                    throw new AssistantError("unknown", event.response.error?.message);
+                }
+            }
+        };
+
+        try {
+            await run();
+        } catch (error) {
+            if (signal.aborted) return;
+            const status = (error as { status?: number })?.status;
+            if (!tools || round > 0 || (status !== 400 && status !== 404 && status !== 422)) throw error;
+            tools = undefined;
+            options.onToolsUnavailable?.(error instanceof Error ? error.message : String(status));
+            system = `${options.noToolsInstructions ?? instructions}\n\n${snapshot}`;
+            reply.rollback();
+            calls = [];
+            await run();
+        }
+
+        if (!tools || calls.length === 0) {
+            reply.commit();
+            return;
+        }
+
+        const data = tools;
+        reply.rollback();
+        options.onWorking?.(true);
+
+        input = calls.map((call) => {
+            const parsed = parseArguments(call.arguments);
+            return {
+                type: "function_call_output" as const,
+                call_id: call.call_id,
+                output:
+                    parsed === null
+                        ? JSON.stringify({ error: "Arguments were not valid JSON." })
+                        : runAssistantTool(call.name, parsed, data),
+            };
+        });
+    }
+};
+
 export const streamAssistantReply = async (options: StreamOptions): Promise<string> => {
     let committed = "";
     let current = "";
@@ -344,6 +434,8 @@ export const streamAssistantReply = async (options: StreamOptions): Promise<stri
     try {
         if (options.connection.provider.kind === "anthropic") {
             await streamFromAnthropic(options, reply);
+        } else if (options.connection.provider.id === "openai") {
+            await streamFromResponses(options, reply);
         } else {
             await streamFromOpenAI(options, reply);
         }
