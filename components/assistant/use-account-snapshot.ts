@@ -4,6 +4,8 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { AssistantBankContext, buildAccountSnapshot } from "lib/assistant/context";
+import { AssistantToolData } from "lib/assistant/tools";
+import { useStatisticsPreferences } from "hooks/use-statistics-preferences";
 import { accountLabel, currencyNameByCode, fromMinorUnits, summarizeStatement } from "lib/monobank";
 import useBankStore from "store/bank";
 import useStore from "store/general";
@@ -13,10 +15,15 @@ const DAY = 24 * 60 * 60;
 
 export const useAccountSnapshot = () => {
     const queryClient = useQueryClient();
+    const preferences = useStatisticsPreferences();
 
-    return useCallback(() => {
+    return useCallback((): { snapshot: string; tools: AssistantToolData } => {
         const store = useStore.getState();
         const bankStore = useBankStore.getState();
+        const cards = store.cards.map((card, index) => ({
+            ...card,
+            name: card.name.trim() || (card.skin === "default" ? `Card ${index + 1}` : card.skin),
+        }));
 
         const info = queryClient
             .getQueriesData<MonobankClientInfo>({ queryKey: ["monobank", "client-info"] })
@@ -70,7 +77,8 @@ export const useAccountSnapshot = () => {
             }
         }
 
-        return buildAccountSnapshot({
+        const hiddenTransactions = [...preferences.hiddenTransactions];
+        const snapshot = buildAccountSnapshot({
             currency: store.userCurrency,
             totalAmount: store.totalAmount,
             totalIncome: store.totalIncome,
@@ -79,18 +87,29 @@ export const useAccountSnapshot = () => {
             percentage: store.percentage,
             essentials: store.essentialsArray,
             nextMonthEssentials: store.nextMonthEssentialsArray,
+            defaultEssentials: store.defaultEssentialsArray,
             expectedIncomes: store.expectedIncomes,
+            monthHistory: store.monthHistory,
             transactions: store.transactions,
-            cards: store.cards.map((card, index) => ({
-                name: card.name.trim() || (card.skin === "default" ? `Card ${index + 1}` : card.skin),
-                balance: card.balance,
-                creditLimit: card.creditLimit ?? 0,
-            })),
+            cards,
             savingsGoals: store.savingsGoals,
             savingsOperations: store.savingsOperations,
             streak: store.streak,
             rates: { usdToUah: bankStore.usd?.rateBuy ?? 0, eurToUah: bankStore.eur?.rateBuy ?? 0 },
             bank,
+            hiddenCategories: [...preferences.hidden],
+            hiddenTransactions,
+            categoryLimits: preferences.limits,
         });
-    }, [queryClient]);
+
+        return {
+            snapshot,
+            tools: {
+                transactions: store.transactions,
+                cards,
+                savingsOperations: store.savingsOperations,
+                hiddenTransactions,
+            },
+        };
+    }, [queryClient, preferences.hidden, preferences.hiddenTransactions, preferences.limits]);
 };

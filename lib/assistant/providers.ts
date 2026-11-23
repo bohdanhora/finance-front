@@ -16,8 +16,15 @@ export const ASSISTANT_PROVIDERS: AssistantProvider[] = [
     {
         id: "anthropic",
         kind: "anthropic",
-        defaultModel: "claude-opus-5",
-        models: ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5", "claude-fable-5-1", "claude-opus-4-8"],
+        defaultModel: "claude-opus-5-5",
+        models: [
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+            "claude-haiku-5-5",
+            "claude-fable-5-2",
+            "claude-opus-5",
+            "claude-sonnet-5",
+        ],
         keysUrl: "https://console.anthropic.com/settings/keys",
         keyHint: "sk-ant-...",
     },
@@ -79,6 +86,10 @@ export const ASSISTANT_FALLBACK_BETA = "server-side-fallback-2026-07-01";
 export type AssistantErrorKind = "auth" | "rate" | "network" | "refusal" | "unknown";
 
 const EFFORT_MODELS = [
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5",
+    "claude-fable-5-2",
     "claude-opus-5",
     "claude-opus-4-8",
     "claude-opus-4-7",
@@ -89,7 +100,14 @@ const EFFORT_MODELS = [
     "claude-fable-5-1",
 ];
 
-const FALLBACK_MODELS = ["claude-opus-5", "claude-fable-5", "claude-fable-5-1"];
+const FALLBACK_MODELS = [
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-fable-5-2",
+    "claude-opus-5",
+    "claude-fable-5",
+    "claude-fable-5-1",
+];
 
 export const supportsEffort = (model: string) => EFFORT_MODELS.includes(model);
 

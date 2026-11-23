@@ -1079,13 +1079,13 @@
         "stop": "Stop",
         "placeholder": "Ask about your money",
         "emptyTitle": "Questions about this account",
-        "emptyHint": "The assistant sees the balance, income and expenses for the month, payments, expected income, savings and recent transactions. It reads and calculates but changes nothing.",
+        "emptyHint": "The assistant sees the whole history, cards, bills, expected income, savings, goals and the pay cycle budget. It counts exactly, gives advice from your own records and asks when something is unclear. It changes nothing.",
         "disclaimer": "Answers are based on this account and can be wrong. Not financial advice.",
         "suggestions": {
             "spending": "Where did most of my money go this month?",
-            "saving": "How much can I spend per day until the end of the month?",
-            "bills": "Which bills are still unpaid and how much is left after them?",
-            "afford": "Compared with last month, am I spending more or less?"
+            "saving": "How much can I spend per day until payday?",
+            "bills": "Which bills are still unpaid and what is left after them?",
+            "afford": "What can I cut to save more? Look at my transactions."
         },
         "errors": {
             "auth": "The provider rejected the key. Check it in the settings.",
@@ -1116,7 +1116,19 @@
         "emptyBaseUrl": "Enter the API address first.",
         "modelPlaceholder": "choose a model",
         "browserHint": "Requests go from this browser straight to the provider, so the provider has to allow browser calls. Anthropic, OpenAI, Google and OpenRouter do.",
-        "disclaimerShort": "Answers can be wrong"
+        "disclaimerShort": "Answers can be wrong",
+        "working": "Counting",
+        "voice": {
+            "start": "Dictate",
+            "stop": "Stop dictation",
+            "listening": "Listening. Tap the button to stop, check the text and send.",
+            "speak": "Speak",
+            "errors": {
+                "denied": "No access to the microphone. Allow it in the browser settings.",
+                "noSpeech": "Did not hear anything. Try again closer to the microphone.",
+                "failed": "Voice input stopped. Try again or type the question."
+            }
+        }
     },
     "password": {
         "title": "Password",

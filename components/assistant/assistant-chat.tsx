@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowUp, Eraser, Sparkles, Square, X } from "lucide-react";
+import { ArrowUp, Eraser, Mic, Sparkles, Square, X } from "lucide-react";
 import { twMerge } from "lib/tw";
 
 import { Button } from "components/ui/button";
@@ -11,6 +11,7 @@ import { useIsMobile } from "hooks/use-is-mobile";
 import { buildInstructions } from "lib/assistant/prompt";
 import { ASSISTANT_OPEN_EVENT, AssistantMessage, readAssistantChat, saveAssistantChat } from "lib/assistant/storage";
 import { useAccountSnapshot } from "./use-account-snapshot";
+import { useSpeechInput } from "hooks/use-speech-input";
 import { Hint } from "components/hint";
 
 const SUGGESTION_KEYS = ["spending", "saving", "bills", "afford"] as const;
@@ -27,9 +28,13 @@ export const AssistantChat = () => {
     const [draft, setDraft] = useState("");
     const [streaming, setStreaming] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [working, setWorking] = useState(false);
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const abortRef = useRef<AbortController | null>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+
+    const speech = useSpeechInput({ locale, onText: setDraft });
 
     useEffect(() => {
         setMessages(readAssistantChat());
@@ -57,6 +62,7 @@ export const AssistantChat = () => {
     const send = async (text: string) => {
         const question = text.trim();
         if (!question || streaming || !apiKey || !model) return;
+        if (speech.listening) speech.stop();
 
         const history = [...messages, { id: crypto.randomUUID(), role: "user" as const, content: question }];
         const replyId = crypto.randomUUID();
@@ -69,25 +75,26 @@ export const AssistantChat = () => {
         const controller = new AbortController();
         abortRef.current = controller;
 
-        const appendChunk = (chunk: string) =>
+        const showReply = (content: string) =>
             setMessages((current) =>
-                persist(
-                    current.map((message) =>
-                        message.id === replyId ? { ...message, content: message.content + chunk } : message,
-                    ),
-                ),
+                persist(current.map((message) => (message.id === replyId ? { ...message, content } : message))),
             );
 
         try {
             const { streamAssistantReply } = await import("api/assistant");
 
+            const { snapshot, tools } = buildSnapshot();
+
             await streamAssistantReply({
                 connection: { provider, apiKey, model, baseURL: baseURL || undefined },
                 instructions: buildInstructions(locale),
-                snapshot: buildSnapshot(),
+                noToolsInstructions: buildInstructions(locale, false),
+                snapshot,
+                tools,
                 messages: history,
                 signal: controller.signal,
-                onText: appendChunk,
+                onText: showReply,
+                onWorking: setWorking,
             });
         } catch (requestError) {
             const kind = (requestError as { kind?: string })?.kind ?? "unknown";
@@ -101,6 +108,7 @@ export const AssistantChat = () => {
             );
         } finally {
             abortRef.current = null;
+            setWorking(false);
             setStreaming(false);
         }
     };
@@ -116,6 +124,15 @@ export const AssistantChat = () => {
     if (!connected) return null;
 
     const visible = messages.filter((message) => !message.failed);
+
+    const toggleVoice = () => {
+        if (speech.listening) {
+            speech.stop();
+            inputRef.current?.focus();
+            return;
+        }
+        speech.start(draft);
+    };
 
     return (
         <>
@@ -203,6 +220,7 @@ export const AssistantChat = () => {
                                         >
                                             {pending ? (
                                                 <span className="text-ink-faint flex items-center gap-1.5">
+                                                    {working && t("working")}
                                                     <span className="caret caret-blink" />
                                                 </span>
                                             ) : (
@@ -218,20 +236,51 @@ export const AssistantChat = () => {
                     </div>
 
                     <div className="border-rule border-t p-3">
-                        <div className="border-rule bg-surface focus-within:border-accent flex items-end gap-2 border px-3 py-2 transition-colors">
+                        {speech.listening && (
+                            <p className="text-signal mb-2 flex items-center gap-2 px-1 text-xs">
+                                <span className="bg-signal size-2 animate-pulse rounded-full" />
+                                {t("voice.listening")}
+                            </p>
+                        )}
+                        {speech.error && !speech.listening && (
+                            <p className="text-ink-muted mb-2 px-1 text-xs">{t(`voice.errors.${speech.error}`)}</p>
+                        )}
+                        <div
+                            className={twMerge(
+                                "border-rule bg-surface focus-within:border-accent flex items-end gap-2 border px-3 py-2 transition-colors",
+                                speech.listening && "border-signal focus-within:border-signal",
+                            )}
+                        >
                             <textarea
+                                ref={inputRef}
                                 rows={1}
                                 value={draft}
                                 enterKeyHint="send"
-                                placeholder={t("placeholder")}
-                                onChange={(event) => setDraft(event.target.value)}
+                                placeholder={speech.listening ? t("voice.speak") : t("placeholder")}
+                                onChange={(event) => {
+                                    if (speech.listening) speech.stop();
+                                    setDraft(event.target.value);
+                                }}
                                 onKeyDown={(event) => {
                                     if (event.key !== "Enter" || event.shiftKey || isMobile) return;
                                     event.preventDefault();
                                     void send(draft);
                                 }}
-                                className="placeholder:text-ink-faint max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
+                                className="placeholder:text-ink-faint field-sizing-content max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
                             />
+                            {speech.supported && !streaming && (
+                                <Button
+                                    size="icon"
+                                    variant={speech.listening ? "destructive" : "ghost"}
+                                    className={twMerge("size-9 shrink-0", speech.listening && "animate-pulse")}
+                                    aria-label={speech.listening ? t("voice.stop") : t("voice.start")}
+                                    title={speech.listening ? t("voice.stop") : t("voice.start")}
+                                    aria-pressed={speech.listening}
+                                    onClick={toggleVoice}
+                                >
+                                    {speech.listening ? <Square className="size-3.5" /> : <Mic />}
+                                </Button>
+                            )}
                             {streaming ? (
                                 <Button
                                     size="icon"
