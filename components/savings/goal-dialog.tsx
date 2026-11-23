@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { Calculator, CalendarDays, Link2, Plus, X } from "lucide-react";
 
-import { useAddSavingsGoal, useUpdateSavingsGoal } from "api/main";
+import { useAddSavingsGoal, useSavingsGoalPrices, useUpdateSavingsGoal } from "api/main";
 import { CURRENCY } from "constants/index";
 import useBankStore from "store/bank";
 import useStore from "store/general";
@@ -36,6 +36,7 @@ import { toMoneyInput } from "lib/money";
 import { getCurrencySymbol } from "lib/currency";
 import { ValidationMessages, useValidationMessages } from "lib/validation";
 import { Hint } from "components/hint";
+import { SavingsLinkPreview } from "components/savings/link-preview";
 
 const getGoalSchema = (messages: ValidationMessages) =>
     z.object({
@@ -53,6 +54,7 @@ const getGoalSchema = (messages: ValidationMessages) =>
                 }),
             }),
         ),
+        image: z.string(),
         note: z.string().max(1000),
     });
 
@@ -65,6 +67,7 @@ const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
     currency,
     targetDate: "",
     links: [{ value: "" }],
+    image: "",
     note: "",
 });
 
@@ -112,6 +115,27 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
         return date;
     }, []);
 
+    const watchedLinks = form.watch("links");
+    const linksKey = JSON.stringify(watchedLinks.map(({ value }) => normalizeGoalUrl(value)));
+    const [previewUrls, setPreviewUrls] = useState<(string | null)[]>([]);
+    const [brokenImages, setBrokenImages] = useState<string[]>([]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setPreviewUrls(JSON.parse(linksKey)), 500);
+        return () => clearTimeout(timer);
+    }, [linksKey]);
+
+    const previewTargets = previewUrls.filter((url): url is string => Boolean(url));
+    const previews = useSavingsGoalPrices(previewTargets);
+    const previewFor = (url: string | null) => (url ? previews[previewTargets.indexOf(url)] : undefined);
+    const imageOf = (url: string | null) => {
+        const image = previewFor(url)?.data?.image;
+        return image && !brokenImages.includes(image) ? image : undefined;
+    };
+    const availableImages = [...new Set(previewUrls.map(imageOf).filter((image): image is string => Boolean(image)))];
+    const chosenImage = form.watch("image");
+    const coverImage = availableImages.includes(chosenImage) ? chosenImage : availableImages[0];
+
     const planMoney = (value: number) => `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
 
     useEffect(() => {
@@ -134,6 +158,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                       currency: goal.currency,
                       targetDate: goal.targetDate?.slice(0, 10) ?? "",
                       links: goalLinks(goal).length ? goalLinks(goal).map((value) => ({ value })) : [{ value: "" }],
+                      image: goal.image ?? "",
                       note: goal.note ?? "",
                   }
                 : getEmptyValues(userCurrency),
@@ -162,6 +187,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
             targetDate: values.targetDate || undefined,
             url: normalizedLinks[0],
             links: normalizedLinks.length ? normalizedLinks : undefined,
+            image: normalizedLinks.length ? (coverImage ?? goal?.image) : undefined,
             note: values.note.trim() || undefined,
             createdAt: goal?.createdAt ?? new Date().toISOString(),
         };
@@ -328,6 +354,29 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                 )}
                                             </div>
                                             <FormMessage />
+                                            {previewUrls[index] &&
+                                                previewUrls[index] === normalizeGoalUrl(field.value) && (
+                                                    <SavingsLinkPreview
+                                                        url={previewUrls[index]}
+                                                        title={previewFor(previewUrls[index])?.data?.title}
+                                                        image={imageOf(previewUrls[index])}
+                                                        loading={Boolean(
+                                                            previewFor(previewUrls[index])?.isFetching &&
+                                                                !previewFor(previewUrls[index])?.data,
+                                                        )}
+                                                        selectable={availableImages.length > 1}
+                                                        selected={
+                                                            Boolean(coverImage) &&
+                                                            imageOf(previewUrls[index]) === coverImage
+                                                        }
+                                                        onSelect={() =>
+                                                            form.setValue("image", imageOf(previewUrls[index]) ?? "")
+                                                        }
+                                                        onBroken={(image) =>
+                                                            setBrokenImages((current) => [...current, image])
+                                                        }
+                                                    />
+                                                )}
                                         </FormItem>
                                     )}
                                 />

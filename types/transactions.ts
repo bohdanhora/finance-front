@@ -20,6 +20,7 @@ export type SavingsGoal = {
     targetDate?: string;
     url?: string;
     links?: string[];
+    image?: string;
     note?: string;
     createdAt: string;
 };
@@ -29,6 +30,7 @@ export type SavingsGoalPriceResponse = {
     price: number | null;
     currency?: string;
     title?: string;
+    image?: string;
     checkedAt: string;
 };
 

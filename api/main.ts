@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { transactionsAxios } from "config/axios.instances";
 import { showAxiosError } from "lib/utils";
 import {
@@ -383,15 +383,19 @@ const getSavingsGoalPrice = async (url: string): Promise<SavingsGoalPriceRespons
     return res.data;
 };
 
-export const useSavingsGoalPrice = (url?: string) =>
-    useQuery({
-        queryKey: ["savings-goal-price", url],
-        queryFn: () => getSavingsGoalPrice(url as string),
-        enabled: Boolean(url),
-        staleTime: 15 * 60 * 1000,
-        retry: false,
-        refetchOnWindowFocus: false,
-    });
+const savingsGoalPriceQuery = (url?: string) => ({
+    queryKey: ["savings-goal-price", url],
+    queryFn: () => getSavingsGoalPrice(url as string),
+    enabled: Boolean(url),
+    staleTime: 15 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
+});
+
+export const useSavingsGoalPrice = (url?: string) => useQuery(savingsGoalPriceQuery(url));
+
+export const useSavingsGoalPrices = (urls: string[]) =>
+    useQueries({ queries: urls.map((url) => savingsGoalPriceQuery(url)) });
 
 const addSavingsOperation = async (payload: SavingsOperationPayload): Promise<SavingsMutationResponse> => {
     const res = await transactionsAxios.post("savings/operations", payload);

@@ -11,6 +11,7 @@ import { calculateSavingsPace, convertSavingsCurrency, getSavingsBalance, getUrl
 import { twMerge } from "lib/tw";
 import { formatCurrency } from "lib/utils";
 import { SavingsGoal, SavingsOperation } from "types/transactions";
+import { SavingsGoalCover } from "./goal-cover";
 import { SavingsPriceNote } from "./price-note";
 
 type Props = {
@@ -73,6 +74,12 @@ export const SavingsGoalCard = ({
 
     return (
         <article className={twMerge("panel flex h-full flex-col p-5", className)}>
+            <SavingsGoalCover
+                links={links}
+                image={goal.image}
+                alt={goal.name}
+                className="rounded-t-panel -mx-5 -mt-5 mb-4"
+            />
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-start gap-2">
                     {handle}
