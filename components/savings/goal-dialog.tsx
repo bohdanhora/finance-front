@@ -28,7 +28,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "components/ui/input";
 import { DatePicker } from "components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { GOAL_LINKS_LIMIT, calculateSavingsPace, getSavingsBalance, goalLinks, normalizeGoalUrl } from "lib/savings";
+import {
+    GOAL_LINKS_LIMIT,
+    calculateSavingsPace,
+    convertSavingsCurrency,
+    getSavingsBalance,
+    goalLinks,
+    normalizeGoalUrl,
+} from "lib/savings";
 import { Textarea } from "components/ui/textarea";
 import { Label } from "components/ui/label";
 import { formatCurrency, handleDecimalInputChange } from "lib/utils";
@@ -37,6 +44,7 @@ import { getCurrencySymbol } from "lib/currency";
 import { ValidationMessages, useValidationMessages } from "lib/validation";
 import { Hint } from "components/hint";
 import { SavingsLinkPreview } from "components/savings/link-preview";
+import { formatSitePrice, parseSiteCurrency } from "components/savings/site-price";
 
 const getGoalSchema = (messages: ValidationMessages) =>
     z.object({
@@ -135,6 +143,65 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
     const availableImages = [...new Set(previewUrls.map(imageOf).filter((image): image is string => Boolean(image)))];
     const chosenImage = form.watch("image");
     const coverImage = availableImages.includes(chosenImage) ? chosenImage : availableImages[0];
+
+    const { dirtyFields } = form.formState;
+    const firstUrl = previewUrls.find((url): url is string => Boolean(url)) ?? null;
+    const firstPrice = previewFor(firstUrl)?.data;
+
+    const sitePriceOf = (url: string | null) => {
+        const data = previewFor(url)?.data;
+        if (!data || data.price === null) return null;
+        return { price: data.price, code: data.currency, currency: parseSiteCurrency(data.currency) };
+    };
+
+    const sitePriceProps = (url: string | null) => {
+        const site = sitePriceOf(url);
+        if (!site) return {};
+        const { currency, price } = site;
+        const applied = currency === selectedCurrency && Math.abs(price - targetAmount) < 0.005;
+
+        return {
+            price: formatSitePrice(price, site.code),
+            onUsePrice:
+                currency && !applied
+                    ? () => {
+                          form.setValue("currency", currency, { shouldDirty: true, shouldValidate: true });
+                          form.setValue("targetAmount", toMoneyInput(price), {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                          });
+                      }
+                    : undefined,
+        };
+    };
+
+    useEffect(() => {
+        if (!open || goal || !firstPrice || firstPrice.price === null || dirtyFields.targetAmount) return;
+        const siteCurrency = parseSiteCurrency(firstPrice.currency);
+        if (!siteCurrency) return;
+
+        if (!dirtyFields.currency) {
+            form.setValue("currency", siteCurrency, { shouldValidate: true });
+            form.setValue("targetAmount", toMoneyInput(firstPrice.price), { shouldValidate: true });
+            return;
+        }
+
+        const converted = convertSavingsCurrency(firstPrice.price, siteCurrency, form.getValues("currency"), {
+            usdToUah,
+            eurToUah,
+        });
+        if (converted !== null) form.setValue("targetAmount", toMoneyInput(converted), { shouldValidate: true });
+    }, [
+        form,
+        open,
+        goal,
+        firstPrice,
+        dirtyFields.targetAmount,
+        dirtyFields.currency,
+        selectedCurrency,
+        usdToUah,
+        eurToUah,
+    ]);
 
     const planMoney = (value: number) => `${formatCurrency(value)} ${getCurrencySymbol(selectedCurrency)}`;
 
@@ -375,6 +442,7 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                         onBroken={(image) =>
                                                             setBrokenImages((current) => [...current, image])
                                                         }
+                                                        {...sitePriceProps(previewUrls[index])}
                                                     />
                                                 )}
                                         </FormItem>

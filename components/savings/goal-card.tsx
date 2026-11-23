@@ -9,6 +9,7 @@ import { twMerge } from "lib/tw";
 import { SavingsGoal, SavingsOperation } from "types/transactions";
 import { SavingsGoalCover } from "./goal-cover";
 import { GoalRates, getGoalSummary, goalMoney } from "./goal-summary";
+import { SavingsSitePrices } from "./site-prices";
 
 type Props = {
     goal: SavingsGoal;
@@ -23,6 +24,7 @@ type Props = {
 export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onOpen, handle, className }: Props) => {
     const t = useTranslations("savings");
     const summary = getGoalSummary(goal, operations, rates, displayCurrency);
+    const links = goalLinks(goal);
 
     return (
         <article
@@ -32,7 +34,7 @@ export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onOp
             )}
         >
             <SavingsGoalCover
-                links={goalLinks(goal)}
+                links={links}
                 image={goal.image}
                 alt={goal.name}
                 className="aspect-4/3"
@@ -56,6 +58,7 @@ export const SavingsGoalCard = ({ goal, operations, rates, displayCurrency, onOp
                                 ≈ {goalMoney(summary.convertedTarget, summary.comparisonCurrency)}
                             </p>
                         )}
+                        <SavingsSitePrices goal={goal} links={links} rates={rates} className="mt-1.5" />
                     </div>
                     <p
                         className={twMerge(

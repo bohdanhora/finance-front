@@ -5,11 +5,11 @@ import { ArrowDownRight, ArrowUpRight, Loader2, Tag } from "lucide-react";
 import { twMerge } from "lib/tw";
 
 import { useSavingsGoalPrice } from "api/main";
-import { CURRENCY } from "constants/index";
 import { convertSavingsCurrency } from "lib/savings";
 import { getCurrencySymbol } from "lib/currency";
 import { formatCurrency } from "lib/utils";
 import { SavingsGoal } from "types/transactions";
+import { MEANINGFUL_PRICE_DIFFERENCE, formatSitePrice, parseSiteCurrency } from "./site-price";
 
 type Props = {
     goal: SavingsGoal;
@@ -17,14 +17,6 @@ type Props = {
     rates: { usdToUah: number; eurToUah: number };
     className?: string;
 };
-
-const KNOWN_CURRENCIES: Record<string, CURRENCY> = {
-    UAH: CURRENCY.UAH,
-    USD: CURRENCY.USD,
-    EUR: CURRENCY.EUR,
-};
-
-const MEANINGFUL_DIFFERENCE = 0.5;
 
 export const SavingsPriceNote = ({ goal, url, rates, className }: Props) => {
     const t = useTranslations("savings");
@@ -43,14 +35,12 @@ export const SavingsPriceNote = ({ goal, url, rates, className }: Props) => {
         return <p className={twMerge("text-ink-faint mt-1.5 text-xs", className)}>{t("priceUnavailable")}</p>;
     }
 
-    const siteCurrency = data.currency ? KNOWN_CURRENCIES[data.currency.toUpperCase()] : undefined;
-    const sitePrice = siteCurrency
-        ? `${formatCurrency(data.price)} ${getCurrencySymbol(siteCurrency)}`
-        : `${formatCurrency(data.price)}${data.currency ? ` ${data.currency}` : ""}`;
+    const siteCurrency = parseSiteCurrency(data.currency);
+    const sitePrice = formatSitePrice(data.price, data.currency);
     const comparable = siteCurrency ? convertSavingsCurrency(data.price, siteCurrency, goal.currency, rates) : null;
     const difference = comparable === null ? null : comparable - goal.targetAmount;
-    const isCheaper = difference !== null && difference < -MEANINGFUL_DIFFERENCE;
-    const isPricier = difference !== null && difference > MEANINGFUL_DIFFERENCE;
+    const isCheaper = difference !== null && difference < -MEANINGFUL_PRICE_DIFFERENCE;
+    const isPricier = difference !== null && difference > MEANINGFUL_PRICE_DIFFERENCE;
     const gap =
         difference === null ? "" : `${formatCurrency(Math.abs(difference))} ${getCurrencySymbol(goal.currency)}`;
 
