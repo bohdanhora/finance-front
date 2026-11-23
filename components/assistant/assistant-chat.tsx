@@ -198,6 +198,14 @@ export const AssistantChat = () => {
                 signal: controller.signal,
                 onText: showReply,
                 onWorking: setWorking,
+                onToolsUnavailable: (reason) =>
+                    setMessages((current) =>
+                        persist(
+                            current.map((message) =>
+                                message.id === replyId ? { ...message, toolsUnavailable: reason } : message,
+                            ),
+                        ),
+                    ),
             });
         } catch (requestError) {
             const kind = (requestError as { kind?: string })?.kind ?? "unknown";
@@ -333,6 +341,14 @@ export const AssistantChat = () => {
                                                     message.content
                                                 )}
                                             </div>
+                                        )}
+                                        {message.toolsUnavailable && (
+                                            <p
+                                                className="border-warn text-ink-muted mt-2 max-w-5/6 border-l-2 py-0.5 pl-3 text-xs"
+                                                title={message.toolsUnavailable}
+                                            >
+                                                {t("toolsUnavailable")}
+                                            </p>
                                         )}
                                         {message.proposal && (
                                             <OperationsProposal

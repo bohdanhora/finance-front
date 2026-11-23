@@ -1145,7 +1145,8 @@
                 "pending": "",
                 "failed": ""
             }
-        }
+        },
+        "toolsUnavailable": "This model rejected the app's tools, so it cannot search the history exactly or add operations. Pick another model in Settings."
     },
     "password": {
         "title": "Password",

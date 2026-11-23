@@ -28,6 +28,7 @@ export type AssistantMessage = {
     content: string;
     failed?: boolean;
     proposal?: OperationsProposal;
+    toolsUnavailable?: string;
 };
 
 const announce = () => window.dispatchEvent(new Event(ASSISTANT_KEY_EVENT));

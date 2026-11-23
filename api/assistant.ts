@@ -115,6 +115,7 @@ type StreamOptions = {
     noToolsInstructions?: string;
     onText: (text: string) => void;
     onWorking?: (working: boolean) => void;
+    onToolsUnavailable?: (reason: string) => void;
 };
 
 type Reply = {
@@ -272,6 +273,7 @@ const streamFromOpenAI = async (options: StreamOptions, reply: Reply) => {
             const status = (error as { status?: number })?.status;
             if (!tools || round > 0 || (status !== 400 && status !== 404 && status !== 422)) throw error;
             tools = undefined;
+            options.onToolsUnavailable?.(error instanceof Error ? error.message : String(status));
             turns[0] = {
                 role: "system",
                 content: `${options.noToolsInstructions ?? instructions}\n\n${snapshot}`,

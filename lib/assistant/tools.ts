@@ -115,7 +115,6 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                     description: `How many rows to return, 0 to ${MAX_ITEMS}. Default ${DEFAULT_ITEMS}. Totals always cover every match.`,
                 },
             },
-            additionalProperties: false,
         },
     },
     {
@@ -128,7 +127,6 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                 expression: { type: "string", description: "For example (45210.5 - 12000) / 17" },
             },
             required: ["expression"],
-            additionalProperties: false,
         },
     },
     {
@@ -142,7 +140,6 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                 to: { type: "string", description: "Last day included, YYYY-MM-DD." },
                 limit: { type: "number", description: `Rows to return, default ${DEFAULT_ITEMS}.` },
             },
-            additionalProperties: false,
         },
     },
     {
@@ -173,12 +170,10 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                             toCard: { type: "string", description: "Destination card name for a transfer." },
                         },
                         required: ["type", "amount"],
-                        additionalProperties: false,
                     },
                 },
             },
             required: ["operations"],
-            additionalProperties: false,
         },
     },
     {
@@ -191,7 +186,6 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                 section: { type: "string", enum: [...ACCOUNT_SECTIONS] },
             },
             required: ["section"],
-            additionalProperties: false,
         },
     },
 ];

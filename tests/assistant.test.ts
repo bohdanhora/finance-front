@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildAccountSnapshot, type AssistantContextInput } from "../lib/assistant/context";
-import { calculate, queryTransactions, runAssistantTool, type ProposedOperation } from "../lib/assistant/tools";
+import {
+    ASSISTANT_TOOLS,
+    calculate,
+    queryTransactions,
+    runAssistantTool,
+    type ProposedOperation,
+} from "../lib/assistant/tools";
 import {
     ASSISTANT_PROVIDERS,
     DEFAULT_PROVIDER_ID,
@@ -424,4 +430,14 @@ test("refuses unclear operations and proposes nothing", () => {
 
     assert.equal(proposed.length, 0);
     assert.equal(result.details.length, 4);
+});
+
+test("keeps tool schemas portable across providers", () => {
+    const schemas = JSON.stringify(ASSISTANT_TOOLS.map((tool) => tool.parameters));
+
+    assert.doesNotMatch(schemas, /additionalProperties|\$ref|anyOf|oneOf/);
+    assert.deepEqual(
+        ASSISTANT_TOOLS.map((tool) => tool.name),
+        ["query_transactions", "calculate", "savings_history", "add_operations", "get_account_data"],
+    );
 });
