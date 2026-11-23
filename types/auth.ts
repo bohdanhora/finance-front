@@ -38,12 +38,21 @@ export type RegistrationPayload = {
     name: string;
     email: string;
     password: string;
+};
+
+export type RegistrationResponseType = LoginResponseType & {
+    message: string;
+};
+
+export type ClaimEmailPayload = RegistrationPayload & {
     verificationCode: string;
 };
 
-export type RegistrationResponseType = {
-    accessToken: string;
-    refreshToken: string;
+export type AuthErrorCode = "EMAIL_TAKEN" | "EMAIL_UNVERIFIED" | "CODE_RECENTLY_SENT" | "INVALID_CODE";
+
+export type EmailVerificationResponse = {
+    message: string;
+    emailVerified: boolean;
 };
 
 export type LogoutPayload = {
@@ -54,7 +63,13 @@ export type SessionDeviceType = "desktop" | "mobile" | "tablet";
 
 export type SessionMethod = "password" | "google" | "legacy";
 
-export type SessionEndReason = "logout" | "revoked" | "password-changed" | "password-reset" | "expired";
+export type SessionEndReason =
+    | "logout"
+    | "revoked"
+    | "password-changed"
+    | "password-reset"
+    | "email-claimed"
+    | "expired";
 
 export type AccountSession = {
     id: string;
@@ -91,6 +106,7 @@ export type AccountResponse = {
     email: string;
     registeredVia: "local" | "google";
     hasPassword: boolean;
+    emailVerified?: boolean;
 };
 
 export type ChangePasswordPayload = {

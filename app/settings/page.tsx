@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Navbar } from "components/navbar";
 import { AccountPassword } from "components/settings/account-password";
+import { EmailVerificationCard } from "components/settings/email-verification";
 import { AccountSessions } from "components/settings/account-sessions";
 import { AssistantConnection } from "components/settings/assistant-connection";
 import { MonobankConnection } from "components/settings/monobank-connection";
@@ -27,6 +28,7 @@ const SettingsPage = () => {
                         <div className="flex min-w-0 flex-col gap-14">
                             <MonobankConnection />
                             <AccountPassword />
+                            <EmailVerificationCard />
                         </div>
                     </div>
 

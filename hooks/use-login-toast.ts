@@ -6,10 +6,13 @@ type T = ReturnType<typeof useTranslations>;
 
 export const useLoginToast = (t: T) => {
     useEffect(() => {
-        const shouldShowToast = sessionStorage.getItem("showLoginToast");
-        if (shouldShowToast) {
+        if (sessionStorage.getItem("showLoginToast")) {
             toast.success(t("api.successLogin"));
             sessionStorage.removeItem("showLoginToast");
+        }
+        if (sessionStorage.getItem("showRegistrationToast")) {
+            toast.success(t("api.successRegistration"));
+            sessionStorage.removeItem("showRegistrationToast");
         }
     }, [t]);
 };

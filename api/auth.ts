@@ -4,6 +4,7 @@ import { authAxios } from "config/axios.instances";
 import { loginSetTokens } from "lib/auth-helper";
 import { showAxiosError } from "lib/utils";
 import {
+    ClaimEmailPayload,
     ForgotPasswordPayload,
     ForgotPasswordResponseType,
     LoginPayload,
@@ -50,7 +51,6 @@ export const useForgotPassword = () => {
                 sessionStorage.setItem("showForgotPasswordToast", "true");
             }
         },
-        onError: showAxiosError,
     });
 };
 
@@ -77,14 +77,30 @@ const registration = async (payload: RegistrationPayload): Promise<RegistrationR
     return res.data;
 };
 
+const signInAfterRegistration = (data: RegistrationResponseType) => {
+    if (!data.accessToken) return;
+    sessionStorage.setItem("showRegistrationToast", "true");
+    loginSetTokens(data, true);
+};
+
 export const useRegistrationMutation = () => {
     return useMutation({
         mutationKey: ["registration"],
         mutationFn: registration,
-        onSuccess: () => {
-            sessionStorage.setItem("showRegistrationToast", "true");
-        },
-        onError: showAxiosError,
+        onSuccess: signInAfterRegistration,
+    });
+};
+
+const claimEmail = async (payload: ClaimEmailPayload): Promise<RegistrationResponseType> => {
+    const res = await authAxios.post("claim-email", payload);
+    return res.data;
+};
+
+export const useClaimEmailMutation = () => {
+    return useMutation({
+        mutationKey: ["claim-email"],
+        mutationFn: claimEmail,
+        onSuccess: signInAfterRegistration,
     });
 };
 
@@ -113,6 +129,5 @@ export const useRequestEmailCode = () => {
     return useMutation({
         mutationKey: ["request-email-code"],
         mutationFn: requestEmailCode,
-        onError: showAxiosError,
     });
 };

@@ -5,6 +5,7 @@ import {
     AccountSessionsResponse,
     ChangePasswordPayload,
     ChangePasswordResponseType,
+    EmailVerificationResponse,
     RemoveSessionResponse,
 } from "types/auth";
 
@@ -39,6 +40,36 @@ export const useChangePassword = () => {
                 current ? { ...current, hasPassword: true } : current,
             );
             void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+        },
+    });
+};
+
+const requestOwnVerification = async (): Promise<EmailVerificationResponse> => {
+    const res = await accountAxios.post("verify-email/request");
+    return res.data;
+};
+
+export const useRequestOwnVerification = () =>
+    useMutation({
+        mutationKey: ["verify-email", "request"],
+        mutationFn: requestOwnVerification,
+    });
+
+const verifyOwnEmail = async (code: string): Promise<EmailVerificationResponse> => {
+    const res = await accountAxios.post("verify-email", { code });
+    return res.data;
+};
+
+export const useVerifyOwnEmail = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationKey: ["verify-email"],
+        mutationFn: verifyOwnEmail,
+        onSuccess: () => {
+            queryClient.setQueryData<AccountResponse>(ACCOUNT_QUERY_KEY, (current) =>
+                current ? { ...current, emailVerified: true } : current,
+            );
         },
     });
 };

@@ -1,6 +1,7 @@
 import { CheckedState } from "@radix-ui/react-checkbox";
 import Cookies from "js-cookie";
-import { LoginResponseType } from "types/auth";
+import { isAxiosError } from "axios";
+import { AuthErrorCode, LoginResponseType } from "types/auth";
 
 export const AUTH_SESSION_DAYS = 3;
 export const GOOGLE_AUTH_REMEMBER_ME_KEY = "googleAuthRememberMe";
@@ -29,4 +30,10 @@ export const loginSetTokens = ({ accessToken, refreshToken, userId }: LoginRespo
     } else {
         Cookies.remove(REMEMBER_ME_COOKIE, { path: "/" });
     }
+};
+
+export const authErrorCode = (error: unknown): AuthErrorCode | undefined => {
+    if (!isAxiosError(error)) return undefined;
+    const code = (error.response?.data as { code?: unknown } | undefined)?.code;
+    return typeof code === "string" ? (code as AuthErrorCode) : undefined;
 };

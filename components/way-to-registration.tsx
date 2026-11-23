@@ -8,7 +8,7 @@ export const RegistrationWay = () => {
     return (
         <p className="text-ink-muted text-sm">
             {tAuth("dontHaveAccount")}{" "}
-            <Link href={Routes.SEND_EMAIL_CODE} className="link text-accent font-medium">
+            <Link href={Routes.REGISTRATION} className="link text-accent font-medium">
                 {tAuth("registration")}
             </Link>
         </p>

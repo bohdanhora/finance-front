@@ -13,9 +13,7 @@ export const useRegistrationForm = (t: ReturnType<typeof import("next-intl").use
         defaultValues: {
             name: "",
             email,
-            verificationCode: "",
             password: "",
-            confirmPassword: "",
         },
     });
 

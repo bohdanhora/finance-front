@@ -12,6 +12,7 @@ import { Total } from "components/total";
 import { PossibleRemaining } from "components/possible-remaining-balance";
 import { RecentOperations } from "components/recent-operations";
 import { NextMonthIncome } from "components/next-month-income";
+import { EmailVerifyBanner } from "components/email-verify-banner";
 
 const Home = () => {
     const t = useTranslations();
@@ -26,7 +27,10 @@ const Home = () => {
 
                 <div className="sheet">
                     <div className="shell rise-stagger flex flex-col gap-16 pt-8 pb-28 sm:pb-20 md:gap-20 md:pt-10">
-                        <Total />
+                        <div className="flex flex-col gap-8">
+                            <EmailVerifyBanner />
+                            <Total />
+                        </div>
                         <PossibleRemaining recent={<RecentOperations />} />
                         <NextMonthIncome />
                     </div>

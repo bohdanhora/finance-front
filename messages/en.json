@@ -364,7 +364,21 @@
         "pitch": "Personal budget for every day: what you have, what you can spend and what is left for savings.",
         "featureBalance": "Balance across all your cards in one place",
         "featureBudget": "Daily limit after fixed payments",
-        "featureSavings": "Savings and goals with progress"
+        "featureSavings": "Savings and goals with progress",
+        "emailTakenTitle": "An account with this email already exists",
+        "emailTakenText": "Sign in or restore your password. Or use another email.",
+        "signInInstead": "Sign in",
+        "restorePassword": "Restore password",
+        "emailUnverifiedTitle": "This email is used by an account that was never confirmed",
+        "emailUnverifiedText": "If the email is yours, confirm it with the code from the letter. The old account and all its data will be deleted and yours will be created instead.",
+        "claimSendCode": "It is my email, send a code",
+        "claimConfirm": "Confirm and create account",
+        "claimWarning": "The old account's data will be deleted for good.",
+        "codeSentTo": "Code sent to {email}. It is valid for 10 minutes.",
+        "codeWait": "You can request a new code in a minute.",
+        "invalidCode": "Wrong or expired code.",
+        "forgotUnverified": "This email was never confirmed, so the password cannot be reset by email. If the email is yours, register with it again and confirm it with a code, and the old account will be deleted.",
+        "toRegistration": "Go to registration"
     },
     "transactions": {
         "essentialMark": "essential",
@@ -1219,7 +1233,8 @@
             "revoked": "ended by you {time}",
             "password-changed": "ended by a password change {time}",
             "password-reset": "ended by a password reset {time}",
-            "expired": "expired {time}"
+            "expired": "expired {time}",
+            "email-claimed": "ended when the email owner confirmed it {time}"
         },
         "end": "End",
         "signOut": "Sign out",
@@ -1553,5 +1568,24 @@
             "open": "Show",
             "dismiss": "Hide"
         }
+    },
+    "emailVerify": {
+        "title": "Email confirmation",
+        "bannerText": "Confirm {email} so you can restore your password if you ever need to.",
+        "confirm": "Confirm",
+        "later": "Later",
+        "verifiedBadge": "Confirmed",
+        "note": "A confirmed email lets you restore your password if you forget it.",
+        "statusVerified": "{email} is confirmed",
+        "statusPending": "{email} is not confirmed yet",
+        "sendCode": "Send code",
+        "resend": "Send again",
+        "codeLabel": "Code from the letter",
+        "submit": "Confirm email",
+        "codeSent": "Code sent to {email}. It is valid for 10 minutes.",
+        "success": "Email confirmed",
+        "dialogTitle": "Confirm your email",
+        "dialogText": "We will send a 6-digit code to {email}.",
+        "verifiedText": "All set, you can restore your password by email."
     }
 }

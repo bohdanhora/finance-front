@@ -1,21 +1,20 @@
 import { z } from "zod";
 
 export const registrationSchema = (t: ReturnType<typeof import("next-intl").useTranslations>) =>
-    z
-        .object({
-            name: z.string().min(2, { message: t("errors.name") }),
-            email: z.string().email({ message: t("errors.email") }),
-            verificationCode: z.string().min(6, { message: t("errors.verificationCode") }),
-            password: z
-                .string()
-                .min(6, { message: t("errors.passwordMin") })
-                .regex(/[0-9]/, { message: t("errors.passwordNumber") }),
-            confirmPassword: z.string().min(1, { message: t("errors.confirmPassword") }),
-        })
-        .refine((data) => data.password === data.confirmPassword, {
-            message: t("errors.matchPasswords"),
-            path: ["confirmPassword"],
-        });
+    z.object({
+        name: z
+            .string()
+            .trim()
+            .min(2, { message: t("errors.name") }),
+        email: z
+            .string()
+            .trim()
+            .email({ message: t("errors.email") }),
+        password: z
+            .string()
+            .min(6, { message: t("errors.passwordMin") })
+            .regex(/[0-9]/, { message: t("errors.passwordNumber") }),
+    });
 
 export const loginSchema = (t: ReturnType<typeof import("next-intl").useTranslations>) =>
     z.object({
@@ -53,8 +52,3 @@ export const resetPasswordSchema = (t: ReturnType<typeof import("next-intl").use
             message: t("errors.matchPasswords"),
             path: ["confirmPassword"],
         });
-
-export const sendEmailSchema = (t: ReturnType<typeof import("next-intl").useTranslations>) =>
-    z.object({
-        email: z.string().email({ message: t("errors.email") }),
-    });
