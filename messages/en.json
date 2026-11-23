@@ -1147,7 +1147,14 @@
             },
             "invalid": "Could not prepare these operations. Rephrase them or add them on the Overview."
         },
-        "toolsUnavailable": "This model rejected the app's tools: it counts from the operation list itself, so totals are less reliable. Adding operations still works. Hover to see the provider's reason."
+        "toolsUnavailable": "This model rejected the app's tools: it counts from the operation list itself, so totals are less reliable. Adding operations still works. Hover to see the provider's reason.",
+        "closeConfirm": {
+            "title": "Closing clears the chat",
+            "hint": "The conversation will be deleted. Added operations stay in the app.",
+            "unsaved": "There are operations you have not added yet. They and the conversation will be deleted.",
+            "confirm": "Close and clear",
+            "stay": "Stay"
+        }
     },
     "password": {
         "title": "Password",

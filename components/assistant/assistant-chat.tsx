@@ -40,6 +40,7 @@ export const AssistantChat = () => {
     const buildSnapshot = useAccountSnapshot();
 
     const [open, setOpen] = useState(false);
+    const [confirmClose, setConfirmClose] = useState(false);
     const [messages, setMessages] = useState<AssistantMessage[]>([]);
     const [draft, setDraft] = useState("");
     const [streaming, setStreaming] = useState(false);
@@ -248,7 +249,29 @@ export const AssistantChat = () => {
         setMessages(persist([]));
     };
 
+    const close = () => {
+        if (speech.listening) speech.stop();
+        setConfirmClose(false);
+        setOpen(false);
+    };
+
+    const requestClose = () => {
+        if (messages.some((message) => !message.failed)) {
+            setConfirmClose(true);
+            return;
+        }
+        close();
+    };
+
+    const closeAndClear = () => {
+        reset();
+        setDraft("");
+        close();
+    };
+
     if (!connected) return null;
+
+    const unsaved = messages.some((message) => message.proposal?.status === "pending");
 
     const visible = messages.filter((message) => !message.failed);
 
@@ -267,7 +290,7 @@ export const AssistantChat = () => {
                 type="button"
                 aria-label={t("open")}
                 title={t("open")}
-                onClick={() => setOpen((current) => !current)}
+                onClick={() => (open ? requestClose() : setOpen(true))}
                 className={twMerge(
                     "bottom-safe bg-accent text-on-accent shadow-glow fixed right-4 z-40 flex size-12 items-center justify-center rounded-full transition-[opacity,transform] hover:scale-105",
                     "sm:right-6 sm:bottom-6",
@@ -304,10 +327,27 @@ export const AssistantChat = () => {
                                 <Eraser />
                             </Button>
                         )}
-                        <Button variant="ghost" size="icon" aria-label={t("close")} onClick={() => setOpen(false)}>
+                        <Button variant="ghost" size="icon" aria-label={t("close")} onClick={requestClose}>
                             <X />
                         </Button>
                     </header>
+
+                    {confirmClose && (
+                        <div role="alertdialog" className="border-rule bg-warn-wash border-b px-4 py-3">
+                            <p className="text-sm font-medium">{t("closeConfirm.title")}</p>
+                            <p className="text-ink-muted mt-0.5 text-xs">
+                                {unsaved ? t("closeConfirm.unsaved") : t("closeConfirm.hint")}
+                            </p>
+                            <div className="mt-2.5 flex gap-2">
+                                <Button size="sm" variant="destructive" onClick={closeAndClear}>
+                                    {t("closeConfirm.confirm")}
+                                </Button>
+                                <Button size="sm" variant="ghost" onClick={() => setConfirmClose(false)}>
+                                    {t("closeConfirm.stay")}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 
                     <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4">
                         {visible.length === 0 ? (
