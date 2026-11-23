@@ -652,6 +652,7 @@
         "previewLoading": "Завантажуємо превʼю…",
         "coverSelected": "Обкладинка",
         "coverPick": "Зробити обкладинкою",
+        "openGoal": "Відкрити ціль {name}",
         "priceUnavailable": "Ціну на сторінці не знайдено",
         "priceOnSite": "На сайті: {amount}",
         "priceCheaper": "на {amount} дешевше за ціль",

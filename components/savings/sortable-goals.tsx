@@ -31,6 +31,7 @@ import { twMerge } from "lib/tw";
 import useStore from "store/general";
 import { SavingsGoal, SavingsOperation } from "types/transactions";
 import { SavingsGoalCard } from "./goal-card";
+import { SavingsGoalDetails } from "./goal-details";
 
 type Props = {
     goals: SavingsGoal[];
@@ -41,10 +42,10 @@ type Props = {
     onDelete: (goal: SavingsGoal) => void;
 };
 
-type CardProps = Omit<Props, "goals">;
+type CardProps = Omit<Props, "goals" | "onEdit" | "onDelete"> & { onOpen: (goal: SavingsGoal) => void };
 
 const handleClass =
-    "text-ink-faint hover:text-ink hover:bg-wash -ml-2 flex h-8 shrink-0 cursor-grab touch-none items-center gap-0.5 rounded-lg pr-2 pl-1 transition-colors active:cursor-grabbing";
+    "bg-surface/85 text-ink-muted hover:text-ink flex h-8 shrink-0 cursor-grab touch-none items-center gap-0.5 rounded-lg pr-2 pl-1 shadow-sm backdrop-blur transition-colors active:cursor-grabbing";
 
 const HandleContent = ({ position }: { position: number }) => (
     <>
@@ -94,7 +95,10 @@ const SortableGoal = ({
     );
 };
 
-export const SortableGoals = ({ goals, ...cardProps }: Props) => {
+export const SortableGoals = ({ goals, onEdit, onDelete, ...shared }: Props) => {
+    const [openId, setOpenId] = useState<string | null>(null);
+    const openGoal = goals.find((goal) => goal.id === openId) ?? null;
+    const cardProps = { ...shared, onOpen: (goal: SavingsGoal) => setOpenId(goal.id) };
     const setSavingsGoals = useStore((state) => state.setSavingsGoals);
     const reorder = useReorderSavingsGoals();
     const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -135,7 +139,7 @@ export const SortableGoals = ({ goals, ...cardProps }: Props) => {
             onDragEnd={handleDragEnd}
         >
             <SortableContext items={goals.map((goal) => goal.id)} strategy={rectSortingStrategy}>
-                <div className="grid gap-x-10 gap-y-12 md:grid-cols-2">
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {goals.map((goal, index) => (
                         <SortableGoal
                             key={goal.id}
@@ -165,6 +169,19 @@ export const SortableGoals = ({ goals, ...cardProps }: Props) => {
                     </DragOverlay>,
                     document.body,
                 )}
+            <SavingsGoalDetails
+                goal={openGoal}
+                {...shared}
+                onOpenChange={(open) => !open && setOpenId(null)}
+                onEdit={(goal) => {
+                    setOpenId(null);
+                    onEdit(goal);
+                }}
+                onDelete={(goal) => {
+                    setOpenId(null);
+                    onDelete(goal);
+                }}
+            />
         </DndContext>
     );
 };

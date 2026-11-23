@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { useSavingsGoalPrices } from "api/main";
 import { twMerge } from "lib/tw";
@@ -10,9 +10,10 @@ type Props = {
     image?: string;
     alt: string;
     className?: string;
+    fallback?: ReactNode;
 };
 
-export const SavingsGoalCover = ({ links, image: chosen, alt, className }: Props) => {
+export const SavingsGoalCover = ({ links, image: chosen, alt, className, fallback = null }: Props) => {
     const queries = useSavingsGoalPrices(links);
     const [broken, setBroken] = useState<string[]>([]);
 
@@ -22,10 +23,10 @@ export const SavingsGoalCover = ({ links, image: chosen, alt, className }: Props
     );
     const loading = !image && queries.some(({ isFetching, data }) => isFetching && !data);
 
-    if (!image && !loading) return null;
+    if (!image && !loading) return fallback;
 
     return (
-        <div className={twMerge("bg-wash relative h-44 overflow-hidden", className)}>
+        <div className={twMerge("bg-wash relative overflow-hidden", className)}>
             {image ? (
                 <>
                     <img
@@ -35,7 +36,7 @@ export const SavingsGoalCover = ({ links, image: chosen, alt, className }: Props
                         referrerPolicy="no-referrer"
                         className="absolute inset-0 size-full scale-125 object-cover opacity-40 blur-2xl"
                     />
-                    <div className="relative flex size-full items-center justify-center p-3">
+                    <div className="relative flex size-full items-center justify-center p-4">
                         <img
                             key={image}
                             src={image}
