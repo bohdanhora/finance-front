@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { twMerge } from "lib/tw";
 
@@ -43,6 +43,7 @@ const Panel = ({
 
 export const FinancialHealth = () => {
     const t = useTranslations("health");
+    const [activeBar, setActiveBar] = useState<number | null>(null);
     const store = useStore();
     const rates = useExchangeRates();
     const symbol = getCurrencySymbol(store.userCurrency);
@@ -88,6 +89,7 @@ export const FinancialHealth = () => {
 
     const cushionShare = cushion.target.max > 0 ? Math.min(cushion.saved / cushion.target.max, 1) : 0;
     const debtMax = Math.max(...debt.points.map((point) => point.debt), 1);
+    const activePoint = activeBar === null ? null : debt.points[activeBar];
 
     return (
         <Section title={t("title")} description={t("description")}>
@@ -138,25 +140,52 @@ export const FinancialHealth = () => {
                         <p className="text-ink-faint text-sm">{t("debt.none")}</p>
                     ) : (
                         <>
-                            <p className={twMerge("figure text-figure", debt.current > 0 && "text-signal")}>
-                                {money(debt.current)}
-                            </p>
-                            <div className="flex h-16 items-end gap-1.5" role="img" aria-label={t("debt.chart")}>
-                                {debt.points.map((point, index) => (
-                                    <div
-                                        key={point.date.toISOString()}
-                                        className="flex h-full min-w-0 flex-1 flex-col justify-end"
-                                    >
-                                        <div
-                                            title={`${point.date.format("DD.MM")}: ${money(point.debt)}`}
-                                            className={twMerge(
-                                                "w-full rounded-t-sm",
-                                                index === debt.points.length - 1 ? "bg-ink" : "bg-ink-faint",
-                                            )}
-                                            style={{ height: `${Math.max((point.debt / debtMax) * 100, 2)}%` }}
-                                        />
-                                    </div>
-                                ))}
+                            <div className="flex flex-wrap items-baseline gap-x-3">
+                                <p
+                                    className={twMerge(
+                                        "figure text-figure",
+                                        (activePoint ? activePoint.debt : debt.current) > 0 && "text-signal",
+                                    )}
+                                >
+                                    {money(activePoint ? activePoint.debt : debt.current)}
+                                </p>
+                                {activePoint && (
+                                    <span className="text-ink-faint font-mono text-xs">
+                                        {t("debt.at", { date: activePoint.date.format("DD.MM") })}
+                                    </span>
+                                )}
+                            </div>
+                            <div
+                                className="flex h-16 items-end gap-1.5"
+                                role="group"
+                                aria-label={t("debt.chart")}
+                                onMouseLeave={() => setActiveBar(null)}
+                            >
+                                {debt.points.map((point, index) => {
+                                    const last = index === debt.points.length - 1;
+                                    const active = activeBar === index;
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={point.date.toISOString()}
+                                            aria-label={`${last ? t("debt.now") : point.date.format("DD.MM")}: ${money(point.debt)}`}
+                                            className="flex h-full min-w-0 flex-1 cursor-default flex-col justify-end outline-none"
+                                            onMouseEnter={() => setActiveBar(index)}
+                                            onFocus={() => setActiveBar(index)}
+                                            onBlur={() => setActiveBar(null)}
+                                            onClick={() => setActiveBar(active ? null : index)}
+                                        >
+                                            <span
+                                                className={twMerge(
+                                                    "block w-full rounded-t-sm transition-colors",
+                                                    last ? "bg-ink" : "bg-ink-faint",
+                                                    active && !last && "bg-ink-muted",
+                                                )}
+                                                style={{ height: `${Math.max((point.debt / debtMax) * 100, 2)}%` }}
+                                            />
+                                        </button>
+                                    );
+                                })}
                             </div>
                             <div className="text-ink-faint flex gap-1.5 font-mono text-3xs">
                                 {debt.points.map((point, index) => (

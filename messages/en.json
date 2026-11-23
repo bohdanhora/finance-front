@@ -1524,6 +1524,7 @@
             "none": "No credit card debt. Keep it that way: pay the cards off in full every payday.",
             "chart": "Credit card debt at the start of each pay cycle",
             "now": "now",
+            "at": "on {date}",
             "growing": "Up {amount} since the last payday. Spending is running ahead of income.",
             "growingLong": "Growing {cycles} cycles in a row, up {amount} since the last payday. You spend more than you earn, just later. Cut flexible spending until it stops.",
             "shrinking": "Down {amount} since the last payday. Good, keep paying it off.",
