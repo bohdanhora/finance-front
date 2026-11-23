@@ -9,6 +9,7 @@ import {
     getSavingsBalance,
     getSavingsNativeBalance,
     getUrlHost,
+    goalNameFromTitle,
     normalizeGoalUrl,
 } from "../lib/savings";
 import { SavingsOperation, SavingsOperationType, SavingsStorage } from "../types/transactions";
@@ -167,4 +168,24 @@ test("offers the current rate of one saved unit in the balance currency", () => 
 test("turns a rate into input text with at most four decimals", () => {
     assert.equal(toRateInput(41.123456), "41.1235");
     assert.equal(toRateInput(0), "");
+});
+
+test("takes only the English part of a product title for a goal name", () => {
+    assert.equal(
+        goalNameFromTitle(
+            "Відеокарта ASUS ROG Astral GeForce RTX 5090 32GB GDDR7 (ROG-ASTRAL-RTX5090-O32G-GAMING) - купити | ROZETKA",
+        ),
+        "ASUS ROG Astral GeForce RTX 5090 32GB GDDR7 (ROG-ASTRAL-RTX5090-O32G-GAMING)",
+    );
+    assert.equal(goalNameFromTitle("Телевизор LG OLED65C4 купить в Киеве"), "LG OLED65C4");
+    assert.equal(goalNameFromTitle(`Sony WH-1000XM5 ${String.fromCharCode(0x2014)} Comfy`), "Sony WH-1000XM5");
+    assert.equal(
+        goalNameFromTitle("Apple iPhone 16 Pro 256GB Black Titanium"),
+        "Apple iPhone 16 Pro 256GB Black Titanium",
+    );
+});
+
+test("keeps the original title when it has no English words", () => {
+    assert.equal(goalNameFromTitle("Пересадка волос | Клиника"), "Пересадка волос");
+    assert.equal(goalNameFromTitle(undefined), "");
 });

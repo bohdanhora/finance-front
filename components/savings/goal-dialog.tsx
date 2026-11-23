@@ -34,6 +34,7 @@ import {
     convertSavingsCurrency,
     getSavingsBalance,
     goalLinks,
+    goalNameFromTitle,
     normalizeGoalUrl,
 } from "lib/savings";
 import { Textarea } from "components/ui/textarea";
@@ -174,6 +175,12 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                     : undefined,
         };
     };
+
+    useEffect(() => {
+        if (!open || goal || dirtyFields.name) return;
+        const name = goalNameFromTitle(firstPrice?.title);
+        if (name) form.setValue("name", name, { shouldValidate: true });
+    }, [form, open, goal, firstPrice, dirtyFields.name]);
 
     useEffect(() => {
         if (!open || goal || !firstPrice || firstPrice.price === null || dirtyFields.targetAmount) return;
