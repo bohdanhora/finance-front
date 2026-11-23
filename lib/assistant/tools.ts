@@ -2,7 +2,15 @@ import dayjs from "dayjs";
 
 import { TransactionEnum } from "../../constants/index";
 import { roundMoney } from "../money";
-import { Card, SavingsOperation, TransactionType } from "../../types/transactions";
+import {
+    Card,
+    EssentialType,
+    ExpectedIncome,
+    MonthSnapshot,
+    SavingsGoal,
+    SavingsOperation,
+    TransactionType,
+} from "../../types/transactions";
 
 export type AssistantToolDefinition = {
     name: string;
@@ -15,7 +23,29 @@ export type AssistantToolData = {
     cards: Pick<Card, "id" | "name">[];
     savingsOperations: SavingsOperation[];
     hiddenTransactions?: string[];
+    account?: {
+        cards?: Card[];
+        essentials?: EssentialType[];
+        nextMonthEssentials?: EssentialType[];
+        defaultEssentials?: EssentialType[];
+        expectedIncomes?: ExpectedIncome[];
+        savingsGoals?: SavingsGoal[];
+        monthHistory?: MonthSnapshot[];
+        categoryLimits?: Record<string, number>;
+        hiddenCategories?: string[];
+    };
 };
+
+const ACCOUNT_SECTIONS = [
+    "cards",
+    "essentials_this_month",
+    "essentials_next_month",
+    "essentials_template",
+    "expected_incomes",
+    "savings_goals",
+    "month_history",
+    "statistics_settings",
+] as const;
 
 const GROUPS = ["none", "category", "month", "week", "day", "weekday", "card", "description", "type"] as const;
 const SORTS = ["date_desc", "date_asc", "amount_desc", "amount_asc"] as const;
@@ -99,6 +129,19 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                 to: { type: "string", description: "Last day included, YYYY-MM-DD." },
                 limit: { type: "number", description: `Rows to return, default ${DEFAULT_ITEMS}.` },
             },
+            additionalProperties: false,
+        },
+    },
+    {
+        name: "get_account_data",
+        description:
+            "Read the raw records of one part of the account: cards, essential payments (this month, next month, template), expected incomes, savings goals, closed month plans, statistics settings (category limits and hidden categories). Use it when the snapshot does not show a detail you need.",
+        parameters: {
+            type: "object",
+            properties: {
+                section: { type: "string", enum: [...ACCOUNT_SECTIONS] },
+            },
+            required: ["section"],
             additionalProperties: false,
         },
     },
@@ -383,12 +426,49 @@ export const savingsHistory = (input: Input, data: AssistantToolData) => {
     };
 };
 
+const stripHeavy = <T extends object>(items: T[] = []) =>
+    items.map((item) =>
+        Object.fromEntries(
+            Object.entries(item).filter(
+                ([key, value]) => !(typeof value === "string" && (value.startsWith("data:") || key === "cover")),
+            ),
+        ),
+    );
+
+export const accountData = (input: Input, data: AssistantToolData) => {
+    const section = oneOf(input.section, ACCOUNT_SECTIONS, "cards");
+    const account = data.account ?? {};
+    switch (section) {
+        case "cards":
+            return { cards: stripHeavy(account.cards ?? data.cards) };
+        case "essentials_this_month":
+            return { items: stripHeavy(account.essentials) };
+        case "essentials_next_month":
+            return { items: stripHeavy(account.nextMonthEssentials) };
+        case "essentials_template":
+            return { items: stripHeavy(account.defaultEssentials) };
+        case "expected_incomes":
+            return { items: stripHeavy(account.expectedIncomes) };
+        case "savings_goals":
+            return { goals: stripHeavy(account.savingsGoals) };
+        case "month_history":
+            return { months: account.monthHistory ?? [] };
+        default:
+            return {
+                categoryLimits: account.categoryLimits ?? {},
+                hiddenCategories: account.hiddenCategories ?? [],
+                hiddenTransactions: (data.hiddenTransactions ?? []).length,
+            };
+    }
+};
+
 export const runAssistantTool = (name: string, input: unknown, data: AssistantToolData): string => {
     const args = input && typeof input === "object" ? (input as Input) : {};
 
     try {
         if (name === "query_transactions") return JSON.stringify(queryTransactions(args, data));
         if (name === "savings_history") return JSON.stringify(savingsHistory(args, data));
+        if (name === "get_account_data") return JSON.stringify(accountData(args, data));
         if (name === "calculate") return JSON.stringify({ result: calculate(text(args.expression)) });
         return JSON.stringify({ error: `Unknown tool ${name}.` });
     } catch (error) {

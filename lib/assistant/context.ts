@@ -19,8 +19,8 @@ import {
     TransactionType,
 } from "../../types/transactions";
 
-export const DEFAULT_TRANSACTION_LIMIT = 40;
-const HISTORY_MONTHS = 24;
+export const DEFAULT_TRANSACTION_LIMIT = 3000;
+const HISTORY_MONTHS = 36;
 
 export type AssistantBankAccount = {
     label: string;
@@ -300,7 +300,16 @@ const historyBlock = (transactions: TransactionType[], month: string) => {
                 .slice(0, 4)
                 .map((slice) => `${slice.name} ${money(slice.value)}`)
                 .join(", ");
-            return `- ${key}: income ${money(totals.income)}, expenses ${money(totals.expense)}, result ${money(totals.income - totals.expense)}, ${totals.count} records${top ? ` | top: ${top}` : ""}`;
+            const largest = inMonth
+                .filter((tx) => tx.transactionType === TransactionEnum.EXPENSE)
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 3)
+                .map(
+                    (tx) =>
+                        `${money(tx.value)} ${tx.description || tx.categorie || "other"} (${tx.categorie || "other"}, ${dayjs(tx.date).format("YYYY-MM-DD")})`,
+                )
+                .join("; ");
+            return `- ${key}: income ${money(totals.income)}, expenses ${money(totals.expense)}, result ${money(totals.income - totals.expense)}, ${totals.count} records${top ? ` | top categories: ${top}` : ""}${largest ? ` | largest expenses: ${largest}` : ""}`;
         }),
     ]);
 };
@@ -394,7 +403,7 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
         input.rates.usdToUah > 0
             ? `Exchange rates: 1 USD = ${input.rates.usdToUah} UAH, 1 EUR = ${input.rates.eurToUah} UAH`
             : "",
-        `History: ${input.transactions.length} transactions${dates.length ? ` from ${dayjs(Math.min(...dates)).format("YYYY-MM-DD")} to ${dayjs(Math.max(...dates)).format("YYYY-MM-DD")}` : ""}. Use query_transactions for anything beyond the summary below.`,
+        `History: ${input.transactions.length} transactions${dates.length ? ` from ${dayjs(Math.min(...dates)).format("YYYY-MM-DD")} to ${dayjs(Math.max(...dates)).format("YYYY-MM-DD")}` : ""}. ${input.transactions.length <= limit ? "Every one of them is listed at the end of this snapshot." : `The newest ${limit} are listed at the end; query_transactions reaches all of them.`}`,
         "",
         cardsBlock(input),
         payCycleBlock(input, budgetOf(input, today)),
@@ -433,7 +442,7 @@ export const buildAccountSnapshot = (input: AssistantContextInput): string => {
         input.streak ? `Daily streak: ${input.streak.current} days, best ${input.streak.best}\n` : "",
         bankBlock(input.bank),
         line([
-            `## Latest transactions (newest first, ${Math.min(limit, input.transactions.length)} of ${input.transactions.length})`,
+            `## ${input.transactions.length <= limit ? "All transactions" : "Latest transactions"} (newest first, ${Math.min(limit, input.transactions.length)} of ${input.transactions.length})`,
             `date | type | category | amount | description${cards.length > 1 ? " | card" : ""}`,
             ...recent,
         ]),

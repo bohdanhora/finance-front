@@ -237,7 +237,7 @@ const streamFromOpenAI = async (options: StreamOptions, reply: Reply) => {
 
     for (let round = 0; round < MAX_ROUNDS; round += 1) {
         const last = round === MAX_ROUNDS - 1;
-        const calls = new Map<number, { id: string; name: string; arguments: string }>();
+        const calls = new Map<number | string, { id: string; name: string; arguments: string }>();
 
         const run = async () => {
             const stream = await client.chat.completions.create(
@@ -255,11 +255,12 @@ const streamFromOpenAI = async (options: StreamOptions, reply: Reply) => {
                 if (!delta) continue;
                 if (delta.content) reply.push(delta.content);
                 delta.tool_calls?.forEach((part) => {
-                    const call = calls.get(part.index) ?? { id: "", name: "", arguments: "" };
+                    const key = typeof part.index === "number" ? part.index : (part.id ?? calls.size);
+                    const call = calls.get(key) ?? { id: "", name: "", arguments: "" };
                     if (part.id) call.id = part.id;
                     if (part.function?.name) call.name += part.function.name;
                     if (part.function?.arguments) call.arguments += part.function.arguments;
-                    calls.set(part.index, call);
+                    calls.set(key, call);
                 });
             }
         };

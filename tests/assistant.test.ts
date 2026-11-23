@@ -13,7 +13,7 @@ import {
     usableModels,
 } from "../lib/assistant/providers";
 import { CURRENCY, TransactionEnum } from "../constants/index";
-import { SavingsOperationType, SavingsStorage, type TransactionType } from "../types/transactions";
+import { CardSkin, SavingsOperationType, SavingsStorage, type TransactionType } from "../types/transactions";
 
 const TODAY = new Date("2026-09-12T10:00:00Z");
 
@@ -217,7 +217,8 @@ test("lists recent transactions newest first and stops at the limit", () => {
     assert.equal(rows.length, 2);
     assert.match(rows[0], /2026-09-11 \| expense \| groceries \| 300\.00 \| newest/);
     assert.match(rows[1], /2026-09-05 \| expense \| groceries \| 200\.00 \| middle/);
-    assert.doesNotMatch(snapshot, /oldest/);
+    assert.doesNotMatch(snapshot, /2026-09-01 \| expense \| groceries \| 100\.00 \| oldest/);
+    assert.match(snapshot, /The newest 2 are listed at the end/);
 });
 
 test("splits savings between cash and cards", () => {
@@ -328,4 +329,48 @@ test("puts the well known models of a provider on top", () => {
     const models = usableModels(["aa-model", "gpt-4.1", "zz-model", "gpt-5"], ["gpt-5", "gpt-4.1", "missing-one"]);
 
     assert.deepEqual(models, ["gpt-5", "gpt-4.1", "aa-model", "zz-model"]);
+});
+
+test("lists the whole history and the largest expenses of every month", () => {
+    const snapshot = buildAccountSnapshot(
+        input({
+            transactions: [
+                transaction({ id: "1", value: 100, date: "2026-08-03", description: "coffee" }),
+                transaction({ id: "2", value: 7400, date: "2026-08-20", description: "fridge", categorie: "home" }),
+                transaction({ id: "3", value: 250, date: "2026-09-02", categorie: "restaurant" }),
+            ],
+        }),
+    );
+
+    assert.match(snapshot, /## All transactions \(newest first, 3 of 3\)/);
+    assert.match(snapshot, /2026-08-03 \| expense \| groceries \| 100\.00 \| coffee/);
+    assert.match(snapshot, /- 2026-08: .*largest expenses: 7400\.00 fridge \(home, 2026-08-20\); 100\.00 coffee/);
+    assert.match(snapshot, /Every one of them is listed at the end of this snapshot/);
+});
+
+test("reads raw account sections without heavy images", () => {
+    const result = JSON.parse(
+        runAssistantTool(
+            "get_account_data",
+            { section: "cards" },
+            {
+                ...toolData(),
+                account: {
+                    cards: [
+                        {
+                            id: "a",
+                            name: "Mine",
+                            skin: CardSkin.DEFAULT,
+                            balance: 10,
+                            cover: "data:image/png;base64,AAAA",
+                            createdAt: "2026-01-01",
+                        },
+                    ],
+                },
+            },
+        ),
+    );
+
+    assert.equal(result.cards[0].name, "Mine");
+    assert.equal(result.cards[0].cover, undefined);
 });

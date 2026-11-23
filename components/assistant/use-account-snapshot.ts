@@ -109,6 +109,17 @@ export const useAccountSnapshot = () => {
                 cards,
                 savingsOperations: store.savingsOperations,
                 hiddenTransactions,
+                account: {
+                    cards,
+                    essentials: store.essentialsArray,
+                    nextMonthEssentials: store.nextMonthEssentialsArray,
+                    defaultEssentials: store.defaultEssentialsArray,
+                    expectedIncomes: store.expectedIncomes,
+                    savingsGoals: store.savingsGoals,
+                    monthHistory: store.monthHistory,
+                    categoryLimits: preferences.limits,
+                    hiddenCategories: [...preferences.hidden],
+                },
             },
         };
     }, [queryClient, preferences.hidden, preferences.hiddenTransactions, preferences.limits]);
