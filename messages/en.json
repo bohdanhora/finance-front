@@ -1144,9 +1144,10 @@
                 "cancelled": "Cancelled",
                 "pending": "",
                 "failed": ""
-            }
+            },
+            "invalid": "Could not prepare these operations. Rephrase them or add them on the Overview."
         },
-        "toolsUnavailable": "This model rejected the app's tools, so it cannot search the history exactly or add operations. Pick another model in Settings."
+        "toolsUnavailable": "This model rejected the app's tools: it counts from the operation list itself, so totals are less reliable. Adding operations still works. Hover to see the provider's reason."
     },
     "password": {
         "title": "Password",

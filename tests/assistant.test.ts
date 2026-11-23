@@ -4,6 +4,9 @@ import test from "node:test";
 import { buildAccountSnapshot, type AssistantContextInput } from "../lib/assistant/context";
 import {
     ASSISTANT_TOOLS,
+    extractOperations,
+    prepareOperations,
+    visibleReply,
     calculate,
     queryTransactions,
     runAssistantTool,
@@ -440,4 +443,29 @@ test("keeps tool schemas portable across providers", () => {
         ASSISTANT_TOOLS.map((tool) => tool.name),
         ["query_transactions", "calculate", "savings_history", "add_operations", "get_account_data"],
     );
+});
+
+test("reads operations written as a text block by models without tools", () => {
+    const answer =
+        'Check and tap Add.\n<operations>[{"type":"expense","amount":230,"category":"groceries","description":"ice cream"},{"type":"expense","amount":180,"category":"restaurant","description":"coffee","card":"credit"}]</operations>';
+
+    assert.equal(visibleReply(answer), "Check and tap Add.");
+    assert.equal(visibleReply('Check.\n<operations>[{"type":"exp'), "Check.");
+
+    const written = extractOperations(answer);
+    const proposed: ProposedOperation[][] = [];
+    prepareOperations(
+        { operations: written },
+        { ...toolData(), today: TODAY, propose: (items) => proposed.push(items) },
+    );
+
+    assert.deepEqual(
+        proposed[0].map((item) => [item.amount, item.category, item.cardId]),
+        [
+            [230, "groceries", "a"],
+            [180, "restaurant", "b"],
+        ],
+    );
+    assert.equal(extractOperations("No block here."), null);
+    assert.deepEqual(extractOperations("<operations>not json</operations>"), []);
 });

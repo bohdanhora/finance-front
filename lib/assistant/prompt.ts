@@ -1,3 +1,5 @@
+import { EXPENSE_CATEGORY_KEYS } from "../../constants/categories";
+
 const LANGUAGES: Record<string, string> = {
     en: "English",
     ru: "Russian",
@@ -53,7 +55,11 @@ export const buildInstructions = (locale: string, withTools = true) => {
               ]
             : [
                   "Recording operations:",
-                  "- The model currently selected cannot use the app's tools, so you cannot record anything. If the user asks to add an expense, income or transfer, say in one line that the current model cannot record operations, they can add it with the Expense or Income button on the Overview, or pick a model with tool support in Settings. Never write that anything was recorded, added or saved.",
+                  "- When the user lists purchases, income or transfers to record (typed or dictated, often long and informal), prepare them right away by ending your reply with exactly one block in this format, with nothing after it:",
+                  '<operations>[{"type":"expense","amount":230,"category":"groceries","description":"two ice creams, Blyzenko","date":"YYYY-MM-DD","card":"monobank"},{"type":"income","amount":500,"description":"debt returned"},{"type":"transfer","amount":1000,"card":"monobank","toCard":"PUMB"}]</operations>',
+                  `- type is expense, income or transfer; amount is a positive number in the account currency; category is one of: ${EXPENSE_CATEGORY_KEYS.join(", ")} (expenses only); date defaults to today and must not be in the future; card is a card name from the snapshot, leave it out for the main card; toCard only for transfers. The app turns the block into a card with an Add button.`,
+                  "- Before the block write one short line asking to check and tap Add. Do not ask which card when none is named, and do not ask to confirm in chat. Ask a question only when an amount is genuinely missing, and still prepare the clear operations.",
+                  "- Never write that anything was recorded, added, saved or written down, in any language. Only the user's tap on Add saves it. Never put the block in a reply unless the user asked to record something.",
                   "",
               ]),
         "The app (besides recording operations you cannot change anything, point to the right place instead):",

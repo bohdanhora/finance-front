@@ -595,3 +595,28 @@ export const runAssistantTool = (name: string, input: unknown, data: AssistantTo
         return JSON.stringify({ error: error instanceof Error ? error.message : "Tool failed." });
     }
 };
+
+const OPERATIONS_BLOCK = /<operations>([\s\S]*?)<\/operations>/i;
+
+export const visibleReply = (text: string) =>
+    text
+        .replace(/<operations>[\s\S]*?(<\/operations>|$)/gi, "")
+        .replace(/```(?:json)?\s*```/g, "")
+        .trimEnd();
+
+export const extractOperations = (text: string): unknown[] | null => {
+    const match = OPERATIONS_BLOCK.exec(text);
+    if (!match) return null;
+    const body = match[1]
+        .replace(/^\s*```(?:json)?/, "")
+        .replace(/```\s*$/, "")
+        .trim();
+    try {
+        const parsed = JSON.parse(body);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && Array.isArray(parsed.operations)) return parsed.operations;
+        return [];
+    } catch {
+        return [];
+    }
+};

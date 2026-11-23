@@ -16,7 +16,7 @@ import {
     readAssistantChat,
     saveAssistantChat,
 } from "lib/assistant/storage";
-import { ProposedOperation } from "lib/assistant/tools";
+import { extractOperations, prepareOperations, ProposedOperation, visibleReply } from "lib/assistant/tools";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
@@ -161,39 +161,44 @@ export const AssistantChat = () => {
 
         const showReply = (content: string) =>
             setMessages((current) =>
-                persist(current.map((message) => (message.id === replyId ? { ...message, content } : message))),
+                persist(
+                    current.map((message) =>
+                        message.id === replyId ? { ...message, content: visibleReply(content) } : message,
+                    ),
+                ),
             );
 
         try {
             const { streamAssistantReply } = await import("api/assistant");
 
             const { snapshot, tools } = buildSnapshot();
+            const toolData = {
+                ...tools,
+                propose: (operations: ProposedOperation[]) =>
+                    setMessages((current) =>
+                        persist(
+                            current.map((message) =>
+                                message.id === replyId
+                                    ? {
+                                          ...message,
+                                          proposal: {
+                                              operations: [...(message.proposal?.operations ?? []), ...operations],
+                                              done: [],
+                                              status: "pending",
+                                          },
+                                      }
+                                    : message,
+                            ),
+                        ),
+                    ),
+            };
 
-            await streamAssistantReply({
+            const answer = await streamAssistantReply({
                 connection: { provider, apiKey, model, baseURL: baseURL || undefined },
                 instructions: buildInstructions(locale),
                 noToolsInstructions: buildInstructions(locale, false),
                 snapshot,
-                tools: {
-                    ...tools,
-                    propose: (operations) =>
-                        setMessages((current) =>
-                            persist(
-                                current.map((message) =>
-                                    message.id === replyId
-                                        ? {
-                                              ...message,
-                                              proposal: {
-                                                  operations: [...(message.proposal?.operations ?? []), ...operations],
-                                                  done: [],
-                                                  status: "pending",
-                                              },
-                                          }
-                                        : message,
-                                ),
-                            ),
-                        ),
-                },
+                tools: toolData,
                 messages: history,
                 signal: controller.signal,
                 onText: showReply,
@@ -207,6 +212,15 @@ export const AssistantChat = () => {
                         ),
                     ),
             });
+
+            const written = extractOperations(answer);
+            if (written) {
+                const result = prepareOperations({ operations: written }, toolData);
+                if ("error" in result) {
+                    const details = "details" in result && result.details ? result.details.join("\n") : "";
+                    showReply(`${answer}\n\n${t("operations.invalid")}${details ? `\n${details}` : ""}`);
+                }
+            }
         } catch (requestError) {
             const kind = (requestError as { kind?: string })?.kind ?? "unknown";
             setError(t(`errors.${kind}`));
