@@ -47,22 +47,28 @@ export const useSpeechInput = ({ locale, onText }: { locale: string; onText: (te
     const [error, setError] = useState<SpeechError | null>(null);
 
     const recognitionRef = useRef<Recognition | null>(null);
+    const stoppedRef = useRef(false);
+    const quickEndsRef = useRef(0);
     const onTextRef = useRef(onText);
     onTextRef.current = onText;
 
     useEffect(() => {
         setSupported(Boolean(recognitionClass()));
-        return () => recognitionRef.current?.abort();
+        return () => {
+            stoppedRef.current = true;
+            recognitionRef.current?.abort();
+        };
     }, []);
 
     const stop = useCallback(() => {
+        stoppedRef.current = true;
         recognitionRef.current?.stop();
     }, []);
 
-    const start = useCallback(
-        (base: string) => {
+    const listen = useCallback(
+        (base: string, restart: boolean) => {
             const Speech = recognitionClass();
-            if (!Speech || recognitionRef.current) return;
+            if (!Speech) return;
 
             const recognition = new Speech();
             recognition.lang = SPEECH_LOCALES[locale] ?? "en-US";
@@ -82,29 +88,54 @@ export const useSpeechInput = ({ locale, onText }: { locale: string; onText: (te
                 onTextRef.current(joinText(settled, interim));
             };
 
+            let fatal = false;
+            const startedAt = Date.now();
+
             recognition.onerror = (event) => {
                 if (event.error === "aborted") return;
-                if (event.error === "not-allowed" || event.error === "service-not-allowed") setError("denied");
-                else if (event.error === "no-speech") setError("noSpeech");
-                else setError("failed");
+                if (event.error === "no-speech") {
+                    if (!settled.trim()) setError("noSpeech");
+                    return;
+                }
+                fatal = true;
+                setError(event.error === "not-allowed" || event.error === "service-not-allowed" ? "denied" : "failed");
             };
 
             recognition.onend = () => {
                 recognitionRef.current = null;
-                setListening(false);
                 onTextRef.current(settled);
+                quickEndsRef.current = Date.now() - startedAt < 1000 ? quickEndsRef.current + 1 : 0;
+                if (!stoppedRef.current && !fatal && quickEndsRef.current < 3) {
+                    listenRef.current(settled, true);
+                    return;
+                }
+                setListening(false);
             };
 
-            setError(null);
+            if (!restart) setError(null);
             try {
                 recognition.start();
                 recognitionRef.current = recognition;
                 setListening(true);
             } catch {
+                setListening(false);
                 setError("failed");
             }
         },
         [locale],
+    );
+
+    const listenRef = useRef(listen);
+    listenRef.current = listen;
+
+    const start = useCallback(
+        (base: string) => {
+            if (recognitionRef.current) return;
+            stoppedRef.current = false;
+            quickEndsRef.current = 0;
+            listen(base, false);
+        },
+        [listen],
     );
 
     return { supported, listening, error, start, stop, clearError: () => setError(null) };

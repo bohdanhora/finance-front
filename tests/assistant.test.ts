@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildAccountSnapshot, type AssistantContextInput } from "../lib/assistant/context";
-import { calculate, queryTransactions, runAssistantTool } from "../lib/assistant/tools";
+import { calculate, queryTransactions, runAssistantTool, type ProposedOperation } from "../lib/assistant/tools";
 import {
     ASSISTANT_PROVIDERS,
     DEFAULT_PROVIDER_ID,
@@ -373,4 +373,55 @@ test("reads raw account sections without heavy images", () => {
 
     assert.equal(result.cards[0].name, "Mine");
     assert.equal(result.cards[0].cover, undefined);
+});
+
+test("prepares dictated operations for confirmation without saving them", () => {
+    const proposed: ProposedOperation[][] = [];
+    const result = JSON.parse(
+        runAssistantTool(
+            "add_operations",
+            {
+                operations: [
+                    { type: "expense", amount: 250, category: "groceries", description: "Silpo" },
+                    { type: "expense", amount: 80, category: "made-up", description: "coffee", date: "2026-09-11" },
+                    { type: "income", amount: 1500, category: "groceries", card: "credit" },
+                    { type: "transfer", amount: 300, card: "mine", toCard: "credit" },
+                ],
+            },
+            { ...toolData(), today: TODAY, propose: (operations) => proposed.push(operations) },
+        ),
+    );
+
+    assert.equal(proposed.length, 1);
+    assert.deepEqual(
+        proposed[0].map((item) => [item.type, item.amount, item.category, item.date, item.cardId, item.toCardId]),
+        [
+            ["expense", 250, "groceries", "2026-09-12", "a", undefined],
+            ["expense", 80, "other", "2026-09-11", "a", undefined],
+            ["income", 1500, "income", "2026-09-12", "b", undefined],
+            ["transfer", 300, "transfers", "2026-09-12", "a", "b"],
+        ],
+    );
+    assert.match(result.status, /Not saved yet/);
+});
+
+test("refuses unclear operations and proposes nothing", () => {
+    const proposed: ProposedOperation[][] = [];
+    const result = JSON.parse(
+        runAssistantTool(
+            "add_operations",
+            {
+                operations: [
+                    { type: "expense", amount: 0 },
+                    { type: "expense", amount: 10, date: "2026-09-20" },
+                    { type: "transfer", amount: 10, card: "mine", toCard: "mine" },
+                    { type: "expense", amount: 10, card: "nonexistent" },
+                ],
+            },
+            { ...toolData(), today: TODAY, propose: (operations) => proposed.push(operations) },
+        ),
+    );
+
+    assert.equal(proposed.length, 0);
+    assert.equal(result.details.length, 4);
 });

@@ -1,4 +1,5 @@
 import type { AssistantPreferences } from "../../types/transactions";
+import type { ProposedOperation } from "./tools";
 import { type AssistantProviderId, DEFAULT_PROVIDER_ID, getProvider, isProviderId } from "./providers";
 
 export const ASSISTANT_KEYS_STORAGE_KEY = "assistant-keys";
@@ -15,11 +16,18 @@ export const KEPT_MESSAGES = 40;
 
 export type AssistantRole = "user" | "assistant";
 
+export type OperationsProposal = {
+    operations: ProposedOperation[];
+    done: number[];
+    status: "pending" | "saving" | "added" | "cancelled" | "failed";
+};
+
 export type AssistantMessage = {
     id: string;
     role: AssistantRole;
     content: string;
     failed?: boolean;
+    proposal?: OperationsProposal;
 };
 
 const announce = () => window.dispatchEvent(new Event(ASSISTANT_KEY_EVENT));

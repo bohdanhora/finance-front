@@ -9,7 +9,23 @@ import { Button } from "components/ui/button";
 import { useAssistantSettings } from "hooks/use-assistant-settings";
 import { useIsMobile } from "hooks/use-is-mobile";
 import { buildInstructions } from "lib/assistant/prompt";
-import { ASSISTANT_OPEN_EVENT, AssistantMessage, readAssistantChat, saveAssistantChat } from "lib/assistant/storage";
+import {
+    ASSISTANT_OPEN_EVENT,
+    AssistantMessage,
+    OperationsProposal as Proposal,
+    readAssistantChat,
+    saveAssistantChat,
+} from "lib/assistant/storage";
+import { ProposedOperation } from "lib/assistant/tools";
+import dayjs from "dayjs";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";
+import { useSetNewTransaction } from "api/main";
+import { useCardTransfer } from "api/cards";
+import { TransactionEnum } from "constants/index";
+import { SavingsStorage } from "types/transactions";
+import useStore from "store/general";
+import { OperationsProposal } from "./operations-proposal";
 import { useAccountSnapshot } from "./use-account-snapshot";
 import { useSpeechInput } from "hooks/use-speech-input";
 import { Hint } from "components/hint";
@@ -35,6 +51,8 @@ export const AssistantChat = () => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
     const speech = useSpeechInput({ locale, onText: setDraft });
+    const { mutateAsync: addTransaction } = useSetNewTransaction();
+    const { mutateAsync: transferBetweenCards } = useCardTransfer();
 
     useEffect(() => {
         setMessages(readAssistantChat());
@@ -58,6 +76,72 @@ export const AssistantChat = () => {
         saveAssistantChat(next);
         return next;
     }, []);
+
+    const updateProposal = (id: string, change: (proposal: Proposal) => Proposal) =>
+        setMessages((current) =>
+            persist(
+                current.map((message) =>
+                    message.id === id && message.proposal
+                        ? { ...message, proposal: change(message.proposal) }
+                        : message,
+                ),
+            ),
+        );
+
+    const saveOperation = async (item: ProposedOperation) => {
+        const store = useStore.getState();
+        const date = item.date === dayjs().format("YYYY-MM-DD") ? new Date() : dayjs(item.date).hour(12).toDate();
+
+        if (item.type === "transfer" && item.cardId && item.toCardId) {
+            await transferBetweenCards({
+                fromCardId: item.cardId,
+                toCardId: item.toCardId,
+                amount: item.amount,
+                date: date.toISOString(),
+                description: item.description,
+            });
+            return;
+        }
+
+        const isSavings = item.type === "expense" && item.category === "savings";
+        const response = await addTransaction({
+            transactionType: item.type === "income" ? TransactionEnum.INCOME : TransactionEnum.EXPENSE,
+            id: uuidv4(),
+            value: item.amount,
+            date,
+            categorie: item.type === "income" ? TransactionEnum.INCOME : item.category,
+            description: item.description,
+            cardId: item.cardId,
+            ...(isSavings ? { savingsStorage: SavingsStorage.CARD, savingsCurrency: store.userCurrency } : {}),
+        });
+
+        store.applyServerUpdate(response);
+        store.setTransactions(response.updatedItems);
+        if (response.updatedSavingsOperations) store.setSavingsOperations(response.updatedSavingsOperations);
+    };
+
+    const confirmProposal = async (message: AssistantMessage) => {
+        const proposal = message.proposal;
+        if (!proposal || proposal.status === "saving") return;
+
+        updateProposal(message.id, (current) => ({ ...current, status: "saving" }));
+        const done = [...proposal.done];
+
+        for (const [index, item] of proposal.operations.entries()) {
+            if (done.includes(index)) continue;
+            try {
+                await saveOperation(item);
+                done.push(index);
+                updateProposal(message.id, (current) => ({ ...current, done: [...done] }));
+            } catch {
+                updateProposal(message.id, (current) => ({ ...current, done: [...done], status: "failed" }));
+                return;
+            }
+        }
+
+        updateProposal(message.id, (current) => ({ ...current, done: [...done], status: "added" }));
+        toast.success(t("operations.added", { count: proposal.operations.length }));
+    };
 
     const send = async (text: string) => {
         const question = text.trim();
@@ -90,7 +174,26 @@ export const AssistantChat = () => {
                 instructions: buildInstructions(locale),
                 noToolsInstructions: buildInstructions(locale, false),
                 snapshot,
-                tools,
+                tools: {
+                    ...tools,
+                    propose: (operations) =>
+                        setMessages((current) =>
+                            persist(
+                                current.map((message) =>
+                                    message.id === replyId
+                                        ? {
+                                              ...message,
+                                              proposal: {
+                                                  operations: [...(message.proposal?.operations ?? []), ...operations],
+                                                  done: [],
+                                                  status: "pending",
+                                              },
+                                          }
+                                        : message,
+                                ),
+                            ),
+                        ),
+                },
                 messages: history,
                 signal: controller.signal,
                 onText: showReply,
@@ -102,7 +205,9 @@ export const AssistantChat = () => {
             setMessages((current) =>
                 persist(
                     current.map((message) =>
-                        message.id === replyId && !message.content ? { ...message, failed: true } : message,
+                        message.id === replyId && !message.content && !message.proposal
+                            ? { ...message, failed: true }
+                            : message,
                     ),
                 ),
             );
@@ -208,25 +313,39 @@ export const AssistantChat = () => {
                                 return (
                                     <div
                                         key={message.id}
-                                        className={twMerge("flex", mine ? "justify-end" : "justify-start")}
+                                        className={twMerge("flex flex-col", mine ? "items-end" : "items-start")}
                                     >
-                                        <div
-                                            className={twMerge(
-                                                "max-w-5/6 rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
-                                                mine
-                                                    ? "bg-accent text-on-accent rounded-br-md"
-                                                    : "bg-wash rounded-bl-md",
-                                            )}
-                                        >
-                                            {pending ? (
-                                                <span className="text-ink-faint flex items-center gap-1.5">
-                                                    {working && t("working")}
-                                                    <span className="caret caret-blink" />
-                                                </span>
-                                            ) : (
-                                                message.content
-                                            )}
-                                        </div>
+                                        {(mine || pending || message.content) && (
+                                            <div
+                                                className={twMerge(
+                                                    "max-w-5/6 rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+                                                    mine
+                                                        ? "bg-accent text-on-accent rounded-br-md"
+                                                        : "bg-wash rounded-bl-md",
+                                                )}
+                                            >
+                                                {pending ? (
+                                                    <span className="text-ink-faint flex items-center gap-1.5">
+                                                        {working && t("working")}
+                                                        <span className="caret caret-blink" />
+                                                    </span>
+                                                ) : (
+                                                    message.content
+                                                )}
+                                            </div>
+                                        )}
+                                        {message.proposal && (
+                                            <OperationsProposal
+                                                proposal={message.proposal}
+                                                onConfirm={() => void confirmProposal(message)}
+                                                onCancel={() =>
+                                                    updateProposal(message.id, (current) => ({
+                                                        ...current,
+                                                        status: "cancelled",
+                                                    }))
+                                                }
+                                            />
+                                        )}
                                     </div>
                                 );
                             })
@@ -266,7 +385,7 @@ export const AssistantChat = () => {
                                     event.preventDefault();
                                     void send(draft);
                                 }}
-                                className="placeholder:text-ink-faint field-sizing-content max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
+                                className="placeholder:text-ink-faint field-sizing-content max-h-60 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
                             />
                             {speech.supported && !streaming && (
                                 <Button

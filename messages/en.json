@@ -1079,7 +1079,7 @@
         "stop": "Stop",
         "placeholder": "Ask about your money",
         "emptyTitle": "Questions about this account",
-        "emptyHint": "The assistant sees the whole history, cards, bills, expected income, savings, goals and the pay cycle budget. It counts exactly, gives advice from your own records and asks when something is unclear. It changes nothing.",
+        "emptyHint": "The assistant sees the whole history, cards, bills, expected income, savings, goals and the pay cycle budget. It counts exactly, gives advice from your own records and asks when something is unclear. Dictate or type purchases and income, and it prepares them for you to confirm.",
         "disclaimer": "Answers are based on this account and can be wrong. Not financial advice.",
         "suggestions": {
             "spending": "Where did most of my money go this month?",
@@ -1127,6 +1127,23 @@
                 "denied": "No access to the microphone. Allow it in the browser settings.",
                 "noSpeech": "Did not hear anything. Try again closer to the microphone.",
                 "failed": "Voice input stopped. Try again or type the question."
+            }
+        },
+        "operations": {
+            "title": "{count, plural, one {# operation to add} other {# operations to add}}",
+            "transfer": "Transfer between cards",
+            "total": "Total",
+            "confirm": "Add",
+            "retry": "Add the rest",
+            "cancel": "Cancel",
+            "added": "{count, plural, one {Operation added} other {# operations added}}",
+            "failed": "Some operations were not saved. Check the balance on the card and try again.",
+            "status": {
+                "saving": "Saving",
+                "added": "Added",
+                "cancelled": "Cancelled",
+                "pending": "",
+                "failed": ""
             }
         }
     },

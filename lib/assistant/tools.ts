@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 
 import { TransactionEnum } from "../../constants/index";
+import { EXPENSE_CATEGORY_KEYS } from "../../constants/categories";
 import { roundMoney } from "../money";
 import {
     Card,
@@ -34,6 +35,18 @@ export type AssistantToolData = {
         categoryLimits?: Record<string, number>;
         hiddenCategories?: string[];
     };
+    today?: Date;
+    propose?: (operations: ProposedOperation[]) => void;
+};
+
+export type ProposedOperation = {
+    type: "expense" | "income" | "transfer";
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    cardId?: string;
+    toCardId?: string;
 };
 
 const ACCOUNT_SECTIONS = [
@@ -129,6 +142,42 @@ export const ASSISTANT_TOOLS: AssistantToolDefinition[] = [
                 to: { type: "string", description: "Last day included, YYYY-MM-DD." },
                 limit: { type: "number", description: `Rows to return, default ${DEFAULT_ITEMS}.` },
             },
+            additionalProperties: false,
+        },
+    },
+    {
+        name: "add_operations",
+        description:
+            "Prepare new expenses, incomes or transfers between the user's cards to be recorded, for example from a dictated list. Nothing is saved until the user taps confirm on the card shown under your answer. Put every operation from the request in one call. Use it only when the user asks to add or record something.",
+        parameters: {
+            type: "object",
+            properties: {
+                operations: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            type: { type: "string", enum: ["expense", "income", "transfer"] },
+                            amount: { type: "number", description: "Positive amount in the account currency." },
+                            category: {
+                                type: "string",
+                                enum: [...EXPENSE_CATEGORY_KEYS],
+                                description: "Expense category key. Ignored for income and transfers.",
+                            },
+                            description: {
+                                type: "string",
+                                description: "Short note in the user's words, for example the shop or what was bought.",
+                            },
+                            date: { type: "string", description: "YYYY-MM-DD, default today." },
+                            card: { type: "string", description: "Card name. Default is the main card." },
+                            toCard: { type: "string", description: "Destination card name for a transfer." },
+                        },
+                        required: ["type", "amount"],
+                        additionalProperties: false,
+                    },
+                },
+            },
+            required: ["operations"],
             additionalProperties: false,
         },
     },
@@ -462,12 +511,89 @@ export const accountData = (input: Input, data: AssistantToolData) => {
     }
 };
 
+const findCard = (cards: AssistantToolData["cards"], query: string) => {
+    const value = query.trim().toLowerCase();
+    if (!value) return undefined;
+    return (
+        cards.find((card) => card.id === query.trim()) ??
+        cards.find((card) => cardName(cards, card.id).toLowerCase() === value) ??
+        cards.find((card) => cardName(cards, card.id).toLowerCase().includes(value)) ??
+        cards.find((card) => value.includes(cardName(cards, card.id).toLowerCase()))
+    );
+};
+
+const EXPENSE_CATEGORIES = new Set<string>(EXPENSE_CATEGORY_KEYS);
+
+export const prepareOperations = (input: Input, data: AssistantToolData) => {
+    const list = Array.isArray(input.operations) ? input.operations : [];
+    if (list.length === 0) return { error: "No operations given." };
+
+    const today = dayjs(data.today ?? new Date()).format("YYYY-MM-DD");
+    const errors: string[] = [];
+    const operations: ProposedOperation[] = [];
+
+    list.forEach((raw, index) => {
+        const item = raw && typeof raw === "object" ? (raw as Input) : {};
+        const position = `Operation ${index + 1}`;
+        const type = oneOf(item.type, ["expense", "income", "transfer"] as const, "expense");
+        const amount = roundMoney(number(item.amount) ?? 0);
+        if (amount <= 0) return errors.push(`${position}: the amount must be above zero.`);
+
+        const date = text(item.date) || today;
+        if (!isDate(date)) return errors.push(`${position}: the date must be YYYY-MM-DD.`);
+        if (date > today) return errors.push(`${position}: the date is in the future.`);
+
+        const cardQuery = text(item.card);
+        const card = cardQuery ? findCard(data.cards, cardQuery) : data.cards[0];
+        if (cardQuery && !card) return errors.push(`${position}: no card matches "${cardQuery}".`);
+
+        let toCardId: string | undefined;
+        if (type === "transfer") {
+            const target = findCard(data.cards, text(item.toCard));
+            if (!target) return errors.push(`${position}: a transfer needs a destination card.`);
+            if (target.id === card?.id) return errors.push(`${position}: a transfer needs two different cards.`);
+            toCardId = target.id;
+        }
+
+        const category = text(item.category).toLowerCase();
+        operations.push({
+            type,
+            amount,
+            category:
+                type === "income"
+                    ? "income"
+                    : type === "transfer"
+                      ? "transfers"
+                      : EXPENSE_CATEGORIES.has(category)
+                        ? category
+                        : "other",
+            description: text(item.description),
+            date,
+            cardId: card?.id,
+            toCardId,
+        });
+    });
+
+    if (errors.length) return { error: "Nothing was prepared. Fix these and call again.", details: errors };
+
+    data.propose?.(operations);
+    return {
+        prepared: operations.map((item) => ({
+            ...item,
+            card: cardName(data.cards, item.cardId),
+            ...(item.toCardId ? { toCard: cardName(data.cards, item.toCardId) } : {}),
+        })),
+        status: "Shown to the user with a confirm button. Not saved yet. Tell the user in one short sentence to check and confirm.",
+    };
+};
+
 export const runAssistantTool = (name: string, input: unknown, data: AssistantToolData): string => {
     const args = input && typeof input === "object" ? (input as Input) : {};
 
     try {
         if (name === "query_transactions") return JSON.stringify(queryTransactions(args, data));
         if (name === "savings_history") return JSON.stringify(savingsHistory(args, data));
+        if (name === "add_operations") return JSON.stringify(prepareOperations(args, data));
         if (name === "get_account_data") return JSON.stringify(accountData(args, data));
         if (name === "calculate") return JSON.stringify({ result: calculate(text(args.expression)) });
         return JSON.stringify({ error: `Unknown tool ${name}.` });

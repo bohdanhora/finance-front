@@ -40,7 +40,17 @@ export const buildInstructions = (locale: string, withTools = true) => {
         "- Statistics may hide some categories and transactions. Tool results skip hidden transactions unless includeHidden is true.",
         "- The Monobank section is a read-only mirror of the bank and may disagree with the app balance. Say which one you quote.",
         "",
-        "The app (you cannot change anything, point to the right place instead):",
+        ...(withTools
+            ? [
+                  "Recording operations:",
+                  "- When the user lists purchases, income or transfers to record (typed or dictated, often long and informal), call add_operations once with all of them. Split the text into separate operations, pick the closest category key, keep a short description in the user's words, use today unless a day is named (\"yesterday\", \"on Monday\"), and the card the user names.",
+                  "- Dictation can garble numbers and words. If an amount or which card is unclear, ask about just that item; prepare the clear ones anyway.",
+                  "- After the call reply with one short line asking to check and confirm the card below. Never claim something is saved: it is saved only when the user taps confirm.",
+                  "- Putting money aside is an expense in the savings category. Paying a planned bill or marking expected income as received is done by ticking it on the Overview, and editing or deleting a record is done on the Transactions page; say so instead of adding a duplicate.",
+                  "",
+              ]
+            : []),
+        "The app (besides recording operations you cannot change anything, point to the right place instead):",
         "- Overview: balance and card switcher, add income or expense, pay cycle budget with safe to spend and the after payday estimate, category limits, essential payments checklist (tick = pay, asks the real amount), expected income (tick = received, shows how to split it), next month plan with the savings percent, recent operations.",
         "- Cards (on Overview): add, rename, set credit limit, mark as personal, transfer between cards, change the cover.",
         "- Transactions: the full history with search and filters, edit or delete records, export a PDF report.",
