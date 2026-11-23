@@ -10,6 +10,7 @@ import {
     usableModels,
 } from "lib/assistant/providers";
 import { AssistantMessage } from "lib/assistant/storage";
+import { blobToBase64 } from "lib/audio-wav";
 import { ASSISTANT_TOOLS, AssistantToolData, runAssistantTool } from "lib/assistant/tools";
 
 const MAX_TOKENS = 16000;
@@ -354,5 +355,67 @@ export const streamAssistantReply = async (options: StreamOptions): Promise<stri
         throw classify(error);
     } finally {
         options.onWorking?.(false);
+    }
+};
+
+const TRANSCRIBE_MODELS: Partial<Record<AssistantProvider["id"], string>> = {
+    openai: "gpt-4o-transcribe",
+    google: "gemini-2.5-flash",
+};
+
+export const canTranscribe = (connection: Pick<AssistantConnection, "provider">) =>
+    Boolean(TRANSCRIBE_MODELS[connection.provider.id]);
+
+const transcriptionBrief = (hints: string[]) =>
+    [
+        "Voice note for a personal finance app: the user dictates expenses, incomes, transfers between cards and questions about money.",
+        "The speaker may use Russian, Ukrainian or English, sometimes mixed in one sentence. Keep every word in the language it was spoken, in its own alphabet.",
+        "Write amounts as digits and keep currency words as spoken.",
+        hints.length ? `Names that may come up: ${hints.join(", ")}.` : "",
+    ]
+        .filter(Boolean)
+        .join(" ");
+
+export const transcribeSpeech = async ({
+    connection,
+    audio,
+    hints,
+}: {
+    connection: AssistantConnection;
+    audio: Blob;
+    hints: string[];
+}): Promise<string> => {
+    const model = TRANSCRIBE_MODELS[connection.provider.id];
+    if (!model) throw new AssistantError("unknown");
+
+    const client = openaiClient(connection);
+
+    try {
+        if (connection.provider.id === "openai") {
+            const result = await client.audio.transcriptions.create({
+                model,
+                file: new File([audio], "speech.wav", { type: "audio/wav" }),
+                prompt: transcriptionBrief(hints),
+            });
+            return result.text.trim();
+        }
+
+        const completion = await client.chat.completions.create({
+            model,
+            temperature: 0,
+            messages: [
+                {
+                    role: "system",
+                    content: `${transcriptionBrief(hints)} Transcribe the audio verbatim. Reply with the transcript only, without quotes or comments. If there is no speech, reply with nothing.`,
+                },
+                {
+                    role: "user",
+                    content: [{ type: "input_audio", input_audio: { data: await blobToBase64(audio), format: "wav" } }],
+                },
+            ],
+        });
+        return (completion.choices[0]?.message?.content ?? "").trim();
+    } catch (error) {
+        throw classify(error);
     }
 };

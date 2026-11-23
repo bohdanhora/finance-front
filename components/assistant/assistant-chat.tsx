@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowUp, Eraser, Mic, Sparkles, Square, X } from "lucide-react";
+import { ArrowUp, Eraser, Loader2, Mic, Sparkles, Square, X } from "lucide-react";
 import { twMerge } from "lib/tw";
 
 import { Button } from "components/ui/button";
@@ -27,7 +27,10 @@ import { SavingsStorage } from "types/transactions";
 import useStore from "store/general";
 import { OperationsProposal } from "./operations-proposal";
 import { useAccountSnapshot } from "./use-account-snapshot";
-import { useSpeechInput } from "hooks/use-speech-input";
+import { joinText, useSpeechInput } from "hooks/use-speech-input";
+import { useVoiceRecorder } from "hooks/use-voice-recorder";
+import { canTranscribe, transcribeSpeech } from "api/assistant";
+import { toSpeechWav } from "lib/audio-wav";
 import { Hint } from "components/hint";
 
 const SUGGESTION_KEYS = ["spending", "saving", "bills", "afford"] as const;
@@ -52,6 +55,20 @@ export const AssistantChat = () => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
     const speech = useSpeechInput({ locale, onText: setDraft });
+    const recorder = useVoiceRecorder();
+    const cards = useStore((state) => state.cards);
+    const [recording, setRecording] = useState(false);
+    const [transcribing, setTranscribing] = useState(false);
+    const [refineFailed, setRefineFailed] = useState(false);
+    const voiceBaseRef = useRef("");
+    const modelVoice = Boolean(apiKey) && canTranscribe({ provider });
+    const voiceActive = speech.listening || recording;
+
+    const cancelVoice = () => {
+        if (speech.listening) speech.stop();
+        recorder.cancel();
+        setRecording(false);
+    };
     const { mutateAsync: addTransaction } = useSetNewTransaction();
     const { mutateAsync: transferBetweenCards } = useCardTransfer();
 
@@ -146,8 +163,8 @@ export const AssistantChat = () => {
 
     const send = async (text: string) => {
         const question = text.trim();
-        if (!question || streaming || !apiKey || !model) return;
-        if (speech.listening) speech.stop();
+        if (!question || streaming || transcribing || !apiKey || !model) return;
+        cancelVoice();
 
         const history = [...messages, { id: crypto.randomUUID(), role: "user" as const, content: question }];
         const replyId = crypto.randomUUID();
@@ -250,7 +267,7 @@ export const AssistantChat = () => {
     };
 
     const close = () => {
-        if (speech.listening) speech.stop();
+        cancelVoice();
         setConfirmClose(false);
         setOpen(false);
     };
@@ -275,13 +292,42 @@ export const AssistantChat = () => {
 
     const visible = messages.filter((message) => !message.failed);
 
-    const toggleVoice = () => {
-        if (speech.listening) {
-            speech.stop();
+    const finishVoice = async () => {
+        if (speech.listening) speech.stop();
+        if (!recording) {
             inputRef.current?.focus();
             return;
         }
-        speech.start(draft);
+
+        setRecording(false);
+        setTranscribing(true);
+        try {
+            const audio = await recorder.stop();
+            if (!audio || !apiKey) return;
+            const text = await transcribeSpeech({
+                connection: { provider, apiKey, model, baseURL: baseURL || undefined },
+                audio: await toSpeechWav(audio),
+                hints: cards.map((card) => card.name),
+            });
+            if (text) setDraft(joinText(voiceBaseRef.current, text));
+        } catch {
+            setRefineFailed(true);
+        } finally {
+            setTranscribing(false);
+            inputRef.current?.focus();
+        }
+    };
+
+    const toggleVoice = async () => {
+        if (voiceActive) {
+            await finishVoice();
+            return;
+        }
+
+        voiceBaseRef.current = draft;
+        setRefineFailed(false);
+        if (speech.supported) speech.start(draft);
+        if (modelVoice) setRecording(await recorder.start());
     };
 
     return (
@@ -425,19 +471,28 @@ export const AssistantChat = () => {
                     </div>
 
                     <div className="border-rule border-t p-3">
-                        {speech.listening && (
+                        {voiceActive && (
                             <p className="text-signal mb-2 flex items-center gap-2 px-1 text-xs">
                                 <span className="bg-signal size-2 animate-pulse rounded-full" />
                                 {t("voice.listening")}
                             </p>
                         )}
-                        {speech.error && !speech.listening && (
+                        {transcribing && (
+                            <p className="text-ink-muted mb-2 flex items-center gap-2 px-1 text-xs">
+                                <Loader2 className="size-3 animate-spin" />
+                                {t("voice.transcribing")}
+                            </p>
+                        )}
+                        {!voiceActive && !transcribing && refineFailed && (
+                            <p className="text-ink-muted mb-2 px-1 text-xs">{t("voice.errors.refine")}</p>
+                        )}
+                        {speech.error && !voiceActive && !transcribing && !refineFailed && !modelVoice && (
                             <p className="text-ink-muted mb-2 px-1 text-xs">{t(`voice.errors.${speech.error}`)}</p>
                         )}
                         <div
                             className={twMerge(
                                 "border-rule bg-surface focus-within:border-accent flex items-end gap-2 border px-3 py-2 transition-colors",
-                                speech.listening && "border-signal focus-within:border-signal",
+                                voiceActive && "border-signal focus-within:border-signal",
                             )}
                         >
                             <textarea
@@ -445,9 +500,10 @@ export const AssistantChat = () => {
                                 rows={1}
                                 value={draft}
                                 enterKeyHint="send"
-                                placeholder={speech.listening ? t("voice.speak") : t("placeholder")}
+                                readOnly={transcribing}
+                                placeholder={voiceActive ? t("voice.speak") : t("placeholder")}
                                 onChange={(event) => {
-                                    if (speech.listening) speech.stop();
+                                    if (voiceActive) cancelVoice();
                                     setDraft(event.target.value);
                                 }}
                                 onKeyDown={(event) => {
@@ -457,17 +513,24 @@ export const AssistantChat = () => {
                                 }}
                                 className="placeholder:text-ink-faint field-sizing-content max-h-60 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-base outline-none md:text-sm"
                             />
-                            {speech.supported && !streaming && (
+                            {(speech.supported || modelVoice) && !streaming && (
                                 <Button
                                     size="icon"
-                                    variant={speech.listening ? "destructive" : "ghost"}
-                                    className={twMerge("size-9 shrink-0", speech.listening && "animate-pulse")}
-                                    aria-label={speech.listening ? t("voice.stop") : t("voice.start")}
-                                    title={speech.listening ? t("voice.stop") : t("voice.start")}
-                                    aria-pressed={speech.listening}
-                                    onClick={toggleVoice}
+                                    variant={voiceActive ? "destructive" : "ghost"}
+                                    className={twMerge("size-9 shrink-0", voiceActive && "animate-pulse")}
+                                    aria-label={voiceActive ? t("voice.stop") : t("voice.start")}
+                                    title={voiceActive ? t("voice.stop") : t("voice.start")}
+                                    aria-pressed={voiceActive}
+                                    disabled={transcribing}
+                                    onClick={() => void toggleVoice()}
                                 >
-                                    {speech.listening ? <Square className="size-3.5" /> : <Mic />}
+                                    {transcribing ? (
+                                        <Loader2 className="animate-spin" />
+                                    ) : voiceActive ? (
+                                        <Square className="size-3.5" />
+                                    ) : (
+                                        <Mic />
+                                    )}
                                 </Button>
                             )}
                             {streaming ? (

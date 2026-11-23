@@ -1125,8 +1125,10 @@
             "start": "Dictate",
             "stop": "Stop dictation",
             "listening": "Listening. Tap the button to stop, check the text and send.",
+            "transcribing": "Refining the text...",
             "speak": "Speak",
             "errors": {
+                "refine": "Could not refine the text with the model, kept what the browser heard.",
                 "denied": "No access to the microphone. Allow it in the browser settings.",
                 "noSpeech": "Did not hear anything. Try again closer to the microphone.",
                 "failed": "Voice input stopped. Try again or type the question."

@@ -34,7 +34,7 @@ const recognitionClass = (): RecognitionConstructor | null => {
     return scope.SpeechRecognition ?? scope.webkitSpeechRecognition ?? null;
 };
 
-const joinText = (base: string, addition: string) => {
+export const joinText = (base: string, addition: string) => {
     const left = base.trimEnd();
     const right = addition.trim();
     if (!right) return base;
