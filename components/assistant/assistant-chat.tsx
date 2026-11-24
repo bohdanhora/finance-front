@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUp, Eraser, Loader2, Mic, Sparkles, Square, X } from "lucide-react";
 import { twMerge } from "lib/tw";
@@ -22,6 +23,7 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import { useSetNewTransaction } from "api/main";
 import { useCardTransfer } from "api/cards";
+import { Routes } from "constants/routes";
 import { TransactionEnum } from "constants/index";
 import { SavingsStorage } from "types/transactions";
 import useStore from "store/general";
@@ -38,8 +40,9 @@ const SUGGESTION_KEYS = ["spending", "saving", "bills", "afford"] as const;
 export const AssistantChat = () => {
     const t = useTranslations("assistant");
     const locale = useLocale();
+    const router = useRouter();
     const isMobile = useIsMobile();
-    const { provider, apiKey, model, baseURL, connected } = useAssistantSettings();
+    const { provider, apiKey, model, baseURL, connected, ready } = useAssistantSettings();
     const buildSnapshot = useAccountSnapshot();
 
     const [open, setOpen] = useState(false);
@@ -286,7 +289,24 @@ export const AssistantChat = () => {
         close();
     };
 
-    if (!connected) return null;
+    if (!ready) return null;
+
+    if (!connected) {
+        return (
+            <button
+                type="button"
+                aria-label={t("connectPrompt")}
+                title={t("connectPrompt")}
+                onClick={() => {
+                    toast.info(t("connectPrompt"));
+                    router.push(Routes.SETTINGS);
+                }}
+                className="bottom-safe bg-surface text-accent border-rule-strong fixed right-4 z-40 flex size-12 items-center justify-center rounded-full border transition-transform hover:scale-105 sm:right-6"
+            >
+                <Sparkles className="size-5" />
+            </button>
+        );
+    }
 
     const unsaved = messages.some((message) => message.proposal?.status === "pending");
 
@@ -339,7 +359,7 @@ export const AssistantChat = () => {
                 onClick={() => (open ? requestClose() : setOpen(true))}
                 className={twMerge(
                     "bottom-safe bg-accent text-on-accent shadow-glow fixed right-4 z-40 flex size-12 items-center justify-center rounded-full transition-[opacity,transform] hover:scale-105",
-                    "sm:right-6 sm:bottom-6",
+                    "sm:right-6",
                     open && "opacity-0",
                 )}
             >

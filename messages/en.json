@@ -1056,6 +1056,7 @@
         "readOnlyBadge": "Read-only"
     },
     "assistant": {
+        "connectPrompt": "The assistant is not connected on this device. Add an API key in settings",
         "title": "AI assistant",
         "subtitle": "Answers questions about this account",
         "notLinked": "Not connected",

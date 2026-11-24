@@ -111,14 +111,14 @@ export const Navbar = () => {
                 <div className="shell flex h-15 items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                         <Link href={Routes.HOME} aria-label="Finance" className="shrink-0">
-                            <Brand wordmarkClassName="hidden sm:inline" />
+                            <Brand wordmarkClassName="hidden xl:inline" />
                         </Link>
                         <PetBadge />
                     </div>
 
                     {isMobile === false && (
                         <nav aria-label={tNav("menu")} className="flex min-w-0 items-center gap-1">
-                            {navItems.map(({ href, label, anchor }) => {
+                            {navItems.map(({ href, label, Icon, anchor }) => {
                                 const active = pathname === href;
                                 return (
                                     <Link
@@ -126,12 +126,18 @@ export const Navbar = () => {
                                         href={href}
                                         aria-current={active ? "page" : undefined}
                                         data-tour={anchor}
+                                        aria-label={label}
+                                        title={label}
                                         className={twMerge(
-                                            "flex h-9 items-center rounded-full px-3.5 text-sm transition-colors",
+                                            "flex h-9 w-9 items-center justify-center rounded-full text-sm transition-colors md:w-11 xl:w-auto xl:px-3.5",
                                             active ? "bg-wash text-ink" : "text-ink-muted hover:text-ink",
                                         )}
                                     >
-                                        {label}
+                                        <Icon
+                                            className={twMerge("size-5 xl:hidden", active && "text-accent")}
+                                            strokeWidth={1.75}
+                                        />
+                                        <span className="hidden xl:inline">{label}</span>
                                     </Link>
                                 );
                             })}
@@ -148,10 +154,10 @@ export const Navbar = () => {
                                 className="hover:bg-wash flex items-center gap-1.5 px-3 font-mono text-xs transition-colors"
                             >
                                 <span className="text-accent">{getCurrencySymbol(userCurrency)}</span>
-                                <span className="hidden sm:inline">{userCurrency}</span>
+                                <span className="hidden md:inline">{userCurrency}</span>
                             </button>
                             {userCurrency === CURRENCY.UAH && (
-                                <div className="border-rule hidden border-l sm:flex">
+                                <div className="border-rule hidden border-l md:flex">
                                     <CurrencyDropdown rate={buy} />
                                 </div>
                             )}
