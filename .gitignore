@@ -45,3 +45,8 @@ next-env.d.ts
 
 # brag
 /brag-output*/
+
+/design/
+/scripts/build-pet-assets.mjs
+/scripts/build-pet-wardrobe.mjs
+/scripts/export-pet-preview.cjs

@@ -7,13 +7,16 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { Calculator, CalendarDays, Link2, Plus, X } from "lucide-react";
+import { Calculator, CalendarDays, Link2, Plus, ShieldAlert, X } from "lucide-react";
+import Link from "next/link";
 
 import { useAddSavingsGoal, useSavingsGoalPrices, useUpdateSavingsGoal } from "api/main";
 import { CURRENCY } from "constants/index";
 import useBankStore from "store/bank";
 import useStore from "store/general";
-import { SavingsGoal } from "types/transactions";
+import { SavingsGoal, SavingsGoalPriceResponse } from "types/transactions";
+import { Routes } from "constants/routes";
+import { CapturedProduct } from "lib/product-capture";
 import { Button } from "components/ui/button";
 import {
     Dialog,
@@ -83,10 +86,11 @@ const getEmptyValues = (currency: CURRENCY): GoalFormValues => ({
 type Props = {
     open: boolean;
     goal: SavingsGoal | null;
+    capture?: CapturedProduct | null;
     onOpenChange: (open: boolean) => void;
 };
 
-export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
+export const SavingsGoalDialog = ({ open, goal, capture = null, onOpenChange }: Props) => {
     const t = useTranslations("savings");
     const tNav = useTranslations("navbar");
     const userCurrency = useStore((state) => state.userCurrency);
@@ -136,7 +140,31 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
 
     const previewTargets = previewUrls.filter((url): url is string => Boolean(url));
     const previews = useSavingsGoalPrices(previewTargets);
-    const previewFor = (url: string | null) => (url ? previews[previewTargets.indexOf(url)] : undefined);
+    const capturedUrl = capture && !goal ? normalizeGoalUrl(capture.url) : null;
+    const queryFor = (url: string | null) => (url ? previews[previewTargets.indexOf(url)] : undefined);
+    const fetchedCapture = queryFor(capturedUrl)?.data;
+    const capturedData = useMemo<SavingsGoalPriceResponse | undefined>(() => {
+        if (!capture || !capturedUrl) return undefined;
+        return {
+            ...fetchedCapture,
+            url: capturedUrl,
+            title: capture.title ?? fetchedCapture?.title,
+            image: capture.image ?? fetchedCapture?.image,
+            price: capture.price ?? fetchedCapture?.price ?? null,
+            currency: capture.price !== undefined ? capture.currency : fetchedCapture?.currency,
+            checkedAt: fetchedCapture?.checkedAt ?? "",
+        };
+    }, [capture, capturedUrl, fetchedCapture]);
+    const dataFor = (url: string | null) => (url && url === capturedUrl ? capturedData : queryFor(url)?.data);
+    const previewFor = (url: string | null) => {
+        const query = queryFor(url);
+        const data = dataFor(url);
+        return {
+            data,
+            isFetching: Boolean(query?.isFetching),
+            blocked: Boolean(query?.data && !data?.title && !data?.image && data?.price == null),
+        };
+    };
     const imageOf = (url: string | null) => {
         const image = previewFor(url)?.data?.image;
         return image && !brokenImages.includes(image) ? image : undefined;
@@ -235,9 +263,11 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                       image: goal.image ?? "",
                       note: goal.note ?? "",
                   }
-                : getEmptyValues(userCurrency),
+                : capture
+                  ? { ...getEmptyValues(userCurrency), links: [{ value: capture.url }] }
+                  : getEmptyValues(userCurrency),
         );
-    }, [form, goal, open, userCurrency]);
+    }, [form, goal, open, userCurrency, capture]);
 
     const handleOpenChange = (nextOpen: boolean) => {
         if (!nextOpen) form.reset(getEmptyValues(userCurrency));
@@ -451,6 +481,22 @@ export const SavingsGoalDialog = ({ open, goal, onOpenChange }: Props) => {
                                                         }
                                                         {...sitePriceProps(previewUrls[index])}
                                                     />
+                                                )}
+                                            {previewUrls[index] &&
+                                                previewUrls[index] === normalizeGoalUrl(field.value) &&
+                                                previewFor(previewUrls[index]).blocked && (
+                                                    <p className="text-ink-muted flex items-start gap-2 text-xs leading-relaxed">
+                                                        <ShieldAlert className="text-signal mt-0.5 size-3.5 shrink-0" />
+                                                        <span>
+                                                            {t("linkBlocked")}{" "}
+                                                            <Link
+                                                                href={`${Routes.SETTINGS}#shop-button`}
+                                                                className="text-accent underline-offset-2 hover:underline"
+                                                            >
+                                                                {t("linkBlockedAction")}
+                                                            </Link>
+                                                        </span>
+                                                    </p>
                                                 )}
                                         </FormItem>
                                     )}

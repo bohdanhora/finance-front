@@ -1,0 +1,762 @@
+{
+    "characters": {
+        "bulldog": {
+            "calm": "/pets/bulldog-calm.webp",
+            "happy": "/pets/bulldog-happy.webp",
+            "sad": "/pets/bulldog-sad.webp",
+            "sleepy": "/pets/bulldog-sleepy.webp"
+        },
+        "monkey": {
+            "calm": "/pets/monkey-calm.webp",
+            "happy": "/pets/monkey-happy.webp",
+            "sad": "/pets/monkey-sad.webp",
+            "sleepy": "/pets/monkey-sleepy.webp"
+        },
+        "sphynx": {
+            "calm": "/pets/sphynx-calm.webp",
+            "happy": "/pets/sphynx-happy.webp",
+            "sad": "/pets/sphynx-sad.webp",
+            "sleepy": "/pets/sphynx-sleepy.webp"
+        }
+    },
+    "backgrounds": {
+        "room": {
+            "src": "/pets/room.webp",
+            "width": 310,
+            "height": 310
+        },
+        "park": {
+            "src": "/pets/park.webp",
+            "width": 309,
+            "height": 310
+        },
+        "beach": {
+            "src": "/pets/beach.webp",
+            "width": 310,
+            "height": 310
+        },
+        "night": {
+            "src": "/pets/night.webp",
+            "width": 309,
+            "height": 310
+        },
+        "space": {
+            "src": "/pets/space.webp",
+            "width": 310,
+            "height": 309
+        },
+        "sunset": {
+            "src": "/pets/sunset.webp",
+            "width": 309,
+            "height": 309
+        },
+        "city": {
+            "src": "/pets/city.webp",
+            "width": 310,
+            "height": 309
+        },
+        "mountains": {
+            "src": "/pets/mountains.webp",
+            "width": 309,
+            "height": 309
+        },
+        "aurora": {
+            "src": "/pets/aurora.webp",
+            "width": 310,
+            "height": 310
+        },
+        "underwater": {
+            "src": "/pets/underwater.webp",
+            "width": 309,
+            "height": 310
+        },
+        "neon": {
+            "src": "/pets/neon.webp",
+            "width": 310,
+            "height": 310
+        },
+        "vault": {
+            "src": "/pets/vault.webp",
+            "width": 309,
+            "height": 310
+        },
+        "greenhouse": {
+            "src": "/pets/greenhouse.webp",
+            "width": 310,
+            "height": 309
+        },
+        "library": {
+            "src": "/pets/library.webp",
+            "width": 309,
+            "height": 309
+        },
+        "cafe": {
+            "src": "/pets/cafe.webp",
+            "width": 310,
+            "height": 309
+        },
+        "camping": {
+            "src": "/pets/camping.webp",
+            "width": 309,
+            "height": 309
+        }
+    },
+    "accessories": {
+        "cap": {
+            "src": "/pets/cap.webp",
+            "width": 251,
+            "height": 200
+        },
+        "beanie": {
+            "src": "/pets/beanie.webp",
+            "width": 257,
+            "height": 253
+        },
+        "party": {
+            "src": "/pets/party.webp",
+            "width": 234,
+            "height": 261
+        },
+        "beret": {
+            "src": "/pets/beret.webp",
+            "width": 282,
+            "height": 202
+        },
+        "chef": {
+            "src": "/pets/chef.webp",
+            "width": 283,
+            "height": 247
+        },
+        "cowboy": {
+            "src": "/pets/cowboy.webp",
+            "width": 300,
+            "height": 190
+        },
+        "tophat": {
+            "src": "/pets/tophat.webp",
+            "width": 269,
+            "height": 222
+        },
+        "bunny": {
+            "src": "/pets/bunny.webp",
+            "width": 265,
+            "height": 258
+        },
+        "flowers": {
+            "src": "/pets/flowers.webp",
+            "width": 289,
+            "height": 155
+        },
+        "headphones": {
+            "src": "/pets/headphones.webp",
+            "width": 1408,
+            "height": 1035
+        },
+        "viking": {
+            "src": "/pets/viking.webp",
+            "width": 312,
+            "height": 212
+        },
+        "wizard": {
+            "src": "/pets/wizard.webp",
+            "width": 283,
+            "height": 256
+        },
+        "halo": {
+            "src": "/pets/halo.webp",
+            "width": 254,
+            "height": 94
+        },
+        "crown": {
+            "src": "/pets/crown.webp",
+            "width": 288,
+            "height": 166
+        },
+        "straw": {
+            "src": "/pets/straw.webp",
+            "width": 292,
+            "height": 197
+        },
+        "sleepcap": {
+            "src": "/pets/sleepcap.webp",
+            "width": 288,
+            "height": 220
+        },
+        "shades": {
+            "src": "/pets/shades.webp",
+            "width": 380,
+            "height": 149
+        },
+        "round": {
+            "src": "/pets/round.webp",
+            "width": 367,
+            "height": 155
+        },
+        "hearts": {
+            "src": "/pets/hearts.webp",
+            "width": 389,
+            "height": 159
+        },
+        "monocle": {
+            "src": "/pets/monocle.webp",
+            "width": 224,
+            "height": 275
+        },
+        "stars": {
+            "src": "/pets/stars.webp",
+            "width": 370,
+            "height": 172
+        },
+        "pixel": {
+            "src": "/pets/pixel.webp",
+            "width": 378,
+            "height": 111
+        },
+        "vr": {
+            "src": "/pets/vr.webp",
+            "width": 367,
+            "height": 282
+        },
+        "laser": {
+            "src": "/pets/laser.webp",
+            "width": 369,
+            "height": 151
+        },
+        "aviator": {
+            "src": "/pets/aviator.webp",
+            "width": 393,
+            "height": 195
+        },
+        "bandana": {
+            "src": "/pets/bandana.webp",
+            "width": 307,
+            "height": 236
+        },
+        "bowtie": {
+            "src": "/pets/bowtie.webp",
+            "width": 336,
+            "height": 180
+        },
+        "scarf": {
+            "src": "/pets/scarf.webp",
+            "width": 296,
+            "height": 263
+        },
+        "chain": {
+            "src": "/pets/chain.webp",
+            "width": 268,
+            "height": 247
+        },
+        "tie": {
+            "src": "/pets/tie.webp",
+            "width": 224,
+            "height": 281
+        },
+        "lei": {
+            "src": "/pets/lei.webp",
+            "width": 356,
+            "height": 253
+        },
+        "medal": {
+            "src": "/pets/medal.webp",
+            "width": 233,
+            "height": 267
+        },
+        "pearls": {
+            "src": "/pets/pearls.webp",
+            "width": 324,
+            "height": 216
+        },
+        "diamond": {
+            "src": "/pets/diamond.webp",
+            "width": 264,
+            "height": 238
+        },
+        "moonPendant": {
+            "src": "/pets/moonPendant.webp",
+            "width": 317,
+            "height": 235
+        },
+        "ribbon": {
+            "src": "/pets/ribbon.webp",
+            "width": 334,
+            "height": 257
+        },
+        "sailor": {
+            "src": "/pets/sailor.webp",
+            "width": 374,
+            "height": 266
+        }
+    },
+    "fittedAccessories": {
+        "cap": {
+            "bulldog": {
+                "src": "/pets/cap-bulldog.webp",
+                "width": 512,
+                "height": 340
+            },
+            "monkey": {
+                "src": "/pets/cap-monkey.webp",
+                "width": 512,
+                "height": 333
+            },
+            "sphynx": {
+                "src": "/pets/cap-sphynx.webp",
+                "width": 512,
+                "height": 355
+            }
+        }
+    },
+    "wardrobe": {
+        "bulldog": {
+            "cap": {
+                "src": "/pets/worn/bulldog-cap.webp",
+                "slot": "head"
+            },
+            "beanie": {
+                "src": "/pets/worn/bulldog-beanie.webp",
+                "slot": "head"
+            },
+            "party": {
+                "src": "/pets/worn/bulldog-party.webp",
+                "slot": "head"
+            },
+            "beret": {
+                "src": "/pets/worn/bulldog-beret.webp",
+                "slot": "head"
+            },
+            "chef": {
+                "src": "/pets/worn/bulldog-chef.webp",
+                "slot": "head"
+            },
+            "cowboy": {
+                "src": "/pets/worn/bulldog-cowboy.webp",
+                "slot": "head"
+            },
+            "tophat": {
+                "src": "/pets/worn/bulldog-tophat.webp",
+                "slot": "head"
+            },
+            "bunny": {
+                "src": "/pets/worn/bulldog-bunny.webp",
+                "slot": "head"
+            },
+            "flowers": {
+                "src": "/pets/worn/bulldog-flowers.webp",
+                "slot": "head"
+            },
+            "headphones": {
+                "src": "/pets/worn/bulldog-headphones.webp",
+                "slot": "head"
+            },
+            "viking": {
+                "src": "/pets/worn/bulldog-viking.webp",
+                "slot": "head"
+            },
+            "wizard": {
+                "src": "/pets/worn/bulldog-wizard.webp",
+                "slot": "head"
+            },
+            "halo": {
+                "src": "/pets/worn/bulldog-halo.webp",
+                "slot": "head"
+            },
+            "crown": {
+                "src": "/pets/worn/bulldog-crown.webp",
+                "slot": "head"
+            },
+            "straw": {
+                "src": "/pets/worn/bulldog-straw.webp",
+                "slot": "head"
+            },
+            "sleepcap": {
+                "src": "/pets/worn/bulldog-sleepcap.webp",
+                "slot": "head"
+            },
+            "shades": {
+                "src": "/pets/worn/bulldog-shades.webp",
+                "slot": "eyes"
+            },
+            "round": {
+                "src": "/pets/worn/bulldog-round.webp",
+                "slot": "eyes"
+            },
+            "hearts": {
+                "src": "/pets/worn/bulldog-hearts.webp",
+                "slot": "eyes"
+            },
+            "monocle": {
+                "src": "/pets/worn/bulldog-monocle.webp",
+                "slot": "eyes"
+            },
+            "stars": {
+                "src": "/pets/worn/bulldog-stars.webp",
+                "slot": "eyes"
+            },
+            "pixel": {
+                "src": "/pets/worn/bulldog-pixel.webp",
+                "slot": "eyes"
+            },
+            "vr": {
+                "src": "/pets/worn/bulldog-vr.webp",
+                "slot": "eyes"
+            },
+            "laser": {
+                "src": "/pets/worn/bulldog-laser.webp",
+                "slot": "eyes"
+            },
+            "aviator": {
+                "src": "/pets/worn/bulldog-aviator.webp",
+                "slot": "eyes"
+            },
+            "bandana": {
+                "src": "/pets/worn/bulldog-bandana.webp",
+                "slot": "neck"
+            },
+            "bowtie": {
+                "src": "/pets/worn/bulldog-bowtie.webp",
+                "slot": "neck"
+            },
+            "scarf": {
+                "src": "/pets/worn/bulldog-scarf.webp",
+                "slot": "neck"
+            },
+            "chain": {
+                "src": "/pets/worn/bulldog-chain.webp",
+                "slot": "neck"
+            },
+            "tie": {
+                "src": "/pets/worn/bulldog-tie.webp",
+                "slot": "neck"
+            },
+            "lei": {
+                "src": "/pets/worn/bulldog-lei.webp",
+                "slot": "neck"
+            },
+            "medal": {
+                "src": "/pets/worn/bulldog-medal.webp",
+                "slot": "neck"
+            },
+            "pearls": {
+                "src": "/pets/worn/bulldog-pearls.webp",
+                "slot": "neck"
+            },
+            "diamond": {
+                "src": "/pets/worn/bulldog-diamond.webp",
+                "slot": "neck"
+            },
+            "moonPendant": {
+                "src": "/pets/worn/bulldog-moonPendant.webp",
+                "slot": "neck"
+            },
+            "ribbon": {
+                "src": "/pets/worn/bulldog-ribbon.webp",
+                "slot": "neck"
+            },
+            "sailor": {
+                "src": "/pets/worn/bulldog-sailor.webp",
+                "slot": "neck"
+            }
+        },
+        "monkey": {
+            "cap": {
+                "src": "/pets/worn/monkey-cap.webp",
+                "slot": "head"
+            },
+            "beanie": {
+                "src": "/pets/worn/monkey-beanie.webp",
+                "slot": "head"
+            },
+            "party": {
+                "src": "/pets/worn/monkey-party.webp",
+                "slot": "head"
+            },
+            "beret": {
+                "src": "/pets/worn/monkey-beret.webp",
+                "slot": "head"
+            },
+            "chef": {
+                "src": "/pets/worn/monkey-chef.webp",
+                "slot": "head"
+            },
+            "cowboy": {
+                "src": "/pets/worn/monkey-cowboy.webp",
+                "slot": "head"
+            },
+            "tophat": {
+                "src": "/pets/worn/monkey-tophat.webp",
+                "slot": "head"
+            },
+            "bunny": {
+                "src": "/pets/worn/monkey-bunny.webp",
+                "slot": "head"
+            },
+            "flowers": {
+                "src": "/pets/worn/monkey-flowers.webp",
+                "slot": "head"
+            },
+            "headphones": {
+                "src": "/pets/worn/monkey-headphones.webp",
+                "slot": "head"
+            },
+            "viking": {
+                "src": "/pets/worn/monkey-viking.webp",
+                "slot": "head"
+            },
+            "wizard": {
+                "src": "/pets/worn/monkey-wizard.webp",
+                "slot": "head"
+            },
+            "halo": {
+                "src": "/pets/worn/monkey-halo.webp",
+                "slot": "head"
+            },
+            "crown": {
+                "src": "/pets/worn/monkey-crown.webp",
+                "slot": "head"
+            },
+            "straw": {
+                "src": "/pets/worn/monkey-straw.webp",
+                "slot": "head"
+            },
+            "sleepcap": {
+                "src": "/pets/worn/monkey-sleepcap.webp",
+                "slot": "head"
+            },
+            "shades": {
+                "src": "/pets/worn/monkey-shades.webp",
+                "slot": "eyes"
+            },
+            "round": {
+                "src": "/pets/worn/monkey-round.webp",
+                "slot": "eyes"
+            },
+            "hearts": {
+                "src": "/pets/worn/monkey-hearts.webp",
+                "slot": "eyes"
+            },
+            "monocle": {
+                "src": "/pets/worn/monkey-monocle.webp",
+                "slot": "eyes"
+            },
+            "stars": {
+                "src": "/pets/worn/monkey-stars.webp",
+                "slot": "eyes"
+            },
+            "pixel": {
+                "src": "/pets/worn/monkey-pixel.webp",
+                "slot": "eyes"
+            },
+            "vr": {
+                "src": "/pets/worn/monkey-vr.webp",
+                "slot": "eyes"
+            },
+            "laser": {
+                "src": "/pets/worn/monkey-laser.webp",
+                "slot": "eyes"
+            },
+            "aviator": {
+                "src": "/pets/worn/monkey-aviator.webp",
+                "slot": "eyes"
+            },
+            "bandana": {
+                "src": "/pets/worn/monkey-bandana.webp",
+                "slot": "neck"
+            },
+            "bowtie": {
+                "src": "/pets/worn/monkey-bowtie.webp",
+                "slot": "neck"
+            },
+            "scarf": {
+                "src": "/pets/worn/monkey-scarf.webp",
+                "slot": "neck"
+            },
+            "chain": {
+                "src": "/pets/worn/monkey-chain.webp",
+                "slot": "neck"
+            },
+            "tie": {
+                "src": "/pets/worn/monkey-tie.webp",
+                "slot": "neck"
+            },
+            "lei": {
+                "src": "/pets/worn/monkey-lei.webp",
+                "slot": "neck"
+            },
+            "medal": {
+                "src": "/pets/worn/monkey-medal.webp",
+                "slot": "neck"
+            },
+            "pearls": {
+                "src": "/pets/worn/monkey-pearls.webp",
+                "slot": "neck"
+            },
+            "diamond": {
+                "src": "/pets/worn/monkey-diamond.webp",
+                "slot": "neck"
+            },
+            "moonPendant": {
+                "src": "/pets/worn/monkey-moonPendant.webp",
+                "slot": "neck"
+            },
+            "ribbon": {
+                "src": "/pets/worn/monkey-ribbon.webp",
+                "slot": "neck"
+            },
+            "sailor": {
+                "src": "/pets/worn/monkey-sailor.webp",
+                "slot": "neck"
+            }
+        },
+        "sphynx": {
+            "cap": {
+                "src": "/pets/worn/sphynx-cap.webp",
+                "slot": "head"
+            },
+            "beanie": {
+                "src": "/pets/worn/sphynx-beanie.webp",
+                "slot": "head"
+            },
+            "party": {
+                "src": "/pets/worn/sphynx-party.webp",
+                "slot": "head"
+            },
+            "beret": {
+                "src": "/pets/worn/sphynx-beret.webp",
+                "slot": "head"
+            },
+            "chef": {
+                "src": "/pets/worn/sphynx-chef.webp",
+                "slot": "head"
+            },
+            "cowboy": {
+                "src": "/pets/worn/sphynx-cowboy.webp",
+                "slot": "head"
+            },
+            "tophat": {
+                "src": "/pets/worn/sphynx-tophat.webp",
+                "slot": "head"
+            },
+            "bunny": {
+                "src": "/pets/worn/sphynx-bunny.webp",
+                "slot": "head"
+            },
+            "flowers": {
+                "src": "/pets/worn/sphynx-flowers.webp",
+                "slot": "head"
+            },
+            "headphones": {
+                "src": "/pets/worn/sphynx-headphones.webp",
+                "slot": "head"
+            },
+            "viking": {
+                "src": "/pets/worn/sphynx-viking.webp",
+                "slot": "head"
+            },
+            "wizard": {
+                "src": "/pets/worn/sphynx-wizard.webp",
+                "slot": "head"
+            },
+            "halo": {
+                "src": "/pets/worn/sphynx-halo.webp",
+                "slot": "head"
+            },
+            "crown": {
+                "src": "/pets/worn/sphynx-crown.webp",
+                "slot": "head"
+            },
+            "straw": {
+                "src": "/pets/worn/sphynx-straw.webp",
+                "slot": "head"
+            },
+            "sleepcap": {
+                "src": "/pets/worn/sphynx-sleepcap.webp",
+                "slot": "head"
+            },
+            "shades": {
+                "src": "/pets/worn/sphynx-shades.webp",
+                "slot": "eyes"
+            },
+            "round": {
+                "src": "/pets/worn/sphynx-round.webp",
+                "slot": "eyes"
+            },
+            "hearts": {
+                "src": "/pets/worn/sphynx-hearts.webp",
+                "slot": "eyes"
+            },
+            "monocle": {
+                "src": "/pets/worn/sphynx-monocle.webp",
+                "slot": "eyes"
+            },
+            "stars": {
+                "src": "/pets/worn/sphynx-stars.webp",
+                "slot": "eyes"
+            },
+            "pixel": {
+                "src": "/pets/worn/sphynx-pixel.webp",
+                "slot": "eyes"
+            },
+            "vr": {
+                "src": "/pets/worn/sphynx-vr.webp",
+                "slot": "eyes"
+            },
+            "laser": {
+                "src": "/pets/worn/sphynx-laser.webp",
+                "slot": "eyes"
+            },
+            "aviator": {
+                "src": "/pets/worn/sphynx-aviator.webp",
+                "slot": "eyes"
+            },
+            "bandana": {
+                "src": "/pets/worn/sphynx-bandana.webp",
+                "slot": "neck"
+            },
+            "bowtie": {
+                "src": "/pets/worn/sphynx-bowtie.webp",
+                "slot": "neck"
+            },
+            "scarf": {
+                "src": "/pets/worn/sphynx-scarf.webp",
+                "slot": "neck"
+            },
+            "chain": {
+                "src": "/pets/worn/sphynx-chain.webp",
+                "slot": "neck"
+            },
+            "tie": {
+                "src": "/pets/worn/sphynx-tie.webp",
+                "slot": "neck"
+            },
+            "lei": {
+                "src": "/pets/worn/sphynx-lei.webp",
+                "slot": "neck"
+            },
+            "medal": {
+                "src": "/pets/worn/sphynx-medal.webp",
+                "slot": "neck"
+            },
+            "pearls": {
+                "src": "/pets/worn/sphynx-pearls.webp",
+                "slot": "neck"
+            },
+            "diamond": {
+                "src": "/pets/worn/sphynx-diamond.webp",
+                "slot": "neck"
+            },
+            "moonPendant": {
+                "src": "/pets/worn/sphynx-moonPendant.webp",
+                "slot": "neck"
+            },
+            "ribbon": {
+                "src": "/pets/worn/sphynx-ribbon.webp",
+                "slot": "neck"
+            },
+            "sailor": {
+                "src": "/pets/worn/sphynx-sailor.webp",
+                "slot": "neck"
+            }
+        }
+    }
+}

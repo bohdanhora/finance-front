@@ -2,7 +2,7 @@
 
 import dayjs from "dayjs";
 import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Plus, Target, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 import { twMerge } from "lib/tw";
@@ -10,6 +10,7 @@ import { twMerge } from "lib/tw";
 import { useDeleteSavingsGoal, useDeleteSavingsOperation } from "api/main";
 import { Navbar } from "components/navbar";
 import { SavingsGoalDialog } from "components/savings/goal-dialog";
+import { CAPTURE_PARAM, CapturedProduct, parseCapture } from "lib/product-capture";
 import { SavingsOperationDialog } from "components/savings/operation-dialog";
 import { SortableGoals } from "components/savings/sortable-goals";
 import { StatCard } from "components/stat-card";
@@ -80,6 +81,22 @@ const SavingsPage = () => {
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
     const [goalDeletionMode, setGoalDeletionMode] = useState<GoalDeletionMode>("delete-only");
     const [purchaseDeductions, setPurchaseDeductions] = useState<PurchaseDeductionDraft[]>([]);
+    const [capture, setCapture] = useState<CapturedProduct | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const captured = parseCapture(params.get(CAPTURE_PARAM));
+        if (!params.has(CAPTURE_PARAM)) return;
+
+        params.delete(CAPTURE_PARAM);
+        const rest = params.toString();
+        window.history.replaceState(null, "", `${window.location.pathname}${rest ? `?${rest}` : ""}`);
+
+        if (!captured) return;
+        setCapture(captured);
+        setEditingGoal(null);
+        setGoalDialogOpen(true);
+    }, []);
 
     const usdToUah = bank.usd?.rateBuy ?? 0;
     const eurToUah = bank.eur?.rateBuy ?? 0;
@@ -185,11 +202,13 @@ const SavingsPage = () => {
         .slice(0, 10);
 
     const openNewGoal = () => {
+        setCapture(null);
         setEditingGoal(null);
         setGoalDialogOpen(true);
     };
 
     const openEditGoal = (goal: SavingsGoal) => {
+        setCapture(null);
         setEditingGoal(goal);
         setGoalDialogOpen(true);
     };
@@ -477,7 +496,15 @@ const SavingsPage = () => {
                     </Section>
                 </PageShell>
 
-                <SavingsGoalDialog open={goalDialogOpen} goal={editingGoal} onOpenChange={setGoalDialogOpen} />
+                <SavingsGoalDialog
+                    open={goalDialogOpen}
+                    goal={editingGoal}
+                    capture={capture}
+                    onOpenChange={(open) => {
+                        setGoalDialogOpen(open);
+                        if (!open) setCapture(null);
+                    }}
+                />
                 <SavingsOperationDialog open={operationDialogOpen} onOpenChange={setOperationDialogOpen} />
 
                 <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && closeDeleteDialog()}>

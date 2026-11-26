@@ -31,6 +31,7 @@
         "lib/pay-cycle.ts",
         "lib/health.ts",
         "lib/cards.ts",
+        "lib/product-capture.ts",
         "tests/savings.test.ts",
         "tests/month-plan.test.ts",
         "tests/pay-cycle.test.ts",
@@ -41,6 +42,7 @@
         "tests/streak.test.ts",
         "tests/monobank.test.ts",
         "tests/assistant.test.ts",
-        "tests/cards.test.ts"
+        "tests/cards.test.ts",
+        "tests/product-capture.test.ts"
     ]
 }

@@ -41,13 +41,18 @@ export const PetHome = ({
     return (
         <div className="grid gap-5">
             <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
-                <PetArt
-                    species={species}
-                    mood={mood}
-                    equipped={pet.equipped}
-                    className="mx-auto aspect-square w-full max-w-72"
-                    title={name}
-                />
+                <div className="grid justify-items-center gap-2">
+                    <PetArt
+                        species={species}
+                        mood={mood}
+                        equipped={pet.equipped}
+                        className="mx-auto aspect-square w-full max-w-72"
+                        title={name}
+                        interactive
+                        petLabel={t("petAction", { name })}
+                    />
+                    <p className="text-ink-muted text-center text-xs">{t("petHint")}</p>
+                </div>
 
                 <div className="grid gap-4">
                     {editing ? (

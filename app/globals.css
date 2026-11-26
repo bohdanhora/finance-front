@@ -716,86 +716,121 @@
     }
 }
 
-.pet-blink,
-.pet-breathe,
-.pet-hop,
-.pet-z,
-.pet-ear-left {
-    transform-box: fill-box;
+.companion-art {
+    display: block;
+    overflow: visible;
+    isolation: isolate;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.pet-blink {
-    transform-origin: center;
-    animation: pet-blink 4.6s infinite;
+.companion-interactive {
+    border-radius: 24px;
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.pet-breathe {
-    transform-origin: center bottom;
-    animation: pet-breathe 3.2s ease-in-out infinite;
+.companion-interactive:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 5px;
 }
 
-.pet-hop {
-    transform-origin: center bottom;
-    animation: pet-hop 1.6s ease-in-out infinite;
+.companion-interactive [data-pet-touch] {
+    cursor: grab;
+}
+.companion-interactive[data-petting="true"] [data-pet-touch] {
+    cursor: grabbing;
+}
+.companion-touch-area {
+    touch-action: pan-y;
 }
 
-.pet-ear-left {
-    transform-origin: right bottom;
-    animation: pet-ear 6s ease-in-out infinite;
+.companion-idle,
+.companion-cuddle {
+    transform-box: view-box;
+    transform-origin: 100px 185px;
+}
+
+.companion-idle {
+    animation: companion-breathe 4.8s ease-in-out infinite;
+}
+.companion-monkey {
+    animation-duration: 4.2s;
+    animation-delay: -1.3s;
+}
+.companion-sphynx {
+    animation-duration: 5.4s;
+    animation-delay: -2.6s;
+}
+.companion-sleeping {
+    animation-duration: 6s;
+}
+.companion-cuddle {
+    animation: companion-cuddle 0.65s ease-in-out infinite alternate;
+}
+
+@keyframes companion-breathe {
+    0%,
+    100% {
+        transform: scale(1, 1) rotate(-0.45deg);
+    }
+    50% {
+        transform: scale(1.008, 1.018) rotate(0.45deg) translateY(-0.6px);
+    }
+}
+
+@keyframes companion-cuddle {
+    0% {
+        transform: rotate(-2deg) translateY(0);
+    }
+    100% {
+        transform: rotate(2deg) translateY(-2px) scale(1.015);
+    }
+}
+
+.companion-heart {
+    animation: companion-heart 1.5s ease-out both;
+}
+.companion-heart-1 {
+    animation-delay: 0.12s;
+}
+.companion-heart-2 {
+    animation-delay: 0.25s;
+}
+
+@keyframes companion-heart {
+    0% {
+        opacity: 0;
+        transform: translateY(7px);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-22px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .companion-idle,
+    .companion-cuddle,
+    .companion-heart {
+        animation: none;
+        transform: none;
+    }
+    .companion-heart {
+        opacity: 1;
+    }
 }
 
 .pet-z {
+    transform-box: fill-box;
     animation: pet-z 2.4s ease-in-out infinite;
 }
 
 .pet-z-late {
     animation-delay: 1.2s;
-}
-
-@keyframes pet-blink {
-    0%,
-    92%,
-    100% {
-        transform: scaleY(1);
-    }
-    95% {
-        transform: scaleY(0.1);
-    }
-}
-
-@keyframes pet-breathe {
-    0%,
-    100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(1.03);
-    }
-}
-
-@keyframes pet-hop {
-    0%,
-    60%,
-    100% {
-        transform: translateY(0);
-    }
-    75% {
-        transform: translateY(-5px);
-    }
-}
-
-@keyframes pet-ear {
-    0%,
-    88%,
-    100% {
-        transform: rotate(0deg);
-    }
-    92% {
-        transform: rotate(-6deg);
-    }
-    96% {
-        transform: rotate(2deg);
-    }
 }
 
 @keyframes pet-z {
@@ -813,10 +848,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .pet-blink,
-    .pet-breathe,
-    .pet-hop,
-    .pet-ear-left,
     .pet-z {
         animation: none;
     }

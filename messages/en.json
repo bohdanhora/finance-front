@@ -736,7 +736,9 @@
         "goalsHint": "Most important first. Drag cards by the handle to change the order.",
         "goalNote": "Note",
         "goalNotePlaceholder": "For example, size M, black",
-        "goalsTotal": "Goals total"
+        "goalsTotal": "Goals total",
+        "linkBlocked": "This shop does not let the app read the page.",
+        "linkBlockedAction": "Add it with the shop button"
     },
     "tour": {
         "title": "Guide",
@@ -1444,7 +1446,17 @@
             "aurora": "Northern lights",
             "underwater": "Under the sea",
             "neon": "Neon dream",
-            "vault": "Gold vault"
+            "vault": "Gold vault",
+            "straw": "Straw sun hat",
+            "sleepcap": "Sleepy nightcap",
+            "aviator": "Aviator goggles",
+            "moonPendant": "Moon pendant",
+            "ribbon": "Silk ribbon",
+            "sailor": "Sailor collar",
+            "greenhouse": "Greenhouse",
+            "library": "Quiet library",
+            "cafe": "Rainy café",
+            "camping": "Forest campsite"
         },
         "achievements": {
             "all": "All awards",
@@ -1564,7 +1576,9 @@
             "rare": "Rare",
             "epic": "Epic",
             "legendary": "Legendary"
-        }
+        },
+        "petAction": "Pet {name}",
+        "petHint": "Tap or stroke your companion to make their day"
     },
     "payCycle": {
         "untilPayday": "Days to payday",
@@ -1676,5 +1690,22 @@
         "dialogTitle": "Confirm your email",
         "dialogText": "We will send a 6-digit code to {email}.",
         "verifiedText": "All set, you can restore your password by email."
+    },
+    "shopButton": {
+        "title": "Shop button",
+        "subtitle": "For shops that block the app, like Rozetka and Makeup",
+        "body": "Some shops only open in a real browser, so the app cannot read their price, photo and name from a link. This bookmark reads them from the product page you have open and creates a goal with everything filled in.",
+        "bookmarkName": "To goals",
+        "copy": "Copy code",
+        "copied": "Bookmark code copied",
+        "dragHint": "Drag this button to the bookmarks bar, then press it on a product page",
+        "desktopTitle": "Computer",
+        "desktop1": "Drag the button to the bookmarks bar (Ctrl+Shift+B shows it).",
+        "desktop2": "Open a product in any shop.",
+        "desktop3": "Press the bookmark, and a new goal opens with the price, photo and name.",
+        "phoneTitle": "Phone",
+        "phone1": "Copy the code and bookmark any page.",
+        "phone2": "Edit that bookmark: name it \"To goals\" and paste the code as its address.",
+        "phone3": "On a product page, type \"To goals\" in the address bar and pick the bookmark."
     }
 }
