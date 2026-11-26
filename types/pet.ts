@@ -62,7 +62,15 @@ export type AchievementId =
     | "analyst"
     | "collector"
     | "dandy"
-    | "wealthy";
+    | "wealthy"
+    | "payself"
+    | "untouchable"
+    | "perfectweek"
+    | "perfectmonth"
+    | "rhythm"
+    | "thrifty"
+    | "pedant"
+    | "veteran";
 
 export type Achievement = {
     id: AchievementId;

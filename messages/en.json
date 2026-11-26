@@ -1516,6 +1516,46 @@
                     "name": "Coin hoarder",
                     "body": "Coins earned over all time.",
                     "stat": "{value, plural, one {# coin} other {# coins}}"
+                },
+                "payself": {
+                    "name": "Pay yourself first",
+                    "body": "Savings put aside within three days of an income, before the money spreads.",
+                    "stat": "{value, plural, one {# time} other {# times}}"
+                },
+                "untouchable": {
+                    "name": "Untouchable",
+                    "body": "Your longest stretch without taking anything out of savings.",
+                    "stat": "{value, plural, one {# day} other {# days}}"
+                },
+                "perfectweek": {
+                    "name": "Perfect week",
+                    "body": "Weeks from Monday to Sunday with a record on every single day.",
+                    "stat": "{value, plural, one {# week} other {# weeks}}"
+                },
+                "perfectmonth": {
+                    "name": "Flawless month",
+                    "body": "Finished months with every bill paid and income above spending.",
+                    "stat": "{value, plural, one {# month} other {# months}}"
+                },
+                "rhythm": {
+                    "name": "Rhythm",
+                    "body": "Months in a row with at least one deposit to savings.",
+                    "stat": "{value, plural, one {# month} other {# months}}"
+                },
+                "thrifty": {
+                    "name": "Cooling down",
+                    "body": "Finished months where you spent less than the month before.",
+                    "stat": "{value, plural, one {# month} other {# months}}"
+                },
+                "pedant": {
+                    "name": "Stickler",
+                    "body": "Records with a note on what the money was for.",
+                    "stat": "{value, plural, one {# note} other {# notes}}"
+                },
+                "veteran": {
+                    "name": "Old-timer",
+                    "body": "Days since your very first record.",
+                    "stat": "{value, plural, one {# day} other {# days}}"
                 }
             }
         },

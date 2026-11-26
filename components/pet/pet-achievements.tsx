@@ -4,17 +4,25 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
     CalendarCheck,
+    CalendarRange,
     Check,
     Coins,
     CreditCard,
     Flame,
+    Gem,
+    HandCoins,
+    Hourglass,
     LucideIcon,
     NotebookPen,
+    PenLine,
     PieChart,
     PiggyBank,
     ReceiptText,
+    Repeat,
     Shirt,
+    ShieldCheck,
     Target,
+    TrendingDown,
     TrendingUp,
     Wallet,
 } from "lucide-react";
@@ -37,6 +45,14 @@ const ICONS: Record<AchievementId, LucideIcon> = {
     collector: CreditCard,
     dandy: Shirt,
     wealthy: Coins,
+    payself: HandCoins,
+    untouchable: ShieldCheck,
+    perfectweek: CalendarRange,
+    perfectmonth: Gem,
+    rhythm: Repeat,
+    thrifty: TrendingDown,
+    pedant: PenLine,
+    veteran: Hourglass,
 };
 
 type Medal = { from: string; to: string; rim: string; icon: string };
